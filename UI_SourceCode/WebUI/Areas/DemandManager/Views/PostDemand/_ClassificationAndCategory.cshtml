@@ -1,0 +1,39 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+<div class="im-postidea-classandcategory">
+    <div class="im-postidea-treelist" id="classandcatDiv">
+        @(Html.Kendo().TreeView()
+                      .Name("ClassAndCatView")
+                      .Checkboxes(checkboxes => checkboxes
+                          .Name("checkedCategories")
+                          .CheckChildren(true)
+                      )
+                      .AutoScroll(true)
+
+                      .BindTo((IEnumerable<TreeViewItemModel>)ViewBag.ClassAndCat)
+                        )
+    </div>
+    <div class="im-post-approver-bottom">
+        <button type="reset" onclick="cancel1()" class="im-custom-button im-btn-cancel" id="resetbuttoncancel">Cancel</button>
+        <button type="submit" onclick="saveClassCategory(this)" id="saveClassification" class="im-custom-button im-btn-save">Save</button>
+    </div>
+</div>
+
+<script>
+    function cancel1() {
+        var tre = $("#ClassAndCatView").data("kendoTreeView");
+        tre.dataSource.read();
+    }
+</script>

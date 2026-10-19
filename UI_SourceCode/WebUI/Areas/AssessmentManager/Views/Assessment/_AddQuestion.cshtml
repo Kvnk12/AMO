@@ -1,0 +1,233 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+    .k-input.k-textarea {
+        width: 29vw !important;
+        resize: none;
+        height: 5vh;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+
+    .k-widget.k-window.k-display-inline-flex {
+        width: 70vw!important;
+        height: 31vw!important;
+    }
+    .k-window-title {
+        font-size: 1.2vw;
+    }
+    .custom-blue-label {
+        width: 9vw !important;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="addQuestionpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("AddQuestionpopUp")
+    .Title("Add Question")
+    .Content(@<text>
+
+
+         <div class="addQuestion">
+             <div class="QuestionDetails">
+                  <div class="popUpfirstrow">
+                   <div class="mergeAC" style="display:flex">
+                    <div class="mergeAQ">
+                       <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 2.5em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Assessment Type :</div>
+                          <div class="custom-dropdown Assessment" >
+
+                               @(Html.Kendo().DropDownListFor(m => m.AssessmentID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+                               .Name("AssessmentID")
+                               .Enable(false)
+                               .HtmlAttributes(new { style = "width: 15.5vw;margin-right:4em;font-size:0.95vw!important" })
+                               )
+
+
+                                </div>
+                    </div>
+                      <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em; ">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label">Questionaire Version # :</div>
+                          <div class="custom-textbox" >
+                           @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox")
+                             .Value("Ver - 0.1")
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                            )
+                              </div>
+                    </div>
+                    </div>
+                    <div class="mergeQC">
+                        <div class="questionComponent" style="display: flex; margin-top: 2em;">
+                        <div class="custom-blue-label" >Question :</div>
+
+                        <div class="textBoxScroll " style="display:grid">
+                            @Html.TextAreaFor(m => m.Question, new { @class = "k-textbox scrollbar-rail", id = "Question", rows = 5, cols = 10, style = "width:24vw !important;resize:none; height:9vh; overflow:auto;box-shadow:none;font-size:0.95vw!important" })
+                           <span style="color:red;display:none" id="id_addQ">* Enter question</span>
+                        </div>
+                      </div>
+
+                    </div>
+                   </div>
+                      <div class="mergeAE" style="display:flex">
+                    <div class="mergeDC">
+                      <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Discipline :</div>
+                          <div class="custom-dropdown" >
+                               @(Html.Kendo().DropDownListFor(m => m.DisciplineId)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.DisciplineList)
+                                     .OptionLabel("Select Discipline")
+                               .Name("DisciplineId")
+                                .Events(e =>
+                                     {
+                                         e.Change("onChangeDscName");
+                                     })
+                               .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                               )
+                               <span style="color:red;display:none" id="id_Dis">* Select Discipline</span>
+
+
+                              </div>
+                    </div>
+                      <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Component :</div>
+                          <div class="custom-dropdown" >
+                                 @(Html.Kendo().DropDownListFor(m => m.ComponentId)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                             // .BindTo(Model.ComponentList)
+                               .Name("ComponentId")
+                               .OptionLabel("Select Component")
+                               .AutoBind(false)
+                                   .Events(e =>
+                                      {
+                                          e.Change("onChangeCompName");
+                                      })
+                                   .DataSource(d => d.Read(r => r.Action("Readcomponent", "Assessment").Data("loadcomponent")))
+                               .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                               )
+
+                              <span style="color:red;display:none" id="id_comp">* Select Component</span>
+                              </div>
+                    </div>
+                        </div>
+                          <div class="mergeEA" style="margin-top: 1em;">
+                              <div class="AnswerComponent" style="display:flex">
+                        <div class="custom-blue-label" >Example Answer :</div>
+
+                        <div class="textBoxScroll ">
+                            @Html.TextAreaFor(m => m.ExampleAnswer, new { @class = "k-textbox scrollbar-rail", id = "ExampleAnswer", rows = 5, cols = 10, style = "width:24vw !important;resize:none; height:9vh; overflow:auto;box-shadow:none;font-size:0.95vw!important" })
+                        </div>
+                      </div>
+                          </div>
+                       </div>
+
+                      <div class="mergeAspect" style="display:flex">
+
+                        <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label">Aspect :</div>
+                          <div class="custom-dropdown Aspect" >
+                               @(Html.Kendo().DropDownListFor(m => m.AspectID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .OptionLabel("Select Aspect")
+                              //.BindTo(Model.AspectList)
+                               .Name("AspectID")
+                               .AutoBind(false)
+                                .DataSource(d => d.Read(r => r.Action("ReadAspect", "Assessment").Data("loadAspect")))
+                           .HtmlAttributes(new { style = "width:15.5vw;font-size:0.95vw!important" })
+                               )
+                              <span style="color:red;display:none" id="id_Asp">* Select Aspect</span>
+
+                              </div>
+                    </div>
+                        <div class="mergeStatus" style="display: flex; margin-top: 0.8em;">
+
+                              <div class="custom-blue-label">Data Source:</div>
+                          <div class="custom-dropdown">
+                               @(Html.Kendo().DropDownListFor(m => m.DatasourceId)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.DataSourceList)
+                               .Name("DatasourceId")
+                           .HtmlAttributes(new { style = "width:14vw;font-size:0.95vw!important" })
+                               )
+
+                              </div>
+                        </div>
+
+                      </div>
+                  </div>
+
+
+
+             </div>
+              <div class="actionButtons" style="margin-top: 2em;">
+                    <div style="margin: 0 1em 0 0;">
+                       <button style="float: right; width: 5vw; font-size: 1vw;" class="custom-button" type="button" id="btncancel" onclick="onCancelClick()">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style="float: right; width: 5vw; font-size: 1vw; margin-right: 1em;" class="custom-button" type="button" onclick="onSaveClick()" id="btnAdd">SAVE</button>
+                     </div>
+               </div>
+         </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    //.Width(900)
+    //.Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+</body>
+</html>
+

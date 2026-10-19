@@ -1,0 +1,38 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+
+
+@{
+    ViewBag.Title = "Resources";
+}
+
+<div>
+    <div style="margin:10px">
+        <h5 style="text-align:center">Resources</h5>
+
+        <div style="margin:10px; padding:5px; padding-top:0px;"class="custom-kendo-grid">
+            @(Html.Kendo().Grid<ResourceModel>()
+                .Name("RAResourceGrid")
+                .Columns(column =>
+                {
+                    column.Bound(e => e.Id).Hidden();
+                    column.Bound(e => e.RAResource);
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+                .Sortable()
+                .Scrollable()
+                 .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Resources"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetRAResource", "MetaData"))
+                      .Create(create => create.Action("AddRAResource", "MetaData"))
+                      .Update(update => update.Action("EditRAResource", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteRAResource", "MetaData"))
+                    
+                      ))
+        </div>
+    </div>
+</div>

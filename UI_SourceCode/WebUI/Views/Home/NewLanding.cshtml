@@ -1,0 +1,429 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.HomeInput
+@using NTTData.AMOPortal.WebUI.Dto
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@using NTTData.AMOPortal.Data;
+@{
+
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+
+
+    @*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">*@
+    @*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>*@
+
+HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+Db db = new Db();
+int UserId = (int)Session["UserId"];
+ViewBag.Title = "Optimization Tools";
+ViewBag.ImagePathOne = Url.Content("~/Content/images/nttdata_logo.png");
+// ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+Layout = "~/Views/Shared/HomeGenericLayOut .cshtml";
+
+//Client client = (Client)Session["Client"];
+ClientDetail client = (ClientDetail)Session["SessionClient"];
+var clientId = 0;
+if (client != null)
+{
+    clientId = client.ClientId;
+}
+//ViewBag.PPMaitaintUrlClientId = System.Configuration.ConfigurationManager.AppSettings["PPMaitaintUrlClientId"].ToString();
+//ViewBag.PPMaitaintUrlReportId = System.Configuration.ConfigurationManager.AppSettings["PPMaitaintUrlReportId"].ToString();
+
+
+
+var a3MMBoolValue = false;
+
+var AssessmentManagerRoleid = 0;
+
+AssessmentManagerRoleid = (from a in MenuItemsInput.UserApplications
+                           where a.ApplicationId == 20 && a.ClientId == clientId && a.isDeleted == false && a.UserId == UserId
+                           select a.RoleId).FirstOrDefault();
+
+if (AssessmentManagerRoleid == 1 || AssessmentManagerRoleid == 2) //Admin oe User
+{
+    a3MMBoolValue = true;
+}
+
+}
+<style>
+    .styledTds {
+        background-color: #F2BF96;
+        border: 1px solid #D26D19;
+        text-align: center;
+        line-height: 1.65em;
+    }
+
+    .lookNiceTable {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 4px;
+        background-color: #F0F0F0;
+    }
+
+    td {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .tdcenter {
+        text-align: right;
+    }
+
+    .home-tools .row .col a {
+        color: #428bca;
+        text-decoration: none;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        box-sizing: content-box;
+        flex: 0 1 auto;
+        width: 10px;
+        height: 10px;
+        border: 1px solid rgb(91,121,171);
+        border-radius: 8px;
+        cursor: pointer;
+        background-color: #fff;
+        transition: opacity .6s ease;
+    }
+
+    .carousel-indicators .active {
+        background-color: rgb(91,121,171);
+    }
+</style>
+<div class="home-container">
+    <div class="home-tools">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="false">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            </div>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.IdeaManager == true)
+                            {
+                                <a href='@Url.Action("", "ViewIdea", new { area = "IdeaManager", controller="ViewIdea" })' title="Captures improvement and innovation ideas from transition through to transformation.  Ideas range from SLA improvements and productivity enhancements to continuous improvement that increases the business value of the application.">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img idea-manager-icon"></span>
+                                        <p>Idea Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img idea-manager-icon"></span>
+                                    <p>Idea Manager</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.FeedbackManager == true)
+                            {
+                                <a href='@Url.Action("", "ViewFeedback", new { area = "FDBKManager", controller="ViewFeedback" })' title="">
+                                    <div class="home-tool-item">
+                                        <span class="fdbk-new-tag"></span>
+                                        <span class="tool-item-img fdbk-manager-icon"></span>
+                                        <p>Feedback Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="fdbk-new-tag"></span>
+                                    <span class="tool-item-img fdbk-manager-icon"></span>
+                                    <p>Feedback Manager</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.DemandManager == true)
+                            {
+                                <a href='@Url.Action("", "ViewDemand", new { area = "DemandManager", controller="ViewDemand" })' title="Capture client demand, reviewed by Account lead, based upon demand enables user to track the demand process. Demand ranges from Change request (Initiative or SOW), New services, Extension applicable across various workstream (e.g. Security, Infrastructure, Service Management, Apps).">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img demand-manager-icon"></span>
+                                        <p>Demand Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img demand-manager-icon"></span>
+                                    <p>Demand Manager</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.IncidentNavigator == true)
+                            {
+                                <a href='@Url.Action("Index", "DashboardNew", new { area = "IncidentNavigator" }, null)' title="Analyzes incidents to identify areas that affect the stability of the applications supported.  Automatically identify repeated incidents and improve root cause analysis and problem management. ">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img incident-navigator-icon"></span>
+                                        <p>Incident Navigator</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img incident-navigator-icon"></span>
+                                    <p>Incident Navigator</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.SLAManager == true)
+                            {
+                                <a href='@Url.Action("SLA_Reports", "ConfigureReport", new { area = "IncidentNavigator", cid=clientId}, null)' title="Metrics catalogue tailored to clients.  Monitors conformance to SLAs and metrics targets. Provides reporting and trending of standard service levels and new engagement metrics ">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img sla-manager-icon"></span>
+                                        <p>SLA Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img sla-manager-icon"></span>
+                                    <p>SLA Manager</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.TransformationAccelerator == true && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                            {
+                                @*<a href='@Url.Action("Index", "ALMHeatMap", new { area = "AlignmentManager", cid= clientId})' title="Provide advanced analytics to enable predictions of performance and capacity problems before they occur.">*@
+                                <a href='@Url.Action("SIAgreement", "ServicePlan", new { area = "TransformationAccelerator" }, null)' title="Provide advanced analytics to enable predictions of performance and capacity problems before they occur.">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img transformation-accelerator-icon"></span>
+                                        <p>Transformation Accelerator</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img transformation-accelerator-icon"></span>
+                                    <p>Transformation Accelerator</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.PortfolioAnalyzer == true)
+                            {
+                                <a href='@Url.Action("Landing", "Dashboard", new { area = "PortfolioAnalyzer", controller="ApplicationInformation" })' title="Maintain an understanding of the health of applications with intention of developing disposition recommendations and informed application decisions based on data and analysis.">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img portfolio-analyzer-icon"></span>
+                                        <p>Portfolio Analyzer</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img portfolio-analyzer-icon"></span>
+                                    <p>Portfolio Analyzer</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (MenuItemsInput.BusinessAlignment && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                            {
+                                <a href='@Url.Action("ClientCapabilities", "BusinessCapabilities", new { area = "", controller="BusinessCapabilities"})' title="Business capability model.">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img business-alignment-icon"></span>
+                                        <p>Business Alignment</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img business-alignment-icon"></span>
+                                    <p>Business Alignment</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.RetirementAccelerator == true)
+                            {
+                                <a href='@Url.Action("", "Dashboard", new { area = "RetirementAccelerator" }, null)' title="Framework Builder">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img framework-builder-icon"></span>
+                                        <p>Framework Builder</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img framework-builder-icon"></span>
+                                    <p>Framework Builder</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.ClientProfileManager == true)
+                            {
+                                <a href='@Url.Action("ClientAccountGrid_New", "ClientAccountGrid", new { area = "", controller="ClientAccountGrid"})' title="Client Profile Manager">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img client-profile-manager-icon"></span>
+                                        <p>Client Profile Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img client-profile-manager-icon"></span>
+                                    <p>Client Profile Manager</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.ClientProfileManager == true)
+                            {
+                                <a href='@Url.Action("", "Survey", new { area = "ClientProfileManager" }, null)' title="Client Profile Manager">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img survey-builder-icon"></span>
+                                        <p>Survey Builder</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img survey-builder-icon"></span>
+                                    <p>Survey Builder</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.UserRole.ToLower() == "admin" || Model.UserRole.ToLower() == "sysadmin" || Model.UserRole.ToLower() == "superuser")
+                            {
+                                <a href='@Url.Action("ConfigTools", "Home", new { area = ""},null)' title="Configuration Manager">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img configuration-manager-icon"></span>
+                                        <p>Configuration Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img configuration-manager-icon"></span>
+                                    <p>Configuration Manager</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            @if (Model.UserRole.ToLower() == "admin" || Model.UserRole.ToLower() == "sysadmin" || Model.UserRole.ToLower() == "superuser")
+                            {
+                                <a href='@Url.Action("UtilityManager", "Home", new { area = ""},null)' title="Configuration Manager">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img utility-manager-icon"></span>
+                                        <p>Utility Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img utility-manager-icon"></span>
+                                    <p>Utility Manager</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="col">
+                            @if (Model.KnowledgeManager == true)
+                            {
+                                <a href='@Url.Action("KnowledgeMgr", "Home", new { area = ""},null)' title="Repository of all artifacts used by engagement team to provide application outsourcing services.">
+                                    <div class="home-tool-item">
+                                        <span class="tool-item-img utility-manager-icon"></span>
+                                        <p>Knowledge Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img utility-manager-icon"></span>
+                                    <p>Knowledge Manager</p>
+                                </div>
+                            }
+
+                        </div>
+                        <div class="col">
+
+                            @if (Model.AssessmentManager == true && a3MMBoolValue== true)
+                            {
+                                <a href='@Url.Action("AssessmentInventory","Assessment", new { area = "AssessmentManager"},null)' title="Assessment Manager.">
+
+                                    <div class="home-tool-item ">
+                                        <span class="tool-item-img a3mm-icon"></span>
+                                        <p>Assessment Manager</p>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="home-tool-item not-active">
+                                    <span class="tool-item-img a3mm-icon"></span>
+                                    <p>Assessment Manager</p>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <a href='#' title="">
+                                <div class="home-tool-item not-active">
+                                    <span style=" margin-top: -12px;">__ __</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href='#' title="">
+                                <div class="home-tool-item not-active">
+                                    <span style=" margin-top: -12px;">__ __</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a href='#' title="">
+                                <div class="home-tool-item not-active">
+                                    <span style=" margin-top: -12px;">__ __</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div><!--/.container-->

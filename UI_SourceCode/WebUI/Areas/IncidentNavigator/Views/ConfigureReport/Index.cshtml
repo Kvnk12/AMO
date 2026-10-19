@@ -1,0 +1,121 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model INClientReportModel
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    var cont = new ConfigureReportController();
+    var INReportList = cont.GetINReportList();
+}
+
+<div id="wrap" class="content-main custom-grid">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Configure Report</li>
+        </ol>
+
+    </div>
+
+    <div class="container" style="padding:0;height:1000px;">
+
+        <div class="clearfix"></div>
+
+        <div>
+            @(Html.Kendo().Grid<INClientReportModel>()
+                                            .Name("INReportGrid")
+                                            .Columns(columns =>
+                                            {
+                                                columns.Bound(e => e.Id).Hidden();
+                                                columns.Bound(e => e.ReportName).Hidden();
+                                                //  columns.Bound(e => e.INReportId).EditorTemplateName("INReportDropDown").ClientTemplate("#:ReportName#");
+                                                columns.ForeignKey(p => p.INReportId,INReportList, "Value", "Text").Width(300).Title("Report Name").EditorTemplateName("INReportDropDown")/*.ClientTemplate("#:ReportName#")*/;
+                                                //columns.Bound(e => e.INReportId).Hidden().Visible(false);
+                                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                            })
+                                         .Sortable()
+                                         .Scrollable()
+                                         //.Pageable()
+                                         .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                         .ToolBar(toolbar => toolbar.Create().Text("Add New Report"))
+                                         .HtmlAttributes(new { style = "height:550px;" })
+                                         .DataSource(dataSource => dataSource
+                                         .Ajax()
+                                            .Model(model => {
+
+                                                model.Id(f => f.Id);
+                                                model.Field(p => p.INReportId).Editable(true);
+                                            }
+                                                    // model.Field(p => p.Id).Editable(false);
+                                                    )
+                        .Read(read => read.Action("GetReport", "ConfigureReport"))
+                        .Destroy(update => update.Action("DeleteReport", "ConfigureReport"))
+                        .Update(update => update.Action("UpdateReport", "ConfigureReport"))
+                        .Create(update => update.Action("AddReport", "ConfigureReport"))
+
+                                                     )
+
+            )
+
+            @*@(Html.Kendo().Grid<INClientReport>
+                ()
+                .Name("INReportGrid")
+                .Columns(column =>
+                {
+                    //column.Bound(e => e.ReportName).EditorTemplateName("INReportDropDown").ClientTemplate("#:ReportName#");
+                    column.ForeignKey(p => p.INReportId, INReportList, "Value", "Text").Width(300).Title("Report Name").EditorTemplateName("INReportDropDown").ClientTemplate("#:ReportName#");
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(180);
+                })
+                .Sortable()
+                .Scrollable()
+                .Editable(editable => editable.Mode(GridEditMode.InCell).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                //.ToolBar(toolbar => toolbar.Create().Text("Select New Report"))
+                .AutoBind(true)
+                .ToolBar(
+                tools =>
+                {
+                    tools.Create().Text("Add Report");
+                    //tools.Save();
+                })
+                .HtmlAttributes(new { style = "height:550px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                .Model(model => model.Id(f => f.Id))
+                .Read(read => read.Action("GetReport", "ConfigureReport"))
+                .Destroy(update => update.Action("DeleteReport", "ConfigureReport"))
+                .Update(update => update.Action("UpdateReport", "ConfigureReport"))
+                .Create(update => update.Action("AddReport", "ConfigureReport"))
+
+                )/*.Events(events => events.Save("ApplicationGrid_Save")*/
+                    ))*@
+
+        </div>
+    </div>
+
+</div>
+
+
+

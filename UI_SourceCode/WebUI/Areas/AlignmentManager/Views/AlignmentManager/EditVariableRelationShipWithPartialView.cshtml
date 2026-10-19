@@ -1,0 +1,97 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+}
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @Html.Partial("_ClientList", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+<div class="container" style="padding: 0;">
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+        <div class="treemenu">
+            <div class="hdr">
+                <h3>Performance Predictor</h3>
+                <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </div>
+            <!-- add the tree menu here-->
+            @*<div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))</div>*@
+            <div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.PPTreeViewRoot)</div>
+        </div>
+        <!-- treemenu ends-->
+        <div class="treeMenuContent">
+            <div class="container" style="padding: 0;">
+                <div class="amgrcontentLeft">
+                    <div class="well well-sm"><strong>Sibling RelationShip for Variable @ViewData["VarName"]</strong> </div>
+                    <div>                        
+                        @Html.Partial("_EditVariableRelationShip",Model)
+                    </div>
+                </div>
+
+                <!--/.amgrcontentLeft-->
+                <!--END OF LEFTAREA-->
+                @*<div class="amgrcontentRight">
+                    @Html.Partial("valuechainrightpane", Model)
+                </div>*@
+                <div class="amgrcontentRight">
+                    @Html.Partial("_valuechainrightpane", Model)
+                </div>
+                <!-- end of right areaa-->
+            </div>
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: true,
+                unique: true
+            });
+        });
+    </script>
+}
+
+<script>
+    $(document).ready(function () {
+        $('.score, .weight').keypress(function (evt) {
+            return (isNumberKey(evt));
+        });
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (
+           (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+</script>
+    

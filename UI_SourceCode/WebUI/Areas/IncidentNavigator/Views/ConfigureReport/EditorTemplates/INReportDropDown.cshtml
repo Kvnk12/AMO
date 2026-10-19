@@ -1,0 +1,21 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers
+@using WebUI.Areas.IncidentNavigator
+@using NTTData.AMOPortal.Domain.Entities
+
+@model int?
+
+
+@{
+    //var client = (Client)Session["Client"];
+    var cont = new ConfigureReportController();
+    var INReportList = cont.GetINReportList();
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                .Name("INReportId")
+                                .OptionLabel("Select Report..")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(INReportList)
+                               .AutoBind(false)
+)

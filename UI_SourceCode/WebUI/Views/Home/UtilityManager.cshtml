@@ -1,0 +1,76 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@{
+
+    ViewBag.Title = "Utility Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/utility_manager_white.svg");
+    //Layout = "~/Views/Shared/_MainLayout.cshtml";
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+    // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = 0;
+    if (client != null)
+    {
+        clientId = client.ClientId;
+    }
+}
+
+<div class="content-main dark-bg">
+    <div id="breadcrumb">
+        <!--<ol class="breadcrumb">-->
+        @*<li><a href="@Url.Action("Dashboard")">About NextGen Tools</a></li>*@
+        <!--<li><a href="#">Optimization Tools/Utility Manager</a></li>
+        </ol>-->
+        <ol class="breadcrumb">
+            <li>Optimization Tools</li>
+            <li class="active">Utility Manager</li>
+        </ol>
+    </div>
+    <div class="utilityManagerContent">
+        <div class="utilityManager">
+            <div class="dataDiv">
+                <div class="dataText"><h4 class="spanText">Data Utility</h4></div>
+                <div class="dataDivContent">
+                    <ul>
+                        <li class="list-bullet">
+                            @Html.ActionLink("Data Masking Download", "Download", "PIDataMask", new { area = "ClientProfileManager" }, null)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="dataDiv">
+                <div class="dataText"><h4 class="spanText">Data Exports</h4></div>
+                <div class="dataDivContent">
+                    <ul>
+                        <li class="list-bullet">@Html.ActionLink("Application Inventory", "ExAppIndex", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Application Survey", "SetSDFSDFSDQues", "Survey", new { area = "ClientProfileManager" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Ticket Data", "", "ExportTicketInfo", new { area = "ClientProfileManager" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Job Detail", "", "DataUpload", new { area = "ClientProfileManager" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("All Client Data", "AllClientsForUser", "Dashboard", new { area = "ClientProfileManager" }, null)</li>
+                        @*<li class="list-bullet">@Html.ActionLink("All User Data", "NextGenUserReport", "Dashboard", new { area = "ClientProfileManager" }, null)</li>*@
+                        <li class="list-bullet"><a href="~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx">All User Data</a></li>
+                        <li class="list-bullet">@Html.ActionLink("Download Scheduled Reports (Trial)", "RPTJobDetailList", "ReportSubscription", new { area = "ClientProfileManager" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Report Subscriptions (Trial)", "RptSubscriptionList", "ReportSubscription", new { area = "ClientProfileManager" }, null)</li>
+
+
+                        <li class="list-bullet">All Metric Catalog</li>
+                        <li class="list-bullet">Export to Sense Platform</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="dataDiv">
+                <div class="dataText"><h4 class="spanText">Multi-Tenant Reporting</h4></div>
+                <div class="dataDivContent">
+                    <ul>
+                        <li class="list-bullet">Ecosystem Setup</li>
+                        <li class="list-bullet">Ecosystem Dashboard</li>
+                        <li class="list-bullet">@Html.ActionLink("X-Client Heatmap", "ClientHeatmap", "MultiTenantReporting", new { area = "PortfolioAnalyzer" }, null)</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

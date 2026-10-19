@@ -1,0 +1,220 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+@model KEDBInstanceModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+<style>
+    .k-picker-wrap.k-state-default {
+        margin-top: -8px;
+    }
+
+    .k-widget.k-datepicker {
+        width: 365px;
+    }
+    .sidebar-wrapper {
+        height: 39.5em;
+    }
+</style>
+<div>
+    <div class="kedb-search">
+        <div class="kedb-search-content">
+            <div class="searchPanel">
+                <div class="arrowBG" onclick="switchVisible();" id="arrow-bg"></div>
+                <div class="arrowdownBG" onclick="switchVisible();" id="arrowdown-bg" style="display:none;"></div>
+                <div class="eye-icon" onclick="switchVisible();" id="eye-icon"></div>
+                <div class="hide-icon" onclick="switchVisible();" id="hide-icon" style="display:none;"></div>
+                <div class="searchCriteria">
+                    <label class="collapsible" id="search-criteria" onclick="switchVisible();">Search Criteria:</label>
+                </div>
+               
+            </div>
+
+            <p class="searchText" id="search-text">
+                <i>(<span class="custom-blue-label">Ticket ID</span> is greater than or equal to '5' and the <span class="custom-blue-label">Tower ID</span> starts with 'Issue Description' or <span class="custom-blue-label">CI Name</span> contains 'Issue Description')</i>
+            </p>
+
+            <div class="searchQueryDiv" id="search-query">
+                <div class="searchFilter scrollbar-rail">
+
+                    @(Html.Kendo().Filter<KEDBInstanceModel>()
+      .Name("filter")
+      //.ApplyButton(true)
+      .ExpressionPreview()
+      //.Operators(o =>
+      //      o.String(s =>
+      //          s.Contains("Contains")
+      //          .Startswith("Starts with").Eq("Is Equal To")))
+      //.DataSource("dataSource1")
+      .Operators(o => // Define the custom texts for the operator names and the available operators.
+      {
+          o.String(s =>
+          {
+              s.Contains("Contains");
+              s.Startswith("Starts with");
+              s.Eq("Is Equal To");
+              s.Neq("Not Equal To");
+          });
+          o.Date(n =>
+          {
+              n.Gte("Greater Than");
+              n.Lt("Less Than");
+          });
+      })
+      .Events(ev => ev.Change("onFilterChange"))
+      .Fields(f =>
+      {
+          f.Add(p=>p.TicketId).Label("TicketId");
+          f.Add(p=>p.Tower).Label("Tower");
+          f.Add(p=>p.Description).Label("Issue Description");
+          f.Add(p=>p.KEDBNumber).Label("KEDB_NO");
+          f.Add(p=>p.CIName).Label("Config Item Name");
+          f.Add(p=>p.CreatedDate).Label("Opened On");
+      })
+    )
+
+
+                </div>
+
+
+                <div class="searchbutton">
+                    <button class="custom-button" type="button" onclick="onResetClick();" id="btnReset">RESET</button> &nbsp;&nbsp;
+
+                    <button class="custom-button" type="button" onclick="onSearchClick();" id="btnSearch">SEARCH</button>
+
+
+                </div>
+            </div>
+
+
+            </div>
+        </div>
+    </div>
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script type="text/javascript">
+      
+    function OnSearchTypeChange(e) {
+        console.log(this.value());
+
+    }
+
+    function buttonClick() {
+        var popup = $("#AddKEDBpopUp").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function buttonViewClose() {
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        popup.close();
+    }
+
+    function switchVisible() {
+        var x = document.getElementById("search-query");
+        var y = document.getElementById("search-text");
+        if (x.style.display === "none") {
+            document.getElementById('search-criteria').innerHTML = 'Hide Search Criteria:';
+            document.getElementById('arrow-bg').style.display = "none";
+            document.getElementById('arrowdown-bg').style.display = "block";
+            document.getElementById('eye-icon').style.display = "none";
+            document.getElementById('hide-icon').style.display = "block";
+            x.style.display = "block";
+            y.style.display = "none";
+        }
+        else {
+            document.getElementById('search-criteria').innerHTML = 'View Search Criteria:';
+            document.getElementById('arrow-bg').style.display = "block";
+            document.getElementById('arrowdown-bg').style.display = "none";
+            document.getElementById('eye-icon').style.display = "block";
+            document.getElementById('hide-icon').style.display = "none";
+            x.style.display = "none";
+            var filter = $("#filter").data("kendoFilter");
+            var whereclause = filter._previewContainer.text();
+            $("#search-text").text(whereclause);
+            y.style.display = "block";
+
+        }
+    }
+
+    $('.scrollbar-rail').scrollbar();
+
+    function onResetClick() {
+        var dataSource = $("#filter").data("kendoFilter");
+        console.log(dataSource);
+        dataSource.filterModel.filters=null;
+       // dataSource.filter({});
+        $(".k-filter-lines").remove();
+        $(".k-filter-preview").remove();
+        $(".k-filter-preview").show();
+
+    }
+
+    //$("#save").click(function (e) {
+    //    e.preventDefault();
+    //    var filter = $("#filter").getKendoFilter();
+    //    //localStorage["kendo-filter-options"] = kendo.stringify(filter.getOptions());
+    //    var kendoOptions = kendo.stringify(filter.getOptions());
+    //    console.log("SAVE");
+    //    console.log(kendoOptions);
+    //    //console.log(localStorage["kendo-filter-options"]);
+    //});
+
+    //$("#load").click(function (e) {
+    //    e.preventDefault();
+    //    var filter = $("#filter").getKendoFilter();
+    //    var options = localStorage["kendo-filter-options"];
+    //    if (options) {
+    //        options = JSON.parse(options);
+    //        //options.dataSource = dataSource1;
+    //        filter.setOptions(options);
+    //        filter.applyFilter();
+    //    }
+    //});
+
+    function onFilterChange(args) {
+        //var exp = args.expression.filters;
+        //console.log(args.expression.filters);
+        //for (var i = 0; i < exp.length; i++) {
+        //    console.log(exp[i].field);
+        //    var fld = exp[i].field;
+        //    if (fld == "OpenedOn") {
+        //        var val = exp[i].value;
+        //        console.log(val);
+        //        var vals = val.toLocaleDateString("en-US");
+        //        console.log(vals);
+        //    }
+        //}
+        var filter = $("#filter").data("kendoFilter");
+        var whereclause = filter._previewContainer.text();
+        //console.log(whereclause);
+        whereclause = whereclause.replace(" GMT+0530 (India Standard Time)", "");
+        whereclause = whereclause.replace("Sun", "").replace("Mon", "").replace("Tue", "").replace("Wed", "").replace("Thu", "").replace("Fri", "").replace("Sat", "");
+        whereclause = whereclause.replace("00:00:00", "");
+       // console.log(whereclause);
+
+        filter._previewContainer.text(whereclause);
+        //console.log(args);
+    }
+    //function dateformat(container, options) {
+    //    var filter = $("#filter").data("kendoFilter");
+    //    console.log(filter);
+    //    $('<input data-bind="value:value" name="' + options.field + '"/>')
+    //        .appendTo(container)
+    //        .kendoDatePicker({
+    //            dateFormat: 'dd-mm-yy'
+    //        });
+    //}
+    //$(function () {
+    //    /*//   $("#to").datepicker({ dateFormat: 'yy-mm-dd' });*/
+    //    $('[data-role="datepicker"]').datepicker({ dateFormat: 'yy-mm-dd' });
+    //});
+</script>

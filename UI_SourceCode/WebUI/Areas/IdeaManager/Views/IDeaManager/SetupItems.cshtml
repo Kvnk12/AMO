@@ -1,0 +1,161 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Objects
+@using WebUI.Areas.IdeaManager.Dto;
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+@using System.Web.Mvc;
+@using WebUI.Dto
+@*@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput*@
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.IMPostIdeaModel>
+
+
+    @{
+        ViewBag.Title = "Idea Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+        Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+       // var Client = (Client)Session["Client"];
+        var Client = (ClientDetail)Session["SessionClient"]; 
+        var ClientID = Client.ClientId;
+    }
+                     <div class="content-main">
+
+                         <div>
+                             <ol class="breadcrumb">
+                                 <li>Idea Manager</li>
+                                 <li class="active">Post Idea</li>
+                             </ol>
+                         </div>
+
+
+                         <div style="padding: 0;">
+
+
+                             @*<div id="partialIdeas">
+                @Html.Partial("_DisplayIdeas", Model.SortedPostedIdeas)
+            </div>*@
+                             <div style="height:1000px">
+                                 <div class="row">
+                                     <div class="col-sm-2">
+                                         <button tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">Post New Idea</button>
+                                     </div>
+                                 </div>
+                                 <div>
+                                     <div>
+                                         <div>
+                                             <table class="table" cellpadding="0" cellspacing="0" style="width:100%">
+                                                 <thead>
+                                                     <tr>
+                                                         <th><u>@Html.ActionLink("Last Modified Date", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>
+                                                         <th><u>@Html.ActionLink("Ideas", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Ideas }, new { @style = "color:white;" })</u></th>
+                                                         <th><u>@Html.ActionLink("Posted by", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                                         <th><u>@Html.ActionLink("Status", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                                         <th><u>@Html.ActionLink("Status Comments", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                                         <th><u>@Html.ActionLink("Created Date", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                                     </tr>
+                                                 </thead>
+
+
+                                                 @{
+
+                                                     var uid = (int)Session["UserId"];
+
+
+                                                     foreach (var vwItem in Model)
+                                                     {
+
+                                                         var name = (IMStatus)vwItem.StatusId;
+
+                                                         <tr>
+                                                             <td> @vwItem.LastUpdatedDate </td>
+
+                                                             <td>
+                                                                 @if ((vwItem.StatusId == (int)IMStatus.Created || vwItem.StatusId == (int)IMStatus.Declined) && (vwItem.CreatedBy == uid))
+                                                                 {
+                                                                     @*@vwItem.ItemName*@
+                                                                     @Html.ActionLink(vwItem.ItemName, "DisplayHomePage", new { ItemId = vwItem.Id, SaveData = "", TabName = "home" }, null)
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     @vwItem.ItemName
+                                                                 }
+                                                             </td>
+
+                                                             <td> @vwItem.CreatedByUser </td>
+
+                                                             <td>
+                                                                 @if (vwItem.StatusId == (int)IMStatus.Approved && (vwItem.CreatedBy == uid))
+                                                                 {
+                                                                     <div data-toggle="tooltip" data-placement="right" title="Click here if Idea is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                                         @name <br /> (@Html.ActionLink("Mark as Implemented", "implementedStatus", new { idid = vwItem.Id }, null))
+                                                                     </div>
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     @name
+                                                                 }
+                                                             </td>
+
+                                                             <td> @vwItem.StatusComments </td>
+                                                             <td> @vwItem.CreateDateString </td>
+
+                                                         </tr>
+
+                                                     }
+
+                                                     //}
+
+
+                                                 }
+
+
+                                             </table>
+                                             <div class="pagination">
+                                                 @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                                                 @Html.PagedListPager(Model, page => Url.Action("DisplayIdeas", new { page = page, sortOrder = Request["sortOrder"] }))
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+
+                             <!--/.treeMenuContent-->
+
+                         </div>
+                     </div>
+
+
+    <script type="text/javascript">
+
+
+            $('#btnAdd').click(function () {
+
+
+                var href = window.location.href.split('/');
+                var baseurl = '';
+
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    baseurl = href[0] + '//' + href[2] + '/ideamanager/ideamanager/DisplayHomePag/?TabName=Add'
+                }
+                else {
+                    baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ideamanager/DisplayHomePage/?TabName=Add'
+                }
+
+                window.location = baseurl;
+
+
+                return false;
+
+            });
+
+
+    </script>
+
+
+
+
+
+
+

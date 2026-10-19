@@ -1,0 +1,76 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+<div id="IdeaContainer">
+<div id="ListedIdeas" style="width:100%;margin:auto"></div>
+</div>
+
+
+<script type="text/javascript">
+
+    
+
+
+
+    function errorLinkIdeaFailure()
+    {
+        alert('Failure');
+    }
+
+
+
+    $(document).ready(function () {
+        var ClientId = "@Model.ClientId";
+        var ChallengeId = "@Model.Id";
+        if (ClientId != null) {
+            $('#ListedIdeas').jtable({
+                title: 'Ideas Suggested So far',
+                actions: {
+                    listAction: "@Url.Action("GetListedIdeas")" + "?ClientId=" + ClientId+"&ChallengeId="+ChallengeId
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                 
+                    ItemName: {
+                        title: 'Name',
+                        width: '30%'
+                    },
+
+                    Description: {
+                        title: 'Description',
+                        width: '30%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%'
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%'
+            }
+
+                }
+
+            });
+            $('#ListedIdeas').jtable('load');
+        }
+
+       
+    });
+
+
+   
+    
+</script>

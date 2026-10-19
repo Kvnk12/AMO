@@ -1,0 +1,54 @@
+﻿@using WebUI.Areas.TransformationAccelerator.Controllers
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model String
+
+@{
+    //ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var cont = new ServicePlanController();
+    var impList = (IEnumerable<SelectListItem>
+    )ViewData["ServiceImpList"];
+
+    }
+
+    @(Html.Kendo().DropDownListFor(m => m)
+    .Name("ImprovementTypeId")
+    .OptionLabel("Select Improvement Type( avoid duplication)")
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .BindTo(impList)
+    //.AutoBind(true)
+    )
+
+   
+
+    @*@(Html.Kendo().DropDownList()
+    .Name("ImprovementTypeId")
+    .HtmlAttributes(new { style = "width:100%" })
+    .OptionLabel("Select Improvement Type( avoid duplication...")
+    .DataTextField("ImprovementType")
+    .DataValueField("ImprovementTypeId")
+    .Value(Model)
+    .DataSource(source => source
+    .Custom()
+
+    .ServerFiltering(true)
+    .Transport(transport => transport
+    .Read(read =>
+    {
+    read.Action("Drop_Get_SA", "ServicePlan");
+    }))
+    )
+    //.Events(e => e.Change("onChange"))
+    .Enable(true)
+    .AutoBind(false)
+    //.Events(events => events.DataBound("onDataBound"))
+    //.CascadeFrom("categories")
+    )*@
+
+

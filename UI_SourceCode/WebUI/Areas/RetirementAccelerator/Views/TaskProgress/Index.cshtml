@@ -1,0 +1,725 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.RetirementAccelerator.Controllers;
+@using WebUI.Areas.RetirementAccelerator.Models;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions
+@using System.Data;
+@using WebUI.Dto;
+
+
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Framework Builder";
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/framework_builder_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+    // var cl = (Client)Session["Client"];
+    ClientDetail cl = (ClientDetail)Session["SessionClient"];
+    ////var cv = new TaskProgressController();
+    var StatusList = (List<SelectListItem>) ViewData["StatusList"];
+    var WorkProdList = (List<SelectListItem>)ViewData["WorkProdList"];
+    var ResourceGroupList = (List<SelectListItem>)ViewData["ResourceGroupList"];
+    var rolesList = (List<SelectListItem>)ViewData["rolesList"];
+
+    // var prioritylist = cv.GetIMIdeaTaskPriority(cl.Id);
+    // var progressstatustask = cv.GetIMTaskProgressStatus(cl.Id);
+
+}
+<style>
+    #ImportWBS {
+        background-color: rgb(91, 121, 171);
+        color: white;
+        font-size: 12px;
+        width: 100px;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: none;
+        padding: 0.3em;
+    }
+    }
+</style>
+
+
+    <div class="content-main dark-bg">
+
+        <div style="padding: 0;">
+            <div>
+                <ol class="breadcrumb">
+                    <li>Framework Builder</li>
+                    <li class="active">Plan/Track</li>
+                </ol>
+            </div>
+
+            <div class="" style="background-color:#fff;padding:0.5em">
+                <table style="width:100%">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Select Application :</label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().DropDownList()
+                          .Name("Application")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { @style = "width:220px;" })
+                          .OptionLabel("Select Application")
+                          .DataSource(d => d.Read(e => e.Action("GetApplications", "TaskProgress")))
+                          .Events(ev => ev.Change("onChangeApplication")))
+                            </td>
+                            <td>
+                                <label>WBS Template : </label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().DropDownList()
+                      .Name("WBSTemplate")
+                      .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { @style = "width:220px;" })
+                          .OptionLabel("Select WBS Template")
+                          //.Enable(false)
+                          .DataSource(d => d.Read(e => e.Action("GetWBS", "TaskProgress")))
+
+                            )
+                                </td>
+                            <td></td><td>
+                            <div>
+                                @(Html.Kendo().Button()
+                          .Name("ImportWBS")
+                          .Content("Import")
+                          .Enable(false)
+                          .Events(ev => ev.Click("onClickImport")))
+                            </div>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+                <table>
+                    <tbody>
+                        <tr><td><br /></td></tr>
+                        <tr>
+                            <td>
+                                <label>Estimate Total(Hrs):</label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+                                            .Name("EstimateTotal")
+                                            .Enable(false)
+                                            .HtmlAttributes(new { @style = "width:70px;" })
+                            )
+                            </td>
+                            <td>
+                                <label>Actual Total(Hrs):</label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+                           .Name("ActualTotal")
+                           .Enable(false)
+                           .HtmlAttributes(new { @style = "width:70px;" })
+                            )
+                            </td>
+
+
+
+                            <td>
+                                <label>Retirement Phase:</label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().DropDownList()
+                                 .Name("RetirementPhase")
+                                     .DataTextField("Text")
+                                     .DataValueField("Value")
+                                     .OptionLabel("Select Retirement Phase")
+                                     .HtmlAttributes(new { @style = "width:150px;" })
+                                     .DataSource(d => d.Read(e => e.Action("GetRetirementPhase", "TaskProgress")))
+                                     .Events(e=>e.Change("ApplicationDetailsSave"))
+                            )
+                            </td>
+                            <td>
+                                <label>Retirement Stage:</label>
+                            </td>
+                            <td>
+                                @(Html.Kendo().DropDownList()
+                 .Name("RetirementStage")
+                     .DataTextField("Text")
+                     .DataValueField("Value")
+                     .OptionLabel("Select Retirement Stage")
+                     .HtmlAttributes(new { @style = "width:150px;" })
+                     .DataSource(d => d.Read(e => e.Action("GetRetirementStage", "TaskProgress")))
+                                     .Events(e => e.Change("ApplicationDetailsSave"))
+
+                            )
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="padding:0 10px;background-color:#fff">
+                @(Html.Kendo().Gantt<RATaskModel, RATaskDependencyModel>()
+                        .Name("gantt")
+                        .Pdf(pdf => pdf
+                        .FileName("Retire Application Tasks.pdf")
+                        .ProxyURL(Url.Action("Pdf_Export_Save", "TaskProgress"))
+                          )
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.TaskId).Width(1);
+                            //columns.Bound(c => c.TaskId).Title("ID").Width(50);
+                            columns.Bound(c => c.Title).Editable(true).Width(100);
+                            columns.Bound(c => c.Start).Title("Start Time").Width(100).Editable(true).Sortable(true);
+                            columns.Bound(c => c.End).Title("End Time").Width(100).Editable(true).Sortable(true);
+                            columns.Resources("resources").Editable(true).Title("Responsible");
+
+                        })
+
+                         .Height(700)
+
+                        .Editable(ff => ff.TemplateId("RATaskPopupEditor"))
+                        .Events(e =>
+                        {
+                            e.Save("onSave"); e.Edit("onEdit"); e.Add("checkIDdid");
+
+                        })
+                        .Views(views =>
+                        {
+                            views.DayView();
+                            views.WeekView(monthView => monthView.Selected(true));
+                            views.MonthView();
+                        })
+
+                      .Toolbar(tb => { tb.Add().Name("append"); tb.Add().Name("pdf"); })
+                      //.Tooltip(tip=>tip.)
+                      //.Height(700)
+                      .ShowWorkHours(false)
+                      .ShowWorkDays(false)
+                      .Snap(false)
+                      .Resizable(true)
+                      //.Events(e=>e.DataBound("databoundevent"))
+                      .DataSource(d => d
+                      .ServerOperation(false)
+                      .Model(m =>
+                      {
+                          m.Id(i => i.TaskId);
+                          m.ParentId(i => i.ParentId);
+                          m.OrderId(i => i.OrderId);
+                          m.Field(i => i.Expanded);
+                      })
+                      .Read(read => read.Action("Read_Tasks", "TaskProgress").Data("GetAppId"))
+                      .Destroy(delete => delete.Action("Destroy_Task", "TaskProgress"))
+                      .Update(update => update.Action("Update_Task", "TaskProgress").Data("onUpdateCreate"))
+                      .Create(create => create.Action("Create_Task", "TaskProgress").Data("onUpdateCreate"))
+                      )
+                .DependenciesDataSource(df => df
+                 .Model(m1 =>
+                 {
+                     m1.Id(f1 => f1.DependencyID);
+                     m1.PredecessorId(f1 => f1.PredecessorID);
+                     m1.SuccessorId(f1 => f1.SuccessorID);
+                     m1.Type(f1 => f1.Type);
+                 })
+                  .Read(read => read.Action("Read_Dependencies", "TaskProgress").Data("GetAppId"))
+                 .Create(create => create.Action("Create_Dependency", "TaskProgress").Data("GetAppId"))
+                 .Destroy("Destroy_Dependency", "TaskProgress")
+                 )
+              .Resources(r => r
+              .Field("resources")
+              .DataColorField("Color")
+              .DataTextField("Name")
+              .DataSource(d => d
+              .Custom()
+              .Schema(s => s
+              .Model(m => { m.Id("ID"); })
+                 .Data("Data")
+                 )
+                 .Transport(t =>
+                 {
+                     t.Read("Read_Resources", "TaskProgress");
+                 })
+                 )
+                 )
+                 .Assignments<RAResourceAssignmentModel>
+                     (a => a
+                     .DataTaskIdField("TaskId")
+                     .DataResourceIdField("ResourceId")
+                     .DataValueField("Units")
+                     .DataSource(d => d
+                     .Model(m =>
+                     {
+                         m.Id(f => f.Id);
+                     })
+                     .Read(read => read.Action("Read_Assignments", "TaskProgress").Data("GetAppId"))
+                     .Create(create => create.Action("Create_Assignment", "TaskProgress").Data("GetAppId"))
+                     .Destroy("Destroy_Assignment", "TaskProgress")
+                     .Update("Update_Assignment", "TaskProgress")
+                     )
+                     )
+            )
+
+            </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+
+ 
+
+    function GetAppId() {
+
+        var app = $("#Application").data("kendoDropDownList");
+        if (app.value() == null || app.value() == '')
+        {
+
+            return {
+                ApplicationId: 0
+            };
+        }
+        else
+        {
+            return {
+
+                ApplicationId: app.value()
+            };
+        }
+    }
+    function ApplicationDetailsSave(e) {
+        var app = $("#Application").data("kendoDropDownList");
+        var phase = $("#RetirementPhase").data("kendoDropDownList");
+        var stage = $("#RetirementStage").data("kendoDropDownList");
+
+        var paramsDatasss = {
+            AppId: app.value(),
+            PhaseId: phase.value(),
+            StageId: stage.value()
+        };
+        var baseurl11 = '@Url.Content("~/TaskProgress/saveApplicationDetails")';
+            $.ajax({
+                url: baseurl11,
+                type: "POST",
+                async: false,
+                data: paramsDatasss,
+                error: function (response) {
+                    alert(JSON.stringify(response));
+                },
+                success: function (response) {
+
+                }
+            });
+    }
+    function onChangeApplication(e)
+    {
+        var gantt = $("#gantt").data("kendoGantt");
+        gantt.dataSource.read();
+        gantt.dependencies.read();
+
+       // var tasks = $("#gantt").data("kendoGantt").dataSource.view();
+       ////// var shouldExpand = !tasks[0].expanded;
+       // for (i = 0; i < tasks.length; i++) {
+       //     tasks[i].set("Expanded", true);
+       // }
+       // gantt.refresh();
+        //enable Import button
+        var button = $("#ImportWBS").data("kendoButton");
+        button.enable(true);
+        var appli = $("#Application").data("kendoDropDownList");
+        var appId = appli.value();
+
+            var modu = {
+                ApplicationId: appId
+            };
+
+            var baseurl12 = '@Url.Content("~/TaskProgress/getApplicationDetails")';
+            $.ajax({
+                url: baseurl12,
+                type: "GET",
+                async: false,
+                data: modu,
+                error: function (response) {
+                    alert(JSON.stringify(response));
+                },
+                success: function (response) {
+
+                    var phase = $("#RetirementPhase").data("kendoDropDownList");
+                    phase.value(response.retirementPhase);
+
+                    var stage = $("#RetirementStage").data("kendoDropDownList");
+                    stage.value(response.retirementStage);
+
+                    $("#EstimateTotal").val(response.estimatedEfforts);
+
+                    $("#ActualTotal").val(response.actualEfforts);
+
+
+
+                }
+            });
+
+
+    }
+
+    function onClickImport(e) {
+        var app = $("#Application").data("kendoDropDownList");
+        var wbs = $("#WBSTemplate").data("kendoDropDownList");
+        if (app.value() == "")
+        {
+            alert("Please Select any Application!");
+            return false;
+        }
+        if (wbs.value()=="")
+        {
+            alert("Please Select WBS Template!");
+            return false;
+        }
+
+        var checcck = confirm("This will delete all data added previously to selected Application.\nAre you sure you want to proceed? ");
+        if (checcck) {
+            var AppId = app.value();
+            var WbsId = wbs.value();
+
+            var mod = {
+                wbsid: WbsId,
+                AppId: AppId
+            };
+
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/TaskProgress/ImportWBSTemplateTask")';
+            $.ajax({
+                url: baseurl,
+                type: "POST",
+                async: false,
+                data: mod,
+                error: function (response) {
+                    alert(JSON.stringify(response));
+                },
+                success: function (response) {
+                    var gantt = $("#gantt").data("kendoGantt");
+                    gantt.dataSource.read();
+                   // gantt.dependencies.read();
+                    //gantt.dataSource.taskTree();
+                    //gantt.refresh();
+
+                }
+            });
+        }
+
+
+    }
+
+
+    var resoucesdEdited = false;
+
+    function onEdit(e) {
+        var gantt = e.sender;
+        resoucesdEdited = false;
+
+        if (e.task) {
+            e.container.on('click', 'div[data-container-for="resources"] > a', function (event) {
+                event.preventDefault();
+                resoucesdEdited = true;
+                gantt._createResourceEditor(e.container.find('div.k-gantt-resources'), e.task);
+            });
+        }
+    }
+
+    function onSave(e) {
+        if (e.task && resoucesdEdited) {
+            this._updateAssignments(e.task.get("id"), e.task.get(this.resources.field));
+        }
+    }
+    function checkIDdid(e) {
+        // if (!e.model.isNew())
+        var app = $("#Application").data("kendoDropDownList");
+        if (app.value() == "") {
+            alert("Please select any Idea to add Tasks!");
+            e.preventDefault();
+        }
+    }
+    function onUpdateCreate(e) {
+        e.End = e.End.toISOString();
+        e.Start = e.Start.toISOString();
+        var app = $("#Application").data("kendoDropDownList");
+        if (app.value() == null || app.value() == '') {
+
+            e.ApplicationId = 0;
+        }
+        else {
+
+            e.ApplicationId = app.value();
+
+        }
+    }
+
+    </script>
+
+    <style>
+            .tabPopup {
+                padding-top: 0.5em;
+                padding-bottom: 0.5em;
+            }
+
+            .txtbxStyle {
+                border-radius: 3px 3px 3px 3px;
+                width: 190px;
+                height: 1.94em;
+                padding: 0.25em;
+            }
+
+
+
+            .labelstyleee {
+                text-align: right;
+                padding-right: 10px;
+                font-weight: bold;
+                font-size: 13px;
+            }
+
+            .checkboxFour {
+                width: 25px;
+                height: 25px;
+                background: #ddd;
+                margin: 20px 90px;
+                border-radius: 5px 5px 5px 5px;
+                position: relative;
+                box-shadow: 0px 1px 3px rgba(0,0,0,0.5);
+            }
+
+
+
+    </style>
+
+
+
+
+
+    <script id="RATaskPopupEditor" type="text/x-kendo-template">
+        <div style="margin:10px;">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Title</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input class="txtbxStyle" name="title" type="text" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Actual Start Date </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input data-role="datetimepicker" name="start" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Actual End Date </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input data-role="datetimepicker" name="end" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Completion </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input class="txtbxStyle" type="number" name="PercentComplete" min="0" max="1" step="0.01">
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee"> Status </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <select class="txtbxStyle" name="ProgressStatus">
+                                                @{
+
+                                                    foreach (var sl in StatusList)
+                                                    {
+                                                        var StatusText = sl.Text;
+                                                        var StatusValue = sl.Value;
+                                                        <option value="@StatusValue">@StatusText</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Milestone </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input type="checkbox" class="checkboxFour" name="Milestone" />
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Estimated Start Date</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input data-role="datetimepicker" name="EstimatedStart" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Estimated End Date</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input data-role="datetimepicker" name="EstimatedEnd" />
+                                        </td>
+                                    </tr>
+
+
+
+                                </tbody>
+                            </table>
+
+
+                        </td>
+                        <td width="15%">
+                        </td>
+                        <td>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Estimated Efforts(Hrs)</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input class="txtbxStyle" name="EstimatedEfforts" type="number" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Actual Efforts(Hrs) </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <input class="txtbxStyle" type="number" name="ActualEfforts" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Role</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <select class="txtbxStyle" name="RoleId">
+                                                @{
+
+                                                    foreach (var role in rolesList)
+                                                    {
+                                                        var roleText = role.Text;
+                                                        var roleValue = role.Value;
+                                                        <option value="@roleValue">@roleText</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Resource Group </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <select class="txtbxStyle" name="ResourceGroupId">
+                                                @{
+
+                                                    foreach (var res in ResourceGroupList)
+                                                    {
+                                                        var resourceText = res.Text;
+                                                        var resourceValue = res.Value;
+                                                        <option value="@resourceValue">@resourceText</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee"> Work Product </label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <select class="txtbxStyle" name="WorkProdId">
+                                                @{
+
+                                                    foreach (var res in WorkProdList)
+                                                    {
+                                                        var workProdText = res.Text;
+                                                        var workProdValue = res.Value;
+                                                        <option value="@workProdValue">@workProdText</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee">Comments</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <textarea class="txtbxStyle" style="width: 190px; height: 68px;" name="Comments" placeholder="Enter text here..."></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tabPopup labelstyleee">
+                                            <label class="labelstyleee" for="resources">Resources:</label>
+                                        </td>
+                                        <td class="tabPopup">
+                                            <div>
+
+                                                <div class="k-gantt-resources" style="display: table-cell"></div>
+                                                <div class="k-edit-field" data-container-for="resources">
+                                                    <a class="k-button" href="\\#">Assign</a>
+                                                </div>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+
+
+                                </tbody>
+                            </table>
+
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </script>
+
+
+    <style type="text/css">
+        .k-window {
+            width: 620px;
+        }
+
+        .k-edit-form-container .k-edit-buttons {
+            width: 604px;
+        }
+    </style>
+

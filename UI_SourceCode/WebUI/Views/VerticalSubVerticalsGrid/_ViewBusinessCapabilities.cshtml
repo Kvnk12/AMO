@@ -1,0 +1,122 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VerticalAndSubVerticalInput 
+
+
+<input hidden id="subVId" value="@Model.subVId.ToString()"  />
+<input hidden id="title" value="@Model.title.ToString()"  />
+<div class="rightcont form-horizontal" style="float:right;width:64%">
+                <div class="well well-sm">
+                  <h5>Industry Vertical / Sub-Vertical : @Model.title</h5>
+                </div>
+                <div class="panel panel-info">
+                  <div class="panel-heading" style="height:50px">FoundationType / Group / Business Capability / Sub-Capability
+                    <div class="pull-right">
+                      <button class="btn btn-primary" tabindex="29" type="button" id="btnAddViewDetails">View / Edit Details</button>
+                    </div>
+                  </div>
+                  <div class="panel-body" style="height:700px;overflow-y:scroll">
+                    <div class="bampanelrtbdy">
+                      <div class="bamtreemenu">
+                        <ul class="bamtreeMenuUl">
+                          <li><a href="#">Operations Capabilities (Internal)</a>
+                            <ul>
+                                @foreach (var item in Model.BClevel1InternalList)
+                                {
+                                  if(item.SubVerticalId == Model.subVId)
+                                  { 
+                                    <li><a href="#">@item.Level1</a>
+                                       
+                                        <ul>
+                                            @foreach (var bc2 in Model.BCLevel2List)
+                                            {
+                                                if (bc2.Level1Id == item.Id)
+                                                {
+                                    <li><a href="#">@bc2.Level2</a>
+
+                                        <ul>
+                                            @foreach(var bc3 in Model.BCLevel3List)
+                                            {
+                                             if(bc3.Level2Id == bc2.Id)
+                                             {
+                                                 <li><a href="#">@bc3.Level3</a></li>
+                                             }   
+                                            }
+                                        </ul>
+                                        </li>
+                                                }
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                               
+                                }
+                              @*<li><a href="#">Develop Products / Services</a>
+                                <ul>
+                                  <li><a href="#">Plan Product</a>
+                                    <ul>
+                                      <li><a href="#">Create BOM</a></li>
+                                      <li><a href="#">Sub-Capability 1</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>*@
+                             </ul>
+                          </li>
+                            <li><a href="#">Environment Capabilities (External)</a>
+                            <ul>
+                                 @foreach (var item in Model.BClevel1ExternalList)
+                                {
+                                      if(item.SubVerticalId == Model.subVId)
+                                  {
+                                    <li><a href="#">@item.Level1</a>
+
+                                        <ul>
+                                            @foreach (var bc2 in Model.BCLevel2List)
+                                            {
+                                                if (bc2.Level1Id == item.Id)
+                                                {
+                                    <li><a href="#">@bc2.Level2</a>
+
+                                        <ul>
+                                            @foreach(var bc3 in Model.BCLevel3List)
+                                            {
+                                             if(bc3.Level2Id == bc2.Id)
+                                             {
+                                                 <li><a href="#">@bc3.Level3</a></li>
+                                             }   
+                                            }
+                                        </ul>
+                                        </li>
+                                                }
+                                            }
+                                        </ul>
+                                    </li>
+                                 }
+                                }
+                             @* <li><a href="#">Develop Products / Services</a>
+                                <ul>
+                                  <li><a href="#">Plan Product</a>
+                                    <ul>
+                                      <li><a href="#">Create BOM</a></li>
+                                      <li><a href="#">Sub-Capability 1</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                      <li><a href="#">Some data</a></li>
+                                    </ul>
+                                  </li>
+                                </ul>
+                              </li>*@
+                             </ul>
+                          </li>
+                       </ul>
+                      </div>
+                      <!--/.bamtreemenu--> 
+                      
+                    </div>
+                    <!--/.bampanelrtbdy--> 
+                  </div>
+                  <!--/.panel-body--> 
+                </div>
+              </div>

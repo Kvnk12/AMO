@@ -1,0 +1,979 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model FeedbackViewModel
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+
+    ViewBag.Title = "Feedback Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    Layout = "~/Views/Shared/GenericLayOutWithoutFooter.cshtml";
+    ViewBag.NucleusLogo = Url.Content("~/Content/images/NucleusLogo.png");
+    var viewtyp = ViewBag.viewtyp;
+}
+<style>
+    body {
+        overflow: hidden;
+    }
+</style>
+<div class="fdbk-content-main">
+    <div style="display:flex;justify-content:space-between">
+        <div class="drp-srch-content">
+            <div class="fdbk-type-dropdown">
+                @(Html.Kendo().DropDownList()
+                .Name("SelectedFeedbackType")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .HtmlAttributes(new { style = "width: 100%" })
+                .Events(e => e.Change("OnTypeSeltnChange"))
+                .BindTo(new List<SelectListItem>
+                    ()
+                    {
+                    new SelectListItem() {
+                    Text = "Feedback Feature", Value ="1"
+                    },
+                    new SelectListItem() {
+                    Text = "Business Opportunity", Value ="2"
+                    }
+                    })
+                    )
+            </div>
+            <input type="text" id="searchKeywords" placeholder="Type Search Keyword here" class="searchTextBox" />
+            <div class="search-icon" onclick="searchKeyword()"></div>
+        </div>
+
+    </div>
+
+    <div class="fdbk-view-content">
+        <div class="left-content">
+            <div class="filter-content  scrollbar-inner">
+                <div class="allFdbk selectedOpt" onclick="togglefdbk('allFdbk')"> All Feedbacks</div>
+                <div class="myFdbk" onclick="togglefdbk('myFdbk')"> My Feedbacks</div>
+                <div class="filterDiv" id="productftr">
+                    <div>Products</div>
+                    @{
+                        foreach (var item in Model.ProductFtr)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="prodGrp_@item.grpId">
+                            <label>
+                                <span class="icon"></span>
+                                <input type="checkbox" name="productGrp" value="grp_@item.grpId" hidden checked="checked" onchange="prodGroupSel(this,@item.grpId)" />
+                                <span>@item.ProductGroupName</span>
+                            </label>
+                            <span class="downArrow" id="expProd_@item.grpId" onclick="expProd(@item.grpId)"></span>
+                        </div>
+                        <div id="showProd_@item.grpId" style="display: none; margin-left: 1em;">
+                            @foreach (var itemList in item.prdListitem)
+                                {
+                            <div class="unSelectedFilt selectedFilt" id="prod_@itemList.prdid">
+                                <label>
+                                    <span class="icon"></span>
+                                    <input type="checkbox" name="product_@item.grpId" value="@itemList.prdid" hidden checked="checked" onchange="prodSel(this,@item.grpId)" />
+                                    <span>@itemList.product</span>
+                                </label>
+                            </div>
+                                }
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv" id="digitalftr" style="display:none">
+                    <div>Digital Offering</div>
+                    @{
+                        foreach (var item in Model.offeringList)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="digi_@item.Value">
+                            <label>
+                                <span class="icon"></span>
+                                <input type="checkbox" name="digital" value="@item.Value" hidden checked="checked" onchange="digiSel(this)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv">
+                    <div>Status</div>
+                    @{
+                        foreach (var item in Model.StatusList)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="status_@item.Value">
+                            <label>
+                                <span class="icon"></span>
+                                <input type="checkbox" name="status" value="@item.Value" hidden checked="checked" onchange="statusSel(this)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv">
+                    <div>Sort By</div>
+                    <div class="unSelectedFilt selectedFilt" id="recentCreateSort">
+                        <label>
+                            <span class="icon"></span>
+                            <input type="checkbox" name="sortBy" value="recentCreated" hidden checked="checked" onchange="sortSel(this)" />
+                            <span>Most Recent Created</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt" id="recentUpdateSort">
+                        <label>
+                            <span class="icon"></span>
+                            <input type="checkbox" name="sortBy" value="recentUpdated" hidden onchange="sortSel(this)" />
+                            <span>Most Recent Updated</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt " id="votedSort">
+                        <label>
+                            <span class="icon"></span>
+                            <input type="checkbox" name="sortBy" value="voted" hidden onchange="sortSel(this)" />
+                            <span>Most Voted</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt " id="commentedSort">
+                        <label>
+                            <span class="icon"></span>
+                            <input type="checkbox" name="sortBy" value="commented" hidden onchange="sortSel(this)" />
+                            <span>Most Commented</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="filterDiv" id="tagFilterDiv">
+                    <div>Select Tags</div>
+                    @{
+                        foreach (var item in Model.TagsList)
+                        {
+                        <div class="unSelectedFilt" id="tags_@item.Value">
+                            <label>
+                                <span class="icon"></span>
+                                <input type="checkbox" name="tags" value="@item.Text" hidden onchange="TagSel(this,@item.Value)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="right-content">
+            <div class="fdbk-list-content scrollbar-inner">
+                @Html.Partial("_ViewFdbkList")
+            </div>
+            <div class="fdbk-detail-content scrollbar-inner">
+                @Html.Partial("_FdbkDetailToApprove")
+            </div>
+        </div>
+    </div>
+
+    <div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body" style="transform: translate(400px,-40px); ">
+
+                <div class="alert alert-danger" id="lblErr1" style="display:none">
+                    <div style="display:flex">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <label style="width:18em">Error while Updating.</label>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                    <div style="display:flex">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <label style="width:18em">Feedback Approved Successfully.</label>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess2" style="display:none">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <label style="width:18em">Feedback Rejected Successfully.</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade approve-dialog-popup" id="approveAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="transform: translate(13%, 13%);">
+            <div class="modal-content" style=" width: 27em; height: 29em;">
+                <div class="modal-header" style="border: unset; height: 4em;">
+                    <h6 class="modal-title" style="font-weight: 600;">Approve Feedback</h6>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background: transparent; border: unset; font-size: 22px;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align: center;">
+                    <span id="fdbkApprId" hidden></span>
+                    <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/FeedbackManager/approve_tick_green.svg" />
+                    <h5><b>Glad you are approving the idea</b></h5>
+                    <h6 style="font-size:11px">
+                        Please add the reason for approval below
+                    </h6>
+                    <div>
+                        <input type="text" placeholder="Add Link to Azure DevOps item" disabled style=" width: 100%; height: 2.5em; background-color: #EBEBEC; border: unset; border-radius: 5px; padding: 0 8px; margin-top: 1em; margin-bottom: 0.5em; font-size: 12px;" />
+                    </div>
+                    <div>
+                        <textarea id="stChngCmt" placeholder="Comment for approval (optional)" style="width: 100%; height: 6.5em; background-color: #EBEBEC; border: unset; border-radius: 5px; padding: 8px; margin-bottom: 0.5em; resize: none; font-size: 12px;"></textarea>
+                    </div>
+                    <div style="margin-top: 2em;">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style=" color: #0079A1; background-color: transparent; font-size: 13px; width: 62px; vertical-align: middle; border-radius: 4px; border: none; font-weight: 700; padding: 0.3em;">No</button>
+                        <button type="button" class="custom-button" data-bs-dismiss="modal" onclick="appOkClick()">Yes</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="modal fade approve-dialog-popup" id="rejectAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="transform: translate(15%, 38%);">
+            <div class="modal-content" style=" width: 27em; height: 24em;">
+                <div class="modal-header" style="border: unset; height: 4em;">
+                    <h6 class="modal-title" style="font-weight: 600;">Reject Feedback</h6>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background: transparent; border: unset; font-size: 22px;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align: center;">
+                    <span id="fdbkApprId" hidden></span>
+                    <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/FeedbackManager/reject_alert_red.svg" />
+                    <h5><b>Do you really want to reject the idea?</b></h5>
+                    <h6 style="font-size:11px">
+                        Please add the reason for rejection below
+                    </h6>
+                    <div>
+                        <textarea id="stChngCmt2" placeholder="Comment for rejection..." style="width: 100%; height: 6.5em; background-color: #EBEBEC; border: unset; border-radius: 5px; padding: 8px; margin: 0.5em 0; resize: none; font-size: 12px;"></textarea>
+                    </div>
+                    <div style="margin-top: 1em;">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style=" color: #0079A1; background-color: transparent; font-size: 13px; width: 62px; vertical-align: middle; border-radius: 4px; border: none; font-weight: 700; padding: 0.3em;">No</button>
+                        <button type="button" class="custom-button" data-bs-dismiss="modal" onclick="rejectOkClick()">Yes</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#status_1").css("display", "none");
+        $("#status_3").css("display", "none");
+        $("#status_4").css("display", "none");
+
+        $('.scrollbar-inner').scrollbar();
+        $('iframe').contents().find('body').css('color', 'gray');
+        $('iframe').contents().find('body').css('font-size', '10px');
+        $('iframe').contents().find('body').css('font-style', 'italic');
+        $('iframe').contents().find('body').css('font-family', 'cursive');
+        multisel = $("#internalclient").kendoMultiSelect({
+            includeSelectAllOption: true,
+            placeholder: "Select Client...",
+            //  headerTemplate: "<div><input type='checkbox' id='Header1' class='Header_selectall'><label> Select All</label></div>",
+            autoClose: false,
+            dataTextField: "Name",
+            dataValueField: "Id",
+            tagMode: "single",
+            height: 400,
+        }).data("kendoMultiSelect");
+         if (@viewtyp != 0) {
+            selectFdbk(@viewtyp);
+        }
+    });
+    function collapseleft(productid) {
+        $('#' + productid).toggleClass('hide');
+        $('#main_' + productid).toggleClass('show-content');
+    }
+
+    var fdbkVal = "All";
+    var inputstring = "";
+    var sortByVal = "recentCreated";
+    var prdGrpid = "";
+    var tagCnt = 0;
+    var tagslist = [];
+
+    function togglefdbk(sel){
+        if (sel == 'allFdbk') {
+            $(".allFdbk").addClass("selectedOpt");
+            $(".myFdbk").removeClass("selectedOpt");
+            fdbkVal = "All";
+        }
+        else if (sel == 'myFdbk') {
+            $(".allFdbk").removeClass("selectedOpt");
+            $(".myFdbk").addClass("selectedOpt");
+            fdbkVal = "user";
+        }
+        filterChanged();
+    }
+    function prodGroupSel(e,grpid) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByProduct", "ProductGroup", grpid, "selected");
+            $("input[name='product_" + grpid + "']").each(function () {
+                $(this).prop("checked", true);
+                $("#prod_" + $(this).val()).addClass("selectedFilt");
+
+            });
+            $("#prodGrp_" + grpid).addClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", true);
+        }
+        else {
+            LogFdbkActivityById("FilterByProduct", "ProductGroup", grpid, "unselected");
+            $("input[name='product_" + grpid + "']").each(function () {
+                $(this).prop("checked", false);
+                $("#prod_" + $(this).val()).removeClass("selectedFilt");
+
+                console.log($(this).val());
+            });
+            $("#prodGrp_" + grpid).removeClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", false);
+        }
+        filterChanged();
+    }
+    function prodSel(e,grpid) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByProduct", "Product", e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#prod_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByProduct", "Product", e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#prod_" + e.value).removeClass("selectedFilt");
+        }
+        var checkCount = $("input[name='product_" + grpid + "']:checked").length;
+        var prodCount = $("input[name='product_" + grpid + "']").length;
+        if (checkCount != prodCount) {
+            $("#prodGrp_" + grpid).removeClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", false);
+        }
+        else {
+            $("#prodGrp_" + grpid).addClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", true);
+        }
+
+        filterChanged();
+    }
+    function digiSel(e) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByDigitalOffering", "digital", e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#digi_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByDigitalOffering", "digital", e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#digi_" + e.value).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function statusSel(e) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByStatus", "Status", e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#status_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByStatus", "Status", e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#status_" + e.value).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function TagSel(e, tagid) {
+        console.log(tagid);
+        LogFdbkActivity("FilterByTag", "FilterByTag-'" + e.value + "'");
+        if (e.checked) {
+            console.log(e.value + " is selected");
+            $("#tags_" + tagid).addClass("selectedFilt");
+        }
+        else {
+            console.log(e.value + " is unselected");
+            $("#tags_" + tagid).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function sortSel(e) {
+        LogFdbkActivity("SortBy", "SortBy-'" + e.value + "'");
+        if (e.checked) {
+            console.log(e.value + " is selected");
+            sortByVal = e.value;
+            if (e.value == "recentCreated") {
+                $('#recentCreateSort').addClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', true);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "recentUpdated") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').addClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', true);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "voted") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').addClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', true);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "commented") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').addClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', true);
+            }
+        }
+        else {
+            sortByVal = "";
+            $('#recentCreateSort').removeClass("selectedFilt");
+            $('#recentUpdateSort').removeClass("selectedFilt");
+            $('#votedSort').removeClass("selectedFilt");
+            $('#commentedSort').removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function filterChanged() {
+        console.log("filterchange");
+        $('#filterList').empty();
+        var stDesc = "";
+        var stList = [];
+        var tagDesc = "";
+        var tagList = [];
+        var GrpList = [];
+        var prdList = [];
+        var prdDesc = "";
+        var dgDesc = "";
+        var digiList = [];
+        var typeid = $("#SelectedFeedbackType").val();
+        if (typeid == "1") {
+            $("input:checkbox[name=productGrp]").each(function () {
+                var str1 = $(this).val();
+                GrpList.push(str1.slice(4))
+            });
+            for (var j = 0; j < GrpList.length; j++) {
+                $("input:checkbox[name=product_" + GrpList[j] + "]:checked").each(function () {
+                    prdList.push($(this).val());
+                })
+            }
+            for (var k = 0; k < prdList.length; k++) {
+                prdDesc += prdList[k] + "#";
+            }
+            prdDesc = prdDesc.substring(0, prdDesc.length - 1);
+        }
+        else {
+            $("input:checkbox[name=digital]:checked").each(function () {
+                digiList.push($(this).val())
+            });
+            for (var i = 0; i < digiList.length; i++) {
+                dgDesc += digiList[i] + "#";
+            }
+            dgDesc=dgDesc.substring(0, dgDesc.length - 1);
+            //console.log(dgDesc);
+        }
+        $("input:checkbox[name=status]:checked").each(function () {
+            stList.push($(this).val())
+        });
+        for (var i = 0; i < stList.length; i++) {
+            stDesc += stList[i] + "#";
+        }
+        stDesc=stDesc.substring(0, stDesc.length - 1);
+        //console.log(stDesc);
+        $("input:checkbox[name=tags]:checked").each(function () {
+            tagList.push($(this).val())
+        });
+        for (var i = 0; i < tagList.length; i++) {
+            tagDesc += tagList[i] + "#";
+        }
+        tagDesc = tagDesc.substring(0, tagDesc.length - 1);
+
+        var typeid = $("#SelectedFeedbackType").val();
+
+        var model = {
+            statusSel: stDesc,
+            productSel: prdDesc,
+            digitalSel: dgDesc,
+            tagsSel: tagDesc,
+            typeid: typeid,
+            sortByVal: sortByVal,
+            selMode: fdbkVal,
+            inputstring: inputstring
+        };
+       // console.log(model);
+        var data = JSON.stringify(model);
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/GetFilteredFeedback")';
+
+        $.ajax(
+            {
+                type: 'post',
+
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (temp) {
+                    //console.log(temp);
+                    $('#ListFdbkViews').html(temp);
+                    $("#detail_view").css("display", "none");
+                    $(".fdbk-content-main .fdbk-view-content .fdbk-list-content .product_divs").css("margin-right", "4px");
+
+                },
+                error: function (err, data) {
+                    console.log(arguments);
+                    //                    alert('Ajax Error');
+                }
+
+            });
+    }
+
+    function OnTypeSeltnChange(e) {
+        var index = this.dataItem(e.item);
+        LogFdbkActivity("ChangeIdeaType", "Type Choosen-'" + index.Text + "'");
+        console.log(index.Value);
+        switch (index.Value) {
+            case "1": $("#productftr").css('display', 'block');
+                $("#digitalftr").css('display', 'none');
+                break;
+            case "2": $("#productftr").css('display', 'none');
+                $("#digitalftr").css('display', 'block');
+                break;
+        }
+        filterChanged();
+    }
+    function selectFdbk(fdbkid) {
+        tagCnt = 0;
+
+        var fdbkid = $("#fdbkid_" + fdbkid).text();
+        if (fdbkid == "") {
+            $("#detail_view").css("display", "none");
+        }
+        else {
+            $("#detail_view").css("display", "unset");
+        }
+        console.log(fdbkid);
+        var typeid = $("#type_" + fdbkid).text();
+        var title = $("#title_" + fdbkid).text();
+        var type = $("#type_" + fdbkid).text();
+        var brief = $("#brief_" + fdbkid).text();
+        var submiby = $("#submitBy_" + fdbkid).text();
+        var lastAct = $("#lastAct_" + fdbkid).text();
+        var vote = $("#vote_" + fdbkid).text();
+        var status = $("#status_" + fdbkid).text();
+        var typeid = $("#typeid_" + fdbkid).text();
+        var proddigiid = $("#prodDigiid_" + fdbkid).text();
+        var isMyfdbk = $("#isMyFdbk_" + fdbkid).text();
+        var crtDt = $("#crtDt_" + fdbkid).text();
+        var tagList = $("#tagList_" + fdbkid).text();
+        document.getElementById("tagsListDtl").innerHTML = "";
+        var array = tagList.split(",");
+        for (i = 0; i < array.length; i++) {
+            if (array[i] != "") {
+                temp = "<div class='tags' id='tagname_" +fdbkid+"_"+i+"'>" + array[i] + "<span class='closeTag' onclick='removeTag(" + fdbkid+","+i+")'></span></div>";
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("tagsListDtl");
+                element.appendChild(para);
+                console.log(array[i]);
+                tagCnt++;
+                tagslist.push(array[i]);
+            }
+        }
+        console.log(tagCnt);
+        if (tagCnt >= 5) {
+            $(".addTags").css("display", "none");
+        }
+        else {
+            $(".addTags").css("display", "unset");
+        }
+
+        var tagList = $("#tagList").innerHTML;
+        //console.log(tagList);
+        $("#Tags").innerHTML = tagList;
+        //console.log("#isMyFdbk_" + fdbkid)
+        //console.log(status)
+        //console.log(isMyfdbk)
+        $("#dtl_title").text(title);
+
+        if (typeid == "1") {
+            $("#dtl_prod").text(proddigiid);
+            $("#feature_view").css("display", "unset");
+            $("#business_view").css("display", "none");
+        } else if (typeid == "2") {
+            $("#dtl_Digi").text(proddigiid);
+            $("#feature_view").css("display", "none");
+            $("#business_view").css("display", "unset");
+        }
+        $("#dtl_submtBy").text(submiby);
+        $("#dtl_lastAct").text(lastAct);
+        $("#dtl_crtDt").text(crtDt);
+        $("#dtl_lastAct1").text(lastAct);
+        $("#vote").text(vote);
+        $("#dtl_status").text(status);
+        $("#dtl_fdbkId").text(fdbkid);
+        $("#dtl_fdbkId2").text(fdbkid);
+        $("#dtl_fdbkId3").text(fdbkid);
+        $("#dtl_desc").html(brief);
+
+        var voteStatus = $("#voteStatus_" + fdbkid).text();
+        if (voteStatus == "True") {
+            // console.log("true");
+            $(".voted").css("display", "unset");
+            $(".vote").css("display", "none");
+            $("#dtl_voted").text(vote);
+            //  console.log(vote);
+        }
+        else {
+            // console.log("false");
+            $("#dtl_vote").text(vote);
+            $(".voted").css("display", "none");
+            $(".vote").css("display", "unset");
+            //console.log(vote);
+        }
+        // console.log(voteStatus);
+        //if()
+    }
+    $(".vote").click(function () {
+        $(".voted").css("display", "unset");
+        $(".vote").css("display", "none");
+        //$(this).toggleClass("voted");
+        var fid = $("#dtl_fdbkId").text();
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+       var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/SaveVoteofUser")';
+        LogFdbkActivity("VoteFeedback", "Voted the Feedback");
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) + parseInt(1);
+                $("#vote_" + fid).text(vsum);
+                $("#vote").text(vsum);
+                $("#voteStatus_" + fid).text("True");
+                console.log(vsum, vcount);
+                $("#dtl_voted").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    $(".voted").click(function () {
+        $(".voted").css("display", "none");
+        $(".vote").css("display", "unset");
+        //$(this).toggleClass("voted");
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+        var fid = $("#dtl_fdbkId").text();
+        LogFdbkActivity("UnVoteFeedback", "UnVoted the Feedback");
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/SaveVoteofUser")';
+
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) - parseInt(1);
+                $("#vote_" + fid).text(vsum);
+                $("#vote").text(vsum);
+                $("#voteStatus_" + fid).text("False");
+                console.log(vsum, vcount);
+                $("#dtl_vote").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    function searchKeyword() {
+        inputstring = document.getElementById("searchKeywords").value;
+        LogFdbkActivity("SearchFeedback", "SearchFeedback-'" + inputstring + "'");
+        filterChanged();
+    }
+    function rejectclick() {
+        var fdid = $("#dtl_fdbkId").text();
+        $("#fdbkApprId").text(fdid);
+        $('#rejectAlertModal').modal('show');
+    }
+    function rejectOkClick() {
+        LogFdbkActivity("RejectedFeedback", "Feedback is Rejected");
+        var fdbkId = $("#dtl_fdbkId").text();
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/ApproveRejectFdbk")';
+        var comment = document.getElementById("stChngCmt2").value;
+        var model = {
+            fdbkId: fdbkId,
+            status: 4,
+            cmt: comment
+        };
+        var data = JSON.stringify(model);
+        $('#saveAlertModal').modal('show');
+
+        $.ajax({
+            url: baseurl,
+            type: 'POST',
+            data: model,
+            success: function (temp) {
+                console.log("save successfully");
+               // console.log(temp);
+                $('#ListFdbkViews').html(temp);
+                $("#detail_view").css("display", "none");
+                $(".fdbk-content-main .fdbk-view-content .fdbk-list-content .product_divs").css("margin-right", "4px");
+
+                $('#lblErr').hide();
+                $('#lblSuccess1').hide();
+                $('#lblSuccess2').show();
+            },
+            error: function (err) {
+                console.log(arguments);
+                console.log(err);
+                $("#detail_view").css("display", "none");
+                $('#saveAlertModal').modal('hide');
+                filterChanged();
+
+            }
+        });
+    }
+    function approveclick() {
+        var fdid=$("#dtl_fdbkId").text();
+        $("#fdbkApprId").text(fdid);
+        $('#approveAlertModal').modal('show');
+    }
+    function appOkClick() {
+        LogFdbkActivity("ApprovedFeedback", "Feedback is Approved");
+        var fdbkId = $("#dtl_fdbkId").text();
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/ApproveRejectFdbk")';
+        var comment = document.getElementById("stChngCmt").value;
+        var model = {
+            fdbkId: fdbkId,
+            status: 3,
+            cmt:comment
+        };
+        var data = JSON.stringify(model);
+        $('#saveAlertModal').modal('show');
+
+        $.ajax({
+            url: baseurl,
+            type: 'POST',
+            data: model,
+            success: function (temp) {
+                console.log("save successfully");
+                $('#ListFdbkViews').html(temp);
+                $("#detail_view").css("display", "none");
+                $(".fdbk-content-main .fdbk-view-content .fdbk-list-content .product_divs").css("margin-right", "4px");
+                $('#lblErr').hide();
+                $('#lblSuccess2').hide();
+                $('#lblSuccess1').show();
+            },
+            error: function (err) {
+                console.log(arguments);
+                console.log(err);
+                $("#detail_view").css("display", "none");
+                $('#saveAlertModal').modal('hide');
+                filterChanged();
+                location.reload();
+            }
+        });
+    }
+    function expProd(grpid) {
+        $("#showProd_" + grpid).toggleClass("show");
+    }
+    function onTagChange(e) {
+        console.log(e);
+        var a = $("#NewTags").val();
+        //console.log(a);
+        a = a.substring(0, a.length);
+        //console.log(a);
+        if (a.charAt(a.length - 2) == ',') {
+            a = a.substring(0, a.length - 2);
+        }
+        //console.log(tagslist);
+        if (!(tagslist.includes(a))) {
+            var fkid = $("#dtl_fdbkId").text();
+            temp = "<div class='tags' id='tagname_" + fkid + "_" + tagCnt +"'>" + a + "<span class='closeTag' onclick='removeTag(" + fkid + "," + tagCnt +")'></span></div>";
+            var para = document.createElement("div");
+            para.innerHTML = temp;
+            var element = document.getElementById("tagsListDtl");
+            element.appendChild(para);
+            tagCnt++;
+
+
+            var mod = {
+                fdbkid: fkid,
+                tagname:a
+            }
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/SaveTags")';
+
+            $.ajax({
+                type: 'post',
+                url: baseurl,
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (tagid) {
+                    console.log(tagid);
+                    if (tagid != 0) {
+                        temp1 = "<div class='unSelectedFilt' id='tags_" + tagid + "'><label><span class='icon'></span><input type='checkbox' name='tags' value='" + a + "' hidden onchange='TagSel(this," + tagid + ")' /><span>" + a + "</span></label></div>";
+                        var paraq = document.createElement("div");
+                        paraq.innerHTML = temp1;
+                        var element = document.getElementById("tagFilterDiv");
+                        element.appendChild(paraq);
+                    }
+
+
+                },
+                error: function (err, data) {
+                    //console.log(arguments);
+                }
+            });
+            var tags = $("#tagList_" + fkid).text();
+            tags = tags + "," + a;
+            $("#tagList_" + fkid).text(tags);
+        }
+        e.preventDefault();
+        $("#NewTags").data("kendoAutoComplete").value("");
+        //console.log(tagCnt);
+        $("#tagaddView").addClass("hide");
+        if (tagCnt >= 5) {
+            $(".addTags").css("display", "none");
+        }
+        else {
+            $(".addTags").css("display", "unset");
+        }
+    }
+    function removeTag(fdid,i) {
+        //console.log(fdid + " " + i);
+        var tagname = $("#tagname_" + fdid + "_" + i).text();
+        //console.log(tagname);
+        $("#tagname_" + fdid + "_" + i).text("");
+        var tags = $("#tagList_" + fdid).text();
+        tags = tags.replace(tagname,"");
+        $("#tagList_" + fdid).text(tags);
+        $("#tagname_" + fdid + "_" + i).css("display", "none");
+        var mod = {
+            fdbkid: fdid,
+            tagname: tagname
+        };
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/RemoveTags")';
+
+        var data = JSON.stringify(mod);
+        $.ajax({
+            type: 'post',
+            url: baseurl,
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (temp) {
+                //console.log("tag saved");
+                tagCnt--;
+                if (tagCnt >= 5) {
+                    $(".addTags").css("display", "none");
+                }
+                else {
+                    $(".addTags").css("display", "unset");
+                }
+            },
+            error: function (err, data) {
+                //console.log(arguments);
+            }
+        });
+    }
+    $(".addTags").click(function () {
+        $("#tagaddView").removeClass("hide");
+    })
+    $("#tagaddView").focusout(function () {
+        $("#tagaddView").addClass("hide");
+    });
+    function LogFdbkActivity(ActionName, ActionDetail) {
+        var model = {
+            ActionName: ActionName,
+            ActionDetail: ActionDetail
+        };
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/SaveActivityDetails")';
+        var data = JSON.stringify(model);
+        $.ajax(
+            {
+                type: 'post',
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                },
+                error: function (err, data) {
+                }
+            });
+    }
+    function LogFdbkActivityById(ActionName, DetailName, DetailId, Action) {
+        var model = {
+            ActionName: ActionName,
+            DetailName: DetailName,
+            DetailId: DetailId,
+            Action: Action
+        };
+        var baseurl = '@Url.Content("~/FDBKManager/ViewFeedback/GetAndSaveActivityDetails")';
+        var data = JSON.stringify(model);
+        $.ajax(
+            {
+                type: 'post',
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                },
+                error: function (err, data) {
+                }
+            });
+    }
+</script>

@@ -1,0 +1,378 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto
+@using PagedList.Mvc
+@using PagedList
+@model NTTData.AMOPortal.WebUI.Dto.MaintenanceRequestInput
+
+
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery-ui.css"  rel="stylesheet"/>
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery.dataTables.css" rel="stylesheet" />
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery.dataTables.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/dataTables.jqueryui.js"></script>
+<link href="~/Content/PagedList.css" rel="stylesheet" />
+
+
+    
+   
+      
+
+
+
+
+
+@*@Html.PagedListPager( (IPagedList)ViewBag.OnePageOfProducts, page => Url.Action("Index", new { page }) )*@
+
+
+                       @if (Model.ClientId > 0 && ViewBag.pagedItems != null)
+      {
+      @Html.PagedListPager((IPagedList)ViewBag.pagedItems, page => Url.Action("ViewMaintenanceRequest", new {ClientId=Model.ClientId, PageNumber = page }), PagedListRenderOptions.ClassicPlusFirstAndLast)
+      }
+
+
+@*<table class="fht-table table table-striped" id="myTable05" cellpadding="0" cellspacing="0">*@
+    <table class="display"  id="myTable05" >
+
+        <thead>
+  
+
+            <tr>
+                
+                <th>Incident Id</th>
+                <th>Record Included</th>
+                <th>Created DateTime</th>
+                <th>Status</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Priority</th>
+                <th>Impact Scope</th>
+                <th>Urgency</th>
+                <th>Type</th>
+                <th>Outage Type</th>
+                <th>Division Impacted</th>
+                <th>Business UnitImpacted</th>
+                <th>Service Category</th>
+                <th>Service Sub category</th>
+                <th>Service Area</th>
+                <th>Region Impacted</th>
+                <th>Locations Impacted</th>
+                <th>Customer Dept</th>
+                <th>Customer LastName</th>
+                <th>Customer FirstName</th>
+                <th>Customer Title</th>
+                <th>Customer Satisfaction</th>
+                <th>Impact Type</th>
+                <th>Impact Description</th>
+                <th>Config ItemID</th>
+                <th>Config Type</th>
+                <th>Config Item Name</th>
+                <th>Environment Impacted</th>
+                <th>Module</th>
+                <th>NodeName</th>
+                <th>Root Cause Type</th>
+                <th>RootCause Description</th>
+                <th>Resolution Type</th>
+                <th>Resolution Description</th>
+                <th>Solution ID</th>
+                <th>Deployment Release</th>
+                <th>Related Change IDs</th>
+                <th>Related IDs</th>
+                <th>RelatedProblemIDs</th>
+                <th>Helpdesk</th>
+                <th>Assigned To Person</th>
+                <th>Assigned To SupportGroup</th>
+                <th>Created ByGroup</th>
+                <th>Created ByPerson</th>
+                <th>Created TimeZone</th>
+                <th>CreatedTime</th>
+                <th>Created WeekDay</th>
+                <th>Created Week Num</th>
+                <th>Created Month</th>
+                <th>Created Year</th>
+                <th>Acknowleded By Group</th>
+                <th>Acknowleded By Person</th>
+                <th>Acknowleded DateTime</th>
+                <th>Acknowledged TimeZone</th>
+                <th>Acknowledged Time</th>
+                <th>Acknowledged WeekDay</th>
+                <th>Acknowledged WeekNum</th>
+                <th>Acknowledged Month</th>
+                <th>Acknowledged Year</th>
+                <th>ResolvedBy Group</th>
+                <th>ResolvedBy Person</th>
+                <th>ResolvedBy Vendor</th>
+                <th>Resolution Effort Hours</th>
+                <th>Resolution DateTime</th>
+                <th>Resolved TimeZone</th>
+                <th>Resolution Time</th>
+                <th>Resolution Week Day</th>
+                <th>Resolution Week Num</th>
+                <th>Resolution Month</th>
+                <th>Resolution Year</th>
+                <th>Service Restored By Group</th>
+                <th>Service Restored By Person</th>
+                <th>Service Restored DateTime</th>
+                <th>Service Restored TimeZone</th>
+                <th>Service Restored Time</th>
+                <th>Service Restored Week Day</th>
+                <th>Service Restored Week Num</th>
+                <th>Service Restored Month</th>
+                <th>Service Restored Year</th>
+                <th>Last Updated By Person</th>
+                <th>Last Updated DateTime</th>
+                
+                <th>Assignedbygroup</th>
+                <th>Assignedbyperson</th>
+                <th>Assigneddatetime</th>
+                <th>Esitmatedresponsetimebygroup</th>
+                <th>Esitmatedresponsedatetime</th>
+                <th>Waivedindicator</th>
+                <th>Esitmatedresolutiondate</th>
+                <th>Totalsuspenddurationassignedtoack</th>
+                <th>Totalsuspenddurationacktoer</th>
+                <th>Totalsuspenddurationertoresolution</th>
+                <th>Resolvedindicator</th>
+                
+                <th>Modification Notes</th>
+                <th>DataSource</th>
+                <th>Data Source Notes</th>
+                <th>Uploaded By</th>
+                <th>Upload Date</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+
+       
+
+                        <tbody>
+
+                              @if (ViewBag.pagedItems != null)
+                                  {
+
+                                  foreach (var pageitem in ViewBag.pagedItems)
+                                      {
+                                      MaintenanceRequest item = (MaintenanceRequest)pageitem;
+                                       <tr>                                        
+                                       @*<td><a href="/MaintenanceRequest/Edit/@item.Id">@item.IncidentId</a></td>*@
+                                           <td>@Html.ActionLink(item.IncidentId, "Edit", new { item.Id })</td>
+                                       @*<td>@Html.ActionLink(@item.IncidentId, "Edit", new { item.Id });</td>*@
+                                       
+
+                                       <td>@item.RecordIncluded</td>
+                                       <td>@item.CreatedDateTime</td>
+
+                                       <td>@item.Status</td>
+                                       <td>@item.Title</td>
+
+                                       <td>@item.Description</td>
+                                       <td>@item.Priority</td>
+                                       <td>@item.ImpactScope</td>
+                                       <td>@item.Urgency</td>
+                                       <td>@item.Type</td>
+                                       <td>@item.OutageType</td>
+                                       <td>@item.DivisionImpacted</td>
+                                       <td>@item.BusinessUnitImpacted</td>
+                                       <td>@item.ServiceCategory</td>
+                                       <td>@item.ServiceSubcategory</td>
+                                       <td>@item.ServiceArea</td>
+                                       <td>@item.RegionImpacted</td>
+                                       <td>@item.LocationsImpacted</td>
+                                       <td>@item.CustomerDept</td>
+                                       <td>@item.CustomerLastName</td>
+                                       <td>@item.CustomerFirstName</td>
+                                       <td>@item.CustomerTitle</td>
+                                       <td>@item.CustomerSatisfaction</td>
+                                       <td>@item.ImpactType</td>
+                                       <td>@item.ImpactDescription</td>
+                                       <td>@item.ConfigItemID</td>
+                                       <td>@item.ConfigType</td>
+                                       <td>@item.ConfigItemName</td>
+                                       <td>@item.EnvironmentImpacted</td>
+                                       <td>@item.Module</td>
+                                       <td>@item.NodeName</td>
+                                       <td>@item.RootCauseType</td>
+                                       <td>@item.RootCauseDescription</td>
+                                       <td>@item.ResolutionType</td>
+                                       <td>@item.ResolutionDescription</td>
+                                       <td>@item.SolutionID</td>
+                                       <td>@item.DeploymentRelease</td>
+                                       <td>@item.RelatedChangeIDs</td>
+                                       <td>@item.RelatedIDs</td>
+                                       <td>@item.RelatedProblemIDs</td>
+                                       <td>@item.Helpdesk</td>
+                                       <td>@item.AssignedToPerson</td>
+                                       <td>@item.AssignedToSupportGroup</td>
+                                       <td>@item.CreatedByGroup</td>
+                                       <td>@item.CreatedByPerson</td>
+                                       <td>@item.CreatedTimeZone</td>
+                                       <td>@item.CreatedTime</td>
+                                       <td>@item.CreatedWeekDay</td>
+                                       <td>@item.CreatedWeekNum</td>
+                                       <td>@item.CreatedMonth</td>
+                                       <td>@item.CreatedYear</td>
+                                       <td>@item.AcknowlededByGroup</td>
+                                       <td>@item.AcknowlededByPerson</td>
+                                       <td>@item.AcknowledgedDateTime</td>
+
+                                       <td>@item.AcknowledgedTimeZone</td>
+                                       <td>@item.AcknowledgedTime</td>
+                                       <td>@item.AcknowledgedWeekDay</td>
+                                       <td>@item.AcknowledgedWeekNum</td>
+                                       <td>@item.AcknowledgedMonth</td>
+                                       <td>@item.AcknowledgedYear</td>
+                                       <td>@item.ResolvedByGroup</td>
+                                       <td>@item.ResolvedByPerson</td>
+                                       <td>@item.ResolvedByVendor</td>
+                                       <td>@item.ResolutionEffortHours</td>
+                                       <td>@item.ResolutionDateTime</td>
+
+                                       <td>@item.ResolvedTimeZone</td>
+                                       <td>@item.ResolutionTime</td>
+                                       <td>@item.ResolutionWeekDay</td>
+                                       <td>@item.ResolutionWeekNum</td>
+                                       <td>@item.ResolutionMonth</td>
+                                       <td>@item.ResolutionYear</td>
+                                       <td>@item.ServiceRestoredByGroup</td>
+                                       <td>@item.ServiceRestoredByPerson</td>
+                                       <td>@item.ServiceRestoredDateTime</td>
+
+                                       <td>@item.ServiceRestoredTimeZone</td>
+                                       <td>@item.ServiceRestoredTime</td>
+                                       <td>@item.ServiceRestoredWeekDay</td>
+                                       <td>@item.ServiceRestoredWeekNum</td>
+                                       <td>@item.ServiceRestoredMonth</td>
+                                       <td>@item.ServiceRestoredYear</td>
+                                       <td>@item.LastUpdatedByPerson</td>
+                                       <td>@item.LastUpdatedDateTime</td>
+
+                                        <td>@item.Assignedbygroup</td>
+                                        <td>@item.Assignedbyperson</td>
+                                        <td>@item.Assigneddatetime</td>
+                                        <td>@item.Esitmatedresponsetimebygroup</td>
+                                        <td>@item.Esitmatedresponsedatetime</td>
+                                        <td>@item.Waivedindicator</td>
+                                        <td>@item.Esitmatedresolutiondate</td>
+                                        <td>@item.Totalsuspenddurationassignedtoack</td>
+                                        <td>@item.Totalsuspenddurationacktoer</td>
+                                        <td>@item.Totalsuspenddurationertoresolution</td>
+                                        <td>@item.Resolvedindicator</td>
+
+                                       <td>@item.ModificationNotes</td>
+                                       <td>@item.DataSource</td>
+                                       <td>@item.DataSourceNotes</td>
+                                       <td>@item.UploadedBy</td>
+                                       <td>@item.UploadDate</td>
+
+
+                                       <td>
+                                            @Html.Hidden("Id", item.Id)
+                                           <button type="submit" class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("DelMaintenanceRequest", "MaintenanceRequest", new { id = item.Id })'; return false;">Delete</button>
+                                       </td>
+                                   
+                                           </tr>
+                                  }
+                                  }
+                            
+                        </tbody>
+                      </table>
+
+
+
+<script>
+
+    $(document).ready(function () {
+        var table = $('#myTable05');
+        if (table.length > 0) {
+
+
+
+
+            $('#myTable05').dataTable({
+
+
+                "sScrollX": "100%",
+                "sScrollY": "500px",
+                "sScrollXInner": "120%",
+                "bScrollCollapse": true,
+                "bLengthChange": false,
+                "bInfo": false,
+                "jQueryUI": true,
+                "paging": false,
+                "sDom": '<"top"f>rt<"bottom"><"clear">'
+
+
+
+                //"scrollY": "500px",
+                //"scrollCollapse": true,
+                //"paging": false,
+                ////"jQueryUI": true,
+                //"bInfo": false,
+                //"sScrollXInner": "120%"
+
+
+                //"sScrollX": "100%",
+                //"sScrollY": "500px",
+                //"sScrollXInner": "120%",
+                //"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                //"bScrollCollapse": true,
+                //"dom": '<"top"fl>t<"bottom"i><"clear">',
+                //"bLengthChange": false
+
+            });
+        }
+
+
+
+        //$('#myTable05').dataTable({
+
+        //    "sScrollX": "100%",
+        //    "sScrollY": "750px%",
+        //    "sScrollXInner": "120%",
+        //    //"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        //    "bScrollCollapse": true,
+        //    "dom": '<"topfl"><"bottom"><"clear">',
+        //    "bLengthChange": false
+
+
+
+        //"dom": '<"top"flr>t<"bottom"><"clear">'
+
+        //}
+
+        //     $('#myTable05').dataTable({
+
+        //         //"sScrollX": "100%",
+        //         //"sScrollY": "500px",
+        //         //"sScrollXInner": "120%",
+        //         ////"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        //         //"bScrollCollapse": true,
+
+        //         //"dom": '<"top"pfl><"bottom"><"clear">'
+
+        //         //"sScrollX": "100%",
+        //         //"sScrollY": "750px%",
+        //         //"sScrollXInner": "120%",
+        //         //"bPaginate": false,
+        //         //"bLengthChange": false,
+        //         //"bFilter": true,
+        //         //"bInfo": false,
+        //         //"bAutoWidth": false });
+
+
+        //     }
+
+
+
+
+        //);
+
+
+
+        //}
+
+    });
+
+</script>

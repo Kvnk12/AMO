@@ -1,0 +1,269 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Controllers;
+@model NTTData.AMOPortal.WebUI.Dto.ServiceCalendarModel
+
+
+
+@Html.HiddenFor(m => m.AccountId, new { id = "Tab1AccountId" })
+@Html.HiddenFor(m => m.ContractId, new { id = "Tab1ContractId" })
+@Html.HiddenFor(m => m.tabs, new { id = "Tabid" })
+@*@Html.HiddenFor(m => m.IsExisting, new { id = "IsExisting" })*@
+<div>
+
+    @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+    {
+@Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })}
+
+    @if (ViewData.ModelState.ContainsKey("Success"))
+    {
+
+@Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })}
+</div>
+
+<div class="sla-servicehour-time">
+    <div class="sla-servicehr-checkbox">
+        <div class="custom-group">
+            <label class="" for="metricuse">
+                <i>Same Service Hours every day of the business week</i>
+            </label>
+            <div class="sla-time-checkbox">
+                @*<input class="metricchk" type="checkbox" tabindex="3" name="metricuse" id="srhrsweek" onclick="disablefieldsweek();">*@
+                @Html.CheckBoxFor(m => m.chkSameWeek, new { @class = "metricchk", tabindex = "3", id = "srhrsweek", onclick = "disablefieldsweek();" })
+            </div>
+        </div>
+        <div class="custom-group sla-checkbox-right">
+            <div class="sla-checkbox">
+                <label class="" for="metricuse">
+                    <i>Same Service Hours over weekend</i>
+                </label>
+                <div class="sla-time-checkbox">
+                    @*<input class="metricchk" type="checkbox" tabindex="3" name="metricuse" id="srhrsweekend" onclick="disablefieldsweekend();">*@
+                    @Html.CheckBoxFor(m => m.chkSameWeekend, new { @class = "metricchk", tabindex = "3", id = "srhrsweekend", onclick = "disablefieldsweekend();" })
+
+                </div>
+            </div>
+            <div class="sla-btn-servicehour">
+                <button class="btn btn-primary im-button" id="btnGenCal" @*onclick="generateserviceCalender()"*@ type="submit" @((User.IsInRole("User") || User.IsInRole("CustomerUser")) ? "disabled" : "")>Generate Service Hours calendar</button>
+            </div>
+        </div>
+    </div>
+    <div class="sla-service-timesetup">
+        <div class="sla-hour-section">
+            <div class="custom-group">
+                <label>Monday to Friday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("weekStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(false)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("weekEndTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(false)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Monday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("monStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("monEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Tuesday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("tueStart")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("tueEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Wednesday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("wedStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("wedEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Thursday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("thuStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("thuEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Friday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("friStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("friEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+
+        </div>
+        <div class="sla-hour-section">
+
+            <div class="custom-group">
+                <label>Saturday to Sunday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("weekendStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(false)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("weekendEndTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(false)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Saturday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("satStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("satEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Sunday</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("sunStartTime")
+            .Value("1:00")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+            .Name("sunEdnTime")
+            .Value("23:59")
+            .ComponentType("modern")
+            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+            .DateInput()
+            .Enable(true)
+        )
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+

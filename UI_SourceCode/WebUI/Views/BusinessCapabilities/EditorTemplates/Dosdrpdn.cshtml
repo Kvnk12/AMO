@@ -1,0 +1,22 @@
+﻿@using WebUI.Controllers;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model String
+@{ 
+  var impList = (IEnumerable<SelectListItem>)ViewData["DosList"];
+    }
+
+
+    @(Html.Kendo().DropDownListFor(m => m)
+                                .Name("DoSId")
+                                //.OptionLabel("Select..")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(impList)
+
+    )

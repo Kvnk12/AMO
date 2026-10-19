@@ -1,0 +1,59 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+<div id="classaction">
+    <button class="btn btn-primary" id="btnCatSave" name="command" value="savecategory">Assign Category</button>
+    <button class="btn btn-default">Cancel</button>
+</div>
+
+<div>
+    @{
+        if (Model.ClientId > 0 && Model.PostDemandInput.Id > 0)
+        {
+            <label for="Demandclassifcation" class="col-sm-5 control-label" id="">Classification</label>
+            <select id="Demandclassifcation" multiple="multiple" name="Demandclassifcation">
+                @foreach (DMClassification classItem in Model.PostDemandInput.GetClassification)
+                {
+                    <optgroup label="@classItem.Classification">
+
+                        @foreach (vwDMclasswithcat item in Model.PostDemandInput.GetCatAndClassification.Where(c => c.classificationid == classItem.Id))
+                        {
+
+                            if (Model.PostDemandInput.GetMapItems.Where(c => c.ItemId == Model.PostDemandInput.Id && c.CategoryId == item.Id).Count() > 0)
+                            {
+                                <option value="@item.Id.ToString()" selected="selected">@item.category</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id.ToString()">@item.category</option>
+                            }
+                        }
+                    </optgroup>
+
+                }
+            </select>
+
+        }
+    }
+
+
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#Demandclassifcation").multipleSelect({
+            multiple: true,
+            multipleWidth: 250,
+            width: '100%',
+            height: '1500px',
+            isOpen: true,
+            keepOpen: true
+
+        });
+    });
+
+</script>

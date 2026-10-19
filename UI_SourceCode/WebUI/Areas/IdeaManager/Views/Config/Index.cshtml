@@ -1,0 +1,191 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    //Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .k-grid tbody tr.k-treelist-group td:first-child {
+        font-weight: 900;
+    }
+</style>
+
+<div class="content-main" id="wrap" style="height:900px">
+    <div style="padding: 0;">
+        <div>
+            <ol class="breadcrumb">
+                <li>Idea Manager</li>
+                <li class="active">WBS Template</li>
+            </ol>
+        </div>
+
+        @*<div class="leftarea form-horizontal" style="width:47%">
+            <label><strong style="font-size:medium; align-content:center">ROLE</strong></label>
+                @(Html.Kendo().Grid<IMRoleModel>()
+                     .Name("Role")
+                     .Columns(columns =>
+                     {
+                         columns.Bound(e => e.Id).Hidden();
+                         columns.Bound(e => e.RoleName).Title("Role Name");
+                         columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                     })
+                  .Sortable()
+                  .Scrollable()
+                  .Pageable()
+                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                  .ToolBar(toolbar => toolbar.Create().Text("Add New Role"))
+                  .HtmlAttributes(new { style = "height:350px;" })
+                  .DataSource(dataSource => dataSource
+                  .Ajax()
+                  .PageSize(10)
+                  .Model(model => model.Id(f => f.Id))
+                  .Read(read => read.Action("GetRole", "Config"))
+                  .Create(create => create.Action("AddRole", "Config"))
+                  .Update(update => update.Action("EditRole", "Config"))
+                  .Destroy(destroy => destroy.Action("DeleteRole", "Config"))
+
+                      )
+
+                )
+
+            </div>*@
+
+        @*<div class="rightarea form-horizontal" style="width:47%">
+            <label><strong style="font-size:medium; align-content:center">RESOURCE/RESPONSIBLE</strong></label>
+                @(Html.Kendo().Grid<IMResourceResponseModel>()
+                     .Name("ResourceResponse")
+                     .Columns(columns =>
+                     {
+                         columns.Bound(e => e.Id).Hidden();
+                         columns.Bound(e => e.ResourceName).Title("Resource Group Name");
+                         columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                     })
+                  .Sortable()
+                  .Scrollable()
+                  .Pageable()
+                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                  .ToolBar(toolbar => toolbar.Create().Text("Add New Resource Group"))
+                  .HtmlAttributes(new { style = "height:350px;" })
+                  .DataSource(dataSource => dataSource
+                  .Ajax()
+                  .PageSize(10)
+                  .Model(model => model.Id(f => f.Id))
+                  .Read(read => read.Action("GetResource", "Config"))
+                  .Create(create => create.Action("AddResource", "Config"))
+                  .Update(update => update.Action("EditResource", "Config"))
+                  .Destroy(destroy => destroy.Action("DeleteResource", "Config"))
+
+                      )
+
+                )
+
+            </div>*@
+
+
+        <div>
+            <label><strong style="font-size:medium; align-content:center;">WBS Template</strong></label>
+            @(Html.Kendo().TreeList<WBSTemplateModel>()
+                .Name("WBSTemplate")
+    .Toolbar(toolbar => toolbar.Create().Text("Add New WBS Template"))
+    .Columns(columns =>
+    {
+        columns.Add().Field(e => e.Name).Title("Phase/Progress");
+        columns.Add().Title("Edit").Width(350).Command(c =>
+        {
+            c.Edit().Text("");
+            c.Destroy().Text("");
+            c.CreateChild().Text("Add Sub-Task");
+        })
+        .HtmlAttributes(new
+        {
+            // style = "text-align: center;"
+        });
+    })
+    .Editable(e => e.Mode("inline"))
+    .DataSource(dataSource => dataSource
+        .Create(create => create.Action("Create", "Config"))
+        .Read(read => read.Action("GetAllTemplates", "Config"))
+        .Update(update => update.Action("Update", "Config"))
+        .Destroy(delete => delete.Action("Destroy", "Config"))
+        .Model(m =>
+        {
+            m.Id(f => f.TaskId);
+            m.ParentId(f => f.TParentId);
+            m.Expanded(true);
+            m.Field(f => f.Name);
+        })
+    )
+    .Height(600)
+            )
+
+        </div>
+
+    </div>
+</div>
+
+@*<script id="ProgessTemplateGrid" type="text/kendo-tmpl">
+
+        @(Html.Kendo().Grid<IMProgressTemplateModel>()
+                .Name("ProgessTemplateGrid#=Id#")
+                .Columns(columns =>
+                {
+                    //columns.Bound(e => e.Id).Hidden();
+                    columns.Bound(e => e.Progress).Title("Progress");
+
+                    columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+        .Sortable()
+        .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+        .HtmlAttributes(new { style = "height:350px;" })
+        .Pageable()
+
+          .ToolBar(
+        tools =>
+        {
+            tools.Create().Text("Add New Progress Template");
+        })
+        .Scrollable()
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Model(model =>
+            {
+                model.Id(o => o.ProgressId);
+            })
+            .PageSize(5)
+            .Read(read => read.Action("GetProgress", "Config", new { PhaseId = "#=Id#" }))
+            .Create(create => create.Action("AddProgress", "Config", new { PId = "#=Id#" }))
+            .Update(update => update.Action("EditProgress", "Config"))
+            .Destroy(delete => delete.Action("DeleteProgress", "Config"))
+        )
+        //.Events(events => events
+        //.Save("ApplicationGrid_Save"))
+        .ToClientTemplate()
+        )
+
+    </script>*@
+

@@ -1,0 +1,49 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@model INConfigurationValueModel
+
+    @{ 
+        var plist = ConfigurationController.getParameterName();
+    }
+
+<div class="container" style="padding:0;">
+    <div class="treeMenuContent">
+        <div class="selectappArea" style="align-content:center">
+            <h3><strong>Edit ClusterConfiguration Details </strong></h3>
+        </div>
+        <div class="form-group">
+            <label>ParameterName : </label>
+            @(Html.Kendo().DropDownListFor(m => m.KeyId)
+                             .Name("KeyId")
+                             .OptionLabel("Select")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(plist)
+                             .AutoBind(true)
+                             .Events(e=>e.Select("getParamDetails"))
+            )
+         @Html.HiddenFor(e=>e.ParameterName, new { id = "ParamName"})
+        </div>
+
+        <div class="form-group">
+            <label>Parametervalue : </label>
+            @(Html.Kendo().TextBoxFor(e => e.ParameterValue))
+        </div>
+        <br />
+        <div class="form-group">
+            <label>Description :</label>
+           
+            @Html.TextAreaFor(e => e.Description, new { id = "Desc" })
+        </div>
+        <br />
+        <div class="form-group">
+            <label>ActiveFlag :</label>
+            @(Html.Kendo().CheckBoxFor(m => m.ActiveFlag))
+        </div>
+        
+       
+    </div>
+</div>
+

@@ -1,0 +1,235 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientAndAccountsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+    {       
+    <div class="accdetailArea">
+        <div class="accdetailhdr">
+            <div class="accdetailhd">
+                <h4>Account Details</h4>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            @*Html.ValidationSummary(false,"")*@
+        </div>
+
+
+        @*             @if (!ViewData.ModelState.IsValid)
+                        {
+                                @Html.ValidationSummary(false, "", new {@class= "alert alert-danger"})	
+                         }*@
+
+        @*           @if(@TempData["StatusMessage"] != null)
+                               {
+                                    <div class="alert alert-success container">
+                                    <b>@TempData["StatusMessage"]</b>
+                             </div>
+                               } *@
+
+        <div class="leftarea form-horizontal">
+            <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+            <input hidden id="AccountId" value="@Model.AccountId.ToString()"   />
+            <input hidden id="AccountCreate" value="@Model.AccountCreate.ToString()"   />
+            <input hidden id="Cancel" value="CancelClick" />
+            <div class="form-group">
+                <label id="lblAccountName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Account Name</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.clientAcctInput.AccountName, new { @class = "cust-textbox", placeholder = "", tabindex = "1", id = "txtaccname" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="lblAccountStatus" class="col-sm-5 control-label"><span class="mandate">*</span>Account Status</label>
+                <div class="col-sm-5">
+
+                    @Html.DropDownListFor(m => m.clientAcctInput.Status, new SelectList(Model.clientAcctInput.AccountStatusList, "value", "text", Model.clientAcctInput.Status), new
+             {
+                 @class = "selectpicker",
+                 tabindex = "6",
+                 autocomplete = "on",
+                 id = "",
+                 @style="color:black; width:18em;background:transparent;border:none;border-bottom:1px solid;"
+             })
+
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblClientManager" class="col-sm-5 control-label" for="clntmgr"><span class="mandate">*</span>NTT Data Client Manager</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.clientAcctInput.GlobalClientManager, new { @class = "cust-textbox", placeholder = "", tabindex = "3" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblDeliveryManager" class="col-sm-5 control-label" for="delmgr"><span class="mandate">*</span>NTT Data Delivery Manager</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.clientAcctInput.GlobalDeliveryManager, new { @class = "cust-textbox", placeholder = "", tabindex = "4" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblClientAccountSponsor" class="col-sm-5 control-label" for="accspr"><span class="mandate">*</span>Client Account Sponsor</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.clientAcctInput.ClientAccountSponsor, new { @class = "cust-textbox", placeholder = "", tabindex = "5" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblOpenDate" class="col-sm-5 control-label" for="opendate"><span class="mandate">*</span>Open Date</label>
+                <div id="sandbox-container">
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.clientAcctInput.OpenDate, new { @Value = Model.clientAcctInput.OpenDate.ToString("MM/dd/yyyy"), @class = "cust-textbox datefield", placeholder = "", tabindex = "6" , style = "text-align:right"})
+                        @*<span class="add-on"><i class="icon-th"></i></span>*@
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblCloseDate" class="col-sm-5 control-label" for="closedate"><span class="mandate">*</span>Close Date</label>
+                <div id="sandbox-container">
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.clientAcctInput.CloseDate, new { @Value = Model.clientAcctInput.CloseDate.ToString("MM/dd/yyyy"), @class = "cust-textbox datefield", placeholder = "", tabindex = "7", style = "text-align:right" })
+                        @*<span class="add-on"><i class="icon-th"></i></span>*@
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--/.leftarea-->
+        <div class="rightarea">
+            <div class="form-group">
+                <label id="lblFiscalActiveContract" class="col-sm-5 control-label" for="">Fiscal Year Active Account Value</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.FiscalYearActiveValue, new { @Value = Model.clientAcctInput.FiscalYearActiveValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "8", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.FiscalYearContractRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.FiscalYearContractRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label id="lblFiscalPlannedContract" class="col-sm-5 control-label" for="">Fiscal Year Planned Account Value</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.FiscalYearPlannedValue, new { @Value = Model.clientAcctInput.FiscalYearPlannedValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "9", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.FiscalYearPlannedRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.FiscalYearPlannedRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label id="lblFiscalPipelineContract" class="col-sm-5 control-label" for="">Fiscal Year Pipeline Account Value</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.FiscalYearPipelineValue, new { @Value = Model.clientAcctInput.FiscalYearPipelineValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "10", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.FiscalYearPipelineRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.FiscalYearPipelineRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label id="lblFiscalExecutedContract" class="col-sm-5 control-label" for="">Fiscal Year Account Revenue to Date</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.FiscalYearExecutedValue, new { @Value = Model.clientAcctInput.FiscalYearExecutedValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "11", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.FiscalYearExecutedRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.FiscalYearExecutedRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label id="lblAverageAnnualRevenue" class="col-sm-5 control-label" for="">Annual Average Revenue</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.AverageAnnualRevenue, new { @Value = Model.clientAcctInput.AverageAnnualRevenue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "12", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.AverageAnnualRevenueCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.AverageAnnualRevenueCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label id="lblRevenueToDate" class="col-sm-5 control-label" for="">Revenue To Date</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.RevenueToDate, new { @Value = Model.clientAcctInput.RevenueToDate.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "13", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.RevenueToDateCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.RevenueToDateCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblAverageAnnualFTE's" class="col-sm-5 control-label" for="">Average Annual FTE's</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.AverageAnnualFTEs, new { @Value = Model.clientAcctInput.AverageAnnualFTEs.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "14", id = "txtAvgFTE", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.SumOfFTEOnShoreOffShore, new { @class = "metricchk", id = "chkAvgFTE", tabindex = "110" })
+                        @Html.LabelFor(m => m.clientAcctInput.SumOfFTEOnShoreOffShore, new { @class = "", id = "" })
+                    </div>
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.AverageAnnualFTEsRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "115" })
+                        @Html.LabelFor(m => m.clientAcctInput.AverageAnnualFTEsRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblAvgAnnualFTEOnshore" class="col-sm-5 control-label" for="">Average Annual FTE's (Onshore)</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.AverageAnnualFTEsOnShore, new { @Value = Model.clientAcctInput.AverageAnnualFTEsOnShore.ToInteger(), @class = "cust-textbox", placeholder = "", id = "txtAvgFTEOnShore", tabindex = "14", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.AverageAnnualFTEsOnShoreRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.AverageAnnualFTEsOnShoreRollupCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label id="lblAvgAnnualFTEOffshore" class="col-sm-5 control-label" for="">Average Annual FTE's (Offshore)</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.clientAcctInput.AverageAnnualFTEsOffShore, new { @Value = Model.clientAcctInput.AverageAnnualFTEsOffShore.ToInteger(), @class = "cust-textbox", id = "txtAvgFTEoffShore", placeholder = "", tabindex = "15", onkeypress = "return isNumberKey(event)" })
+                    <div class="col-sm-0">
+                        @Html.CheckBoxFor(m => m.clientAcctInput.AverageAnnualFTEsOffSchoreCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                        @Html.LabelFor(m => m.clientAcctInput.AverageAnnualFTEsOffSchoreCheck, new { @class = "", id = "" })
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+        <!--/.rightarea-->
+        <div class="accdetailacction">
+            <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="reset" tabindex="31" class="btn btn-secondary" id="cancel">Cancel</button>
+        </div>
+
+    </div>
+    <!--./accdetailArea-->                        
+    }
+<script>
+    $(function () {
+        $(".datefield").datepicker();
+
+    });
+</script>

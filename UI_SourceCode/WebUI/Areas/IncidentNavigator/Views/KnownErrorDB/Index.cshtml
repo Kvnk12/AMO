@@ -1,0 +1,291 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using System.Data;
+
+@model  KnownErrorDBModel
+
+
+@{
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+
+
+<div class="content-main custom-grid">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li><a href="#">Incident Navigator</a></li>
+            <li class="active"><a href="#">Known Error DB</a></li>
+        </ol>
+    </div>
+
+
+    <div class="content-wrapper" style="padding: 0;">
+        @*<div class="treeMenuArea" style="margin-left:-34px;">*@
+        <div class="treeMenuArea INcontainer">
+            <div class="treeMenuContent">
+                <div class="" style="padding: 0;">
+                    <div class="form-horizontal">
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                        }
+                        @if (TempData["ValidationSuccessMsg"] != null)
+                        {
+                            var str = new HtmlString(@TempData["ValidationSuccessMsg"].ToString());
+                            <p class="alert alert-success">
+                                <strong>Success:</strong><label>@Html.Raw(str)</label>
+
+                            </p>
+                        }
+
+
+
+
+
+                        <table>
+                            <tr>
+                                <td>
+                                    <table cellpadding="5" cellspacing="2">
+                                        <tr>
+                                            <td style="width:75px;">@Html.Label("Search KEDB") </td>
+                                            <td style="width:500px;">
+                                                <input type="text" name="kedbSearch" class="form-control" id="kedbSearch" placeholder="Enter Search Text">
+                                            </td>
+                                            <td><button type="button" id="btnUpload" class="btn btn-primary" onclick="GoKedb();" tabindex="30">GO</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4">
+
+                                                <button type="button" id="btnUpload" onclick="addkedb()" class="btn btn-primary" tabindex="30">Add New KEDB</button>
+                                                <h4>KEDB List</h4>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <div id="partialKEDBDiv">
+                                        @Html.Partial("_KEDBList", Model.kedblist)
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="KEDBAddEditDiv">
+                                        @Html.Partial("_AddEditKEDB", Model)
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+                <!--/.end of treemenu container-->
+            </div>
+            <!--/.end of treemenucontent-->
+        </div>
+        <!--/.end of treemenuarea-->
+    </div>
+
+    <!-- .modal -->
+    <div class="modal active" id="incidentmodalpop">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Incident List</h4>
+                </div>
+                <div class="modal-body">
+                    <table height="500">
+                        <tr>
+                            <td scope="col">Search Incidents</td>
+                            <td style="width:500px;">
+                                <input type="text" name="txtSearch" class="form-control" id="txtSearch" placeholder="Enter Search Text">
+                            </td>
+                            <td><button type="button" name="btnModalGo" onclick="GoFun();" id="btnModalGo" class="btn btn-primary" tabindex="30">GO</button></td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="3" valign="top">
+                                <div id="PopUpDiv">
+                                    @Html.Partial("_IncidentPopUp", Model.incidentpopuplist)
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div><!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+</div>
+<script>
+
+        function OpenModalWindow()
+        {
+            //alert($('#hidId').val());
+            if ($('#hidId').val() == '' || $('#hidId').val() == null || $('#hidId').val() == '0') {
+                alert('Please Select KEDB');
+                return false;
+            }
+            $("#incidentmodalpop").modal();
+        }
+
+
+
+        function addkedb()
+        {
+           //alert($('#hidId').val());
+
+            $('#hidId').val(0);
+            $('#KEDID').val('');
+            $('#Cause').val('');
+            //$('#hidClientId').val(0);
+            $('#chkSLA').prop('checked', false);
+            $('#Author').val('');
+            $('#CIName').val('');
+            $('#BusinessFunction').val('');
+            $('#TicketidClusters').val('');
+            $('#KEDBFilename').val('');
+
+            $('#reaOnlyFileName').val('');
+            $('#ResolutionSteps').val('');
+            $('#Escalations').val('');
+        }
+
+        function SelectIncidents()
+        {
+           // alert('');
+            var chkArray = [];
+            /* look for all checkboes that have a class 'chk' attached to it and check if it was checked */
+            $(".childchkboxAll:checked").each(function () {
+                chkArray.push($(this).val());
+            });
+            var selectedINs = chkArray.join(',');
+            var selectedKEDB = $('#hidId').val();
+            var actionurl = '@Url.Content("~/IncidentNavigator/KnownErrorDB/LinkIncidents")';
+           // alert(selectedINs);
+            // alert(selectedINs);
+            $.ajax({
+                url: actionurl,
+                type: "POST",
+                async: false,
+                data: {
+                    selectedINs: selectedINs,
+                    KEDBId: selectedKEDB
+                },
+                error: function (response) {
+                   // alert(response);
+                    //alert(response.responseText);
+                    //return false;
+                },
+                success: function (response) {
+                    //alert(response);
+                   // $("#incidentmodalpop").hide();
+                   // $(this).dialog("close");
+                   // $(this).dialog("destroy");
+                    $("#IncidentDiv").html(response);
+
+                    //$("#incidentmodalpop").focusout()
+                    //if (response.toLowerCase() == 'true')
+                    //res = response;
+                }
+            });
+
+
+        }
+
+        function GoFun()
+        {
+            var baseurl = '';
+            baseurl = '@Url.Content("~/IncidentNavigator/KnownErrorDB/GetIncidentPopUp")';
+           // alert($('#txtSearch').val());
+            var dataToPost = {
+                searchCriteria: $('#txtSearch').val()
+
+            };
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'POST',
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    // $('#btnModalGo').hide();
+                    $("#PopUpDiv").html(data);
+                   // window.location.reload(true);
+                },
+                error: function () {
+                    //  $('#myModal').hide();
+                }
+            });
+
+        }
+
+
+        function GoKedb() {
+
+            var baseurl = '';
+            baseurl = '@Url.Content("~/IncidentNavigator/KnownErrorDB/GetKEDBList")';
+            //alert($('#kedbSearch').val());
+            var dataToPost = {
+                page: '1',
+                searchCriteria: $('#kedbSearch').val()
+            };
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'POST',
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    $("#partialKEDBDiv").html(data);
+
+                },
+                error: function () {
+                    //  $('#myModal').hide();
+                }
+            });
+
+        }
+
+
+
+
+
+
+
+
+
+</script>
+
+<style>
+
+    .field-validation-error {
+        color: red;
+    }
+
+
+    table.table thead tr th {
+        border-radius: 3px 3px 0 0;
+        background-color: #5876AA;
+        color: #fff;
+    }
+
+    table tbody {
+        border: thin #f5f5f5;
+        border-radius: 3px;
+    }
+
+</style>

@@ -1,0 +1,117 @@
+﻿@*@model NTTData.AMOPortal.Domain.Entities.UserProfile*@
+@using NTTData.AMOPortal.WebUI.Dto
+@model NTTData.AMOPortal.WebUI.Dto.UserProfileModel
+
+@{
+
+    ViewBag.Title = "Assign Applications";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayout.cshtml";
+}
+
+<div class="content-main">
+    @using (Html.BeginForm("AssignApplication", "Account", FormMethod.Post))
+{
+
+
+
+    
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li>Admin</li>
+            <li>User Management</li>
+            <li class="active">Access Management</li>
+        </ol>
+
+
+    <div class="container" style="height:1000px">
+
+        @if (Model.Id != 0)
+        {
+            <div class="row">
+                <table border="0" cellspacing="10" ; cellpadding="10" style="width:100%;">
+                    <tr>
+                        <th scope="row" style="width:10%" class="textLt">First Name</th>
+                        <td width="25">
+                            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", @readonly = true })
+                            @Html.Hidden("chkselectList", "")
+                            @Html.Hidden("UserID", Model.Id)
+                        </td>
+                        <th scope="row" style="width:10%" class="textLt">Last Name</th>
+                        <td width="25%">
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @readonly = true })
+                        </td>
+                        <th scope="row" style="width:10%" class="textLt">Email</th>
+                        <td width="30%">
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @readonly = true })
+                        </td>
+                    </tr>
+                </table>
+            </div>
+                <div id="partialDiv">
+                    @Html.Partial("_UserClientsApplicationsRoles", Model.SelectedAppsList)
+                </div>
+
+                    <div id="lstApplications">
+                        @Html.Partial("_AppStoreApplications", Model.SelectedUserApplicationInput)
+                    </div>
+
+
+
+        }
+    </div>
+}
+
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function()
+    {
+
+    $('select#drpSelUserID').change(function () {
+        var SelectedclientId = $('#drpSelUserID :selected').val();
+       // var Selectedclient = $('#ddlClientId :selected').val();
+      //  alert(Selectedclient);
+        if (SelectedclientId == "") {
+            return false;
+        }
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3].toLowerCase() == 'account') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Account/AssignUser/?id='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Account/AssignUser/?id='
+        }
+
+        window.location = baseurl + SelectedclientId;
+
+    });
+
+    ////$('#lstApplications').find('#ddlClientId').change(function () {
+    ////    alert(baseurl);
+    ////    var Selectedclient = $('#ddlClientId :selected').val();
+    ////    alert(Selectedclient);
+    ////    var data = [];
+    ////    $.getJSON(baseurl + 'GetUserRoles?clientId=' + Selectedclient, null, function (data) {
+    ////        data = $.map(data, function (item, a) {
+    ////            return "<option value=" + item.Id + ">" + item.RoleName + "</option>";
+    ////        });
+    ////        $("#ddlRoleId").html(data.join(""));
+    ////    });
+    ////});
+
+
+
+
+    });
+
+
+</script>

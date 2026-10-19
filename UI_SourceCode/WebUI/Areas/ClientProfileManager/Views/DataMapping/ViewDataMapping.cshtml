@@ -1,0 +1,754 @@
+﻿@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@model dataMappinginput
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    //  var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+
+    //Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/custom-styles.css")" />
+
+}
+
+<style>
+    .content-main .breadcrumb {
+        margin-left: -0.9em;
+    }
+    .sidebar-wrapper {
+        height: 39.5em;
+    }
+        input [type='submit']:disabled, button:disabled {
+        background-color: #b3b3b3;
+        color: white;
+    }
+        
+    .viewMapData {
+        width: 100%;
+        margin-top: 1em;
+        padding: 1em;
+        background-color: white;
+        border-top: 8px solid rgb(91,121,171);
+    }
+
+    .mapDataDetails {
+        display: flex;
+        justify-content: space-between;
+        width: 102.3%;
+        margin-left: -1em;
+        border-bottom: 1px solid rgb(91,121,171);
+    }
+
+    .mapDataLabel {
+        color: rgb(91,121,171);
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 1.5em;
+        margin-left: 1em;
+    }
+
+    .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+        cursor: not-allowed;
+        border: none;
+        border-bottom: 1px solid black;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+        /*background-color: white; */
+        background-color: unset;
+        margin-top: -0.5em;
+        width: 10em;
+    }
+
+    table tr td .form-control{
+        background-color:unset;
+    }
+
+    .form-control {
+        padding-top: 0.7em;
+    }
+
+    table.table thead tr th {
+        background: rgb(91,121,171);
+    }
+
+    .btn-default{
+        color: #333333;
+        background-color: unset;
+        border-color: #cccccc;
+        border: none;
+        border-bottom: 1px solid black;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+            
+        background-color: unset;
+     }
+
+    .form-control {
+        background-color: unset;
+        border: none;
+    }
+
+    .metricchk input[type="radio"], input[type="checkbox"] {
+        margin: 0px 13px 0;
+    }
+
+    .table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td {
+        border: none;
+    }
+
+
+    .tableDetails.grid_4.scrollbar-rail > .scroll-element.scroll-y {
+        background: transparent;
+    }
+
+    .tableDetails.grid_4.scrollbar-rail > .scroll-element .scroll-bar {
+        background-color: rgb(91,121,171);
+        border-radius: 5px;
+        width: 9px;
+        box-shadow: none;
+    }
+
+    .tableDetails.grid_4.scrollbar-rail > .scroll-element .scroll-element_size {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    .tableDetails.grid_4.scrollbar-rail > .scroll-content.scroll-scrolly_visible {
+        left: 0;
+        margin-left: 0;
+        padding-right: 4em;
+    }
+
+ .concatinationButton {
+        background-image: url("../../Content/images/linkIcon.svg");
+        background-repeat: no-repeat;
+        background-color: #f9f9f9;
+        border: none;
+        width: 15px;
+        height: 15px;
+        margin-top: 1em;
+        margin-left: -1em;
+    }
+
+    .calculationButton {
+        background-image: url("../../Content/images/addIcon.svg");
+        background-repeat: no-repeat;
+        background-color: #f9f9f9;
+        border: none;
+        width: 15px;
+        height: 15px;
+        margin-top: 1em;
+        margin-left: -1em;
+    }
+
+    button, input, select[multiple], textarea {
+        /*background-image: none;*/
+    }
+
+    .table tr:first-child {
+        background-color: #f9f9f9;
+    }
+
+    /*  .table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }*/
+
+   .modal {
+        overflow-y: unset;
+        transform: translate(-15%, 10px);
+    }
+.modal.in .modal-dialog {
+            transform: translate(0, 40%);
+        }
+ .modal-dialog {
+        width: 42%;
+    }
+.modal-header {
+        background-color: rgb(91,121,171);
+        color: #fff;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+ .modal-header .modal-title {
+            font-family: 'HelveticaNeue-Light';
+        }
+    .modal-header .close {
+        opacity: 1;
+        border: none;
+        box-shadow: none;
+        color: #fff;
+        background-image: url('../../Content/images/close.svg');
+        background-size: 12px;
+        width: 12px;
+        height: 12px;
+        background-repeat: no-repeat;
+        background-color: transparent;
+    }
+ .modal-header .close span {
+                text-shadow: none;
+                display: none;
+            }
+.modal-body {
+        padding: 16px 25px 5px;
+        background-color: #fcfcfc;
+    }
+    .modal-body input[type="text"], .modal-body input[type="number"] {
+        border: 1px solid;
+        border-radius: unset;
+        /* padding: unset; */
+        padding-left: 8px;
+        width: 19em;
+        height: 3em;
+    }
+ .modal-content {
+        border: none;
+        border-radius: 0;
+        width: 63em;
+    }
+ .modal-footer {
+        border: none;
+        padding: 10px 25px 16px;
+        background-color: #fcfcfc;
+        margin: 0;
+    }
+ .modal-footer .btn {
+            background-color: rgb(91,121,171);
+            color: #fff;
+            padding: 2px 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    .modal select.selectpicker {
+        border: none;
+        border-bottom: 1px solid black;
+        width: 15em;
+    }
+    .modal tr {
+        height: 4em;
+    }
+    .modal tr td{
+        width: 18em;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Data Mapping</li>
+    </ol>
+    <div class="viewDataMap">
+        @using (Html.BeginForm("UpdateMappingDetail", "DataMapping", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div style="padding: 0;">
+                <div>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                    }
+                    @if (TempData["ValidationSuccessMsgACK"] != null)
+                    {
+                        var str = new HtmlString(@TempData["ValidationSuccessMsgACK"].ToString());
+                        <p class="alert alert-success">
+                            <strong>Success:</strong><label>@Html.Raw(str)</label>
+                            <a href="mailto:AMSsupport@nttdata.com">AMSsupport@nttdata.com</a>
+                        </p>
+                    }
+                    @if (TempData["ValidationSuccessMsg"] != null)
+                    {
+                        <p class="alert alert-success"><strong>Success:</strong>@Html.Raw(@TempData["ValidationSuccessMsg"].ToString())</p>
+                    }
+
+                    <div class="viewMapData">
+                            <div>
+                                @Html.HiddenFor(model => Model.template.MappingId)
+                                @Html.HiddenFor(model => Model.template.BaseMappingId)
+                                @Html.HiddenFor(model => Model.template.FileFormat)
+                                @Html.HiddenFor(model => Model.template.ClientId)
+                                @Html.HiddenFor(model => Model.template.FileDelimiter)
+                                @*@Html.HiddenFor(model => Model.template.FileDelimiter)*@
+                            </div>
+                            <div class="mapDataDetails">
+                                <label class="mapDataLabel">Data mapping detail</label>
+                            </div>
+                            <div style="display:flex;">
+                                <div style="width: 25%; display: flex;margin: 1em 5em 0em 0em;">
+                                    <label id="" class="custom-blue-label" style="font-weight: bold;font-size: 13px;">Application Name: </label>
+                                    <div style="padding-left: 1em;">
+                                        @Html.TextBoxFor(m => Model.template.AppName, new { @class = "form-control", @readonly = "true", @style = "width: 13em;font-size: 13px;" })
+                                    </div>
+                                </div>
+                                <div style="width: 25%;display: flex;margin: 1em 5em 0em 0em;">
+                                    <label id="" class="custom-blue-label" style="font-weight: bold;font-size: 13px;">Template Name: </label>
+                                    <div style=" padding-left: 1em;">
+                                        @if (Model.template.BaseMappingId == null)
+                                        {
+                                            @Html.TextBoxFor(m => Model.template.TemplateName, new { @class = "form-control", @readonly = "true", @style = "width: 13em;font-size: 13px;" })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => Model.template.BaseMappingTemplateViewModel.TemplateName, new { @class = "form-control", @readonly = "true", @style = "width: 13em;font-size: 13px;" })
+                                        }
+
+
+                                    </div>
+                                </div>
+                                <div style="width: 25%; display: flex;margin: 1em 5em 0em 0em;">
+                                    <label id="" class="custom-blue-label" style="font-weight: bold;font-size: 13px;">Template Identifier: </label>
+                                    <div style=" padding-left: 0.8em;">
+                                        @Html.TextBoxFor(m => Model.template.GlobalMappingIdentifier, new { @class = "form-control", @readonly = "true", @style = "width: 13em;font-size: 13px;" })
+                                        @*@Html.DisplayFor(m => Model.template.GlobalMappingIdentifier)*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="form-horizontal">
+                        <div style="display:flex;justify-content:flex-end;margin: 2em 0em 2em 2em;">
+
+                            <button class="custom-button" type="submit" name="btnSubmit" id="btnSave1" value="Save" tabindex="1">SAVE</button> &nbsp;&nbsp;&nbsp;
+
+                            <button class="custom-button" type="submit" name="btnSubmit" id="btnAck1" value="Acknowledge" tabindex="3">ACKNOWLEDGE</button> &nbsp;&nbsp;
+
+                            <button class="custom-button" style="background-color: #b3b3b3;" type="reset" id="btnReset" tabindex="4" >RESET</button> &nbsp;&nbsp;
+
+                            <button class="custom-button" style="background-color: #b3b3b3;" type="submit" id="btnCancel" tabindex="5" onclick="location.href='@Url.Action("index", "DataMapping")';return false;">BACK</button> &nbsp;&nbsp;
+                        </div>
+                        <div class="form-group">
+                            <div class="grid_4" style="overflow-x:auto;">
+                                <table class="table table-striped" cellpadding="0">
+                                    <thead>
+                                        <tr>
+                                            <th width="1%"></th>
+                                            <th width="35%" scope="col">APP data field</th>
+                                            <th width="5%" scope="col">Data type</th>
+                                            <th width="5%" scope="col">Size</th>
+                                            <th width="15%" scope="col">Source field</th>
+                                            <th width="14%" scope="col">Concatenation</th>
+                                            @*<th width="1%" scope="col"></th>*@
+                                            <th width="14%" scope="col" title="Calculation">Calculation</th>
+                                            <th width="25%" scope="col">Default value</th>
+                                            <th width="25%" scope="col">Display value</th>
+                                            @*<th width="13%" scope="col">Modified by</th>*@
+                                            @*<th width="13%" scope="col">Modified on</th>*@
+                                            <th width="10%" scope="col">Data Masking</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @{
+                                            //var sourceFields = Model.SourceFields();
+                                            for (int i = 0; i < Model.templateMapping.Count; i++)
+                                            {
+                                                var reqString = "";
+                                                var sField = "";
+                                                if (Model.templateMapping[i].IsMandatory)
+                                                {
+                                                    reqString = "*";
+                                                }
+                                                if (string.IsNullOrEmpty(Model.templateMapping[i].SField))
+                                                {
+                                                    //by default selecting fields which are same name in source file as well as in IN table.
+                                                    // sField = Model.templateMapping[i].MappingCol;
+                                                }
+                                                else
+                                                {
+                                                    sField = Model.templateMapping[i].SField;
+                                                }
+                                                string updatedTime = "";
+                                                if (Model.templateMapping[i].UpdatedOn != DateTime.MinValue)
+                                                {
+                                                    updatedTime = Model.templateMapping[i].UpdatedOn.ToString();
+                                                }
+                                                string mFieldtoolTip = Model.templateMapping[i].MapColDesc; ;
+
+                                                <tr>
+                                                    <td><span class="mandate">@reqString</span>@Html.HiddenFor(model => Model.templateMapping[i].IsMandatory)</td>
+                                                    <td style="word-break: break-word;width:20%">
+                                                        <div> @Html.HiddenFor(model => Model.templateMapping[i].Id)</div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].CreatedBy)
+                                                        </div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].CreatedOn)
+                                                        </div>
+                                                        <div> @Html.HiddenFor(model => Model.templateMapping[i].UpdatedByUserName)</div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].UpdatedOn)
+                                                        </div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].MappingTable)
+                                                        </div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].MappingCol)
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].MapColDesc)
+                                                        </div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].DataType)
+                                                        </div>
+                                                        <div>
+                                                            @Html.HiddenFor(model => Model.templateMapping[i].DLength)
+                                                        </div>
+                                                        <div data-toggle="tooltip" data-placement="right" title="@mFieldtoolTip">
+                                                            @Model.templateMapping[i].MappingCol
+                                                        </div>
+                                                    </td>
+                                                    <td>@Model.templateMapping[i].DataType</td>
+                                                    <td>@Model.templateMapping[i].DLength</td>
+                                                    <td>@Html.DropDownListFor(m => Model.templateMapping[i].SField, new SelectList(Model.SourceFields, "value", "text", sField), "Nothing Selected", new { @class = "btn btn-default dropdown-toggle" })</td>
+                                                    <td>
+                                                        <div data-tip="@Model.templateMapping[i].FieldConcatinationsForDisplay">
+                                                            <table cellpadding="0" cellspacing="0" border="0">
+                                                                <tr style=" background-color: #f9f9f9;">
+                                                                    <td>@Html.TextBoxFor(m => Model.templateMapping[i].FieldConcatinationsForDisplay, new { @class = "form-control", @readonly = "true",@style= "font-size: 13px;" })</td>
+                                                                    <td><button type="button" data-id="templateMapping[@i].FieldConcatinationsForDisplay" data-hidid="templateMapping[@i].FieldConcatinations" class="hrefClass concatinationButton"></button></td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                        @Html.HiddenFor(m => Model.templateMapping[i].FieldConcatinations)
+                                                    </td>
+
+                                                    <td>
+                                                        <div data-tip="@Model.templateMapping[i].FieldCalculationsForDisplay">
+                                                            <table cellpadding="0" cellspacing="0" border="0">
+                                                                <tr style=" background-color: #f9f9f9;">
+                                                                    <td>@Html.TextBoxFor(m => Model.templateMapping[i].FieldCalculationsForDisplay, new { @class = "form-control", @readonly = "true", @style = "font-size: 13px;" })</td>
+                                                                    <td><button type="button" data-id="templateMapping[@i].FieldCalculationsForDisplay" data-hidid="templateMapping[@i].FieldCalculations" class="hrefCalClass calculationButton"></button></td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                        @Html.HiddenFor(m => Model.templateMapping[i].FieldCalculations)
+                                                    </td>
+
+                                                    <td>@Html.TextBoxFor(m => Model.templateMapping[i].DefVal, new { @class = "form-control", placeholder = "Default value", @style = "width: 8em;word-break: break-word;text-align: center;padding-right: 0px;font-size:13px;" })</td>
+                                                    <td>@Html.TextBoxFor(m => Model.templateMapping[i].DisplayName, new { @class = "form-control", placeholder = "Display name" , @style= "width: 12em;word-break: break-word;text-align: center;padding-right: 0px;font-size:13px;" })</td>
+                                                    @*<td>
+                                                        <div data-toggle="tooltip" data-placement="right" title="Updated on: @Model.templateMapping[i].UpdatedOn" style="overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">
+                                                            @Model.templateMapping[i].UpdatedByUserName
+                                                        </div>
+                                                    </td>*@
+
+                                                    @if ((Model.templateMapping[i].DataType == "ntext" || Model.templateMapping[i].DataType == "nvarchar" || Model.templateMapping[i].DataType == "varchar") && (Model.templateMapping[i].DLength > 8 || Model.templateMapping[i].DLength == -1 || Model.templateMapping[i].DLength == null))
+                                                    {
+                                                        <td> @Html.CheckBoxFor(m => m.templateMapping[i].DataMasking, new { @class = "form-control", @style = "width: 20px;height: 20px;background-color: unset;", tabindex = "", id = "datamasking" })</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td> @Html.CheckBoxFor(m => m.templateMapping[i].DataMasking, new { @class = "form-control", @style = "width: 20px;height: 20px;background-color: unset;", tabindex = "", id = "datamasking", disabled = "disabled" })</td>
+
+                                                    }
+
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>                        
+                            @*<div style="display:flex;justify-content:flex-end;">
+
+                                <button class="custom-button" type="submit" name="btnSubmit" id="btnSave" value="Save" tabindex="6">SAVE</button> &nbsp;&nbsp;
+
+                                <button class="custom-button" type="submit" name="btnSubmit" id="btnAck" value="Acknowledge" tabindex="8">ACKNOWLEDGE</button> &nbsp;&nbsp;
+
+                                <button class="custom-button" type="reset" id="btnReset" tabindex="9">RESET</button> &nbsp;&nbsp;
+
+                                <button class="custom-button" type="submit" id="btnCancel" onclick="location.href='@Url.Action("index", "DataMapping", new { ClientId= Model.template.ClientId})';return false;" tabindex="10">BACK</button> &nbsp;&nbsp;&nbsp;
+                            </div>*@
+                        <div class="modal fade" id="ConcateModal"tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Source field concatenation</h4>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table height="400">
+                                            <tr style="color: rgb(91,121,171);">
+                                                <th scope="col">Source data field</th>
+                                                <th scope="col">Seperator</th>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("s0", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder="Select Source Data Field" })</td>
+                                                <td><input type="text" name="sp0" id="sp0" class="form-control" style="font-size: 13px;"/> </td>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("s1", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Source Data Field" })</td>
+                                                <td><input type="text" name="sp1" id="sp1" class="form-control" style="font-size: 13px;"/> </td>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("s2", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Source Data Field" })</td>
+                                                <td><input type="text" name="sp2" id="sp2" class="form-control" style="font-size: 13px;"/> </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" height="150"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" name="btnConcateSave" id="btnConcateSave" class="btn btn-primary">Save</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+                        <div class="modal fade" id="CalculationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Source field Calculation</h4>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table height="400">
+                                            <tr style=" color: rgb(91,121,171);">
+                                                <th scope="col">Operator</th>
+                                                <th scope="col">Source data field</th>
+                                                <th scope="col">Constant</th>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("Co0", new SelectList(Model.OperatorFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Operator" })</td>
+                                                <td>@Html.DropDownList("Cs0", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Source Data Field" })</td>
+                                                <td><input type="number" name="Csp0" id="Csp0" class="form-control" /> </td>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("Co1", new SelectList(Model.OperatorFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Operator" })</td>
+                                                <td>@Html.DropDownList("Cs1", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Source Data Field" })</td>
+                                                <td><input type="number" name="Csp1" id="Csp1" class="form-control" /> </td>
+                                            </tr>
+                                            <tr>
+                                                <td>@Html.DropDownList("Co2", new SelectList(Model.OperatorFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Operator" })</td>
+                                                <td>@Html.DropDownList("Cs2", new SelectList(Model.SourceFields, "value", "text", ""), "", new { @class = "selectpicker", placeholder = "Select Source Data Field" })</td>
+                                                <td><input type="number" name="Csp2" id="Csp2" class="form-control" /> </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" height="150"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" name="btnCalculateSave" id="btnCalculateSave" class="btn btn-primary">Save</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+                    </div>
+                </div>
+            </div>
+
+
+            <!--Waiting -->
+            <div id="divLoading" style="margin: 0px; padding: 0px; position: fixed; right: 0px; top: 0px; width: 100%; height: 100%; background-color: #666666; z-index: 30001;opacity: .8; filter: alpha(opacity=70);display:none">
+                <p style="position: absolute; top: 30%; left: 45%; color: White;">
+                    Please wait...<img src="~/Content/images/ajax-loader.gif">
+                </p>
+            </div>
+            <!--End waiting-->
+        }
+    </div>
+</div>
+
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var displayControl = '';
+        var hiddenControl = '';
+        $(".hrefClass").click(function () {
+            console.log("hrefClass clicked");
+            displayControl = $(this).attr("data-id");
+            hiddenControl = $(this).attr("data-hidid");
+
+            //alert(displayControl + hiddenControl);
+            $('#ConcateModal').modal('show');
+            // alert(displayControl + hiddenControl);
+
+            // myModal.sho
+            //clear content of modal window
+            for (i = 0; i < 3; i++) {
+                $('[name="s' + i.toString() + '"]').val('').change();
+                $('[name="sp' + i.toString() + '"]').val('');
+            }
+
+            //get hidden control data
+            var concatenationDetail = $('[name="' + hiddenControl + '"]').val();
+            // alert(displayControl + hiddenControl);
+            if (concatenationDetail != null && concatenationDetail != '') {
+                var flds = concatenationDetail.split('^');
+                // alert(displayControl + hiddenControl);
+                //populate prev detail
+                for (var i = 0; i < flds.length; i++) {
+                    var fld = flds[i].split('~');
+                    if (fld.length > 0) {
+                        $('[name="s' + i.toString() + '"]').val(fld[0]).change();
+                        $('[name="sp' + i.toString() + '"]').val(fld[1]);
+                    }
+                }
+            }
+
+        });
+
+
+        var displayCalControl = '';
+        var hiddenCalControl = '';
+        $(".hrefCalClass").click(function () {
+            console.log("hrefCalClass clicked");
+
+            displayCalControl = $(this).attr("data-id");
+            hiddenCalControl = $(this).attr("data-hidid");
+            $('#CalculationModal').modal('show');
+
+
+            console.log(displayCalControl);
+            console.log(hiddenCalControl);
+
+            for (i = 0; i < 3; i++) {
+                $('[name="Co' + i.toString() + '"]').val('').change();
+                $('[name="Cs' + i.toString() + '"]').val('').change();
+                $('[name="Csp' + i.toString() + '"]').val('');
+            }
+
+            var concatenationDetail = $('[name="' + hiddenCalControl + '"]').val();
+            console.log(concatenationDetail);
+            if (concatenationDetail != null && concatenationDetail != '') {
+                var flds = concatenationDetail.split('^');
+
+                for (var i = 0; i < flds.length; i++) {
+                    var fld = flds[i].split('~');
+                    if (fld.length > 0) {
+                        $('[name="Co' + i.toString() + '"]').val(fld[0]).change();
+                        $('[name="Cs' + i.toString() + '"]').val(fld[1]).change();
+                        $('[name="Csp' + i.toString() + '"]').val(fld[2]);
+                        console.log(fld[0] + fld[1] + fld[2]);
+                    }
+                }
+
+            }
+
+        });
+
+
+        ////$('#btnReset').click(function () {
+
+        ////    $("select#drpSelSource").val('default');
+
+        ////});
+
+        $("#btnConcateSave").click(function () {
+
+            var strhid = ''
+            var strDisplay = '';
+            //alert('btn clk')
+            for (var i = 0; i < 3; i++) {
+                // var s = $("#s" + i.toString() + ":selected").val();
+                // alert(s);
+                var s = $('[name="s' + i.toString() + '"]').val();
+                //alert(s);
+                var sp = $('[name="sp' + i.toString() + '"]').val();
+                //alert(sp);
+                var fld = s + '~' + sp;
+                var flddisplay = s + sp;
+                if (strhid == '') {
+                    strhid += fld;
+                    strDisplay += ' ' + flddisplay;
+                }
+                else {
+                    strhid += '^' + fld;
+                    strDisplay += ' ' + flddisplay;
+                }
+            }
+            //var fld1=
+            $('[name="' + displayControl + '"]').val(strDisplay);
+            $('[name="' + hiddenControl + '"]').val(strhid);
+            // document.documentElement.f
+            // alert(strDisplay + '--'+ strhid);
+            $('#ConcateModal').modal('hide');
+        });
+
+
+
+        $("#btnCalculateSave").click(function () {
+            var strhid = ''
+            var strDisplay = '';
+            for (var i = 0; i < 3; i++) {
+                var col = $('[name="Cs' + i.toString() + '"]').val();
+                var operator = $('[name="Co' + i.toString() + '"]').val();
+                var constNum = $('[name="Csp' + i.toString() + '"]').val();
+                if (operator != '') {
+                    //if (col == "_const_") {
+                    col = col + "~" + constNum;
+                    //}
+                    var fld = operator + '~' + col;
+                    var flddisplay = operator + col;
+                    if (strhid == '') {
+                        strhid += fld;
+                        strDisplay += ' ' + flddisplay;
+                    }
+                    else {
+                        strhid += '^' + fld;
+                        strDisplay += ' ' + flddisplay;
+                    }
+                }
+            }
+
+            $('[name="' + displayCalControl + '"]').val(strDisplay);
+            $('[name="' + hiddenCalControl + '"]').val(strhid);
+
+            $('#CalculationModal').modal('hide');
+        });
+
+
+
+
+
+
+
+
+
+    });
+
+
+
+
+
+
+</script>

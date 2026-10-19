@@ -1,0 +1,72 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model ALMTreeMenuInput
+
+
+@{
+    //IList<mdmVariable> variables = Model.GetChildren();
+    IList<mdmVariableType> rootLevelItems = Model.GetRootLevelTypes().Where(v => v.Id == Model.VariableTypeId).ToList();
+    IList<mdmVariableCategory> catItems = Model.GetCatTypes(); 
+}
+
+
+                <ul id="varnavigation"  class="treeview" >
+            @foreach (mdmVariableType type in rootLevelItems)
+                {
+                //var items = Model.GetByType(type.Id, Model.ClientId);
+                @*<li>@type.VariableType*@
+                <li>@Html.ActionLink(type.VariableType, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableTypeId=type.Id},null) 
+                    
+                        @foreach(var catItem in catItems)
+                         {
+                         var items = Model.GetByTypeByCat(type.Id, catItem.Id, Model.ClientId); 
+                    if(items.Any())
+                        {
+                        <ul>
+                        <li>@catItem.VariableCategory
+                        <ul>
+                            @foreach (vwVariableVariableLabel item in items)
+                                {
+                                Html.RenderPartial("_VarTreeViewItems", new ALMTreeMenuInput(item.Id, Model.ClientId));
+                                }
+                        </ul>
+                            </li>
+                        </ul>
+                      
+                        }
+                    }
+              
+                    </li>
+                }
+        </ul>
+
+
+@section scripts
+{
+@*    <script>
+        $(document).ready(function () {
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: true,
+                unique: true
+            });
+        });
+    </script>*@
+
+
+    @*    <script>
+            $(document).ready(function () {
+                $("#varnavigation").treeview({
+                    collapsed: true,
+                    animated: "medium",
+                    persist: "location",
+                    unique: true
+
+                });
+            });
+    </script>*@
+
+}

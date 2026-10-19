@@ -1,0 +1,280 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using System.Web.Mvc;
+
+@model UserSurvey
+@{
+    ViewBag.Title = "Optimization Tool - Survey";
+    // var clientlist = GetDropDownListItems.ClientList;
+    // Layout = "~/Views/Shared/_Anonymouslayout.cshtml";
+    //var client = (Client)Session["Client"];
+    //var v = new SurveyUserController();
+
+    //  var cname = v.getCltName(client.Id);
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/Content/css/INstyles.css" />
+    <style>
+        .mycombo {
+            width: 250px;
+        }
+    </style>
+}
+
+
+
+@using (Html.BeginForm("SubmitUserSurvey", "SurveyUser", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="container-fluid survey-header">
+        <figure class="brand-logo">
+            <span class="logo">
+                <img src="~/Content/images/portfolio_analyzer.png" alt="Portfolio Analyzer icon">
+                <p>Portfolio Analyzer Survey - <span>Optimization Tool</span></p>
+            </span>
+            <span class="ntt-logo">
+                <img src="~/Content/images/nttdata_logo.png" alt="NTT Data logo">
+            </span>
+        </figure>
+    </div>
+
+
+    <div class="survey-page-content survey-page-content-2">
+        <div class="survey-page-content-main">
+
+            <div class="right-content">
+                <div class="survey-info">
+                    <div class="form-group application-select-section">
+                        <div class="form-group-custom">
+                            <label>Application Name : </label>
+                            <div class="form-control">
+                                @Html.DropDownList("AppDrpdown", new SelectList(Model.userSurveyApplications, "Value", "Text", Model.UserSurveyToken), new { @id = "AppDrpdown" })
+                            </div>
+                        </div>
+                        <div class="form-group-custom">
+                            <label>Survey End Date:</label>
+                            <span> @Model.surveyenddate</span>
+                        </div>
+                    </div>
+                    <div class="survey-info-details">
+
+                        <div class="form-group">
+                            @Html.HiddenFor(model => Model.SurveyId)
+                            @Html.HiddenFor(model => Model.UserSurveyToken)
+                            @Html.HiddenFor(model => Model.SurveyUserId)
+                            @Html.HiddenFor(model => Model.PersonnelId)
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <span> @Model.Description</span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="survey-grid-section">
+                    <div class="survey-feedback scrollbar-rail">
+                        <table class="survey-feedback-table" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;"><div>Hint</div></th>
+                                    <th style="width: 35%;"><div>Question</div></th>
+                                    <th style="width: 20%;"><div>Answer</div></th>
+                                    <th style="width: 25%;"><div>Comment</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @{
+                                    for (int i = 0; i < Model.surveyCollection.Count; i++)
+                                    {
+                                        <tr>
+                                            <td style="word-break: break-word;" hidden>
+                                                <div>
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].Hint)
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].Question)
+                                                </div>
+                                                <div>
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].SurveyUserId)
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].SurveyModelId)
+                                                </div>
+                                            </td>
+                                            <td>@Model.surveyCollection[i].Hint</td>
+                                            @if (TempData["ValidationFailMsg"] != null &&(( Model.surveyCollection[i].CanShow && Model.surveyCollection[i].FinalRating == null) ||(! Model.surveyCollection[i].CanShow && Model.surveyCollection[i].Comments == null)))
+                                            {
+
+                                                <td style="color:red">@Model.surveyCollection[i].Question</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@Model.surveyCollection[i].Question</td>
+
+                                            }
+                                            @*@Html.HiddenFor(model => Model.surveyCollection[i].SurveyModelAnswerContext, new { @id = "SurveyContext" })*@
+                                            <td>
+                                                @if (Model.surveyCollection[i].CanShow)
+                                                {
+                                                    <div class="form-control" style="@(Model.surveyCollection[i].CanShow ? "display:block" : "display:none")">
+                                                        @Html.HiddenFor(model => Model.surveyCollection[i].QuestionOptions)
+                                                        @Html.HiddenFor(model => Model.surveyCollection[i].CanShow)
+                                                        @*@Html.DropDownListFor(m => Model.surveyCollection[i].FinalRating, new SelectList(Model.surveyCollection[i].QuestionOptions, "Value", "Text", Model.surveyCollection[i].FinalRating), "Nothing Selected", new { @class = "mycombo", Title = "" })*@
+                                                        @Html.DropDownListFor(m => Model.surveyCollection[i].FinalRating, new SelectList(Model.surveyCollection[i].QuestionOptions, "Id", "Rating", Model.surveyCollection[i].FinalRating), "Nothing Selected", new { @class = "mycombo", Title = "" })
+                                                        @foreach (var item in Model.surveyCollection[i].QuestionOptions)
+                                                        {
+                                                            @*<input type="hidden" id='Ratingcontext'+@item.Id  value="@item.RatingContext"/>*@
+                                                            @Html.Hidden("ratingcontext" + item.Id.ToString().Trim(), item.RatingContext)
+                                                        }
+                                                    </div>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                <div class="form-control comments">
+                                                    @Html.TextAreaFor(m => Model.surveyCollection[i].Comments, new { @class = "", rows = "0", cols = "0", placeholder =  Model.surveyCollection[i].DefaultComment })
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        <div class="form-buttons">
+                            <button type="reset">Cancel</button>
+                            @*<button type="submit" id="btnSubmit" name="btnSubmit" value="Save" data-toggle="modal" data-target="mySurveyAlertModal">Save</button>*@
+                            <button type="submit" id="btnSubmit" name="btnSubmit" class="btnsave" value="Save">Save</button>
+                            <button type="submit" id="btnSubmit" name="btnSubmit" value="Submit">Submit</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mySurveyAlertModal" class="modal feedback-survey-alert" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width:500">
+                <div class="modal-header">
+                    <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                    }
+                    @if (TempData["ValidationSuccessMsgACK"] != null)
+                    {
+                        var str = new HtmlString(@TempData["ValidationSuccessMsgACK"].ToString());
+                        <p>
+                            <label>@Html.Raw(str)</label>
+                        </p>
+                    }
+                    @if (TempData["ValidationSuccessMsg"] != null)
+                    {
+                        <p>@Html.Raw(@TempData["ValidationSuccessMsg"].ToString())</p>
+                    }
+                    @if (TempData["ValidationSubmitsMsg"] != null)
+                    {
+                        <p>@Html.Raw(@TempData["ValidationSubmitsMsg"].ToString())</p>
+                    }
+                    @if (TempData["ValidationFailMsg"] != null)
+                    {
+
+                        <p class="survey-warning ">@Html.Raw(@TempData["ValidationFailMsg"].ToString())</p>
+                        <div class="form-buttons">
+                            <button type="submit" id="btnSubmit" name="btnSubmit" value="ReSubmit">Yes</button>
+                            <button type="button" class="close" data-bs-dismiss="modal">No</button>
+
+                        </div>
+
+
+                    }
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <div class="container-fluid survey-footer">
+            <div id="copyrights">©2022 NTT DATA, Inc. All rights reserved. </div>
+        </div>
+    </footer>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.scrollbar-rail').scrollbar();
+            $('.survey-feedback-table select option').each(function (i) {
+
+                if (i > 0) {
+
+                    var hiddenid = '#ratingcontext' + $(this).val().toString().trim();
+                    var hiddenidval = $(hiddenid).val();
+                    var title = hiddenidval;
+                    $(this).attr('title', title);
+                }
+            });
+
+          //  $(".btnsave").on("click", function () {
+               // $('#mySurveyAlertModal').modal('show');
+           // });
+
+
+
+            $("#AppDrpdown").on("change", function () {
+
+                  var surveyId = @Model.SurveyId;
+                  var Token = $("#AppDrpdown").val();
+
+                  baseurl1 = '@Url.Content("~/ClientProfileManager/SurveyUser/index")' + '?nextgensurveyId=' + surveyId.toString().trim() + '&userSurveyToken='+ Token;
+                  console.log(baseurl1);
+                  window.location.replace(baseurl1);
+               // var tok = '"'+Token+'"';
+               $('#AppDrpdown').val(Token);
+
+            });
+            var InvDate = '@TempData["ValidationSuccessMsg"]';
+           if (InvDate == "") {
+            }
+           else {
+               $('#mySurveyAlertModal').modal('show');
+
+            }
+
+             var submitpopup = '@TempData["ValidationSubmitsMsg"]';
+            if (submitpopup == "") {
+            }
+            else {
+                $('#mySurveyAlertModal').modal('show');
+
+            }
+            var submitfail = '@TempData["ValidationFailMsg"]';
+            if (submitfail=="") { }
+            else {
+                $('#mySurveyAlertModal').modal('show');
+            }
+
+        });
+
+
+
+    </script>
+
+}

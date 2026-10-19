@@ -1,0 +1,99 @@
+﻿
+@using Telerik.Reporting
+@using Telerik.ReportViewer.Mvc
+@using System.Web.Configuration;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model INReportObservationModel
+
+@{
+    var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+    var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+    var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+    var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+}
+<script src="@RepJsResources"></script>
+<style>
+    #reportViewerCustomerSatisfaction {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+</style>
+<div>
+
+
+
+    @(Html.TelerikReporting().ReportViewer()
+                                                                            // Each report viewer must have an id - it will be used by the initialization script
+                                                                            // to find the element and initialize the report viewer.
+                                                                            .Id("reportViewerCustomerSatisfaction")
+                                                                            .ViewMode(ViewMode.Interactive)
+                                                                            // The settings of the report server that hosts the reports - URL, username and password.
+                                                                            // If username and password are not provided or are set to null, the server's Guest account will be used.
+                                                                            // The report server should have its Guest account enabled along with configured permissions for accessing the report.
+                                                                            // For more information see http://www.telerik.com/help/reporting/html5-report-viewer-howto-use-it-with-reportserver.html.
+                                                                            .ReportServer(new ReportServer()
+                                                                            {
+                                                                                Url = repSiteLink,
+                                                                                Username = repSiteUserName,
+                                                                                Password = repSitePassword
+                                                                            })
+                                                                            // The URL for the report viewer template. The template can be edited -
+                                                                            // new functionalities can be added and unneeded ones can be removed.
+                                                                            // For more information please check http://www.telerik.com/help/reporting/html5-report-viewer-templates.html.
+                                                                            //
+                                                                            // The report source value contains Category and ReportName in the following format: {Category/ReportName}.
+                                                                            .ReportSource("IncidentNavigator/supportCustomerSatisfaction"
+                                                                                    , new Dictionary<string, object>() {
+                                                { "IncidentClientid", Model.ClientId },
+                                                { "IncidentStartDate", Model.FromYear },
+                                                { "IncidentEndDate", Model.ToYear },
+                                                { "ObservationDateRange", Model.DateRange },
+                                                { "SystemPath", Model.ClusterPath },
+                                                { "ClientName", Model.ClientName},
+                                                { "UserName", Model.UserName },
+                                                { "TypeDropDown", Model.DefTicketType },
+                                                { "DateTimeNow",Model.CreatedDt } })
+                                                                            // Specifies whether the viewer is in interactive or print preview mode.
+                                                                            // PrintPreview - Displays the paginated report as if it is printed on paper. Interactivity is not enabled.
+                                                                            // Interactive - Displays the report in its original width and height with no paging. Additionally interactivity is enabled.
+                                                                            .ViewMode(ViewMode.Interactive)
+                                                                            // Sets the scale mode of the viewer.
+                                                                            // Three modes exist currently:
+                                                                            // FitPage - The whole report will fit on the page (will zoom in or out), regardless of its width and height.
+                                                                            // FitPageWidth - The report will be zoomed in or out so that the width of the screen and the width of the report match.
+                                                                            // Specific - Uses the scale to zoom in and out the report.
+                                                                            .ScaleMode(ScaleMode.Specific)
+                                                                            // Zoom in and out the report using the scale
+                                                                            // 1.0 is equal to 100%, i.e. the original size of the report
+                                                                            .Scale(1.0)
+                                                                            // Sets whether the viewer’s client session to be persisted between the page’s refreshes(ex. postback).
+                                                                            // The session is stored in the browser’s sessionStorage and is available for the duration of the page session.
+                                                                            .PersistSession(false)
+
+                                                                            // Sets the print mode of the viewer.
+                                                                            .PrintMode(PrintMode.AutoSelect)
+                                                                            //If set to true shows the Send Mail Message toolbar button
+                                                                            .SendEmail(new SendEmail { Enabled = false })
+                                                                            //Switches accessibility mode ON or OFF.
+                                                                            .EnableAccessibility(true)
+
+                                                                            //----------------------//
+                                                                            //Added to remove the parameter specifying area
+                                                                            .ParametersAreaVisible(false)
+                                                                            .Parameters(new Parameters { Editors = new Editors { SingleSelect = EditorTypes.ComboBox, MultiSelect = EditorTypes.ComboBox } })
+
+    )
+
+
+
+
+
+</div>
+
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>

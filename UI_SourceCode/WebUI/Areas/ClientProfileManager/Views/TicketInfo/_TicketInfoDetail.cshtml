@@ -1,0 +1,118 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+@model IPagedList<WebUI.Areas.ClientProfileManager.ViewModel.TicketInfoViewModel >
+
+    <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th scope="col" width="10%">From date</th>
+                <th scope="col" width="10%">To date</th>
+                <th scope="col" width="10%">TicketInfoType</th>
+                <th scope="col" width="10%">Incidents</th>
+                <th scope="col" width="10%">Problems</th>
+                <th scope="col" width="10%">User Support SR</th>
+                <th scope="col" width="10%">Enhancements</th>
+                <th scope="col" width="10%">Comments</th>
+                <th></th>
+            </tr>
+        </thead>
+                @{ 
+                    var fromDt1 = "";
+                    var fromDt2 = "";
+                }
+            @foreach (var item in Model)
+            {
+                var displaydt1 = item.FromDate.ToString();
+                var displaydt2 = item.Todate.ToString();
+                if (fromDt1 == displaydt1 && fromDt2 == displaydt2)
+                {
+                    displaydt1 = "";
+                    displaydt2 = "";
+                }
+                fromDt1 = item.FromDate.ToString();
+                fromDt2 = item.Todate.ToString();
+                var bgColor = "";
+                if (item.TicketInfoTypeId == 3)
+                {
+                     bgColor = "gray";
+                }
+
+                <tr>
+                    <td><strong>@displaydt1</strong></td>
+                    <td><strong>@displaydt2</strong></td>
+                    <td style='background-color: @bgColor'>
+                        @Html.DisplayFor(modelItem => item.TicketInfoType)
+                    </td>
+                    <td style='background-color: @bgColor'>
+                        @Html.DisplayFor(modelItem => item.Incidents)
+                    </td>
+
+                    <td style='background-color: @bgColor'>
+                        @Html.DisplayFor(modelItem => item.Problems)
+                    </td>
+                    <td style='background-color: @bgColor'>
+                        @Html.DisplayFor(modelItem => item.UserSupportSR)
+                    </td>
+                    <td style='background-color: @bgColor'>
+                        @Html.DisplayFor(modelItem => item.Enhancements)
+                    </td>
+                    <td style='background-color: @bgColor'>
+
+                        <div data-toggle="tooltip" data-placement="right" title="@item.Comments" style="overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">
+                            @Html.DisplayFor(modelItem => item.Comments)
+                        </div>
+                        
+                    </td>
+
+                    <td style='background-color: @bgColor'>
+                        <a data-id="@item.Id" href="#" class="hrefClass">
+                            <img src="~/Content/images/delete.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:18px" />
+                        </a>
+                        @*<button type="button" data-id="@item.Id" class="hrefClass">Delete Info</button>*@
+                     </td>
+                </tr>
+                }
+            
+        <tr>
+            <td colspan="9">
+                Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }))
+            </td>
+        </tr>
+    </table>
+
+
+
+<script>
+    $(".hrefClass").click(function () {
+        //alert('in partial');
+        var tickinfoid = $(this).attr("data-id");
+        var dataToPost = {
+            tickinfoid: $(this).attr("data-id")
+            //ClientId: $('#hidClientId').val()
+        };
+        // alert('@Url.Content("~/clientprofilemanager/TicketInfo/DeleteTicketInfo")---' + $(this).attr("data-id"));
+        var tickurl = '@Url.Content("~/clientprofilemanager/TicketInfo/DeleteTicketInfo")';
+        //tickurl = tickurl + '?tickinfoid=' + tickinfoid;
+        //alert(tickurl);
+        $.ajax(
+        {
+            url: tickurl,
+            type: 'post',
+            async: false,
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                // alert(data);
+                $("#partialDivTicket").html(data);
+                //$("#partialDiv")
+            },
+            error: function (err) {
+                //alert('err'+err)
+                //   $("#divLoading").hide();
+            }
+        });
+    });
+   
+</script>

@@ -1,0 +1,456 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+@{ 
+    var Client = (Client)Session["Client"];
+    var ClientID = Client.Id;
+    var v = new APRAjaxServiceController();
+    var ApplicationList = v.ApplicationList(ClientID);
+
+}
+
+<style>
+    .bootstrap-select:not([class*="span"]):not([class*="col-"]):not([class*="form-control"])
+    {
+        width: 255px;
+    }
+    .jHtmlArea, .ToolBar{
+        width: 777px !important;
+    }
+</style>
+
+@using (Html.BeginForm("SavePostChallenge", "ChallengeHistoryManager", new { ClientId = Model.ClientId }, FormMethod.Post))
+    {
+    
+    
+    
+    
+    
+    <div style="min-height: 1000px">
+
+        <div class="ideaManagerContent">
+            @*<h4>Challenge</h4>*@
+            <br />
+            <div>
+                <div class="leftarea form-horizontal">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname">Challenge Name</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.PostChallengeInput.ItemName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtchallange", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="qtfyIdea">Value (Quantify)</label>
+                            <div class="col-sm-5">
+                                <i style="display: inline-block; margin-left: -12px;">$</i>
+                                @Html.TextBoxFor(m => m.PostChallengeInput.QtyFication, new { @class = "form-control", placeholder = "", tabindex = "2", id = "txtqtfyidea", onkeypress = "return isNumberKey(this)", maxlength = "5", disabled = "disabled", style = "text-align:right;display:inline-block" })
+                                @*<input type="text"  value="@Model.PostIdeaInput.QtyFication.ToString()" class = "form-control" style="width:150px;margin-left:27%"  tabindex="2", id="txtqtfyidea" name="txtqtfyidea" onkeypress = "return isNumberKey(this)" maxlength="5"  />*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="LOB" class="col-sm-5 control-label" id=""><span class="mandate">*</span>LOB/Department</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.PostChallengeInput.LOBId, new SelectList(Model.IMLOBSourceList, "value", "text", Model.IMLOBSourceList), "", new { @class = "selectpicker", id = "IdeaType", name = "IdeaType", required = "required", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Root Cause/Underline Problem</label>
+                            <div class="col-sm-5">
+                                @Html.TextAreaFor(m => m.PostChallengeInput.RootCause, 3, 35, new { disabled = "disabled", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="rightarea form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Configuration Item</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.PostChallengeInput.ConfigItem, new SelectList(ApplicationList, "value", "text", ApplicationList), "", new { @class = "selectpicker", disabled = "disabled" })
+                            </div>
+                        </div>
+                      
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname">Priority</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => Model.PostChallengeInput.PriorityId, new SelectList(Model.IMItemPriorityList, "value", "text", Model.IMItemPriorityList), "", new { @class = "selectpicker", id = "priorityid", name = "priorityid", required = "required", style = "width:200px", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname">Status</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => Model.PostChallengeInput.StatusId, new SelectList(Model.IMItemStatusList, "value", "text", Model.IMItemStatusList), "", new { @class = "selectpicker", id = "statusid", name = "statusid", required = "required", style = "width:200px", disabled = "disabled" })
+                            </div>
+                        </div>
+                      </div>
+
+                    <div class="form-group" style="display: inline-block;">
+                        <label for="desc" class="col-sm-3 control-label" style="padding: 0;">Description</label>
+                        <div>                           
+                            @Html.TextAreaFor(m => m.PostChallengeInput.Description, new { @class = "", rows = "10", style = "width:500px;height:250px;disabled=true", placeholder = "Description", tabindex = "3", id = "txtdescription", disabled = "disabled", @readonly = "readonly" })
+                        </div>
+                    </div>
+                        <div class="bs-example">
+                            <div class="panel-group" id="accordion">
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#one" style="text-decoration: underline; font-weight: bold">Business Benefits</a>
+                                        </h4>
+                                    </div>
+                                    <div id="one" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_BusinessBenefits", Model)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#two" style="text-decoration: underline; font-weight: bold">IT Benefits</a>
+                                        </h4>
+                                    </div>
+                                    <div id="two" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_ITBenefits", Model)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#six" style="text-decoration: underline; font-weight: bold">Suggested Ideas</a>
+                                        </h4>
+                                    </div>
+                                    <div id="six" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_ListedIdeas", Model)
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#three" style="text-decoration: underline; font-weight: bold">Priority History</a>
+                                        </h4>
+                                    </div>
+                                    <div id="three" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_PriorityHistory", Model)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#four" style="text-decoration: underline; font-weight: bold">Status History</a>
+                                        </h4>
+                                    </div>
+                                    <div id="four" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_StatusHistory", Model)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#seven" style="text-decoration: underline; font-weight: bold">Selected Approver(s)</a>
+                                        </h4>
+                                    </div>
+                                    <div id="seven" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_SelectedApproversHistory", Model)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#eight" style="text-decoration: underline; font-weight: bold">Metric/Target</a>
+                                        </h4>
+                                    </div>
+                                    <div id="eight" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_MetricTargetHistory", Model)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#five" style="text-decoration: underline; font-weight: bold">Comments</a>
+                                        </h4>
+                                    </div>
+                                    <div id="five" class="panel-collapse collapse out">
+                                        <div class="panel-body">
+                                            @Html.Partial("_ItemComments", Model)
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <br />
+                        <!--/.form-horizontal-->
+                        <div id="action">
+                            @*<button class="btn btn-primary" id="btnSave" name="command" value="saveidea" style="margin-left: 40%">Post Challenge</button>*@
+                            @*<button class="btn btn-default" id="cancelidea">Cancel</button>*@
+                            <button class="btn btn-primary" id="homepage">Home</button>
+                        </div>
+                    @*</div>*@
+
+                </div>
+
+
+
+
+            <!-- Nav tabs -->
+            @*<ul class="nav nav-tabs" role="tablist" id="ideatab">
+                <li class="active"><a href="#home" role="tab" data-toggle="tab">Home</a></li>
+                <li><a href="#classification" role="tab" data-toggle="tab">Classification</a></li>
+                <li><a href="#benefits" role="tab" data-toggle="tab">Benefits</a></li>
+                <li><a href="#itsavings" role="tab" data-toggle="tab">IT Savings</a></li>
+                <li><a href="#divcomments" role="tab" data-toggle="tab">Comments</a></li>
+                <li><a href="#divsuggestidea" role="tab" data-toggle="tab">Suggest an Idea</a></li>
+                <li><a href="#divlistsolutions" role="tab" data-toggle="tab">Suggested Solutions</a></li>
+                <li><a href="#divprioirtyhistory" role="tab" data-toggle="tab">Priority & Status Update</a></li>
+            </ul>*@
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active" id="home">
+                    @Html.Hidden("ItemId", @Model.Id)
+                </div>
+                @*                <div id="PostedIdeaContainer">
+                    <div id="PostedIdeas" style="width: 100%; margin: auto"></div>
+                </div>
+
+                <div class="tab-pane" id="classification">
+                    @Html.Partial("_AssignItemCategory", Model)
+                </div>
+                <div class="tab-pane" id="benefits"></div>
+                <div class="tab-pane" id="benefits">@Html.Partial("_BusinessBenefits", Model)</div>
+                                <div class="tab-pane" id="itsavings">@Html.Partial("_ITBenefits", Model)
+                </div>
+                <div class="tab-pane" id="divcomments">@Html.Partial("_ItemComments", Model)</div>
+                <div class="tab-pane" id="divsuggestidea">@Html.Partial("_SuggestIdea", Model)</div>
+                <div class="tab-pane" id="divlistsolutions">@Html.Partial("_ListedIdeas", Model)</div>
+                <div class="tab-pane" id="divprioirtyhistory">@Html.Partial("_PriorityHistory", Model)</div>*@
+            </div>
+
+
+
+            <!--/.leftarea-->
+
+
+
+
+            <!--/.rightarea-->
+
+        </div>
+
+    </div>
+
+    
+    }
+
+
+
+<script>
+@*        function getPostedIdeas() {
+
+            var ClientId = "@Model.ClientId";
+        if (ClientId != null) {
+            $('#PostedIdeas').jtable({
+                title: 'Ideas',
+                messages: {
+                    addNewRecord: 'Suggest  a New Idea'
+                },
+                actions: {
+                    listAction: "@Url.Action("GetIdeaDetails")" + "?ClientId=" + ClientId,
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+
+                    ItemName: {
+                        title: 'Name',
+                        width: '30%'
+                    },
+
+
+
+                    Description: {
+                        title: 'Description',
+                        width: '30%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%'
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%'
+            }
+
+
+
+
+                }
+
+            });
+
+        }
+        return false;
+
+    }*@
+
+    $(document).ready(function () {
+
+        //For Tab Activation  On 10th Dec 2014
+        var tabName = "@Model.TabName";
+        if (tabName == "classification") {
+            $('#ideatab li:eq(1) a').tab('show');
+        }
+
+
+
+
+
+        $('#txtdescription').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter", "justifyright", "Increasefontsize", "decreasefontsize", "Forecolor", "horizontalrule"],
+                    ["cut", "copy", "paste"],
+            ]
+        });
+
+
+
+
+    })
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+
+
+        if ((charCode < 48 || charCode > 57))
+            if (charCode != 46 && charCode != 44 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+        return true;
+    }
+
+
+    $('#btnSave').click(function () {
+
+        //var SelectedclientId = $('#ClientId :selected').val();
+        var SelectedclientId = @ClientID;
+        if (SelectedclientId == "" || SelectedclientId == "0") {
+            alert('Please Select Client name from the list');
+            return false;
+        }
+
+        if ($('#txtchallange').val() == "") {
+            alert('Please enter name');
+            $('#txtchallange').focus();
+            return false;
+        }
+        else {
+
+            var itemName = $('#txtchallange').val();
+            var itemId = $('#ItemId')[0].value;
+
+            ItemNameExists(itemName, itemId);
+            if (blnItemNameExists) {
+                alert('Item name already exists, please change');
+                $('#txtchallange').focus();
+                return false;
+
+            }
+        }
+
+
+
+
+    });
+
+
+    function ItemNameExists(ItemName, ItemId) {
+
+
+        var href = window.location.href.split('/');
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'ideamanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/ChallengeHistoryManager/CheckItemName';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/ChallengeHistoryManager/CheckItemName';
+        }
+
+        {
+            $.ajax({
+                url: baseurl,
+                type: 'POST',
+                data: { ItemName: ItemName, ItemId: ItemId },
+                success: checkItemSuccess,
+                failure: errorItem,
+                async: false
+
+            })
+        }
+
+    }
+
+    function checkItemSuccess(status) {
+
+
+        blnItemNameExists = status;
+
+
+
+    }
+
+    function errorItem() {
+        alert('An error occurred. Please contact administrator');
+    }
+
+
+
+
+    $('.tab-pane a').click(function (e) {
+        $("#success").hide();
+        $("#danger").hide();
+
+    })
+
+</script>

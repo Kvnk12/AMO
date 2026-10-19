@@ -1,0 +1,232 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Dto;
+@model NTTData.AMOPortal.WebUI.Dto.UserProfileModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+@{
+    ViewBag.Title = "Configuration Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/configuration_manager_white.svg"); // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayout.cshtml";
+    ClientDetail Client = (ClientDetail)Session["SessionClient"];
+    var clietnId = Client.ClientId;
+}
+<style>
+    .custom-kendo-grid .Userapp-description {
+        text-overflow: ellipsis;
+        display: block;
+        resize: none;
+        width: 95%;
+        height: 100%;
+        border-color: grey;
+    }
+
+    *[data-tooltip] {
+        position: fixed;
+        width: 8em !important
+    }
+
+        *[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 20px;
+            right: -20px;
+            width: 190px;
+            pointer-events: none;
+            opacity: 0;
+            display: block;
+            font-size: 12px;
+            text-align: center;
+            color: white;
+            line-height: 16px;
+            background: rgba(74, 73, 73, 0.8) !important;
+            padding: 2px 2px;
+            border: rgb(74,73,73,0.8) !important;
+            box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        *[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
+    input[type="text"] {
+        background: transparent;
+        color: white;
+        border: unset;
+        margin-top: -6px;
+    }
+
+    td {
+        height: 2.5em;
+    }
+
+    th {
+        text-align: left;
+        font-weight: unset;
+        padding: 10px;
+        border-bottom: 1px solid;
+    }
+</style>
+
+<div class="content-main dark-bg ">
+    @using (Html.BeginForm("AssignApplication", "Account", FormMethod.Post))
+    {
+        <div>
+            <ol class="breadcrumb">
+                <li>Admin</li>
+                <li>User Managemen</li>
+                <li class="active">Access Managemen</li>
+            </ol>
+        </div>
+        <div class="Userapp-assign">
+            <div class="Userapp-assign-eye">
+                <div style="display:flex;margin-bottom:1em;">
+                    <span class="assign-eye-icon"></span>
+                    <div style="display:flex;color:white;margin-top:5px">
+                        <div style="margin-right:41px;margin-left:5px">  User Details:&nbsp; First Name: @Model.FirstName</div>
+                        @Html.Hidden("chkselectList", "")
+                        @Html.Hidden("UserID", Model.Id)
+                        <div style="margin-right:41px;margin-left:5px"> Last Name:  @Model.LastName</div>
+                        <div style="margin-right:41px;margin-left:5px">Email:   @Model.Email</div>
+                    </div>
+                </div>
+            </div>
+            <div class="Userapp-mapping">
+                <div class="Userapp-mapping-grid">
+                    <div class="Userapp-mapping-head ">
+                        <div class="Userapp-mapping-label">
+                            <label class="custom-white-label">Current Role for the User</label>
+                        </div>
+                    </div>
+                    <div class="Userapp-role-grid">
+                        <div id="partialDiv">
+                            @Html.Partial("_UserClientsApplicationsRoles", Model.SelectedAppsList)
+                        </div>
+                    </div>
+                </div>
+                <div class="Userapp-mapping-grid">
+                    <div class="Userapp-mapping-head">
+                        <div class="Userapp-mapping-label">
+                            <label class="custom-white-label">Assign New Role for User</label>
+                        </div>
+                    </div>
+                    <div class="Userapp-assign-grid">
+                        <div class="right-gridHeader">
+                            <div style="width: 44%; padding-left: 1.2em; padding-top: 5px">Select New Role</div>
+                            <div class="selectAllApp">
+                                <input type="checkbox" id="selectall" style="opacity:0;width:0">
+                                <label for="selectall" class="selectAllCheckbx">Select AM-Optimization Tools for the user&nbsp;&nbsp;</label>
+                            </div>
+                        </div>
+                        <div id="lstApplications" style="display: flex;">
+
+                            @Html.Partial("_AppStoreApplications", Model.SelectedUserApplicationInput)
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <footer class="Userapp-footer">
+                <div class="Userapp-assign-button">
+                    <button class="custom-button" type="submit" id="btnAssign" value="Assign">ASSIGN</button>
+                    <button class="custom-button" type="button" id="btnCancel" value="BACK" style="background-color: darkgrey;" onclick="location.href='@Url.Action("Users", "Account")';return false;">CANCEL</button>
+
+                </div>
+            </footer>
+        </div>
+    }
+    </div>
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script>
+    $('.scrollbar-rail').scrollbar();
+    function switchRoleVisible(rld, action) {
+        console.log(rld);
+        var tablecontent = document.getElementById(rld + "_table");
+        var showarrow = document.getElementById(rld+"'_arrowdown-bg'");
+        var hidearrow = document.getElementById(rld+"'_arrow-bg'");
+        if (action == "show") {
+            console.log("show");
+            tablecontent.style.display = "unset";
+            showarrow.style.display = "unset";
+            hidearrow.style.display = "none";
+        }
+        if (action == "hide") {
+            console.log("hide");
+            tablecontent.style.display = "none";
+            showarrow.style.display = "none";
+            hidearrow.style.display = "unset";
+        }
+    }
+
+       $("#btnAssign").click(function () {
+        var chkArray = [];
+        /* look for all checkboes that have a class 'chk' attached to it and check if it was checked */
+           $(".childChckbx:checked").each(function () {
+            // $(".childchkboxAllApp:checked").attr("disabled", "disabled");
+            chkArray.push($(this).val());
+        });
+        /* we join the array separated by the comma */
+           var selected; selected = chkArray.join(',');
+           console.log(selected)
+        /* check if there is selected checkboxes, by default the length is 1 as it contains one single comma */
+        if (selected.length > 0) {
+            $("#chkselectList").val(selected);
+            ////var uid = $("#drpSelUserID").val();
+            ////$("#UserID").val(uid);
+        }
+        else {
+            alert("Please select at least one of the application");
+            return false;
+        }
+        var actionurl = '@Url.Action("GetRoleExist", "Account")';
+        var res = '';
+        //alert(actionurl);
+        $.ajax({
+            url: actionurl,
+            type: "GET",
+            async: false,
+        data: {
+            //ClientId: $('#ddlClientId :selected').val(),
+            ClientId: @clietnId ,
+           // RoleId: $('#ddlRoleId :selected').val(),
+            UserId: $('#UserID').val()
+        },
+        error: function (response) {
+            //alert(response);
+            //alert(response.responseText);
+            //return false;
+        },
+        success: function (response) {
+            //alert(response);
+            //if (response.toLowerCase() == 'true')
+            res = response;
+        }
+        });
+       // alert(res);
+        if (res.toLowerCase() == 'true')
+        {
+           // alert(res);
+            return confirm('User Role already exist…Do you wish to change the user access role? (Yes/No)');
+        }
+        else {
+            return true;
+        }
+    });
+</script>

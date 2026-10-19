@@ -1,0 +1,574 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model INIncidentServicehoursModel
+@{
+    ViewBag.Title = "Incident Navigator";
+    var clientlist = GetDropDownListItems.ClientList;
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+}
+
+<div class="content-main" id="wrap" style="height:1000px">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Service hours</li>
+        </ol>
+    </div>
+    <div class="clear"></div>
+    <div class="selectappArea">
+        <!-- Wrap all page content here -->
+        <div class="container" style="padding:0;">
+
+
+
+            <div class="selectApp form-horizontal">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-5 control-label" id=""> Has SLA Manager </label>
+                    <div class="col-sm-5">
+                        @(Html.Kendo().ComboBox()
+          .Name("HasSLAManager")
+          .Filter("contains")
+          .Placeholder("Select Option")
+          .DataTextField("Text")
+          .DataValueField("Value")
+              .BindTo(Model.HasSLAmanagerList)
+               //.AutoBind(true)
+               //.AutoBind(false)
+               //.SelectedIndex(HasSLAManager)
+               //.DataSource(source =>
+               //{
+               //    source.Read(read =>
+               //    {
+               //        read.Action("GetHasSLAmanager", "AjaxService");
+
+               //    })
+
+
+               //    .ServerFiltering(true);
+               //})
+
+               //.Suggest(true)
+               .HtmlAttributes(new { style = "width:200px;" })
+                        )
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="container" style="padding:0;">
+
+        <div style="padding-bottom:2em;">
+            <table style="width:20%;margin-right:0px;float:right ">
+                <tr>
+                    <td>
+                        @(Html.Kendo().Button()
+        .Name("EditButton")
+        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+        .Content("Edit")
+
+              .Events(e => e
+
+                .Click("onClickEdit")
+
+            )
+                        )
+                    </td>
+                    <td>
+                        @(Html.Kendo().Button()
+        .Name("SaveButton")
+        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+        .Content("Save")
+
+              .Events(e => e
+
+                .Click("onClickSave")
+
+            )
+                        )
+                    </td>
+                </tr>
+            </table>
+            <br />
+        </div>
+
+
+
+
+        <div data-role="grid" class="k-grid k-widget k-display-block">
+            <table id="tblService" class="tblService">
+                <tr>
+                    <td>
+                        <label><b>P1 :</b></label>
+                    </td>
+
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P1ServiceHours")
+          .Filter("contains")
+          .Placeholder("Select Service hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.Servicehours)
+          //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+          // .Events(e => e
+
+          //    .Change("combobox_change")
+          //)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                    <td>
+                        <label>Blended Rate: </label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().NumericTextBoxFor<decimal>(model => model.P1Blendedrate)
+            //.Name("P1Blendedrate")
+            .Format("c")
+            .Min(0)
+            .Placeholder("Enter Rate")
+            .HtmlAttributes(new { style = "width:90%;text-align:right", title = "currency" })
+                        )<label> /hr.</label>
+                    </td>
+                    <td>
+                        <label>Weekend Included :</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P1WeekendHours")
+          .Filter("contains")
+          .Placeholder("Select Weekend hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.WeekendHours)
+          //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+          // .Events(e => e
+
+          //    .Change("combobox_change")
+          //)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label><b>P2 :</b></label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P2ServiceHours")
+          .Filter("contains")
+          .Placeholder("Select Service hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.Servicehours)
+          //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+          // .Events(e => e
+
+          //    .Change("combobox_change")
+          //)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                    <td>
+                        <label>Blended Rate: </label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().NumericTextBox<decimal>()
+            .Name("P2Blendedrate")
+            .Format("c")
+            .Min(0)
+            .Placeholder("Enter Rate")
+
+            .HtmlAttributes(new { style = "width: 90%;text-align:right", title = "currency" })
+                        )<label> /hr.</label>
+                    </td>
+                    <td>
+                        <label>Weekend Included :</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P2WeekendHours")
+          .Filter("contains")
+          .Placeholder("Select Weekend hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.WeekendHours)
+          //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+          // .Events(e => e
+
+          //    .Change("combobox_change")
+          //)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label><b>P3 :</b></label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P3ServiceHours")
+          .Filter("contains")
+          .Placeholder("Select Service hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.Servicehours)
+          //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+          // .Events(e => e
+
+          //    .Change("combobox_change")
+          //)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                    <td>
+                        <label>Blended Rate: </label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().NumericTextBox<decimal>()
+            .Name("P3Blendedrate")
+            .Format("c")
+            .Min(0)
+            .Placeholder("Enter Rate")
+
+            .HtmlAttributes(new { style = "width: 90%;text-align:right", title = "currency" })
+                        )<label> /hr.</label>
+                    </td>
+                    <td>
+                        <label>Weekend Included :</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P3WeekendHours")
+          .Filter("contains")
+          .Placeholder("Select Weekend hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.WeekendHours)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label><b>P4 :</b></label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P4ServiceHours")
+          .Filter("contains")
+          .Placeholder("Select Service hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.Servicehours)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                    <td>
+                        <label>Blended Rate: </label>
+                    </td>
+                    <td>
+
+                        @(Html.Kendo().NumericTextBox<decimal>()
+            .Name("P4Blendedrate")
+            .Format("c")
+            .Min(0)
+            .Placeholder("Enter Rate")
+
+            .HtmlAttributes(new { style = "width: 90%;text-align:right", title = "currency" })
+                        )<label> /hr.</label>
+                    </td>
+                    <td>
+                        <label>Weekend Included :</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P4WeekendHours")
+          .Filter("contains")
+          .Placeholder("Select Weekend hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.WeekendHours)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label><b>P5 :</b></label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P5ServiceHours")
+          .Filter("contains")
+          .Placeholder("Select Service hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.Servicehours)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                    <td>
+                        <label>Blended Rate: </label>
+                    </td>
+                    <td>
+
+                        @(Html.Kendo().NumericTextBox<decimal>()
+            .Name("P5Blendedrate")
+            .Format("c")
+            .Min(0)
+            .Placeholder("Enter Rate")
+
+            .HtmlAttributes(new { style = "width:90%;text-align:right", title = "currency" })
+                        )<label> /hr.</label>
+                    </td>
+                    <td>
+                        <label>Weekend Included :</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().ComboBox()
+          .Name("P5WeekendHours")
+          .Filter("contains")
+          .Placeholder("Select Weekend hours")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(Model.WeekendHours)
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:200px;" })
+                        )
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var RootUrl = '@Url.Content("~/")';
+
+
+        $.ajax({
+            type: 'post',
+            url: RootUrl + 'AjaxService/INIncidentServicehoursGet',
+
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert(response.HasSLAManager);
+                $("#HasSLAManager").data("kendoComboBox").value(response.HasSLAManager);
+                $("#P1ServiceHours").data("kendoComboBox").value(response.P1ServiceHours);
+                $("#P2ServiceHours").data("kendoComboBox").value(response.P2ServiceHours);
+                $("#P3ServiceHours").data("kendoComboBox").value(response.P3ServiceHours);
+                $("#P4ServiceHours").data("kendoComboBox").value(response.P4ServiceHours);
+                $("#P5ServiceHours").data("kendoComboBox").value(response.P5ServiceHours);
+                $("#P1WeekendHours").data("kendoComboBox").value(response.P1WeekendHours);
+                $("#P2WeekendHours").data("kendoComboBox").value(response.P2WeekendHours);
+                $("#P3WeekendHours").data("kendoComboBox").value(response.P3WeekendHours);
+                $("#P4WeekendHours").data("kendoComboBox").value(response.P4WeekendHours);
+                $("#P5WeekendHours").data("kendoComboBox").value(response.P5WeekendHours);
+                $("#P1Blendedrate").data("kendoNumericTextBox").value(response.P1Blendedrate);
+                $("#P2Blendedrate").data("kendoNumericTextBox").value(response.P2Blendedrate);
+                $("#P3Blendedrate").data("kendoNumericTextBox").value(response.P3Blendedrate);
+                $("#P4Blendedrate").data("kendoNumericTextBox").value(response.P4Blendedrate);
+                $("#P5Blendedrate").data("kendoNumericTextBox").value(response.P5Blendedrate);
+            },
+            error: function (response) {
+                alert("error occured");
+            }
+        });
+    });
+    function combobox_change() {
+        var RootUrl = '@Url.Content("~/")';
+        var model = {
+            ClientId: $("#fabric").val()
+        };
+
+        //alert(myArray[0].id + " ," + myArray[0].value);
+        //var data1 = { 'listObject': myArray };
+        var data = JSON.stringify(model)
+        $.ajax({
+            type: 'post',
+            url: RootUrl + 'AjaxService/INIncidentServicehoursGet',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert(response.HasSLAManager);
+                $("#HasSLAManager").data("kendoComboBox").value(response.HasSLAManager);
+                $("#P1ServiceHours").data("kendoComboBox").value(response.P1ServiceHours);
+                $("#P2ServiceHours").data("kendoComboBox").value(response.P2ServiceHours);
+                $("#P3ServiceHours").data("kendoComboBox").value(response.P3ServiceHours);
+                $("#P4ServiceHours").data("kendoComboBox").value(response.P4ServiceHours);
+                $("#P5ServiceHours").data("kendoComboBox").value(response.P5ServiceHours);
+                $("#P1WeekendHours").data("kendoComboBox").value(response.P1WeekendHours);
+                $("#P2WeekendHours").data("kendoComboBox").value(response.P2WeekendHours);
+                $("#P3WeekendHours").data("kendoComboBox").value(response.P3WeekendHours);
+                $("#P4WeekendHours").data("kendoComboBox").value(response.P4WeekendHours);
+                $("#P5WeekendHours").data("kendoComboBox").value(response.P5WeekendHours);
+                $("#P1Blendedrate").data("kendoNumericTextBox").value(response.P1Blendedrate);
+                $("#P2Blendedrate").data("kendoNumericTextBox").value(response.P2Blendedrate);
+                $("#P3Blendedrate").data("kendoNumericTextBox").value(response.P3Blendedrate);
+                $("#P4Blendedrate").data("kendoNumericTextBox").value(response.P4Blendedrate);
+                $("#P5Blendedrate").data("kendoNumericTextBox").value(response.P5Blendedrate);
+            },
+            error: function (response) {
+                alert("error occured");
+            }
+        });
+
+    }
+
+    function onClickEdit(e) {
+
+
+        $("#HasSLAManager").data("kendoComboBox").enable(true);
+        $("#P1ServiceHours").data("kendoComboBox").enable(true);
+        $("#P2ServiceHours").data("kendoComboBox").enable(true);
+        $("#P3ServiceHours").data("kendoComboBox").enable(true);
+        $("#P4ServiceHours").data("kendoComboBox").enable(true);
+        $("#P5ServiceHours").data("kendoComboBox").enable(true);
+        $("#P1WeekendHours").data("kendoComboBox").enable(true);
+        $("#P2WeekendHours").data("kendoComboBox").enable(true);
+        $("#P3WeekendHours").data("kendoComboBox").enable(true);
+        $("#P4WeekendHours").data("kendoComboBox").enable(true);
+        $("#P5WeekendHours").data("kendoComboBox").enable(true);
+        $("#P1Blendedrate").data("kendoNumericTextBox").enable(true);
+        $("#P2Blendedrate").data("kendoNumericTextBox").enable(true);
+        $("#P3Blendedrate").data("kendoNumericTextBox").enable(true);
+        $("#P4Blendedrate").data("kendoNumericTextBox").enable(true);
+        $("#P5Blendedrate").data("kendoNumericTextBox").enable(true);
+        $("#SaveButton").data("kendoButton").enable(true);
+    }
+
+
+  function onClickSave(e) {
+        //$("#tblService").find("input,button,textarea,select").removeAttr("disabled");
+      //alert($("#HasSLAManager").val());
+      //alert($("#P1ServiceHours").val());
+      //$("#P1Servicehours").data("kendoComboBox").enable(true);
+      var RootUrl = '@Url.Content("~/")';
+      var model = {
+          P1ServiceHours: $("#P1ServiceHours").val(),
+          P2ServiceHours: $("#P2ServiceHours").val(),
+          P3ServiceHours: $("#P3ServiceHours").val(),
+          P4ServiceHours: $("#P4ServiceHours").val(),
+          P5ServiceHours: $("#P5ServiceHours").val(),
+          P1Blendedrate: $("#P1Blendedrate").val(),
+          P2Blendedrate: $("#P2Blendedrate").val(),
+          P3Blendedrate: $("#P3Blendedrate").val(),
+          P4Blendedrate: $("#P4Blendedrate").val(),
+          P5Blendedrate: $("#P5Blendedrate").val(),
+          P1WeekendHours: $("#P1WeekendHours").val(),
+          P2WeekendHours: $("#P2WeekendHours").val(),
+          P3WeekendHours: $("#P3WeekendHours").val(),
+          P4WeekendHours: $("#P4WeekendHours").val(),
+          P5WeekendHours: $("#P5WeekendHours").val(),
+          HasSLAmanager: $("#HasSLAManager").val(),
+      };
+
+      //alert(myArray[0].id + " ," + myArray[0].value);
+      //var data1 = { 'listObject': myArray };
+      var data = JSON.stringify(model)
+      $.ajax({
+          type: 'post',
+          url: RootUrl + 'AjaxService/INIncidentServicehoursInsertorUpdate',
+          data: data,
+          contentType: 'application/json; charset=utf-8',
+          success: function (response) {
+
+              alert("Information Saved successfully");
+              $("#HasSLAManager").data("kendoComboBox").enable(false);
+              $("#P1ServiceHours").data("kendoComboBox").enable(false);
+              $("#P2ServiceHours").data("kendoComboBox").enable(false);
+              $("#P3ServiceHours").data("kendoComboBox").enable(false);
+              $("#P4ServiceHours").data("kendoComboBox").enable(false);
+              $("#P5ServiceHours").data("kendoComboBox").enable(false);
+              $("#P1WeekendHours").data("kendoComboBox").enable(false);
+              $("#P2WeekendHours").data("kendoComboBox").enable(false);
+              $("#P3WeekendHours").data("kendoComboBox").enable(false);
+              $("#P4WeekendHours").data("kendoComboBox").enable(false);
+              $("#P5WeekendHours").data("kendoComboBox").enable(false);
+              $("#P1Blendedrate").data("kendoNumericTextBox").enable(false);
+              $("#P2Blendedrate").data("kendoNumericTextBox").enable(false);
+              $("#P3Blendedrate").data("kendoNumericTextBox").enable(false);
+              $("#P4Blendedrate").data("kendoNumericTextBox").enable(false);
+              $("#P5Blendedrate").data("kendoNumericTextBox").enable(false);
+              $("#SaveButton").data("kendoButton").enable(false);
+          },
+          error: function (response) {
+              alert("error occured");
+          }
+      });
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $("#HasSLAManager").data("kendoComboBox").enable(false);
+        $("#P1ServiceHours").data("kendoComboBox").enable(false);
+        $("#P2ServiceHours").data("kendoComboBox").enable(false);
+        $("#P3ServiceHours").data("kendoComboBox").enable(false);
+        $("#P4ServiceHours").data("kendoComboBox").enable(false);
+        $("#P5ServiceHours").data("kendoComboBox").enable(false);
+        $("#P1WeekendHours").data("kendoComboBox").enable(false);
+        $("#P2WeekendHours").data("kendoComboBox").enable(false);
+        $("#P3WeekendHours").data("kendoComboBox").enable(false);
+        $("#P4WeekendHours").data("kendoComboBox").enable(false);
+        $("#P5WeekendHours").data("kendoComboBox").enable(false);
+        $("#P1Blendedrate").data("kendoNumericTextBox").enable(false);
+        $("#P2Blendedrate").data("kendoNumericTextBox").enable(false);
+        $("#P3Blendedrate").data("kendoNumericTextBox").enable(false);
+        $("#P4Blendedrate").data("kendoNumericTextBox").enable(false);
+        $("#P5Blendedrate").data("kendoNumericTextBox").enable(false);
+        $("#SaveButton").data("kendoButton").enable(false);
+    });
+</script>

@@ -1,0 +1,16 @@
+﻿@{@model int?
+
+    @(Html.Kendo().DropDownListFor(m => m)
+                          .AutoBind(false)
+                          .OptionLabel("Select Version...")
+                          .DataTextField("ProductVersionName")
+                          .DataValueField("VersionId")
+                          .DataSource(dataSource =>
+                          {
+                              dataSource.Read(read => read.Action("GetVendorProductVersion", "TechnologyStack").Data("filterProducts"))
+                                        .ServerFiltering(true);
+                          })
+                          .CascadeFrom("VendorProductId")
+    )
+    @Html.ValidationMessageFor(m => m)
+    }

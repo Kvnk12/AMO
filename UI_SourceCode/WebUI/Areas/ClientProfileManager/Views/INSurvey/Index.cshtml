@@ -1,0 +1,200 @@
+﻿@using NTTData.AMOPortal.Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Linq;
+
+@model Survey_Model
+
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.Title = "Survey";
+
+    Layout = "~/Views/Shared/GenericLayOutWithoutFooter.cshtml";
+
+}
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<style>
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+</style>
+<div class="content-main">
+    <div>
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li>Incident Survey</li>
+                <li class="active">Survey</li>
+            </ol>
+        </div>
+        <div><strong>Survey Name: @Model.Name </strong></div><br />
+        <label id="surveysent" class="alert alert-success" style="width:100%; text-align:left">Survey link has been sent to selected participants.</label>
+        <div>
+            @(Html.Kendo().Grid<SurveyINUserModel>()
+                                                                 .Name("SurveyINUserGrid")
+                                                                 .Columns(columns =>
+                                                                 {
+                                                                     columns.Select().Width(40);
+                                                                     columns.Bound(e => e.Id).Hidden();
+                                                                     columns.Bound(e => e.SurveyId).Hidden();
+                                                                     columns.Bound(e => e.TicketId).Title("Case #").Width(95);
+                                                                     columns.Bound(e => e.shortDescription).Title("Description").Width(160).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                      .ClientTemplate("<div class=\"forTooltips\">#=shortDescription#</div>");
+                                                                     columns.Bound(e => e.Track).Title("Track").Width(85);
+                                                                     columns.Bound(e => e.ClientPriority).Title("Priority").Width(80);
+                                                                     columns.Group(group => group.Title("Incident Dates").Columns(d =>
+                                                                     {
+                                                                         d.Bound(e => e.INCreatedDate).Title("Created").Format("{0:MM/dd/yyyy}").Width(90);
+                                                                         d.Bound(e => e.INClosedDate).Title("Closed").Format("{0:MM/dd/yyyy}").Width(90);
+                                                                     }));
+
+                                                                     columns.Group(group => group.Title("Survey Participant").Columns(sur =>
+                                                                     {
+                                                                         sur.Bound(e => e.SurveyUserName).Title("Name").Width(130);
+                                                                         sur.Bound(e => e.SurveyUserEmail).Title("Email").Width(130);
+                                                                         sur.Bound(e => e.SurveySentDate).Title("Survey Sent Date").Width(90).Format("{0:MM/dd/yyyy}");
+                                                                     }));
+
+                                                                     columns.Bound(e => e.SurveyStatus).Title("Status").Width(100);
+                                                                     columns.Command(command => { command.Edit().Text(" ");                                                   command.Destroy().Text(" "); }).Title(" ").Width(160);
+
+                                                                 })
+
+                                                         .Resizable(r => r.Columns(true))
+                                                         .Reorderable(r => r.Columns(true))
+                                                          .Pageable(p =>
+                                                          {
+                                                              p.PageSizes(new[] {25, 50,100, 150, 200, 250, 300, 350, 400, 450, 500 });
+                                                          })
+                                                         .Scrollable()
+                                                         .Filterable()
+                                                         .Sortable()
+                                                         .HtmlAttributes(new { @style = "height:750px;" })
+                                                         .Editable(editable => editable.Mode(GridEditMode.InLine))
+                                                         .Events(e => e.DataBound("restrictEdit"))
+                                                         .DataSource(dataSource => dataSource
+                                                         .Ajax()
+                                                         .PageSize(25)
+                                                         .Model(model =>
+                                                         {
+                                                             model.Id(f => f.Id);
+                                                             model.Field(p => p.TicketId).Editable(false);
+                                                             model.Field(p => p.INCreatedDate).Editable(false);
+                                                             model.Field(p => p.INClosedDate).Editable(false);
+                                                             model.Field(p => p.Track).Editable(false);
+                                                             model.Field(p => p.ClientPriority).Editable(false);
+                                                             model.Field(p => p.shortDescription).Editable(false);
+                                                             model.Field(p => p.SurveyStatus).Editable(false);
+                                                             model.Field(p => p.SurveySentDate).Editable(false);
+
+                                                         })
+                                                         .Read(read => read.Action("ReadINSurvey", "INSurvey",new { SurveyId=Model.Id }))
+
+                                                         .Update(update => update.Action("UpdateINSurvey", "INSurvey"))
+                                                         .Destroy(delete => delete.Action("DeleteINSurvey", "INSurvey"))
+                                                         )
+                                                         )
+            @(Html.Kendo().Tooltip()
+                                            .For("#SurveyINUserGrid")
+                                            .Filter(".forTooltips")
+                                            .ContentHandler("getDescTooltip")
+                                            .Position(TooltipPosition.Left)
+                                            .AutoHide(true)
+        )
+        </div>
+        <br />
+        <button class="btn btn-primary" id="SendSurvey" onclick="SendSurvey(this)">Send Survey</button>
+
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#surveysent").hide();
+
+    }); 
+
+    function restrictEdit(e) {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+
+            if (model.SurveyStatus == "Expired" || model.SurveyStatus == "Removed" || model.SurveyStatus == "Survey Received" || model.SurveyStatus == "Survey Sent") {
+
+                $(this).find(".k-checkbox").addClass("k-state-disabled");
+                $(this).find(".k-grid-edit").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                var ec1 = $(this).find(".k-checkbox");
+                 var ec2 = $(this).find(".k-grid-delete");
+                var ec3 = $(this).find(".k-grid-edit");
+                ec1.prop("disabled", true);
+                ec2.prop("disabled", true);
+                ec3.prop("disabled", true);
+            }
+        });
+
+    }
+
+    function getDescTooltip(e) {
+        var dataItem = $("#SurveyINUserGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.shortDescription;
+        return content;
+    }
+
+    function SendSurvey(arg) {
+
+        var grid = $("#SurveyINUserGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        console.log(selectedIDs);
+        var mod = {
+            surId: selectedIDs
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/INSurvey/SendSurveyLink")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    var SurveyINUserGrid = $("#SurveyINUserGrid").data("kendoGrid");
+                    if ($("#SurveyINUserGrid .k-state-selected").length > 0) {
+                        SurveyINUserGrid.clearSelection();
+                    }
+                    $("#SurveyINUserGrid").data("kendoGrid").dataSource.read();
+                    $("#surveysent").show();
+            }
+
+
+       })
+    }
+
+</script>

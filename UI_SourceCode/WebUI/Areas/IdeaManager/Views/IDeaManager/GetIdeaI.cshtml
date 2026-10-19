@@ -1,0 +1,257 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IdeaInput
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+
+@section IMTOPMenu {
+
+    @Html.Partial("_IMTopMenu")
+    
+    }
+
+
+@*<div class="selectappArea">*@
+    <!-- Wrap all page content here -->
+    @*<div class="container">*@
+        @*<div class="selectApp form-horizontal">*@
+            @*<div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                      @using (Html.BeginForm())
+                      {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text", Model.ClientsList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required", disabled = true })  
+                      }
+                </div>
+            </div>*@
+        @*</div>*@
+    @*</div>*@
+    <!--/.container-->
+@*</div>*@
+<div class="clear">
+</div>
+<div class="container">
+    <ol class="breadcrumb container">
+        <li>Idea Manager</li>
+        <li>Dashboard</li>
+        <li class="active">Innovation Index Trend</li>
+    </ol>
+</div>
+
+        <div class="container" style="padding:0;"> 
+          <!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+
+          <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            @*<div class="treeMenuContent" style="min-height:700px">*@
+               <div>
+            @*<div class="well well-sm"><strong>Idea</strong></div>*@
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DBIMCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div class="leftslarea">
+                  <h4>Submitted Ideas - Inovation Index Trend</h4>
+                  @if(Model.ClientId != 0)
+                  {
+                  <div class="clear clearfix">&nbsp;</div>
+                  <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptIdeaInnoTrend")' border="0" frameborder="0" height="750px" width="750px"></iframe>
+                  }
+                  else
+                  {
+                      <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                  }
+                </div>
+                <!--END OF LEFTAREA-->
+                   @*<div class="rightcont form-horizontal" style="float:right;width:34%;margin-top:20px">
+                  <div class="panel panel-info">
+                    <div class="panel-heading"><strong>Select Filters</strong></div>
+                    <div class="panel-body">
+                      <div class="form-group">
+                        <label for="Chart" class="col-sm-5 control-label">Client ID</label>
+                        <div class="col-sm-5">
+                            @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control", tabindex = "2", @readonly = "readonly" })
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="Chart" class="col-sm-5 control-label">SubmittedToClient</label>
+                        <div class="col-sm-5">
+                          @Html.DropDownListFor(m => m.IdeaSubmittedToClient, new SelectList(Model.IdeaSubmittedToClientL, "value", "text", Model.IdeaSubmittedToClient), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-primary pull-right mrgnrt30">Submit Filters</button>
+                    </div>
+                    <!--/.panelbody--> 
+                  </div>
+                  <!--/.panel panel-info --> 
+                </div>*@
+                <!-- end of right areaa--> 
+              </div>
+              <!--/.treeMenuContent container--> 
+            </div>
+            <!--/.treeMenuContent--> 
+                 
+       
+            </div> 
+            </div>
+                   <!--end of grid-->             
+              @*</div>*@
+              <!--.valchainContent--> 
+              
+              <!--/.treeMenuContent container--> 
+           </div>
+            <!--/.treeMenuContent--> 
+          @*</div>*@
+          <!--/.treeMenuArea--> 
+          
+        
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            
+            if (SelectedclientId != 0) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+
+
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/IdeaManager/DisplayHomePage/?clientId={clientId}';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/IdeaManager/DisplayHomePage/?clientId={clientId}';
+                }
+
+                baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                window.location = baseurl;
+                return false;
+
+                //var localToServer = "/";
+                //var sPageURL = window.location.search.substring(1);
+                //var sURLVariables = sPageURL.split('&');
+                ////debugger;
+                //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                //}
+
+                //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager/DisplayHomePage/?clientId={clientId}");
+
+                ////window.location = strUrl;
+
+                //strUrl = strUrl.replace("{clientId}", SelectedclientId);
+                //window.location = strUrl;
+            }
+
+        });
+
+    });
+
+
+    $('#cancelidea').click(function () {
+
+
+        var confirm = window.confirm('Do you want cancel the changes?');
+        if (confirm) {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+
+
+            if (href[3].toLowerCase() == 'ideamanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ideamanager/DisplayIdeas/?clientId={clientId}';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ideamanager/DisplayIdeas/?clientId={clientId}';
+            }
+
+            baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+            window.location = baseurl;
+            return false;
+@*            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager/DisplayChallanges/?clientId={clientId}");
+
+            strUrl = strUrl.replace("{clientId}", "@Model.ClientId");
+                window.location = strUrl;
+                return false;*@
+            }
+            else { return false; }
+
+            });
+
+    $('#homepage').click(function () {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'ideamanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ideamanager/DisplayIdeas/?clientId={clientId}';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ideamanager/DisplayIdeas/?clientId={clientId}';
+        }
+        baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+        window.location = baseurl;
+        return false;
+@*        var localToServer = "/";
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+
+        if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+            localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+        }
+        var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager/DisplayChallanges/?clientId={clientId}");
+
+        strUrl = strUrl.replace("{clientId}", "@Model.ClientId");
+                    window.location = strUrl;
+                    return false;*@
+
+
+    });
+
+</script>
+
+
+
+
+
+

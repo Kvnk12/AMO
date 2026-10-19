@@ -1,0 +1,297 @@
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model mdmDataUploadTableInput
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+<div class="clear"></div>
+<div>
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb container">
+        <li class="active">Performance Predictor</li>
+        <li class="active">Data Upload</li>
+    </ol>
+</div>
+
+<!--end of breadcrumb container-->
+
+<div class="container" style="padding:0;">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#treeMenuArea" data-toggle="tab">Data Upload</a></li>
+    </ul>
+
+    @using (Html.BeginForm("DataUploadView", "PPDataUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+
+        @Html.ValidationSummary(false, "")
+
+
+        <div class="treeMenuContent">
+            <div class="container" style="padding:0;">
+                @Html.HiddenFor(m => m.ClientId, new { @id = "hidclientid" })
+
+                <table cellpadding="5" cellspacing="5">
+
+                    <tr>
+                        <td style="width:10%">File to upload<span class="mandate">*</span></td>
+                        <td style="width:25%">
+
+                            <div class="input-group" style="width:300px;">
+                                <label class="input-group-btn" id="lblid">
+                                    <span class="btn btn-primary" id="btnbrowse">Browse&hellip;@Html.TextBoxFor(m => m.httpPostedFileData, new { style = "display:none;", accept = ".xls,.xlsx", type = "file", id = "FileToUpload" })</span>
+                                </label>
+                                @Html.TextBoxFor(m => m.fileuploadhst.datafilename, new { @class = "form-control", style = "readonly:true;", type = "text", id = "reaOnlyFileName", @readonly = "readonly" })
+                            </div>
+                        </td>
+                        @if (Model.lblfilename == null)
+                        {
+                            <td align="left"><button type="submit" name="btnUpload" value="attach" class="btn btn-primary" id="btnattach" tabindex="30">Attach</button></td>}
+                        else
+                        {
+                            <td align="left"><button type="submit" name="btnUpload" value="attach" class="btn btn-primary" id="btnattach" tabindex="30" disabled>Attach</button></td>}
+
+                    </tr>
+                    <tr>
+                        <td></td>
+                        @*<td>@Html.LabelFor(m => m.lblfilename, new { id = "lblfile"})</td>*@
+                        <td>@Model.lblfilename</td>
+                    </tr>
+
+                    <tr>
+                        <td>HDR Included<span class="mandate">*</span></td>
+                        <td>
+                            <div class="input-group" style="width:300px;">
+                                @Html.DropDownListFor(m => m.fileuploadhst.hdrstatus, new List<SelectListItem>
+                                            {
+                                            new SelectListItem{ Text="Yes", Value = "YES" },
+                                            new SelectListItem{ Text="No", Value = "NO" }
+                                            }, new { @class = "selectpicker", id = "drp" })
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Sheet Name<span class="mandate">*</span></td>
+                        <td>
+                            <div class="input-group" style="width:300px;">
+                                @Html.DropDownListFor(m => m.lblsheetname, new SelectList(Model.SheetnameList, "value", "text", Model.lblsheetname), "", new { @class = "selectpicker", id = "drpsheet", tabindex = "6" })
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Tablename<span class="mandate">*</span></td>
+                        <td>
+                            <div class="input-group" style="width:300px;">
+                                @Html.TextBoxFor(m => m.DataTablename, new { @class = "form-control", placeholder = "Tablename", tabindex = "1", id = "txtIncID" })
+                            </div>
+
+                        </td>
+
+
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            @Html.CheckBoxFor(m => m.chktruncate) @Html.Label("Truncate Table before load")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="">
+                                @if (Model.lblfilename == null)
+                                {
+                                    <button type="submit" name="btnUpload" value="upload" class="btn btn-primary" id="btnsubmit" tabindex="30" disabled>Upload</button>
+                                }
+                                else
+                                {
+                                    <button type="submit" name="btnUpload" value="upload" class="btn btn-primary" id="btnsubmit" tabindex="30">Upload</button>}
+                                <button type="submit" class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("ViewDataUpload", "PPDataUpload", new { clientid = Model.ClientId })'; return false;">Back</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+
+            </div>
+
+
+        </div><!--/.container-->
+    }
+</div>
+
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+</script>
+<script>
+    $('.selectpicker').selectpicker();
+
+</script>
+<script>
+    $(document).ready(function () {
+
+
+           $('input#FileToUpload').change(function () {
+
+                    var filename = $('#FileToUpload').val();
+
+                    var fNameParts = filename.split("\\");
+
+                    if (fNameParts.length > 0) {
+
+                        $('#reaOnlyFileName').val(fNameParts[fNameParts.length - 1]);
+
+                    }
+
+                    else {
+
+                        $('#reaOnlyFileName').val(filename);
+
+                    }
+
+                });
+
+                $('input#FileToUpload').change(function () {
+
+                    var selectedformat = ($('#drpFileFormat :selected').text());
+
+                    var upload = $('input#FileToUpload').val().split('.').pop().toLowerCase().toString();
+
+                });
+
+                $('input#drpsheet').ready(function () {
+                    var list = this;
+                    debugger;
+
+                    var Selectedsheet = $("select#drpsheet").val().toString();
+                    if (Selectedsheet == "") {
+                        var href = window.location.href.split('/');
+                        var baseurl = '';
+                        if (href[3] == 'Alignmentmanager') {
+                            var baseurl = href[0] + '//' + href[2] + '/' + 'Alignmentmanager/PPDataUpload/GetExcelSheetNames'
+                        }
+                        else {
+                            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'PPDataUpload/GetExcelSheetNames'
+                        }
+                        if ($('#reaOnlyFileName').val() != "") {
+                            $.ajax({
+                                url: baseurl,
+                                type: 'GET',
+                                data: { path: $('#reaOnlyFileName').val() },
+                                success: getClientsAccountsFunc,
+                                failure: errorInClientAccountsunc
+                            });
+                        }
+                    }
+                });
+
+            })
+
+
+            function getClientsAccountsFunc(data, status) {
+                $("select#drpsheet").empty();
+                $("select#drpsheet").selectpicker('refresh');
+                $("select#drpsheet").append("<option></option>");
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i] != '') {
+                        $("select#drpsheet").append("<option value='" + data[i] + "'>" + data[i] + "</option>");
+                    }
+                }
+                $("select#drpsheet").selectpicker('refresh');
+            }
+
+
+                function errorInClientAccountsunc() {
+                    alert('error');
+                }
+
+
+
+
+</script>
+
+<script>
+
+    $("#txtIncID").autocomplete({
+        source: function (request, response) {
+            var href = window.location.href.split('/');
+            var client = $('#hidclientid').val();
+            var baseurl = '';
+            if (href[3] == 'Alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'PPDataUpload/DTAutoComplete?clientid=' + client
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'PPDataUpload/DTAutoComplete?clientid=' + client
+            }
+            $.ajax({
+                url: baseurl,
+                data: "{ 'prefix': '" + request.term + "'}",
+                dataType: "json",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    response($.map(data, function (item) {
+                        return item;
+                    }))
+                },
+                error: function (response) {
+                    alert(response.responseText);
+                },
+                failure: function (response) {
+                    alert(response.responseText);
+                }
+            });
+        },
+        select: function (e, i) {
+            $("#txtIncID").val(i.item.val);
+        },
+        minLength: 1
+    });
+
+    //$('#btnsubmit').click(function () {
+    //    var selhdrstatus = $('#drp :selected').val();
+    //    var selsheetname = $('#drpsheet :selected').val();
+    //    var tblname = $('#txtIncID').val("");
+
+    //    if (selhdrstatus == "0" || selhdrstatus == "") {
+    //        alert('Please select Header Status');
+    //        return false;
+    //    }
+
+    //    if (selsheetname == "0" || selsheetname == "") {
+    //        alert('Please select a sheet name');
+    //        return false;
+    //    }
+
+    //    if (tblname == "0" || tblname == "") {
+    //        alert('Please select a table name');
+    //        return false;
+    //    }
+
+
+    //});
+
+    //$('#btnReset').click(function () {
+    //    debugger;
+    //    $('FileToUpload').val('');
+    //    $('#reaOnlyFileName').val('');
+    //    $("#btnsubmit").prop("disabled", true);
+    //    $("#btnattach").removeAttr('disabled');
+    //    $('#txtIncID').val('');
+
+
+    //});
+
+
+
+</script>

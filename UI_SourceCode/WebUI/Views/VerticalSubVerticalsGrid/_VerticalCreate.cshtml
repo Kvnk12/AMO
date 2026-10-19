@@ -1,0 +1,49 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VerticalAndSubVerticalInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+<div class="grpArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Industry Vertical</h4>
+                    </div>
+                        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                    
+                  </div>
+                  <div class="form-horizontal">
+                         <input hidden id="verticalId" value="@Model.VerticalId.ToString()"  />
+                        
+            <input hidden id="Cancel" value="CancelClick" />
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpID">Group Name</label>
+                      <div class="col-sm-3">
+                       
+                        @Html.TextBoxFor(m => m.verticalInput.VerticalName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtverticalname" })
+                        
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpdesc">Description</label>
+                      <div class="col-sm-3">
+                           @Html.TextAreaFor(m => m.verticalInput.Description, new { @class = "form-control", rows = "4" })
+                      </div>
+                    </div>
+                  </div>
+    <div class="accdetailacction">
+                       <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+         <button type="submit" class="btn btn-default" id="deleteVertical" @((Model.VerticalId == 0) ? "disabled" : "") tabindex="22" onclick="location.href='@Url.Action("DelVertical", "VerticalSubVerticalsGrid", new { id = Model.VerticalId,tabs="Tab2" })'; return false;">Delete</button>
+
+                    </div>
+      </div>
+}

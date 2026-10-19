@@ -1,0 +1,420 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using System.Collections.Generic;
+@using System.Collections;
+@model ApplicationInformationModel
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Data Collection</li>
+            <li class="active">Demographics/Cost</li>
+        </ol>
+    </div>
+    <div>
+        <!-- Wrap all page content here -->
+        @Html.Partial("_APRHeaderFilters")
+
+    </div>
+    @using (Html.BeginForm("IndexAction", "DataCollection", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id, new { id = "Id" })
+        <div class="apr-Demographics-cost">
+                    <div class="apr-progress-bar">
+                        @(Html.Kendo().ProgressBar()
+                              .Name("profileCompleteness")
+                              .Type(ProgressBarType.Value)
+                              .ShowStatus(false)
+                              .Min(0)
+                              .Max(7)
+                              .Value(1)
+                        )
+                        </div>
+                        <div class="custom-kendo-tabstrip">
+                            @(Html.Kendo().TabStrip()
+                          .Name("tabstrip")
+                          .Items(tabstrip =>
+                          {
+                              tabstrip.Add().Text("Basic Info")
+                                  .Selected(true)
+
+                                  .Content(m => Html.Partial("_contactInfo", Model)
+                                   );
+
+                              tabstrip.Add().Text("Life Cycle & Criticality")
+                                  .Enabled(false)
+                                  .Content(m => Html.Partial("_LifeCycle", Model));
+
+                              tabstrip.Add().Text("Performance")
+                                  .Enabled(false)
+                                  .Content(m => Html.Partial("_Performance", Model));
+
+                              tabstrip.Add().Text("Arch & Geography")
+                                  .Enabled(false)
+                                  .Content(m => Html.Partial("_ArchGeo", Model));
+
+                              tabstrip.Add().Text("Cost")
+                                  .Enabled(false)
+                                  .Content(m => Html.Partial("_Financial", Model));
+
+                              tabstrip.Add().Text("Notes")
+                                  .Enabled(false)
+                                  .Content(m => Html.Partial("_Notes", Model));
+
+                              tabstrip.Add().Text("Contacts")
+                                .Enabled(false)
+                                .Content(m => Html.Partial("_Contact", Model));
+
+                          })
+                        .Events(ev =>
+                        {
+                            ev.Select("onSelect");
+                            ev.Show("onShow");
+                            ev.ContentLoad("onContentload");
+                        })
+
+                        )
+                        </div>
+                    </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#AppName").val()) {
+            AppNameChange();
+
+
+        }
+    });
+
+        function AppNameChange() {
+           // alert('here1');
+            updateDashboard();
+            var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            financeGrid.dataSource.read();
+
+        }
+        function ApplicationIDValue() {
+
+            var appid = $("#AppName").val();
+            //alert('check here'+appid);
+            return {
+                ApplicationID: appid
+            };
+        }
+
+        function ApplicationIDValue1() {
+
+            var appid = $("#AppName").val();
+            //alert('check here'+appid);
+            return {
+                AppId: appid
+            };
+        }
+        function updateDashboard() {
+
+           
+            var appid = $("#AppName").val();
+           
+            //var RootUrl = '@Url.Content("~/")';
+            var model = {
+                ApplicationID: appid
+            };           
+            var data = JSON.stringify(model)
+           
+            baseurl = '@Url.Content("~/DataCollection/GetApplicationinfoItem")';          
+            //baseurl = baseurl + '?ApplicationID=' + appid
+            //alert('post' + baseurl + $("ApplicationList").data("kendoComboBox").Value());
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                   // alert(response.AppDomainId);                  
+                    $('#Id').val(response.Id);
+                    $("#ClientApplicationNumber").val(response.ClientApplicationNumber);
+                    $("#BusinessFunction").val(response.BusinessFunction);
+                    $("#ApplicationName").val(response.ApplicationName);
+                    $("#AppTypeId").data("kendoDropDownList").value(response.AppTypeId);
+                    $("#ApplicationClassificationId").data("kendoDropDownList").value(response.ApplicationClassificationId);
+                    $("#HostingTypeId").data("kendoDropDownList").value(response.HostingTypeId);
+                    $("#AppDomainId").data("kendoDropDownList").value(response.AppDomainId);
+                    $("#APROwningCompanyId").data("kendoDropDownList").value(response.APROwningCompanyId);
+                    $("#AliasName").val(response.AliasName);
+                    //$("#OwningCompaniesId").data("kendoDropDownList").value(response.APROwningCompanyId);
+                   //$("#OwningCompanies").val(response.OwningCompanies);
+                   $("#Description").val(response.Description);
+                   $("#LegacyReasonExists").val(response.LegacyReasonExists);
+                   $("#PlannedRetirementDate").data("kendoDatePicker").value(response.PlannedRetirementDate);
+                   $("#MigrationDate").data("kendoDatePicker").value(response.MigrationDate);
+
+                   //if (response.IsServer == true) {
+                   //    $("[name=IsServer]").eq(0).prop("checked", true);
+                   //}
+                   //else if (response.IsServer == false) {
+                   //    $("[name=IsServer]").eq(1).prop("checked", true);
+                   //}
+
+                   //if (response.IsHostedExternally == true) {
+                   //    $("[name=IsHostedExternally]").eq(0).prop("checked", true);
+                   //}
+                   //else if (response.IsHostedExternally == false) {
+                   //    $("[name=IsHostedExternally]").eq(1).prop("checked", true);
+                   //}
+                    //----Lifecycle
+                   $("#CodeComplexity").val(response.CodeComplexity);
+                    $("#NumberOfBugs").val(response.NumberOfBugs);
+                    $("#NumberOfLinesOfCode").val(response.NumberOfLinesOfCode);
+                    $("#TransactionVolumn").val(response.TransactionVolumn);
+                    $("#TransactionVolumnUnit").val(response.TransactionVolumnUnit);
+                    $("#DocumentationNotes").val(response.DocumentationNotes);
+                    $("#AppLifeCycleId").data("kendoDropDownList").value(response.AppLifeCycleId);
+                    $("#IsTechnicalDocAvailable").data("kendoDropDownList").value(response.IsTechnicalDocAvailable);
+                    $("#IsApplicationDocAvailable").data("kendoDropDownList").value(response.IsApplicationDocAvailable);
+                    $("#AppCriticalityId").data("kendoDropDownList").value(response.AppCriticalityId);
+                    $("#AppSecurityLevelId").data("kendoDropDownList").value(response.AppSecurityLevelId);
+                    $("#IsDisasterRecoveryPlanAvailable").data("kendoDropDownList").value(response.IsDisasterRecoveryPlanAvailable);
+
+        //---Performance
+                    $("#AvgConcurrentUsers").val(response.AvgConcurrentUsers);
+                    $("#OutageFrequency").val(response.OutageFrequency);
+                    $("#AvgIncidentTickets").val(response.AvgIncidentTickets);
+                    $("#MaxConcurrentUsers").val(response.MaxConcurrentUsers);
+                    //alert("response.UserRange");
+                    $("#UserRange").val(response.UserRange);
+                    $("#OutageDuration").val(response.OutageDuration);
+                    $("#PerformanceNotes").val(response.PerformanceNotes);
+                    $("#AppEnvironmentId").data("kendoDropDownList").value(response.AppEnvironmentId);
+                    if (response.RevenueImpactIfDown == true) {
+                        $("[name=RevenueImpactIfDown]").prop("checked", true);
+                    }
+                    else
+                    {
+                        $("[name=RevenueImpactIfDown]").prop("checked", false);
+                    }
+
+                    //--Arch and Geo
+                    $("#AppArchitectureId").data("kendoDropDownList").value(response.AppArchitectureId);
+                    $("#AppProcessingId").data("kendoDropDownList").value(response.AppProcessingId);
+                    $("#AppSourceCodeId").data("kendoDropDownList").value(response.AppSourceCodeId);
+                    $("#BusinessLogicInClientTier").data("kendoDropDownList").value(response.BusinessLogicInClientTier);
+                    $("#MOTSLevel").data("kendoDropDownList").value(response.MOTSLevel);
+                    //alert("response.APRDeploymentModelId");
+                    $("#APRDeploymentModelId").data("kendoDropDownList").value(response.APRDeploymentModelId);
+                    $("#APRStandardStatusId").data("kendoDropDownList").value(response.APRStandardStatusId);
+                    $("#APRDifferentiationLevelId").data("kendoDropDownList").value(response.APRDifferentiationLevelId);
+
+                    $("#NumberOfInstances").val(response.NumberOfInstances);
+                    $("#AppSize").val(response.AppSize);
+                    $("#SizeUnits").val(response.SizeUnits);
+
+                    //$("#CountryId").data("kendoComboBox").value(response.CountryId);
+                    $("#CountriesId").data("kendoMultiSelect").value(response.CountriesId);
+                    //$("#CountriesId").data("kendoMultiSelect");
+                    $("#treeview input.k-checkbox").prop("checked", false).trigger("change");
+                    $("#RegionNames").val(response.RegionNames);
+                    if (response.Regionlist != null)
+                    {
+                        var treeview = $("#treeview").data("kendoTreeView");
+                        $.each(response.Regionlist, function (index, value) {
+                            var bar = treeview.findByText(value);
+
+                                treeview.dataItem(bar).set("checked", true);
+
+
+
+                            //alert(index + ": " + value);
+                        });
+
+
+}
+                   // $("#RegionNames").val(response.RegionNames);
+
+        //-- Financial
+                    $("#FinancialNotes").val(response.FinancialNotes);
+
+        //--Notes
+                    $("#GeneralNotes").data("kendoEditor").value(response.GeneralNotes);
+        //--Contacts
+                    var GridPersonnelRole = $("#GridPersonnelRole").data("kendoGrid");
+                    GridPersonnelRole.dataSource.read();
+
+                },
+                error: function (data) {
+                    //alert('err' + data);
+                }
+
+            });
+        }
+
+        var progress,
+            tabs,
+            currentIndex = 0;
+
+        $(document).ready(function () {
+            progress = $("#profileCompleteness").data("kendoProgressBar");
+            tabs = $("#tabstrip").data("kendoTabStrip");
+        })
+
+        function onSelect(e) {
+
+            var selectedIndex = tabIndexOfElement(e.item),
+
+            isMovingBack = selectedIndex < currentIndex;
+
+            if (isMovingBack || isTabValidAt(currentIndex)) {
+                console.log("tab passed validation")
+
+                currentIndex = selectedIndex;
+                //
+                updateApps();
+                var financeGrid = $("#GridFinance").data("kendoGrid");
+
+                financeGrid.dataSource.read();
+                var GridPersonnelRole = $("#GridPersonnelRole").data("kendoGrid");
+                GridPersonnelRole.dataSource.read();
+                tabs.enable(getTabAtIndex(currentIndex), true);
+            }
+            else {
+                e.preventDefault();
+            }
+        }
+
+        function onPreviousClick(e) {
+            e.preventDefault();
+            tabs.select(tabs.select().prev());
+        }
+
+        function onNextClick(e) {
+
+
+            e.preventDefault();
+
+            tabs.select(getTabAtIndex(currentIndex + 1));
+            //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            //financeGrid.dataSource.read();
+        }
+
+        function getTabAtIndex(index) {
+            return tabs.tabGroup.children().eq(index);
+        }
+
+        function tabIndexOfElement(element) {
+            return tabs.element.find(element).index();
+        }
+
+        function isTabValidAt(tabIndex) {
+            var el = tabs.contentElement(tabIndex),
+                val = $(el).kendoValidator().data("kendoValidator");
+            return val.validate();
+        }
+
+        function onShow(e) {
+            progress.value(currentIndex + 1);
+            //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            //financeGrid.dataSource.read();
+        }
+
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+
+            });
+
+            var multi = $("#CountriesId").data("kendoMultiSelect");
+            var cid = multi.value();
+            $('input:hidden[name=MultipleCountries]').val(cid);
+            return indexed_array;
+        }
+
+        function updateApps() {
+            var $form = $("#form");
+            //var multi = $("#CountriesId").data("kendoMultiSelect");
+            //var countries = $('input:hidden[name=MultipleCountries]').val(multi);
+           var data = JSON.stringify(getFormData($form));
+            var appid = $("#AppName").val();
+            //var model=JSON.stringify( $("#form").serializeArray() );
+            //alert(data);
+            var RootUrl = '@Url.Content("~/")';
+            //var model = {
+            //    AppId: appid
+            //};
+
+            //alert(myArray[0].id + " ," + myArray[0].value);
+            //var data1 = { 'listObject': myArray };
+            //var data = JSON.stringify(model)
+
+            $.ajax({
+
+                type: 'post',
+                url: RootUrl + 'APRAjaxService/ApplicationUpdate',
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+        }
+    function onContentload(e) {
+        var financeGrid = $("#GridFinance").data("kendoGrid");
+
+        financeGrid.dataSource.read();
+    }
+
+    function onEdit(e) {
+        //execute your custom logic to get the max value
+        var appid = $("#AppName").val();
+        //check if record is new
+        if (e.model.isNew()) {
+            e.model.set("AppId", appid);
+            //set the required field value
+            //var numeric = e.container.find("input[name=AppId]").data("kendoNumericTextBox");
+            ////e.container.find("[name=AppId]").hide();
+            ////numeric.value(1);
+            //numeric.enable(false);
+            ////numeric.hide();
+        }
+    }
+
+</script>
+
+
+
+
+

@@ -1,0 +1,57 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+@{ ViewBag.Title = "Demand Manager";
+                ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+                Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml"; }
+
+
+
+@section DMTOPMenu {
+
+    @Html.Partial("_DMTopMenu")
+
+}
+<div>
+    <ol class="breadcrumb">
+        <li>Demand Manager</li>
+        <li class="active">Master Demand Source</li>
+    </ol>
+</div>
+
+
+<div style="padding: 0;">
+
+
+    <div class="well well-sm"><strong>Demand Source</strong></div>
+    <div class="">
+        <!--valchainContent-->
+        <!--.valchainContent-->
+        <div>
+            @Html.Partial("_DisplayDemandSources")
+        </div>
+
+
+        <!--/.treeMenuContent container-->
+    </div>
+    <!--/.treeMenuContent-->
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+    });
+
+</script>
+
+
+
+
+
+
+

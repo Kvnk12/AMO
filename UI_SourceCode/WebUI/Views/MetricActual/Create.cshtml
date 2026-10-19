@@ -1,0 +1,489 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.MetricActualInput
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+   
+}
+
+
+ @using (Html.BeginForm("Create", "MetricActual", FormMethod.Get, new { @class = "form-horizontal" }))
+ {
+        @Html.ValidationSummary(false,"")
+ 
+        <!--.container-->
+        <div class="selectappArea">
+        <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                <div class="col-sm-5">
+
+                     @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientId), new { @class = "selectpicker", id = "ddlClientId", tabindex = "1" })     
+
+                                     </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal"> 
+              
+              <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>--> <!-- hidden for sprint two--> 
+              
+            </div>
+            <!--/.selectyearArea--> 
+          </div>
+          <!--/.container--> 
+        </div>
+       
+        <!--/.selectappArea-->
+       
+        <div><!--start of breadcrumb-->
+         <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li><a href="#">Metric Management</a></li>
+            <li class="active">SLA Actual</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        
+            
+        <div class="container" style="padding:0;">
+        
+        
+            <!--/.treeMenuArea-->
+				<div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+                <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                <div class="treemenu">
+                    <div class="hdr">
+                        <h3>Metric Catalog</h3>
+                        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                    </div>
+                    <ul class="treeMenuUl">
+                        <li><a href="#">Application Support</a>
+                            <ul>
+                                <li><a href="#">Service Level Management</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                 <li><a href="#">Capacity Management</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Availability Management</a>
+                                	<ul>
+                                        
+                                        @foreach (var item in Model.MetricsList)
+                                        {
+                                           
+                                         <li><a  href="JavaScript:FillMetricDetails(@item.Id, '@item.MetricName')">@Html.DisplayFor(modelItem => item.MetricName)</a></li>
+                                        }
+                                        </ul>
+                                </li>
+                                <li><a href="#">IT Security Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Incident Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Service Desk Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Configuration Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Problem Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Change Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Release Management</a>
+                                	<ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                		<li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Portfolio / Project Management</a>
+                            <ul>
+                                <li><a href="#">Some data</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Testing</a>
+                            <ul>
+                                <li><a href="#">Some data</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Service desk</a>
+                            <ul>
+                                <li><a href="#">Some data</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Infrastructure / Operations</a>
+                            <ul>
+                                <li><a href="#">Some data</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#">Enhancements</a>
+                            <ul>
+                                <li><a href="#">Some data</a>
+                                    <ul>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a><input type="checkbox" name=""></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                        <li><a href="#">Some data</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                                <li><a href="#">Some data</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    
+                    <span class="addmetric"><button type="button" class="btn btn-primary">Add new Metric</button></span>
+                </div><!-- treemenu ends-->
+                <div class="treeMenuContent">
+                	<div class="container" style="padding:0;">
+                           
+                            @if (!ViewData.ModelState.IsValid)
+                        {
+                                @Html.ValidationSummary(false,"",new {@class= "alert alert-danger"})	
+                         }
+                        <div class="leftarea">
+                    	<span><h4 style="display:inline-block;color:#47A3DA">Metric Specification&nbsp;&nbsp;</h4> Set same values for selected apps</span>
+                        <div class="metricsetupattrtab">
+                        	<div class="form-group">
+                                <label class="col-sm-5 control-label" for="metricName" id=""><span class="mandate">*</span>Metric Name</label>
+                                <div class="col-sm-5">
+                                 @Html.TextBoxFor(m => m.MetricName, new { @class = "form-control", id = "metricName", tabindex = "" }) 
+                                </div>
+						    </div>
+                            <div class="form-group">
+                                <label for="metric_Id" class="col-sm-5 control-label">Metric ID</label>
+                                            <div class="col-sm-5">
+                                 @Html.TextBoxFor(m => m.MetricId, new { @Value = "", @class = "form-control", id = "MId", tabindex = "4" })
+                                </div>
+						   </div>
+                          
+                            <div class="form-group" id="appname">
+                            	<label for="appName" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Appliaction Name</label>
+                                <div class="col-sm-5">
+                                    
+                                    @Html.DropDownListFor(m => m.ApplicationId, new SelectList(Model.ApplicationList, "value", "text", Model.ApplicationId), new { @class = "selectpicker", tabindex = "6", id = "ddlApp" })     
+
+                                 
+                                </div>
+                           </div>
+                            <div class="form-group">
+                                            <label for="Period" class="col-sm-5 control-label">Period</label>
+                                            <div class="col-sm-5">
+                                     @Html.DropDownListFor(m => m.Period, new SelectList(Model.MonthList, "value", "text", Model.Period), new { @class = "selectpicker", tabindex = "6", id = "ddlMonth" })     
+
+                                             
+                                            </div>
+                                        </div>
+
+                            
+                         
+                           <div class="form-group">
+                                <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Measurement Start Date</label>
+                                     <div id="sandbox-container" >
+                                         <div class="input-append date col-sm-5">
+                    						@Html.TextBoxFor(m => m.StartDate, new { @class = "form-control", tabindex = "22" })<span class="add-on"><i class="icon-th"></i></span>
+                                              
+                    					 </div>
+                                      </div>
+                           </div>
+                           <div class="form-group">
+                                <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Measurement End Date</label>
+                                     <div id="sandbox-container" >
+                                         <div class="input-append date col-sm-5">
+                    						@Html.TextBoxFor(m => m.EndDate, new { @class = "form-control", tabindex = "" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                           </div>
+
+                                <div class="form-group">
+                                            <label for="Actual" class="col-sm-5 control-label">Actual</label>
+                                            <div class="col-sm-5">
+                                                @Html.TextBoxFor(m => m.Actual, new {@Value = "", @class = "form-control", placeholder = "", tabindex = "" })   
+                                            </div>
+                                        </div>
+
+                            <div class="form-group">
+                                            <label for="Unit" class="col-sm-5 control-label">Unit</label>
+                                            <div class="col-sm-5">
+                                                @Html.TextBoxFor(m => m.Metrices.MetricUnitId, new { @class = "form-control", placeholder = "", tabindex = "" })  
+                                            </div>
+                                        </div>
+                                     
+                                        <div class="form-group">
+                                            <label for="comment" class="col-sm-5 control-label">Comment</label>
+                                            <div class="col-sm-7">
+                                                 @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", placeholder = "", tabindex = "" })   
+                                            </div>
+                                        </div>
+
+                        
+						   
+                          
+                          <!-- <div class="form-group">
+                                <label class="col-sm-5 control-label" for="defaulthrs" id="">Use default working hours</label>
+                                <div class="col-sm-5">
+                                	<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked>
+                                </div>
+						   </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="customhrs" id="">Use custom working hours</label>
+                                <div class="col-sm-5">
+                                	<input type="radio" name="optionsRadios" id="optionsRadios1" value="option2">
+                                </div>
+						   </div> hidden for next sprint-->
+                       </div><!--/.metricsetupattr-->
+                    </div><!--/.metricsetupRight-->  
+                    
+                   <div >
+                   	<button type="button" class="btn btn-info" id="showapp" style="margin-bottom: 10px;margin-left: 228px;margin-top:10px;" 				data-toggle="modal" data-target="" data-keyboard="true">
+                                    	View Application List
+                    </button>
+                   <div class="metricsetupRight" style="width:30%;display:none;">
+                   			@*<ul class="list-group">
+                              <li class="list-group-item" style="background:#5BC0DE;color:#fff"><h4>Application List</h4></li>
+                              <span class="applistclose">X</span>
+                               @foreach (var item in Model.AppList)
+                               {
+                                          <li class="list-group-item">@Html.DisplayFor(modelItem => item.ApplicationName)</li>
+                               }
+                            
+                            </ul>*@
+                   </div><!--/.metricsetupRight-->
+                 </div>
+                    <div class="metricaction">
+                        <button class="btn btn-primary" tabindex="" id="btnSave"  value="Save" type="submit">Save</button>
+                        <button class="btn btn-default" tabindex="" value="Reset" type="Reset">Cancel</button>
+                    </div>
+                    </div><!--/.treeMenuContent container-->
+                </div><!--/.treeMenuContent-->
+            </div><!--/.treeMenuArea-->
+          
+        </div><!--/.container-->
+  
+ }
+<div id="footer">
+  <div class="container">
+    <p class="text-muted credit">(c) NTT Data 2013 | All rights reserved</p>
+  </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+    ================================================== --> 
+<!-- Placed at the end of the document so the pages load faster --> 
+
+
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+		</script> 
+ 
+<script>
+    $('.selectpicker').selectpicker();
+    // $('.selectpicker').selectpicker('val', ['Ketchup', 'Relish']);
+    </script> 
+<script>
+    $('#sandbox-container .input-append.date').datepicker({
+        keyboardNavigation: false,
+        autoclose: true,
+        todayHighlight: true
+    });
+    </script>
+       <script>
+       <!--
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+           </script>
+     <script>
+         $(document).ready(function () {
+
+             document.getElementById("metricName").readOnly = "readonly";
+             document.getElementById("MId").readOnly = "readonly";
+
+         });
+
+
+    </script>
+    @* <script>
+
+         function LoadMetricInfo(clientid) {
+             alert(clientid.value);
+             // var url = '/AmoS3Dev/MetricSpecification/EditMetricSpecification/?ApplicationId=' + Appid.value + "&MetricId=" + mid.value;
+             var url = '../MetricSpecification/GetMetricSetup/?ClientId=' + clientid.value;
+
+             window.location = url;
+         }
+    </script>*@
+
+      @*<script>
+
+          $('#ClientId').change(function () {
+             alert(ClientID.value);
+             // var url = '/AmoS3Dev/MetricSpecification/EditMetricSpecification/?ApplicationId=' + Appid.value + "&MetricId=" + mid.value;
+             var url = '../MetricSpecification/GetMetricSetup/?ClientId=' + clientid.value;
+
+             window.location = url;
+          });
+    </script>*@
+    @*<script>
+    $(function () {
+        $('#ddlClientId').change(function () {
+            var v = $(this).val();
+            alert(v);
+        });
+    });
+
+        </script>*@
+    <script>
+        function FillMetricDetails(id, name) {
+            //var g = document.forms['form_global'];
+            document.getElementById("MId").value = id;
+
+            document.getElementById("metricName").value = name;
+            //g.MetricName.value = name;
+            //g.MetricId.value = id;
+        }
+</script>
+     <script>
+         //$(document).ready(function () {
+         $("#ddlClientId").change(function () {
+             var v = $(this).val();
+             var url = '../MetricActual/ActualSetup/?ClientId=' + v;
+             //var url = '../MetricSpecification/GetMetricSetup/?ClientId=' + v;
+             window.location = url;
+         });
+
+    </script>
+    <script>
+        $("#btnSave").click(function () {
+
+            var clientid = document.getElementById("ddlClientId").value;
+            // Metric id field should always greter than zero.
+            if (clientid == null || clientid == "" || clientid == 0) {
+                alert("Please select client");
+                return false;
+            }
+        });
+    </script>
+

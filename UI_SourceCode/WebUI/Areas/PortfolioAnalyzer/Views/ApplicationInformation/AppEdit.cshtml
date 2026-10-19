@@ -1,0 +1,91 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationInformationModel
+
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+<div class="content-main">
+    @using (Html.BeginForm("UpdateAppInfo", "ApplicationInformation", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Portfolio Analyzer</li>
+                <li>Configure</li>
+                <li class="active"><a href="#">Application/Service Information</a></li>
+            </ol>
+        </div>
+
+
+        <div id="wrap">
+
+            <div style="padding: 2em;">
+                <div class="well well-sm"><strong>Application/Service Information Edit</strong></div>
+                @Html.HiddenFor(m => m.ClientId, new { @id = "hidClientId" })
+                <table class="table table-striped" id="pp38Home" style="border:1px solid" cellpadding="5" cellspacing="5">
+                    <thead style="border:1px solid">
+                        @{
+
+
+                            <tr>
+                                <td scope="col">Client Application/Service Number</td>
+                                @Html.HiddenFor(m => m.Id)
+                                @*@Html.HiddenFor(m => m.AppInfo[i].Application_ID, new { @value = Model.ClientId })*@
+                                <td>@Html.TextBoxFor(m => m.ClientApplicationNumber, new { @class = "form-control", width = "100%" })</td>
+                            </tr>
+                            <tr>
+                                <td scope="col">Name</td>
+                                <td>@Html.TextBoxFor(m => m.ApplicationName, new { @class = "form-control", width = "100%" })</td>
+                            </tr>
+                            <tr>
+                                <td scope="col">Alias Name</td>
+                                <td>@Html.TextBoxFor(m => m.AliasName, new { @class = "form-control", width = "100%" })</td>
+                            </tr>
+                            <tr>
+                                <td scope="col">Technical Owner Name</td>
+                                <td>@Html.TextBoxFor(m => m.TechnicalOwner, new { @class = "form-control", width = "100%" })</td>
+                            </tr>
+
+                            <tr>
+                                <td scope="col">In Scope</td>
+                                <td>@Html.CheckBoxFor(m => m.InScope)</td>
+                            </tr>
+                            <tr>
+                                <td scope="col">Retirement Candidate</td>
+                                <td>@Html.CheckBox("IsRetirementCandidate", Model.IsRetirementCandidate.HasValue ? Model.IsRetirementCandidate : false)</td>
+                            </tr>
+                            <tr>
+                                <td scope="col"></td>
+                                <td>
+                                    <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Update</button>
+                                    <button type="button" id="btnUpload" onclick="GotoIndex()" class="btn btn-primary" tabindex="30">Cancel</button>
+                                </td>
+                            </tr>
+
+                        }
+                </table>
+            </div>
+        </div>
+
+
+        <script>
+    function GotoIndex()
+    {
+        var appPath='@Url.Content("~/PortfolioAnalyzer/ApplicationInformation/index")';
+        location.href = appPath;
+    }
+        </script>
+
+
+
+    }
+
+</div>

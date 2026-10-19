@@ -1,0 +1,93 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model ApplicationInformationModel
+@*@{
+    var v = new APRAjaxServiceController();
+    var Vendorlist = v.Vendorlist();
+}*@
+<div class="custom-kendo-grid apr-app-stack">
+    @(Html.Kendo().Grid<APRAppSoftwareModel>()
+      .Name("softwareGrid")
+      .Columns(columns =>
+      {
+          //columns.Bound(p => p.Id).Width(20).Hidden().HeaderHtmlAttributes(new { @title = "Id" });
+          columns.ForeignKey(p => p.VendorId, (System.Collections.IEnumerable)ViewData["vendor"], "Id", "VendorName").Width(300).Title("Vendor");
+          columns.ForeignKey(p => p.VendorProductId, Model.VendorProduct, "Id", "ProductName").Width(300).Title("Product");
+          columns.ForeignKey(p => p.VendorProductVersionId, Model.VendorProductVersion, "Id", "ProductVersionName").Width(150).Title("Version");
+          //columns.Bound(p => p.VendorId).Title("Vendor");
+          //columns.Bound(p => p.VendorProductId).Title("Software");
+          //columns.Bound(p => p.VendorProductVersionId).Title("Version");
+          //columns.Bound(p => p.LatestVersionInMarket).Title("Latest Version In Market");
+          //columns.Bound(p => p.LastVersionSupported).Title("Last Version Supported");
+          columns.Bound(p => p.LifeCycleStage).Title("Life Cycle Stage").Width(250);
+          columns.Bound(p => p.MaxNoLicenseUsed).Title("Max No of License Used").HtmlAttributes(new { style = "text-align: right;" });
+          columns.Bound(p => p.TotalLicenseCost).Title("Total License Cost").Format("{0:c}").HtmlAttributes(new { style = "text-align: right;" });
+          columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+      })
+      .ToolBar(toolbar =>
+      {
+          toolbar.Create();
+          toolbar.Excel().HtmlAttributes(new {@class = "btn-primary" });
+
+      })
+      .Scrollable()
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Pageable()
+      .AutoBind(false)
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Events(e => e.Change("onChangeSoftware"))
+          .Model(model => model.Id(p => p.Id))
+          .Create(create => create.Action("CreateAppSoftware", "TechnologyStack").Data("ApplicationIDValue"))
+          .Read(read => read.Action("GetAppSoftwarelist", "TechnologyStack").Data("ApplicationIDValue"))
+          .Update(update => update.Action("UpdateAppSoftware", "TechnologyStack").Type(HttpVerbs.Post))
+          .Destroy(update => update.Action("DestroyAppSoftware", "TechnologyStack"))
+          )
+)
+
+</div>
+
+<script>
+    function onChangeSoftware(e) {
+        
+        //if (e.action == "itemchange") {
+           
+        //    if (e.field == "CustomerId") {
+        //        var model = e.items[0];
+        //        model.set("VendorId", 0);
+        //    }
+
+        //    if (e.field == "VendorId") {
+        //        var model = e.items[0];
+        //        model.set("ProductId", 0);
+        //    }
+        //}
+    }
+
+    function getCurrentEditedModel() {
+        var grid = $("#softwareGrid").data("kendoGrid");
+        var editRow = grid.tbody.find("tr:has(.k-edit-cell)");
+        return grid.dataItem(editRow);
+    }
+
+    function filterVendors() {
+        //var model = getCurrentEditedModel();
+       
+        return {
+            VendorId: $("#VendorId").data("kendoDropDownList").value()
+        };
+    }
+
+    function filterProducts() {
+        //var model = getCurrentEditedModel();
+      
+        return {
+            ProductId: $("#VendorProductId").data("kendoDropDownList").value()
+        };
+    }
+</script>

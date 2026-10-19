@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MaskAndSFTP</RootNamespace>
+    <AssemblyName>MaskAndSFTP</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WinSCPnet, Version=1.10.0.12327, Culture=neutral, PublicKeyToken=2271ec4a3c56d0bf, processorArchitecture=MSIL">
+      <HintPath>..\packages\WinSCP.5.20.2-beta\lib\net40\WinSCPnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="bin\Debug\MaskAndSFTP.exe.config" />
+    <None Include="bin\Release\MaskAndSFTP.exe.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DataMaskingLib\DataMaskingLib.csproj">
+      <Project>{1466a0e0-eb8f-4270-aaf0-8823db6d0755}</Project>
+      <Name>DataMaskingLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\DataMaskingLib.dll" />
+    <Content Include="bin\Debug\DataMaskingLib.pdb" />
+    <Content Include="bin\Debug\DocumentFormat.OpenXml.dll" />
+    <Content Include="bin\Debug\DocumentFormat.OpenXml.xml" />
+    <Content Include="bin\Debug\MaskAndSFTP.exe" />
+    <Content Include="bin\Debug\MaskAndSFTP.pdb" />
+    <Content Include="bin\Debug\WinSCP.exe" />
+    <Content Include="bin\Debug\WinSCPnet.dll" />
+    <Content Include="bin\Logs.txt" />
+    <Content Include="bin\RegExStore.xml" />
+    <Content Include="bin\Release\DataMaskingLib.dll" />
+    <Content Include="bin\Release\DataMaskingLib.pdb" />
+    <Content Include="bin\Release\DocumentFormat.OpenXml.dll" />
+    <Content Include="bin\Release\DocumentFormat.OpenXml.xml" />
+    <Content Include="bin\Release\MaskAndSFTP.exe" />
+    <Content Include="bin\Release\MaskAndSFTP.pdb" />
+    <Content Include="bin\Release\WinSCP.exe" />
+    <Content Include="bin\Release\WinSCPnet.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\WinSCP.5.20.2-beta\build\WinSCP.targets" Condition="Exists('..\packages\WinSCP.5.20.2-beta\build\WinSCP.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\WinSCP.5.20.2-beta\build\WinSCP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinSCP.5.20.2-beta\build\WinSCP.targets'))" />
+  </Target>
+</Project>

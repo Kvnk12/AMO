@@ -1,0 +1,117 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.Extensions
+@using Kendo.Mvc.UI;
+
+@model jobDetailInput
+
+
+@{
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+        <script src="~/Scripts/jszip.min.js"></script>
+        <script src="~/Scripts/JScript/kendo.pager.min.js"></script>
+        <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+        <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+        <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+        <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Client Profile Manager";
+    //var clientlist = GetDropDownListItems.ClientList;
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+   <style>
+       .custom-kendo-grid.data-upload .k-widget.k-grid .k-grid-content {
+           overflow-y: auto;
+           height: 560px !important;
+           background-color: #fff;
+       }
+   </style>
+}
+<div class="content-main dark-bg">
+    @*@using (Html.BeginForm("FilterByDate", "DataUpload", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {*@
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li>Client Administration</li>
+                <li class="active">Data Upload</li>
+            </ol>
+        </div>
+        <div style="padding: 1em;">
+
+            <div style=" color: white; font-size: 16px;">Data Upload- Job detail</div>
+            
+               
+           
+        </div>
+    @*}*@
+    <div class="custom-kendo-grid data-upload">
+
+
+        @(Html.Kendo().Grid(Model.jobDetailList)
+.Name("grid1")
+.Columns(columns =>
+{
+columns.Bound(e => e.Id).Title("Job Id").Width(130).HtmlAttributes(new { @style = "text-align:right;" }); ;
+columns.Bound(e => e.ApplicationName).Title("Application").Width(130);
+columns.Bound(e => e.FileName).Title("File Name").Width(130);
+columns.Bound(e => e.JobStartTime).Format("{0:MM/dd/yyyy }").Title("Start Time").Width(130);
+columns.Bound(e => e.JobEndTime).Format("{0:MM/dd/yyyy}").Title("End Time").Width(130);
+
+columns.Bound(e => e.RunStatus).Title("Status").Width(130);
+columns.Bound(e => e.TotalRecordRecieved).Title("Received").Width(130).HtmlAttributes(new { @style = "text-align:right;" });
+columns.Bound(e => e.AddRowCount).Title("Added").Width(130).HtmlAttributes(new { @style = "text-align:right;" });
+columns.Bound(e => e.UpdateRowCount).Title("Updated").Width(130).HtmlAttributes(new { @style = "text-align:right;" });
+columns.Bound(e => e.DuplicateRowCount).Title("Duplicate").Width(130).HtmlAttributes(new { @style = "text-align:right;" });
+columns.Template(
+    @<text>
+
+        @if (item.RejectedRecordsCount > 0) {
+            @Html.ActionLink(@item.RejectedRecordsCount.ToString(), "RejectedRecords", new { JobId = item.Id }, null) ;
+        }
+       
+
+     </text>).Title("Rejected").Width(120);
+
+
+    columns.Bound(e => e.IgnoredRecords).Title("Ignored").Width(130).HtmlAttributes(new { @style = "text-align:right;" });
+
+
+})
+.Sortable()
+.Filterable()
+ .Resizable(resize => resize.Columns(true))
+.Scrollable(s => s.Height("auto"))
+// .HtmlAttributes(new { style = "width:120em ! important;" })
+ .DataSource(dataSource => dataSource
+.Server()
+//.Ajax()
+
+
+       )
+       )
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+
+        //$(function () {
+        //    $(".datefield").datepicker();
+
+        //});
+
+    });
+    function FilterDataParam(e) {
+
+       
+    }
+</script>

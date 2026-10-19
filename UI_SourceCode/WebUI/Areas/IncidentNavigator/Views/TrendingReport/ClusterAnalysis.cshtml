@@ -1,0 +1,135 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@{
+   // var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+
+    var clientId = objclient.ClientId.ToString();
+    var clientName = objclient.ClientName.ToString();
+}
+@model ClusterManagementInput
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/incident_navigator_icon.png");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+}
+<div class="content-main custom-grid">
+    <div class="clear"></div>
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Cluster Analysis</li>
+        </ol>
+    </div>
+    <div class="content-wrapper">
+        @*<div class="well well-sm">SLA Dashboard : Production Support Summary</div>*@
+        <div class="clearfix"></div><!--This is to clear the floats-->
+        @*<iframe id="frameTrendig" border="0" frameborder="0" height="1100px" width="1100px"></iframe>*@
+        @*<iframe id="frameTrendig" src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx")' border="0" frameborder="0" height="1100px" width="1100px"></iframe>*@
+    <iframe id="frameTrendig" src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/ClusterAnalysis.aspx")' border="0" frameborder="0" style="height: 1100px; width:100%"></iframe>
+        <style>
+            #export {
+                margin: 0 0 10px 1px;
+                float: right;
+            }
+        </style>
+
+    </div><!--/.treeMenuContent container-->
+    <!--/.container-->
+
+
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("#configurator").toggle();
+        //var ClientID = $('#myHiddenVar').val();
+        //var ClientID = $('#clientNameHiddenVar').val();
+
+        @*$('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx?ClientId=")' + ClientID );*@
+    });
+
+    function btnClick() {
+
+        $("#configurator").toggle();
+
+    }
+    $("#export").click(function (e) {
+        var pivotgrid = $("#pivotgrid").data("kendoPivotGrid");
+        pivotgrid.saveAsExcel();
+    });
+    function ConfigItem_change() {
+
+        //alert($("#fabric").val());
+        //alert($("#ConfigItem").val());
+        ////var grid = $("#Grid").data("kendoGrid");
+        ////grid.dataSource.read();
+        //return {
+        //    ClientID: $("#fabric").val(),
+        //    ConfigItem: $("#ConfigItem").val(),
+
+        //};
+
+    }
+
+    function TicketType_change() {
+        var ClientID = $("#fabric").val();
+        var ConfigItem = $("#ConfigItem").val();
+        var TicketType = $("#TicketType").val();
+
+        @*$('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/INTrendingReport.aspx?ClientId=")' + ClientID + '&ConfigItem=' + ConfigItem + '&TicketType=' + TicketType);*@
+
+        $('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx")');
+
+    }
+
+    function additionalData(e) {
+        var ddlItem = $("#fabric").data("kendoComboBox").value();
+        //alert(ddlItem);
+        return { ClientID: ddlItem }
+    }
+
+
+    function filterProducts() {
+        //alert($("#fabric").val());
+        return {
+            ClientID: $("#fabric").val()
+            //productFilter: $("#products").data("kendoComboBox").input.val()
+        };
+    }
+
+    function filterTypes(e) {
+
+        return {
+            ClientID: $("#fabric").val(),
+            ConfigItem: $("#ConfigItem").val()
+        };
+    }
+
+</script>
+

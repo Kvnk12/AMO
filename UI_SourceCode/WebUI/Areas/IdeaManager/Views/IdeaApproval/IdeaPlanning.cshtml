@@ -1,0 +1,232 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Dto;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+
+@model  ImplementationManagerModel
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+}
+
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+
+<div id="wrap" style="height:580px">
+    <div>
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">Idea Approval</li>
+        </ol>
+    </div>
+    <div>
+
+        <table border="0" style="margin-left:10px;">
+            <tr><td colspan="2"><label><strong>Select implementation manager for: @Model.IdeaName</strong></label><br /><br /></td></tr>
+            <tr>
+                <td align="left"><label><strong>Assign To</strong></label></td>
+                <td align="left">
+                    <button id="btnsubmitplanning" style="margin-left:15px; margin-bottom:10px;" type="button" onclick="SubmitForPlanning(); return false;" class="btn btn-primary">Submit for Planning</button>
+                    <button id="btncancel" type="button" class="btn btn-primary" style=" margin-bottom:10px;" onclick="location.href='@Url.Action("Index", "IdeaApproval")';return false;">Cancel</button>
+                </td>
+            </tr>
+
+            <tr>
+                <td valign="top">
+                    @Html.HiddenFor(m => m.IdeaId)
+                    <div id="scrol" style="height:350px;overflow-y:scroll; border:2px solid #ccc; border-radius:5px; padding-top:15px; padding-bottom:10px; padding-right:7px">
+                        <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search ..." style="margin-left: 50px;border: 2px solid #ccc;margin-bottom: 8px;padding-left:30px">
+                        <ul class="fieldlist" id="myUL">
+                            @{
+                                foreach (var mgr in Model.ManagerList)
+                                {
+                                    <li>
+                                        <label class="containlbl">
+                                            <input type="radio" name="ManagerUser" value="@mgr.Value">
+                                            <span class="checkmark"></span>
+                                            @mgr.Text
+                                        </label>
+                                        @*@(Html.Kendo().RadioButton().Name("AssignTo").HtmlAttributes(new { @name = "Assign" }).Label(i.Text).Value(i.Value))*@
+                                    </li>
+
+                                }
+                            }
+                        </ul>
+                    </div>
+                </td>
+                <td valign="top" align="left">
+                    <table border="0" style="margin-left:15px;">
+                        <tr><td align="left"><label><b>Comments</b></label></td></tr>
+                        <tr><td>@Html.TextAreaFor(m => m.Comments, 11, 100, new { @class = "textAreaBox" })</td></tr>
+                    </table>
+
+
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+</div>
+
+<style>
+    .textAreaBox {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+
+    .fieldlist {
+        margin: 0 0 -1em;
+        padding: 0;
+    }
+
+        .fieldlist li {
+            list-style: none;
+            padding-bottom: 1em;
+        }
+
+    .alignleft {
+        float: left;
+    }
+
+    div li {
+        padding-left: 10.2px;
+    }
+
+    #scrol {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        overflow: scroll;
+        height: 600px;
+        width: 300px;
+    }
+    /* The contain */
+    .containlbl {
+        display: inline;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        margin-left: 40px;
+    }
+
+        /* Hide the browser's default radio button */
+        .containlbl input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+    /* Create a custom radio button */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border-radius: 50%;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .containlbl:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the radio button is checked, add a blue background */
+    .containlbl input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the indicator (the dot/circle - hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the indicator (dot/circle) when checked */
+    .containlbl input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the indicator (dot/circle) */
+    .containlbl .checkmark:after {
+        top: 9px;
+        left: 9px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    #myInput {
+        background-image: url('../../../../Content/images/bam/search.svg'); /* Add a search icon to input */
+        background-position: 4px 1px; /* Position the search icon */
+        background-repeat: no-repeat; /* Do not repeat the icon image */
+        width: 75%; /* Full-width */
+    }
+</style>
+<script>
+    function SubmitForPlanning()
+    {
+        var ideaid = $("#IdeaId").val();
+        //var ideaid = document.getElementById("#IdeaId").val();
+        var comment = $("#Comments").val();
+        var ImplementorId = $('input[name=ManagerUser]:checked', '.containlbl').val();
+        var mod = {
+            implementor: ImplementorId,
+            ideaid: ideaid,
+            comment: comment
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/IdeaApproval/AddImplementor")';
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                //alert(data);
+                var viewIdeaurl = '@Url.Content("~/IdeaManager/ViewIdea/Index")';
+                window.location.href = viewIdeaurl;
+            }
+        })
+    }
+
+
+function myFunction() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('myInput');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("myUL");
+  li = ul.getElementsByTagName('li');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+      a = li[i].innerText;
+      if (a.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
+</script>

@@ -1,0 +1,237 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model RatingBySubperspective
+
+@{
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new DashboardController();
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+
+    <div id="wrap">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li><a href="#">Retirement Accerlerator</a></li>
+
+                <li class="active"><a href="#">Dashboard</a></li>
+            </ol>
+        </div>
+        <div style="padding:0; margin-right:10%;">
+
+            <table style="padding:2em;">
+                <tr>
+                    <td style="width:10%">
+                        @(Html.Kendo().DropDownList()
+              .Name("YperspectiveTypes")
+              .HtmlAttributes(new { style = "width:70px" })
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .SelectedIndex(1)
+              .Events(e=>e.Change("onPerspectiveChange"))
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetPerspectiveTypelist", "Dashboard");
+                  })
+                  .ServerFiltering(true);
+              })
+              .Enable(true)
+              .AutoBind(false)
+                        //.CascadeFrom("surveyName")
+                        )
+                    </td>
+                    <td>
+                        @(Html.Kendo().Chart<RatingPerspReport>()
+        .Name("chartRating")
+        .Title("Rating By Sub-Perspective")
+        .Legend(legend => legend
+            .Visible(false)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetPerspectivesReport", "Dashboard").Data("ChartParameter")))
+        .Series(series =>
+        {
+            series.Scatter(model => model.Xrating, model => model.Yrating);
+        })
+        .XAxis(x => x
+            .Numeric()
+            .Title(title => title.Text(Model.Xvalue))
+            .Crosshair(crosshair => crosshair.Visible(true))
+         .Labels(labels => labels.Format("{0}")).Max(6)
+        )
+        .YAxis(y => y
+            .Numeric()
+            .Title(title => title.Text(Model.YperspectiveTypes))
+            .Crosshair(crosshair => crosshair.Visible(true))
+       .Labels(labels => labels.Format("{0}")).Max(6)
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= '<b>' + value.x + ' / ' + dataItem.ApplicationName  + ': ' + value.y + '</b>' #")
+        )
+                        )
+
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td align="center">
+                        @(Html.Kendo().DropDownList()
+              .Name("XperspectiveTypes")
+              .HtmlAttributes(new { style = "width:70px" })
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .Events(e => e.Change("onPerspectiveChange"))
+              .SelectedIndex(2)
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetPerspectiveTypelist", "Dashboard");
+                  })
+                  .ServerFiltering(true);
+              })
+              .Enable(true)
+              .AutoBind(false)
+                        //.CascadeFrom("surveyName")
+                        )
+                    </td>
+
+                </tr>
+            </table>
+
+
+
+        </div>
+    </div>
+
+    <input type="hidden" name="PortfolioIdlist" id="PortfolioIdlist">
+    @Html.HiddenFor(x => x.Xvalue, new { id = "Xvalue" })
+
+}
+
+
+
+<script type="text/javascript">
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+
+    
+
+
+
+    function ChartParameter(e) {
+
+        return {
+            PerspectiveX: $("#XperspectiveTypes").val(),
+            PerspectiveY: $("#YperspectiveTypes").val()
+        };
+    }
+
+    function SurveyChange() {
+
+
+    }
+
+
+
+    function ParameterData(e) {
+        var checkedNodes = [],
+           treeView = $("#treeviewLOB").data("kendoTreeView");
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+            PortfolioIds = checkedNodes.join(","); //encodeURIComponent(checkedNodes.join(","))
+
+        return {
+            PortfolioIds: PortfolioIds,
+
+        }
+    }
+
+        // function that gathers IDs of checked nodes
+        function checkedNodeIds(nodes, checkedNodes) {
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].checked) {
+                    checkedNodes.push(nodes[i].id);
+                }
+                if (nodes[i].hasChildren) {
+                    checkedNodeIds(nodes[i].children.view(), checkedNodes);
+                }
+            }
+        }
+
+
+        // show checked node IDs on datasource change
+        function onCheck(e) {
+            var checkedNodes = [],
+               treeView = $("#treeviewLOB").data("kendoTreeView");
+            checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+            PortfolioIds =checkedNodes.join(",")
+            $('#PortfolioIdlist').val(PortfolioIds);
+            treeView1 = $("#treeviewApps").data("kendoTreeView");
+            treeView1.dataSource.read();
+            treeView1.refresh();
+            $("#divApplist input:checkbox").each(function () {
+                this.checked = true;
+            });
+        }
+
+        function DataboundAppslist(e)
+        {
+            var checkedNodes = [],
+              treeviewApps = $("#treeviewApps").data("kendoTreeView");
+
+            checkedNodeIds(treeviewApps.dataSource.view(), checkedNodes);
+            var AppsId;
+            AppsId = checkedNodes.join(",");
+            var chartRating = $("#chartRating").data("kendoChart");
+            chartRating.dataSource.read();
+            chartRating.refresh();
+        }
+
+        $('#btnReport').on("click", function (e) {
+            var v = $("#XperspectiveTypes").val();
+            $("#Xvalue").val(v);
+            var chartRating = $("#chartRating").data("kendoChart");
+            chartRating.dataSource.read();
+            chartRating.refresh();
+        });
+
+
+    
+        function onPerspectiveChange() {
+            var chartRating = $("#chartRating").data("kendoChart");
+            chartRating.dataSource.read();
+            chartRating.refresh();
+        }
+
+</script>

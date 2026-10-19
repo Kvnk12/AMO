@@ -1,0 +1,48 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Controllers;
+@model BusinessCapabilitiesModel
+
+<div class="bam-popup">
+    <div class="bam-popup-left">
+        <div class="bam-popup-left-item">
+            <label>Capability Name :</label>
+            @(Html.Kendo().TextBoxFor(m => m.BusinessCapName))
+        </div>
+        <div class="bam-popup-left-item">
+            <label>Description :</label>
+            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "3", tabindex = "5", style = "width:60%; height:8%" })
+        </div>
+        <div class="bam-popup-left-item">
+            <label>Notes :</label>
+            @Html.TextAreaFor(m => m.Notes, new { @class = "form-control", rows = "3", tabindex = "5", style = "width:60%; height:8%" })
+        </div>
+    </div>
+
+    <div class="bam-popup-right">
+        <div class="bam-popup-right-item">
+            <label>Process Importance :</label>
+            @Html.DropDownListFor(m => m.ProcessImportanceId, new SelectList(ViewData["ProcessImportance"] as IEnumerable<SelectListItem>, "Value", "Text", Model.ProcessImportanceId), "Select ", new { @class = "k-dropdown k-dropdown-wrap k-state-default", style = "width:55%;height: 1.94em" })
+        
+        </div>
+        <div class="bam-popup-right-item">
+            <label>Process Health :</label>
+            @Html.DropDownListFor(m => m.ProcessHealthId, new SelectList(ViewData["ProcessHealth"] as IEnumerable<SelectListItem>, "Value", "Text", Model.ProcessHealthId), "Select ", new { @class = "k-dropdown k-dropdown-wrap k-state-default", style = "width:55%;height: 1.94em" })
+
+        </div>
+     </div>
+</div>

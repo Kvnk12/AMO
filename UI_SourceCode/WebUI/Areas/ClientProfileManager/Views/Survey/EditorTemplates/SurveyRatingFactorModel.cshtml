@@ -1,0 +1,128 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+
+@model SurveyRatingFactorModel
+
+<style>
+    .tableClass > td{
+        margin:10px;
+        column-gap:10px;
+        display:inline-block;
+    }
+</style>
+@{
+    var dictionary = new Dictionary<string, string>
+    {
+    { "APR", "1" },
+    { "Cloud Migrator", "2" },
+    { "RA", "3" },
+    { "General", "4" },
+    { "Retirement Accelerator","5" },
+    };
+
+    //var SH = new SurveyController();
+    //var Etypes = SH.GetEstimateType();
+    //var ECat = SH.GetEstimateCategory();
+}
+
+<div style="margin:10px; margin-bottom:0px; padding:0;height:400px; width:500px">
+
+        <div class="selectappArea" style="align-content:center">
+            <h3><strong>Answer/Rating Detail</strong></h3>
+        </div>
+
+        <table class="tableClass">
+            <tr>
+                <td align="left">Rating Factor</td>
+                <td>Estmate Assumption</td>
+            </tr>
+            <tr>
+                <td rowspan="3">@Html.TextAreaFor(e => e.RatingFactor, new { @class = "form-control", rows = "6", style = "margin:0px;width:80%;height:10em;overflow:auto;resize:none;" })</td>
+                <td>@Html.TextAreaFor(e => e.EstimateAssumption, new { @class = "form-control", rows = "2", style = "margin:0px;width:80%;height:3.5em;overflow:auto;resize:none;" })</td>
+            </tr>
+            <tr>
+             
+                <td>Rating Context</td>
+            </tr>
+            <tr>
+                @*<td>@Html.TextAreaFor(e => e.RatingFactor, new { @class = "form-control", rows = "5", columns = "30", style = "margin:0px;" })</td>*@
+                <td>@Html.TextAreaFor(e => e.RatingContext, new { @class = "form-control", rows = "2", style = "margin:0px;width:80%;height:3.5em;overflow:auto;resize:none;" })</td>
+            </tr>
+            <tr>
+                <td>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            <tr><td align="left">Rating Factor Value</td><td align="left">ROM Estimate</td></tr>
+
+            <tr>
+                <td>
+                    @(Html.Kendo().TextBoxFor(e => e.RatingFactorValue)
+                                                .HtmlAttributes(new { @style = "text-align:right;" })
+                    )
+                </td>
+                <td>
+                    @(Html.Kendo().TextBoxFor(e => e.ROMEstimate)
+                                                .HtmlAttributes(new { @style = "text-align:right;" })
+                    )
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            <tr><td align="left">Estimate Category</td><td align="left">Estimate Type</td></tr>
+
+            <tr>
+                <td>
+                    @Html.DropDownListFor(m => m.EstimateCategoryId, new SelectList(ViewData["EstimateCategories"] as IEnumerable<SelectListItem>, "Value", "Text", Model.EstimateCategoryId), "Select Estimate Category", new { @class = "selectpicker" })
+                    @*@(Html.Kendo().DropDownListFor(m => m.EstimateCategoryId)
+                .Name("EstimateCategoryId").DataTextField("Text").DataValueField("Value").OptionLabel("Select Estimate Category")
+                //.AutoBind(true)
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .DataSource(d => d
+                    .Read(read => read.Action("GetEstimateCategory", "Survey"))
+                )
+                )*@
+                </td>
+                <td>
+                    @Html.DropDownListFor(m => m.EstimateTypeId, new SelectList(ViewData["EstimateTypes"] as IEnumerable<SelectListItem>, "Value", "Text", Model.EstimateTypeId), "Select Estimate Type", new { @class = "selectpicker" })
+                    @*@(Html.Kendo().DropDownListFor(m => m.EstimateTypeId)
+                .Name("EstimateTypeId").DataTextField("Text").DataValueField("Value").OptionLabel("Select Estimate Type")
+                //.AutoBind(true)
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .DataSource(d => d
+                    .Read(read => read.Action("GetEstimateType", "Survey"))
+                )
+                )*@
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            <tr><td align="left" colspan="2">Created By</td></tr>
+
+            <tr>
+                <td colspan="2">
+                    @(Html.Kendo().TextBoxFor(m => m.createdbyName)
+                                    .Name("createdbyName")
+                                    .Enable(false)
+                    )
+
+                </td>
+            </tr>
+        </table>
+        
+
+   
+</div>

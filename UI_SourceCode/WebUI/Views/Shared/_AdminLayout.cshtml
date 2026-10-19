@@ -1,0 +1,118 @@
+﻿@using WebUI.Dto;
+@{
+    var client = "";
+   
+    if (Session["SessionClient"] != null)
+    {
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        //clientId = objclient.Id.ToString();
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title - OptimizationPortal</title>
+    <!-- Bootstrap core CSS -->
+    <link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+
+    <link href="@Url.Content("~/Content/css/datepicker.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/bootstrap-select.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/jquery.treeview.css")" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/html5shiv.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/respond.min.js")'></script>
+    <![endif]-->
+
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/jquery-1.12.4.js")'></script>*@
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-3.5.1.js")'></script>
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap.min.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/menu.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/script.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/tab.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/modal.js")'></script>
+
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap-select.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap-datepicker.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/multiselect/jquery.multiple.select.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.treeview.js")'></script>
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/demo.js")'></script>*@
+    <link href="@Url.Content("~/Scripts/multiselect/multiple-select.css")" rel="stylesheet">
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.number.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.number.min.js")'></script>
+    <script type="text/javascript"
+            src="@Url.Content("~/Scripts/validationEngine/jquery.validationEngine.js")">
+    </script>
+
+
+</head>
+
+
+<body>
+    <div id="wrap">
+
+        @{ Html.RenderPartial("Header"); }
+
+        <div class="pushContainer1">
+
+            @{ Html.RenderPartial("LeftNavigationMenu"); }
+
+            <div class="pushContainer1Content">
+                <div class="menuBorder">
+                    <nav id="cbp-hrmenu" class="cbp-hrmenu">
+                        <a href="#" title="" class="appNav appNavOpen"><span class="glyphicon glyphicon-th-list">&nbsp;</span> Navigate Optimization Applications&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></a>
+                        <a href="#" title="" class="appNav appNavClose"><span class="glyphicon glyphicon-th-list">&nbsp;</span> Close Sidebar Navigation&nbsp;<span class="glyphicon glyphicon-chevron-left"></span></a>
+                    </nav>
+                    <h5 style="display:inline;font-weight:bold;">@client</h5>
+                    <!-- end of nav-->
+                </div>
+                <!--.container-->
+                @RenderSection("featured", required: false)
+                <section class="content-wrapper main-content clear-fix">
+                    @RenderBody()
+                </section>
+
+            </div>
+            <!--/.end of pushContainer1Content-->
+        </div>
+        <!--end pushContainer1-->
+
+    </div>
+    <!--end wrap-->
+
+
+    @{ Html.RenderPartial("Footer"); }
+
+
+
+    <script>
+        $(function () {
+            cbpHorizontalMenu.init();
+        });
+    </script>
+
+    <script>
+        $('.selectpicker').selectpicker();
+        //$('.selectpicker').selectpicker('val', ['Ketchup', 'Relish']);
+    </script>
+
+    <script>
+        $('#sandbox-container .input-append.date').datepicker({
+            keyboardNavigation: false,
+            autoclose: true,
+            todayHighlight: true
+        });
+    </script>
+
+</body>
+</html>

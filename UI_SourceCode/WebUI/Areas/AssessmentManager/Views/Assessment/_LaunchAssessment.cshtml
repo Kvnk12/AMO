@@ -1,0 +1,265 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+
+    .k-input.k-textarea {
+        width: 29em !important;
+        resize: none;
+        height: 5em;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+    .k-picker.k-dropdown.k-widget.k-picker-solid.k-picker-md.k-rounded-md{
+        width:100%;
+    }
+
+</style>
+
+
+<html>
+<body>
+    <div class="launchAssessmentpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("LaunchAssessmentpopUp")
+    .Title("Launch Assessment")
+    .Content(@<text>
+
+
+         <div class="launchAssessment">
+             <div class="QuestionDetails">
+                  <div class="popUpfirstrow">
+                   <div class="mergeAC" style="display:flex">
+                    <div class="mergeFirstColumn">
+                       <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 1em; margin-top: 0.5em;">
+
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Type :</span>
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em;width:9.2em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.AssessmentID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+                               .Name("AssessmentID_Launch")
+                               .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;margin-left: -2em;" })
+                               )
+
+
+                                </div>
+                        </div>
+                        <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 1em; margin-top: 1.2em;">
+
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Account :</span>
+                          <div class="custom-dropdown Account" style="margin-left: -2.5em; width: 9.2em;">
+
+
+
+                              @(Html.Kendo().DropDownList()
+                               .Name("AccountNamesList")
+                               .DataTextField("Text")
+                               .DataValueField("Value")
+                               .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;margin-left: -2em;" })
+                               .BindTo(Model.AccountNamesList)
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectAccount");
+                               })
+                               )
+
+                                </div>
+                        </div>
+                        <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 1em; margin-top: 1.2em;">
+
+                       <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Contract :</span>
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em; width: 9.5em;">
+
+                              @(Html.Kendo().DropDownList()
+                                .Name("ContractList")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Select contract...")
+                                .DataSource(source => {
+                                source.Read(read =>
+                                {
+                                 read.Action("getContractId", "Assessment").Data("GetAccId");
+                                 });
+                                })
+                                .AutoBind(true)
+                              .Events(e =>
+                               {
+                                   e.Change("onSelectContract");
+                               })
+                                .HtmlAttributes(new { style = "width: 162%;margin-right:4em;margin-left: -2em;" })
+                               )
+                                <label id="ContractList_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                           </div>
+                        </div>
+                        <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 1em; margin-top: 1.2em;">
+                         <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Name :</span>
+                          <div class="custom-textbox" style="margin-left: -4.5em; width: 13.7em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("AssessmentName_Launch")
+                             .Value("Loblaw-A3MM-2022Q1")
+                             .HtmlAttributes(new { style = "width: 111.5%;" })
+                            )
+                           </div>
+                        </div>
+
+                      <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 1em; margin-top: 1.2em; ">
+                        @*<span class="mandate">*</span>*@
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 9em;">Questionaire Set # :</span>
+                          <div class="custom-textbox" style="margin-left: -0.8em; width: 13.4em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox_Launch")
+                             .Value("Ver - 0.1")
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 114.5%;" })
+                            )
+                              </div>
+                    </div>
+                    </div>
+                    <div class="mergeSecondColumn">
+                        <div class="SecondRowFields" style="display: flex; margin-top: 0em;">
+                              <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Team :</span>
+                          <div class="custom-textbox " style="margin-left: -4.3em; width: 19em; margin-right: 16px; ">
+                               @(Html.Kendo().TextBox()
+                             .Name("AssessmentTeam")
+                             .Value("Assessment Team 1")
+                                .HtmlAttributes(new { style = "width: 90.5%;margin-right:4em;margin-left:-1.5px" })
+                            )
+                               </div>
+
+                      </div>
+                        <div class="SecondRowFields" style="display: flex; margin-top: 1em; ">
+
+                              <span class="custom-blue-label" style="margin-right: 2em; width: 9em;">Engagement Team to Point of Contact :</span>
+
+                          <div class="custom-dropdown" style="margin-left: -2.5em; width: 10.2em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.EngagementPocID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.EngagementPOCList)
+                               .Name("EnagagementPOC")
+                               .HtmlAttributes(new { style = "width: 171.5%;margin-left: 1.7em;margin-top: 1.2em;" })
+                               )
+
+
+                                </div>
+
+                        </div>
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em;">
+                        <span class="custom-blue-label" style="width: 9em; margin-top: -1.5em; ">Engagement Team to Communicate :</span>
+
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em; width: 12.6em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.EngagementComID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.EngagementTeamToCommunicateList)
+                               .Name("EngagementTC")
+                               .HtmlAttributes(new { style = "width: 139.5%;margin-left: 3.5em;" })
+                               )
+
+                           </div>
+
+                      </div>
+
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em; margin-top: 2.2em;">
+                              <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Start Date :</span>
+                          <div class="custom-datepicker Assessment" style="margin-left: -4.4em; width: 18.2em;">
+
+                                @(Html.Kendo().DatePicker()
+                                 .Name("StartDate_Launch")
+                                 .Value("10/10/2022")
+                                 .Min(DateTime.Today)
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Select Start Date" })
+                                )
+
+
+                           </div>
+
+                      </div>
+                    </div>
+                   </div>
+
+
+
+                  </div>
+
+
+
+             </div>
+              <div class="actionButtons" style="margin-top: 2em;">
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style="float: right; width: 5em; font-weight: bold;" class="custom-button" type="button" onclick="onLaunchClick()" id="btnLaunch">LAUNCH</button>
+                     </div>
+                    <div style="margin: 0 1em 0 0;">
+                       <button style="float: right; width: 5em; margin-right: 1em; background-color: LIGHTGREY; font-weight: bold; " class="custom-button" type="button" id="btnAdd" onclick="onCancelClick()">CANCEL</button>
+                    </div>
+
+               </div>
+
+
+
+         </div>
+               <hr style="margin-top:4.5em" />
+        <div id="confirmLaunch"class="confirmLaunch" style="display: flex; margin-top: 4em;" >
+          <div class="confirmText">
+              <span id="warningIcon" style=" background-image: url(/Content/images/Warning.png);background-repeat: no-repeat;background-color: transparent;background-size: 1em;padding: 0.5em;display: flex;justify-content: center;align-items: center;"></span>
+              <p style="margin-bottom: 0em;">Are you sure? you want to launch this Assessment?</p>
+              <div class="confirmButtons" style="display: flex;">
+                <button style="float: right; width: 2.5em; height: 1.5em; font-weight: 100; background-color: LIGHTGREY;margin-left: 0em !important;margin-top: 0em !important; " class="custom-button" type="button" id="btnConfirmNo" onclick="onConfirmLaunchNo()">NO</button>
+                <button style="float: right; width: 2.5em; height: 1.5em; font-weight: 100;margin-top:0em !important;margin-left:0em !important" class="custom-button" type="button" onclick="onConfirmLaunchYes()" id="btnConfirmYes">YES</button>
+              </div>
+          </div>
+        </div>
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(800)
+    .Height(430)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+</body>
+</html>
+
+
+
+
+

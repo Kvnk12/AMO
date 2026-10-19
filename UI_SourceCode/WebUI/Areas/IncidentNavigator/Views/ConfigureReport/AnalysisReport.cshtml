@@ -1,0 +1,1324 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using System.Web.Configuration;
+@using NTTData.AMOPortal.WebUI.Dto
+@using Telerik.Reporting
+@using Telerik.ReportViewer.Mvc
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INReportObservationModel
+
+@{
+    ViewBag.Title = "Incident Navigator";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    /*new*/
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    /*new*/
+
+
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    var area = HttpContext.Current.Request.Url.AbsoluteUri;
+    var Patharray = area.Contains("AMOPortalAPIPTest");
+    var ReportUrl = "IncidentNavigator/AdditionalAnalysis";
+    if (Patharray)
+    {
+        ReportUrl = "IncidentNavigator_Test/AnalysisReport";
+    }
+    var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+    var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+    var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+    var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = client.ClientId;
+    var clientName = client.ClientName;
+}
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+<link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+<script src="@RepJsResources"></script>
+<style>
+
+    #reportViewerTrend {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+
+    .k-button#btnPreview {
+        background: #fff;
+        color: rgb(91,121,171);
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+    }
+
+    .k-button#btnSubscribe {
+        background: #fff;
+        color: rgb(91,121,171);
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+    }
+
+    .k-button#btnRptSub {
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+        margin-top: 1em;
+        background-image: url('../../Content/images/report_subscriptions.svg');
+        background-repeat: no-repeat;
+        height: 2.5em;
+        background-color: transparent;
+        padding-left: 2.2em;
+    }
+
+    .k-button#btnRptSch {
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+        margin-top: 10px;
+        background-image: url('../../Content/images/view_download_scheduled_report.svg');
+        background-repeat: no-repeat;
+        height: 2.4em;
+        background-color: transparent;
+        padding-left: 2.5em;
+    }
+
+    /*#wrap {
+        min-height: 100%;
+        height: auto;
+        padding: 0 0 0 0 !important;
+    }*/
+
+</style>
+<div class="content-main dark-bg support-body-container">
+    <div>
+        <ol class="breadcrumb container">
+            <li>Incident Navigator</li>
+            <li>Consolidated Analysis</li>
+            <li class="active">Volume</li>
+        </ol>
+    </div>
+
+    @*Report Specific Subscriptions*@
+    @(Html.Kendo().Button()
+                        .Name("btnRptSub")
+                        .Content("    Report Subscriptions")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+     )
+    @*Report Specific Downloads*@
+    @(Html.Kendo().Button()
+                        .Name("btnRptSch")
+                        .Content("View/Download Scheduled Reports")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+     )
+
+    <input type="hidden" id="param1" name="param1">
+    <input type="hidden" id="param2" name="param2">
+    <input type="hidden" id="param3" name="param3">
+    <input type="hidden" id="param4" name="param4">
+    <input type="hidden" id="param5" name="param5">
+    <input type="hidden" id="count" name="count">
+
+    <div id="wrap" style="margin:20px; position: relative; overflow: hidden; padding: 0; height: auto;min-height: unset;">
+
+        @Html.HiddenFor(m => m.ClusterPath)
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <span class="parameter-filter-icon"></span>
+            </div>
+
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+                        <li>
+                            Account Name :
+                            @(   Html.Kendo().DropDownList().Name("AccountNamesList")
+                   .DataTextField("Text")
+                   .DataValueField("Value")
+                   .SelectedIndex(0)
+                   .BindTo(Model.AccountNamesList)
+                   .Events(e =>
+                   {
+                       e.Change("onSelectAccount");
+                   })
+
+                            )
+                        </li>
+                        <li class="custom-multiselect">
+                            Contract Id :
+                            <div class="custom-kendo-multiselect trend">
+                                @(Html.Kendo().MultiSelectFor(m => m.Contract)
+                                    .Name("Contract")
+                                    .TagMode(TagMode.Single)
+                                    //.Placeholder("Select")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .DataSource(d => d
+                                    .Read(read => read.Action("getContractId", "DashboardNew").Data("GetAccId"))
+                                      )
+                                      .Events(e =>
+                                       {
+                                           e.DataBound("onDataBoundContract");
+                                       })
+                                    .AutoBind(true)
+                                                )
+                            </div>
+                        </li>
+                        <li>
+                            Date Filter :
+                            @(   Html.Kendo().DropDownList().Name("DateColumnsList")
+                   .DataTextField("Text")
+                   .DataValueField("Value")
+                   .SelectedIndex(2)
+                   .BindTo(Model.DateColumnsList)
+                            )
+                        </li>
+
+                        <li>
+                            Start Date :
+                            @(Html.Kendo().DatePicker()
+                .Name("start")
+            .Value(String.Format("{0:d}", Model.FromYear))
+                            )
+                        </li>
+                        <li>
+                            End Date :
+                            @(Html.Kendo().DatePicker()
+                .Name("end")
+                .Value(String.Format("{0:d}", Model.ToYear))
+                            )
+
+
+                        </li>
+                        <li>
+                            Report By :
+                            @(Html.Kendo().DropDownList()
+                          .Name("DateGroup")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          //.SelectedIndex(2)
+                          .SelectedIndex(Model.SelectedReportGrp)
+                          .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                                Text = "Day", Value ="1"
+                              },
+                              new SelectListItem() {
+                                Text = "Month", Value ="2"
+                              },
+                              new SelectListItem() {
+                                Text = "Week", Value ="3"
+                              },
+                              new SelectListItem() {
+                                Text = "Year", Value ="4"
+                              }
+
+                          })
+                            )
+
+                        </li>
+                        <li class="custom-multiselect">
+                            Type :
+                            <select class="custom-multiselect-dropdown" id="Type" multiple="multiple">
+                                @{
+                                    int sel = 0;
+                                    int itemindex = 0;
+                                    foreach (var item in Model.TypeList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (Model.SelectedTypeList == null || sel < Model.SelectedTypeList.Length && Model.SelectedTypeList[sel] == itemindex++)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                            sel++;
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                }
+                            </select>
+
+                        </li>
+                        <li class="custom-multiselect">
+                            Status :
+                            <select class="custom-multiselect-dropdown" id="Status" multiple="multiple">
+                                @{
+                                    sel = 0;
+                                    itemindex = 0;
+                                    foreach (var item in Model.StatusList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (Model.SelectedStatusList == null || sel < Model.SelectedStatusList.Length && Model.SelectedStatusList[sel] == itemindex++)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                            sel++;
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                }
+                            </select>
+                        </li>
+                        <li class="custom-multiselect">
+                            Priority :
+                            <select class="custom-multiselect-dropdown" id="Priority" multiple="multiple">
+                                @{
+                                    sel = 0;
+                                    itemindex = 0;
+                                    foreach (var item in Model.PriorityList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (Model.SelectedPriorityList == null || sel < Model.SelectedPriorityList.Length && Model.SelectedPriorityList[sel] == itemindex++)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                            sel++;
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                }
+                            </select>
+                        </li>
+                        <li class="custom-multiselect">
+                            Group :
+                            <select class="custom-multiselect-dropdown" id="Group" multiple="multiple">
+                                @{
+                                    sel = 0;
+                                    itemindex = 0;
+                                    foreach (var item in Model.GroupList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (Model.SelectedGroupList == null || sel < Model.SelectedGroupList.Length && Model.SelectedGroupList[sel] == itemindex++)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                            sel++;
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                }
+                            </select>
+                        </li>
+                        <li class="custom-multiselect">
+                            Track :
+                            <select class="custom-multiselect-dropdown" id="Tower" multiple="multiple">
+                                @{
+                                    sel = 0;
+                                    itemindex = 0;
+                                    foreach (var item in Model.TowerList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (Model.SelectedTowerList == null || sel < Model.SelectedTowerList.Length && Model.SelectedTowerList[sel] == itemindex++)
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                            sel++;
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+
+                                }
+                            </select>
+                        </li>
+                        <li>
+                            Waive indicator Filter :
+                            @(   Html.Kendo().DropDownList().Name("WaivedFilterList")
+                   .DataTextField("Text")
+                   .DataValueField("Value")
+                   //.SelectedIndex(2)
+                   .SelectedIndex(Model.SelectedWaiveOption)
+                          .BindTo(Model.WaivedFilterList)
+                            )
+                        </li>
+
+                        <li>
+                            @(Html.Kendo().Button()
+
+                        .Name("btnPreview")
+                        .Content("Apply")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                        <li>
+                            @(Html.Kendo().Button()
+                        .Name("btnSubscribe")
+                        .Content("Subscribe")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div style="padding:0;padding-top: 15px;width:100%;margin:8px" id="reportPartialID">
+            <div>
+
+                @(Html.TelerikReporting().ReportViewer()
+                                                    // Each report viewer must have an id - it will be used by the initialization script
+                                                    // to find the element and initialize the report viewer.
+                                                    .Id("reportViewerTrend")
+                                                    .ViewMode(ViewMode.Interactive)
+                                                    // The settings of the report server that hosts the reports - URL, username and password.
+                                                    // If username and password are not provided or are set to null, the server's Guest account will be used.
+                                                    // The report server should have its Guest account enabled along with configured permissions for accessing the report.
+                                                    // For more information see http://www.telerik.com/help/reporting/html5-report-viewer-howto-use-it-with-reportserver.html.
+                                                    .ReportServer(new ReportServer()
+                                                    {
+                                                        Url = repSiteLink,
+                                                        Username = repSiteUserName,
+                                                        Password = repSitePassword
+                                                    })
+                                                    // The URL for the report viewer template. The template can be edited -
+                                                    // new functionalities can be added and unneeded ones can be removed.
+                                                    // For more information please check http://www.telerik.com/help/reporting/html5-report-viewer-templates.html.
+                                                    //
+                                                    // The report source value contains Category and ReportName in the following format: {Category/ReportName}.
+                                                    .ReportSource(ReportUrl
+                                                            , new Dictionary<string, object>() {
+                                                        { "IncidentClientid", Model.ClientId },
+                                                        { "DateColumn", "Lastupdateddatetime" },
+                                                        { "IncidentStartDate", Model.FromYear },
+                                                        { "IncidentEndDate", Model.ToYear },
+                                                        { "ObservationDateRange", Model.DateRange },
+                                                        { "SystemPath", Model.ClusterPath },
+                                                        { "ClientName", Model.ClientName},
+                                                        { "UserName", Model.UserName },
+                                                {"DateTimeNow",Model.CreatedDt } })
+                                                    // Specifies whether the viewer is in interactive or print preview mode.
+                                                    // PrintPreview - Displays the paginated report as if it is printed on paper. Interactivity is not enabled.
+                                                    // Interactive - Displays the report in its original width and height with no paging. Additionally interactivity is enabled.
+                                                    .ViewMode(ViewMode.Interactive)
+                                                    // Sets the scale mode of the viewer.
+                                                    // Three modes exist currently:
+                                                    // FitPage - The whole report will fit on the page (will zoom in or out), regardless of its width and height.
+                                                    // FitPageWidth - The report will be zoomed in or out so that the width of the screen and the width of the report match.
+                                                    // Specific - Uses the scale to zoom in and out the report.
+                                                    .ScaleMode(ScaleMode.Specific)
+                                                    // Zoom in and out the report using the scale
+                                                    // 1.0 is equal to 100%, i.e. the original size of the report
+                                                    .Scale(1.0)
+                                                    // Sets whether the viewer’s client session to be persisted between the page’s refreshes(ex. postback).
+                                                    // The session is stored in the browser’s sessionStorage and is available for the duration of the page session.
+                                                    .PersistSession(false)
+
+                                                    // Sets the print mode of the viewer.
+                                                    .PrintMode(PrintMode.AutoSelect)
+                                                    //If set to true shows the Send Mail Message toolbar button
+                                                    .SendEmail(new SendEmail { Enabled = false })
+                                                    //Switches accessibility mode ON or OFF.
+                                                    .EnableAccessibility(true)
+                                                    .ParametersAreaVisible(true)
+                                                    .Parameters(new Parameters { Editors = new Editors { SingleSelect = EditorTypes.ComboBox, MultiSelect = EditorTypes.ComboBox } })
+                                                    .ClientEvents(
+                                                         events => events
+                                                         .InteractiveActionEnter("InteractiveEnter")
+                                                         .InteractiveActionExecuting("interactiveActionConsolidated")
+                                                         .InteractiveActionLeave("InteractiveLeave")
+                                                   )
+                )
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <div id="addSubcriptionAlertModal" class="modal fade add-subcription-alert" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size: inherit; color: green; opacity: 70%;">Report subcription has been addded successfully"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="custom-popup-grid modal fade" id="volumePopUp" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-popup-title">
+            <label class="custom-white-label" id="volumeLabel"></label>
+            <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-content">
+            <div class="modal-body">
+                @*<label>Welcome to popup</label>*@
+                <div class="custom-kendo-grid report-drilldowm">
+                    @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("GridConsolidatedTickets")
+                                                    .AutoBind(false)
+                                                    .Columns(columns =>
+                                                    {
+
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Tower/Track").Width(100).Filterable(ftb => ftb.Multi(true));
+
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(false))
+                                                    .Filterable()
+                                                    .Pageable()
+                                                    .Sortable()
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Consolidated_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .Read(read => read.Action("GetVolumetricTickets", "ConfigureReport").Data("GetdrilldownTrendParameter1"))
+                                                    )
+        )
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("~/Areas/ClientProfileManager/Views/ReportSubscription/_RPTSubscriptionPartial.cshtml", " New Subscription for 'Volume Report' ")
+</div>
+
+<div class="grid-tooltip">
+    @(Html.Kendo().Tooltip()
+                  .For("#GridConsolidatedTickets")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip1")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+
+</div>
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<script src="~/Content/js/bootstrap.min.js"></script>
+<script>
+    $('.custom-multiselect-dropdown').multiselect({
+        maxHeight: 200,
+        numberDisplayed: 1,
+        includeSelectAllOption: true,
+        includeResetOption: true
+    });
+    $(".custom-multiselect-dropdown").multiselect('selectAll', true);
+    $(".custom-multiselect-dropdown").multiselect('updateButtonText');
+
+    $('#btnSubscribe').click(function () {
+
+        var TypectrlSel = $('#Type').val();
+        var TypeDesc = "";
+        for (var i = 0; i < TypectrlSel.length; i++) {
+            if (i > 0) { TypeDesc += "##"; }
+            TypeDesc += $('#Type option:selected')[i].label;
+        }
+        var typarr = TypeDesc.split('##');
+        console.log(TypeDesc);
+
+
+        var TypectrlSel2 = $('#Type').val();
+        var TypeDesc2 = '\"';
+        for (var i = 0; i < TypectrlSel2.length; i++) {
+            if (i > 0) { TypeDesc2 += '##\"'; }
+            TypeDesc2 += $('#Type option:selected')[i].label + '\"';
+        }
+        var typarr2 = TypeDesc2.split('##');
+        console.log(typarr2);
+
+        var StatusctrlSel = $('#Status').val();
+        var StatusDesc = "";
+        for (var i = 0; i < StatusctrlSel.length; i++) {
+            if (i > 0) { StatusDesc += "##"; }
+            StatusDesc += $('#Status option:selected')[i].label;
+        }
+        var Staarr = StatusDesc.split('##');
+        console.log(StatusDesc);
+
+        var StatusctrlSel2 = $('#Status').val();
+        var StatusDesc2 = '\"';
+        for (var i = 0; i < StatusctrlSel2.length; i++) {
+            if (i > 0) { StatusDesc2 += '##\"'; }
+            StatusDesc2 += $('#Status option:selected')[i].label + '\"';
+        }
+        var Staarr2 = StatusDesc2.split('##');
+        console.log(Staarr2);
+
+
+
+        var PriorityctrlSel = $('#Priority').val();
+        var PriorityDesc = "";
+        for (var i = 0; i < PriorityctrlSel.length; i++) {
+            if (i > 0) { PriorityDesc += "##"; }
+            PriorityDesc += $('#Priority option:selected')[i].label;
+        }
+        var Priarr = PriorityDesc.split('##');
+        console.log(PriorityDesc);
+
+        var PriorityctrlSel2 = $('#Priority').val();
+        var PriorityDesc2 = '\"';
+        for (var i = 0; i < PriorityctrlSel2.length; i++) {
+            if (i > 0) { PriorityDesc2 += '##\"'; }
+            PriorityDesc2 += $('#Priority option:selected')[i].label + '\"';
+        }
+        var Priarr2 = PriorityDesc2.split('##');
+        console.log(Priarr2);
+
+
+        var GroupctrlSel = $('#Group').val();
+        var GroupDesc = "";
+        for (var i = 0; i < GroupctrlSel.length; i++) {
+            if (i > 0) { GroupDesc += "##"; }
+            GroupDesc += $('#Group option:selected')[i].label;
+        }
+        var Groarr = GroupDesc.split('##');
+        console.log(GroupDesc);
+
+        var GroupctrlSel3 = $('#Group').val();
+        var GroupDesc3 = '\"';
+        for (var i = 0; i < GroupctrlSel3.length; i++) {
+            if (i > 0) { GroupDesc3 += '##\"'; }
+            GroupDesc3 += $('#Group option:selected')[i].label + '\"';
+        }
+        var Groarr3 = GroupDesc3.split('##');
+        console.log(Groarr3);
+
+
+        var TowerctrlSel = $('#Tower').val();
+        var TowerDesc = "";
+        for (var i = 0; i < TowerctrlSel.length; i++) {
+            if (i > 0) { TowerDesc += "##"; }
+            TowerDesc += $('#Tower option:selected')[i].label;
+        }
+        var Towarr = TowerDesc.split('##');
+        console.log(TowerDesc);
+
+        var TowerctrlSel2 = $('#Tower').val();
+        var TowerDesc2 = '\"';
+        for (var i = 0; i < TowerctrlSel2.length; i++) {
+            if (i > 0) { TowerDesc2 += '##\"'; }
+            TowerDesc2 += $('#Tower option:selected')[i].label + '\"';
+        }
+        var Towarr2 = TowerDesc2.split('##');
+        console.log(Towarr2);
+
+        var DateColumn = $("#DateColumnsList").data("kendoDropDownList").text();
+
+        var Account = $("#AccountNamesList").data("kendoDropDownList").text();
+        var Contract = $("#Contract").data("kendoMultiSelect").text();
+        var Account_val = $("#AccountNamesList").data("kendoDropDownList").value();
+        var Contract_val = $("#Contract").data("kendoMultiSelect").value();
+        console.log("Account name is : " + Account);
+        console.log("Contract ID is : " + Contract);
+
+        var stringTxtArea = " Account Name : " + Account + "; " + "Contract Id : " + Contract + "; " + "Track : " + Towarr + "; " + "Group : " + Groarr + "; " + "Priority : " + Priarr + "; " + "Status : " + Staarr + "; " + "Type : " + typarr;
+        @*var stringJsonText = "{IncidentClientid:" +  @clientId + ", AccountName :" + Account_val + ",ContractID:" + Contract_val + ",TowerDropDown:\"" + Towarr + "\",Group:\"" + Groarr + "\",PriorityDropDown:\"" + Priarr + "\",StatusDropDown:\"" + Staarr + "\",TypeDropDown:\"" + typarr+"\"}";*@
+        var stringJsonText = "{ClientName:" + "\"@clientName\"" + ", DateColumn:" + "\"" + DateColumn + "\"" + ",IncidentClientid:" +  @clientId + ", AccountName :" + Account_val + ",ContractID:\[\"" + $("#Contract").data("kendoMultiSelect").value().join("\",\"") + "\"]\,IncidentStartDate:\"" + "02/02/2020" + "\",IncidentEndDate:\"" + "04/04/2020" + "\",TowerDropDown:\[" + Towarr2 + "]\,GroupDropdown:\[" + Groarr3 + "]\,PriorityDropDown:\[" + Priarr2 + "]\,StatusDropDown:\[" + Staarr2 + "]\,TypeDropDown:\[" + typarr2+"]\}";
+
+        console.log("stringJsonText kedbsolstatus " + stringJsonText);
+        document.getElementById('edit_Description').innerHTML = stringTxtArea;
+        document.getElementById('Reportnameindex').innerHTML = "Volume Report";
+        document.getElementById('TelerikReportnameindex').innerHTML = "supportTicketVolume_Drills";
+        document.getElementById('stringJsonText').innerHTML = stringJsonText;
+
+        $('#updateForsub').hide();
+        var rptpopup = $("#RPTSubspopUp").data("kendoWindow");
+        rptpopup.open();
+    });
+
+
+
+    $('#btnPreview').on("click", function (e) {
+
+        RefreshReport();
+    });
+    function RefreshReport() {
+
+        var TypectrlSel = $('#Type').val();
+        var TypeDesc="";
+        for (var i = 0; i < TypectrlSel.length; i++ )
+        {
+            if (i > 0) { TypeDesc +="##";  }
+            TypeDesc += $('#Type option:selected')[i].label;
+        }
+        var typarr = TypeDesc.split('##');
+        console.log(TypeDesc );
+
+        var StatusctrlSel = $('#Status').val();
+        var StatusDesc="";
+        for (var i = 0; i < StatusctrlSel.length; i++ )
+        {
+            if (i > 0) { StatusDesc +="##";  }
+            StatusDesc += $('#Status option:selected')[i].label;
+        }
+        var Staarr = StatusDesc.split('##');
+        console.log(StatusDesc );
+
+        var PriorityctrlSel = $('#Priority').val();
+        var PriorityDesc="";
+        for (var i = 0; i < PriorityctrlSel.length; i++ )
+        {
+            if (i > 0) { PriorityDesc +="##";  }
+            PriorityDesc += $('#Priority option:selected')[i].label;
+        }
+        var Priarr = PriorityDesc.split('##');
+        console.log(PriorityDesc );
+
+        var GroupctrlSel = $('#Group').val();
+        var GroupDesc="";
+        for (var i = 0; i < GroupctrlSel.length; i++ )
+        {
+            if (i > 0) { GroupDesc +="##";  }
+            GroupDesc += $('#Group option:selected')[i].label;
+        }
+        var Groarr = GroupDesc.split('##');
+        console.log(GroupDesc );
+
+        var TowerctrlSel = $('#Tower').val();
+        var TowerDesc="";
+        for (var i = 0; i < TowerctrlSel.length; i++ )
+        {
+            if (i > 0) { TowerDesc +="##";  }
+            TowerDesc += $('#Tower option:selected')[i].label;
+        }
+        var Towarr = TowerDesc.split('##');
+        console.log(TowerDesc );
+
+        var WaiveOption = $("#WaivedFilterList").data("kendoDropDownList").text();
+        if (WaiveOption == 'Both') {
+            WaiveOption = 'Include Exclude';
+        }
+        SaveReportParameters(TypectrlSel, StatusctrlSel, PriorityctrlSel, GroupctrlSel, TowerctrlSel, WaiveOption);
+        var viewer = $("#reportViewerTrend").data("telerik_ReportViewer");
+
+	    if(viewer !== undefined)
+        {
+            if ($("#Contract").data("kendoMultiSelect").value().toString().length > 0) {
+                viewer.reportSource({
+                    report: viewer.reportSource().report,
+                    parameters: {
+                        IncidentClientid: @Model.ClientId,
+                        DateColumn: $("#DateColumnsList").data("kendoDropDownList").text(),
+                        IncidentStartDate: $("#start").val(),
+                        IncidentEndDate: $("#end").val(),
+                        ObservationDateRange: $("#start").val() + " To " + $("#end").val(),
+                        //SystemPath: '@Model.ClusterPath',
+                        ClientName: '@Model.ClientName',
+                        UserName: '@Model.UserName',
+                        DateTimeGroup: $("#DateGroup").data("kendoDropDownList").text(),
+                        TypeDropDown: typarr,
+                        StatusDropDown: Staarr,//'Closed',
+                        PriorityDropDown: Priarr,
+                        GroupDropDown: Groarr,
+                        TowerDropDown: Towarr,
+                        WaivedindicatorOption: WaiveOption,//$("#WaivedFilterList").data("kendoDropDownList").text(),
+                        DateTimeNow: '@Model.CreatedDt',
+                        AccountName: $("#AccountNamesList").data("kendoDropDownList").value(),
+                        ContractID: $("#Contract").data("kendoMultiSelect").value()
+
+                    }
+                });
+            }
+            else {
+                viewer.reportSource({
+                    report: viewer.reportSource().report,
+                    parameters: {
+                        IncidentClientid: @Model.ClientId,
+                        DateColumn: $("#DateColumnsList").data("kendoDropDownList").text(),
+                        IncidentStartDate: $("#start").val(),
+                        IncidentEndDate: $("#end").val(),
+                        ObservationDateRange: $("#start").val() + " To " + $("#end").val(),
+                        //SystemPath: '@Model.ClusterPath',
+                        ClientName: '@Model.ClientName',
+                        UserName: '@Model.UserName',
+                        DateTimeGroup: $("#DateGroup").data("kendoDropDownList").text(),
+                        TypeDropDown: typarr,
+                        StatusDropDown: Staarr,//'Closed',
+                        PriorityDropDown: Priarr,
+                        GroupDropDown: Groarr,
+                        TowerDropDown: Towarr,
+                        WaivedindicatorOption: WaiveOption,//$("#WaivedFilterList").data("kendoDropDownList").text(),
+                        DateTimeNow: '@Model.CreatedDt',
+                        AccountName: $("#AccountNamesList").data("kendoDropDownList").value()
+
+                    }
+                });
+            }
+        }
+        //setting the HTML5 Viewer's reportSource, causes a refresh automatically
+        //if you need to force a refresh for other case, use:
+        viewer.refreshReport();
+    }
+    function SaveReportParameters(typarr, Staarr, Priarr, Groarr, Towarr, WaiveOption )
+    {
+
+              //Ajax call begin
+
+        var model = {
+            FromYear: $("#start").val(),
+            ToYear: $("#end").val(),
+            DateTimeGroup: $("#DateGroup").data("kendoDropDownList").selectedIndex,
+            TypeDropDown: typarr,
+            StatusDropDown: Staarr,
+            PriorityDropDown: Priarr,
+            GroupDropDown: Groarr,
+            TowerDropDown: Towarr,
+            WaivedindicatorOption: $("#WaivedFilterList").data("kendoDropDownList").selectedIndex,
+        };
+        var data = JSON.stringify(model);
+
+        $.ajax(
+       {
+           type: 'post',
+
+                url:  'SaveReportDetails',
+           data: data,
+           async: true,
+           contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+//                    alert('Success');
+           },
+                error: function (err, data) {
+                    console.log(arguments);
+//                    alert('Ajax Error');
+           }
+
+       });
+        //Ajax end
+
+    }
+    $('.parameter-filter-icon').on('click', function(){
+        $(this).addClass('open');
+        $('.parameter-slider').addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+    function onSelectAccount(e) {
+        var app = $("#Contract").data("kendoMultiSelect");
+        app.dataSource.read();
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountNamesList").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+
+
+    function getDescriptionToolTip1(e) {
+        var dataItem = $("#GridConsolidatedTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+
+    var color = "";
+
+    function InteractiveEnter(e, args) {
+        if (args.action.Type === 'customAction') {
+            color = $(args.element).css("background-color");
+            $(args.element).css({ 'font-weight': 'bolder', 'background-color': '#d1d1d1' });
+        }
+    }
+
+
+    function interactiveActionConsolidated(e, args) {
+        if (args.action.Type === 'customAction') {
+
+            console.log("argument" + args);
+            var param1 = "";
+            var param2 = "";
+            var param3 = "";
+            var param4 = "";
+            var param5 = ""
+            var count = 0;
+
+
+            if (args.action.Value.Parameters[0] != undefined) {
+                param1 = args.action.Value.Parameters[0].Value;
+                console.log("param1 is " + param1);
+                count++;
+            }
+            if (args.action.Value.Parameters[1] != undefined) {
+                param2 = args.action.Value.Parameters[1].Value;
+                console.log("param2 is " + param2);
+                count++;
+            }
+            if (args.action.Value.Parameters[2] != undefined) {
+                param3 = args.action.Value.Parameters[2].Value;
+                console.log("param3 is " + param3);
+                count++;
+
+            }
+            if (args.action.Value.Parameters[3] != undefined) {
+                param4 = args.action.Value.Parameters[3].Value;
+                console.log("param4 is " + param4);
+                count++;
+            }
+            if (args.action.Value.Parameters[4] != undefined) {
+                param5 = args.action.Value.Parameters[4].Value;
+                console.log("param5 is " + param5);
+                count++;
+            }
+            //--------------------------Total/GrandTotal-------------------------------
+            if (args.action.Value.Parameters[5] != undefined) {
+                count++;
+            }
+            if (args.action.Value.Parameters[6] != undefined) {
+                count++;
+            }
+            if (args.action.Value.Parameters[7] != undefined) {
+                count++;
+            }
+            if (args.action.Value.Parameters[8] != undefined) {
+               count++;
+            }
+            if (args.action.Value.Parameters[9] != undefined) {
+                count++;
+            }
+
+
+            switch (count) {
+                //Report 1 Graph
+                case 1:
+                    document.getElementById("param5").value = param1;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  Total " + param1;
+                    document.getElementById("count").value = 1;
+                    console.log("case 1 : " + count + "(1)");
+                    break;
+
+                case 3: document.getElementById("param1").value = param1;
+                    document.getElementById("param2").value = param2;
+                    document.getElementById("param5").value = param3;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower - "+param3+" "+ param1 + " " +param2;
+                    document.getElementById("count").value = 3;
+                    console.log("case 3 : " + count + "(3)");
+                    break;
+
+                //Report 2 Graph
+                case 4: document.getElementById("param1").value = param1;
+                    document.getElementById("param2").value = param2;
+                    document.getElementById("param3").value = param3;
+                    document.getElementById("param5").value = param4;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower - " + param4+ " " + param1 + " " + param2 + " "+param3;
+                    document.getElementById("count").value = 4;
+                    console.log("case 4 : " + count + "(4)");
+                    break;
+
+                //Report1 Table
+                case 5:
+                    document.getElementById("param1").value = param1;
+                    document.getElementById("param2").value = param2;
+                    document.getElementById("param3").value = param3;
+                    document.getElementById("param4").value = param4;
+                    document.getElementById("param5").value = param5;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  " +param5+ " " + param1 + " " + param2 + " " + param3+" "+param4;
+                    document.getElementById("count").value = 5;
+                    console.log("case 5 : " + count + "(5)");
+                    break;
+
+
+                //Report2 Table
+                case 6: document.getElementById("param1").value = param1;
+                    document.getElementById("param3").value = param2;
+                    document.getElementById("param4").value = param3;
+                    document.getElementById("param5").value = param4;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  " +param4+ " " + param1 + " " + param2 + " " + param3 ;
+                    document.getElementById("count").value = 6;
+                    console.log("case 6 : " + count + "(6)");
+                    break;
+
+                //Report1 Table2
+                case 7:
+                    document.getElementById("param1").value = param1;
+                    document.getElementById("param3").value = param2;
+                    document.getElementById("param5").value = param3;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  " +param3+ " " + param1 + " " + param2 ;
+                    document.getElementById("count").value = (7);
+                    console.log("case 7 : " + count + "(7)");
+                    break;
+
+                //Report1 Table3
+                case 8:
+                    //document.getElementById("param3").value = param3;
+                    document.getElementById("param1").value = param1;
+                    document.getElementById("param2").value = param2;
+                    document.getElementById("param5").value = param3;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  " +param3+ " " + param1 + " " + param2 ;
+                    document.getElementById("count").value = 8;
+                    console.log("case 8 : " + count + "(8)");
+                    break;
+
+                //Report2 Table2
+                case 9:
+                    document.getElementById("param1").value = param1;
+                    document.getElementById("param5").value = param2;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower- " +param2+ " "+ param1 ;
+                    document.getElementById("count").value = 9;
+                    console.log("case 89 : " + count + "(9)");
+                    break;
+
+                //Report2 Table3
+                case 10:
+                    document.getElementById("param2").value = param1;
+                    document.getElementById("param5").value = param2;
+                    document.getElementById('volumeLabel').innerHTML = "Ticket Volume By Tower -  " +param2+ " " + param1 ;
+                    document.getElementById("count").value = 10;
+                    console.log("case 10 : " + count + "(10)");
+                    break;
+                //Report1 Table4
+
+
+
+            }
+
+
+            var gridpriority = $("#GridConsolidatedTickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#volumePopUp').modal('show');
+        }
+    }
+
+
+
+    function InteractiveLeave(e, args) {
+        if (args.action.Type === 'customAction') {
+            //$(args.element).css({ 'font-weight': 'normal', 'background-color': '#EEF4FB' });
+            $(args.element).css({ 'font-weight': 'normal', 'background-color': color });
+
+        }
+    }
+
+
+    function GetdrilldownTrendParameter1(e) {
+
+        var TypectrlSel1 = $('#Type').val();
+        var TypeDesc1 = "";
+        for (var i = 0; i < TypectrlSel1.length; i++) {
+            if (i > 0) { TypeDesc1 += ","; }
+            TypeDesc1 += $('#Type option:selected')[i].label;
+        }
+        //var typarr1 = TypeDesc1.split(',');
+        var typarr1 = TypeDesc1;
+        var TypeDropDownarray = typarr1;
+
+        var Contarray = $("#Contract").data("kendoMultiSelect").value();
+        console.log(Contarray);
+        var StatusctrlSel1 = $('#Status').val();
+        var StatusDesc1 = "";
+        for (var i = 0; i < StatusctrlSel1.length; i++) {
+            if (i > 0) { StatusDesc1 += ","; }
+            StatusDesc1 += $('#Status option:selected')[i].label;
+        }
+        //var Staarr1 = StatusDesc1.split(',');
+        var Staarr1 = StatusDesc1;
+        var StatusDropDownarr = Staarr1;
+
+        var PriorityctrlSel1 = $('#Priority').val();
+        var PriorityDesc1 = "";
+        for (var i = 0; i < PriorityctrlSel1.length; i++) {
+            if (i > 0) { PriorityDesc1 += ","; }
+            PriorityDesc1 += $('#Priority option:selected')[i].label;
+        }
+        //var Priarr1 = PriorityDesc1.split(',');
+        var Priarr1 = PriorityDesc1;
+        var PriorityDropDownarr = Priarr1;
+
+
+        var GroupctrlSel2 = $('#Group').val();
+        var GroupDesc2 = "";
+        for (var i = 0; i < GroupctrlSel2.length; i++) {
+            if (i > 0) { GroupDesc2 += ","; }
+            GroupDesc2 += $('#Group option:selected')[i].label;
+        }
+        //var Groarr2 = GroupDesc2.split(',');
+        var Groarr2 = GroupDesc2;
+        var GroupDropDownarr = Groarr2;
+
+
+
+        var TowerctrlSel1 = $('#Tower').val();
+        var TowerDesc1 = "";
+        for (var i = 0; i < TowerctrlSel1.length; i++) {
+            if (i > 0) { TowerDesc1 += ","; }
+            TowerDesc1 += $('#Tower option:selected')[i].label;
+        }
+        //var Towarr1 = TowerDesc1.split(',');
+        var Towarr1 = TowerDesc1;
+        var TowerDropDownarr = Towarr1;
+
+        var WaiveOption1 = $("#WaivedFilterList").data("kendoDropDownList").text();
+        if (WaiveOption1 == 'Both') {
+            WaiveOption1 = 'Include Exclude';
+        }
+
+
+        var graphPriority = $("priorityH").val();
+        var graphDate = $("dateH").val();
+
+        return {
+            DateFilters: $("#DateColumnsList").data("kendoDropDownList").text(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            //ObservationDateRange: ObservationDateRange,
+            TypeArray: TypeDropDownarray,
+            ContractIDs: Contarray,
+            StatusArray: StatusDropDownarr,
+            PriorityArray: PriorityDropDownarr,
+            GroupArray: GroupDropDownarr,
+            TowerArray: TowerDropDownarr,
+            WaivedindicatorOp1: WaiveOption1,
+            Account: $("#AccountNamesList").data("kendoDropDownList").value(),
+            ReportBy: $("#DateGroup").data("kendoDropDownList").text(),
+            param1: document.getElementById("param1").value,
+            param2: document.getElementById("param2").value,
+            param3: document.getElementById("param3").value,
+            param4: document.getElementById("param4").value,
+            param5: document.getElementById("param5").value,
+            count: document.getElementById("count").value
+        };
+    }
+
+    $(document).ready(function () {
+
+
+
+        var TypectrlSel = $('#Type').val();
+        var TypeDesc="";
+        for (var i = 0; i < TypectrlSel.length; i++ )
+        {
+            if (i>0) {  TypeDesc +=",";  }
+            TypeDesc += $('#Type option:selected')[i].label;
+        }
+        var typarr = TypeDesc.split(',');
+        console.log(TypeDesc );
+
+        var StatusctrlSel = $('#Status').val();
+        var StatusDesc="";
+        for (var i = 0; i < StatusctrlSel.length; i++ )
+        {
+            if (i>0) {  StatusDesc +=",";  }
+            StatusDesc += $('#Status option:selected')[i].label;
+        }
+        var Staarr = StatusDesc.split(',');
+        console.log(StatusDesc );
+
+        var PriorityctrlSel = $('#Priority').val();
+        var PriorityDesc="";
+        for (var i = 0; i < PriorityctrlSel.length; i++ )
+        {
+            if (i>0) {  PriorityDesc +=",";  }
+            PriorityDesc += $('#Priority option:selected')[i].label;
+        }
+        var Priarr = PriorityDesc.split(',');
+        console.log(PriorityDesc );
+
+        var GroupctrlSel = $('#Group').val();
+        var GroupDesc="";
+        for (var i = 0; i < GroupctrlSel.length; i++ )
+        {
+            if (i>0) {  GroupDesc +=",";  }
+            GroupDesc += $('#Group option:selected')[i].label;
+        }
+        var Groarr = GroupDesc.split(',');
+        console.log(GroupDesc );
+
+        var TowerctrlSel = $('#Tower').val();
+        var TowerDesc="";
+        for (var i = 0; i < TowerctrlSel.length; i++ )
+        {
+            if (i>0) {  TowerDesc +=",";  }
+            TowerDesc += $('#Tower option:selected')[i].label;
+        }
+        var Towarr = TowerDesc.split(',');
+        console.log(TowerDesc );
+
+        var WaiveOption = $("#WaivedFilterList").data("kendoDropDownList").text();
+        if (WaiveOption == 'Both') {
+            WaiveOption = 'Include Exclude';
+        }
+        var viewer = $("#reportViewerTrend").data("telerik_ReportViewer");
+        var selctedtab = "IncidentNavigator/AdditionalAnalysis";
+        if(viewer !== undefined)
+        {
+            //Added  as Contract id was coming empty in load time
+            if ($("#Contract").data("kendoMultiSelect").value().length > 0) {
+                viewer.reportSource({
+                    report: selctedtab,
+                    parameters: {
+                        IncidentClientid: @Model.ClientId,
+                        DateColumn: $("#DateColumnsList").data("kendoDropDownList").text(),
+                        IncidentStartDate: $("#start").val(),
+                        IncidentEndDate: $("#end").val(),
+                        ObservationDateRange: $("#start").val() + " To " + $("#end").val(),
+                        //SystemPath: '@Model.ClusterPath',
+                        ClientName: '@Model.ClientName',
+                        UserName: '@Model.UserName',
+                        DateTimeGroup: $("#DateGroup").data("kendoDropDownList").text(),
+                        TypeDropDown: typarr,
+                        StatusDropDown: Staarr,//'Closed',
+                        PriorityDropDown: Priarr,
+                        GroupDropDown: Groarr,
+                        TowerDropDown: Towarr,
+                        WaivedindicatorOption: WaiveOption,//$("#WaivedFilterList").data("kendoDropDownList").text(),
+                        DateTimeNow: '@Model.CreatedDt',
+                        AccountName: $("#AccountNamesList").data("kendoDropDownList").value(),
+                        ContractID: $("#Contract").data("kendoMultiSelect").value()
+
+                    }
+                });
+                }
+                    else
+                    {
+            viewer.reportSource({
+                report: selctedtab,
+                parameters: {
+                    IncidentClientid: @Model.ClientId,
+                    DateColumn:$("#DateColumnsList").data("kendoDropDownList").text(),
+                    IncidentStartDate: $("#start").val(),
+                    IncidentEndDate:$("#end").val(),
+                    ObservationDateRange:  $("#start").val() + " To "+ $("#end").val(),
+                    //SystemPath: '@Model.ClusterPath',
+                    ClientName: '@Model.ClientName',
+                    UserName: '@Model.UserName',
+                    DateTimeGroup: $("#DateGroup").data("kendoDropDownList").text(),
+                    TypeDropDown:typarr,
+                    StatusDropDown:Staarr,//'Closed',
+                    PriorityDropDown:Priarr,
+                    GroupDropDown:Groarr,
+                    TowerDropDown:Towarr,
+                    WaivedindicatorOption:WaiveOption,//$("#WaivedFilterList").data("kendoDropDownList").text(),
+                    DateTimeNow:'@Model.CreatedDt',
+                    AccountName: $("#AccountNamesList").data("kendoDropDownList").value()
+
+                }
+            });
+                }
+        }
+        //setting the HTML5 Viewer's reportSource, causes a refresh automatically
+        //if you need to force a refresh for other case, use:
+        viewer.refreshReport();
+
+
+    });
+
+
+    $('#btnRptSub').click(function () {
+        //alert("success");
+        var reportSubUrl = '@Url.Content("~/ClientProfileManager/ReportSubscription/RptSubscriptionList")?reportname=Volume Report';
+
+        window.location.href = reportSubUrl;
+    });
+
+    $('#btnRptSch').click(function () {
+
+        //alert("success");
+        var reportSubUrl1 = '@Url.Content("~/ClientProfileManager/ReportSubscription/RPTJobDetailList")?reportname1=Volume Report';
+
+        window.location.href = reportSubUrl1;
+    });
+    function onDataBoundContract(e) {
+        var multiselect = $('#Contract').data("kendoMultiSelect");
+        var all = $.map(multiselect.dataSource.data(), function (dataItem) {
+            return dataItem.Value;
+        });
+        multiselect.value(all);
+    }
+
+</script>

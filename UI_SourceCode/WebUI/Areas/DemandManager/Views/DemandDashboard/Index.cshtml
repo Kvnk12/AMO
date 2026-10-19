@@ -1,0 +1,524 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DashboardDemandModel
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    var clientlist = GetDropDownListItems.ClientList;
+
+
+
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">Dashboard</li>
+        </ol>
+    </div>
+    <div class="im-Dashboard">
+        <div class="im-Dashboard-top">
+            <div class="im-chart">
+                <div class="chart-head">
+                    Demand Posted
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardDemandModel>()
+                                                                .Name("DashboardPieChart1")
+                                                                .Legend(legend => legend
+                                                                //.Position(ChartLegendPosition.Right)
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                .Background("transparent")
+                                                                //.Height(300)
+                                                                )
+                                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "DemandDashboard").Data("Chart1")))
+                                                                .SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345", "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+                                                                .Events(e => e
+                                                                        .SeriesClick("DemandPostedClick")
+                                                                )
+                                                                  .Series(series =>
+                                                                  {
+                                                                      series.Pie(model => model.Count, model => model.Category, null)
+                                                                      .Labels(labels => labels
+                                                                      .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                      .Background("transparent")
+                                                                      .Visible(true)
+                                                                      .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                      )
+                                                                      .StartAngle(150);
+                                                                  })
+
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+
+            </div>
+            <div class="im-chart">
+                <div class="chart-head">
+                    Demand Status
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardDemandModel>()
+                                                                .Name("DashboardPieChart6")
+                                                                .Legend(legend => legend
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                )
+                                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "DemandDashboard").Data("Chart6")))
+                                                                .SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345", "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+                                                                .Events(e => e
+                                                                        .SeriesClick("DemandsStatusClick")
+                                                                )
+                                                                .Series(series =>
+                                                                {
+
+                                                                    series.Pie(model => model.Count, model => model.Category, null)
+                                                                       .Labels(labels => labels
+                                                                       .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                       .Background("transparent")
+                                                                       .Visible(true)
+                                                                       .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                    )
+                                                                .StartAngle(150);
+                                                                })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+            </div>
+        </div>
+        <div class="im-Dashboard-bottom">
+            <div class="im-chart">
+                <div class="chart-head">
+                    Demand Types
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardDemandModel>()
+                                                                .Name("DashboardPieChart3")
+                                                                .Legend(legend => legend
+                                                                //.Position(ChartLegendPosition.Right)
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                //.Height(250)
+                                                                )
+                                                                 .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "DemandDashboard").Data("Chart3")))
+                                                                 .SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345", "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+                                                                .Events(e => e
+                                                                        .SeriesClick("DemandTypesClick")
+                                                                )
+                                                                 .Series(series =>
+                                                                 {
+
+                                                                     series.Pie(model => model.Count, model => model.Category, null)
+                                                                        .Labels(labels => labels
+                                                                        .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                        .Background("transparent")
+                                                                        .Visible(true)
+                                                                        .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                     )
+                                                                     .StartAngle(150);
+                                                                 })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+            </div>
+            <div class="im-chart">
+                <div class="chart-head">
+                    Demand Source
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardDemandModel>()
+                                                                .Name("DashboardPieChart2")
+                                                                .Legend(legend => legend
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                )
+                                                                 .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "DemandDashboard").Data("Chart2")))
+                                                                 .SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345", "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+                                                                .Events(e => e
+                                                                        .SeriesClick("DemandSourceClick")
+                                                                )
+                                                                 .Series(series =>
+                                                                {
+
+                                                                    series.Pie(model => model.Count, model => model.Category, null)
+                                                                       .Labels(labels => labels
+                                                                       .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                       .Background("transparent")
+                                                                       .Visible(true)
+                                                                       .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                    )
+                                                                    .StartAngle(150);
+                                                                })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+            </div>
+        </div>
+
+    </div>
+  
+    @(Html.Kendo().Window()
+    .Name("DemandsPostedWindow")
+    .Title("Demands Posted details")
+    .Content(@<text>
+            @(Html.Kendo().Grid<DashboardDemandModel>(Model.DemandPosted)
+.Name("DemandsPosted")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("DemandsPosted.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "DemandDashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+
+)
+            )
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+ )
+    @(Html.Kendo().Window()
+    .Name("DemandsStatusWindow")
+    .Title("Demands Status details")
+    .Content(@<text>
+            @(Html.Kendo().Grid<DashboardDemandModel>(Model.DemandStatus)
+.Name("DemandsStatus")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("DemandsStatus.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "DemandDashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+            )
+    @(Html.Kendo().Window()
+    .Name("DemandTypesWindow")
+    .Title("Demand Types details")
+    .Content(@<text>
+            @(Html.Kendo().Grid<DashboardDemandModel>(Model.DemandTypes)
+.Name("DemandTypes")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("DemandTypes.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "DemandDashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+            )
+    @(Html.Kendo().Window()
+    .Name("DemandSourceWindow")
+    .Title("Demand Source details")
+    .Content(@<text>
+            @(Html.Kendo().Grid<DashboardDemandModel>(Model.DemandSource)
+.Name("DemandSource")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("DemandSource.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "DemandDashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+            )
+
+
+
+</div>
+
+<style>
+    .sunny, .cloudy, .rainy {
+        display: block;
+        margin: 30px auto 10px;
+        width: 128px;
+        height: 128px;
+        background: url('@Url.Content("~/Content/web/tabstrip/weather.png")') transparent no-repeat 0 0;
+    }
+
+    .cloudy{
+        background-position: -128px 0;
+    }
+
+    .rainy{
+        background-position: -256px 0;
+    }
+
+    .weather {
+        margin: 0 auto 30px;
+        text-align: center;
+    }
+
+    #tabstrip h2 {
+        font-weight: lighter;
+        font-size: 5em;
+        line-height: 1;
+        padding: 0 0 0 30px;
+        margin: 0;
+    }
+
+    #tabstrip h2 span {
+        background: none;
+        padding-left: 5px;
+        font-size: .3em;
+        vertical-align: top;
+    }
+
+    #tabstrip p {
+        margin: 0;
+        padding: 0;
+    }
+
+            table.AppDetails {
+  border: 1px solid #1C6EA4;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.AppDetails td, table.AppDetails th {
+  border: 1px solid #AAAAAA;
+  padding: 9px 6px;
+}
+table.AppDetails tbody td {
+  font-size: 13px;
+}
+table.AppDetails thead {
+  }
+table.AppDetails thead th {
+  font-size: 15px;
+  font-weight: bold;
+}
+table.AppDetails tfoot td {
+  font-size: 14px;
+}
+table.AppDetails tfoot .links {
+  text-align: right;
+}
+table.AppDetails tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+            .paDBcontent {min-height: 0px !important;}
+            .paDBcontent h4{color:#428bca;font-size:16px}
+</style>
+
+
+
+<script type="text/javascript">
+
+
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+
+
+
+    function Chart1(e) {
+
+        return {
+
+            filterOption: 1,
+
+        };
+    }
+
+    function Chart3(e) {
+
+        return {
+
+            filterOption: 3,
+
+        };
+    }
+
+    function Chart2(e) {
+
+        return {
+
+            filterOption: 2,
+
+        };
+    }
+
+    function Chart5(e) {
+
+        return {
+
+            filterOption: 5,
+
+        };
+    }
+    function Chart6(e) {
+
+        return {
+
+            filterOption: 6,
+
+        };
+    }
+    function Chart4(e) {
+
+        return {
+
+            filterOption: 4,
+
+        };
+    }
+
+
+    function DemandPostedClick(e) {
+        e.preventDefault();
+
+        var popup = $("#DemandsPostedWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+    function DemandsStatusClick(e) {
+
+        e.preventDefault();
+        var popup = $("#DemandsStatusWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function DemandTypesClick(e) {
+
+        e.preventDefault();
+
+        var popup = $("#DemandTypesWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function DemandSourceClick(e) {
+
+        e.preventDefault();
+        var popup = $("#DemandSourceWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+</script>

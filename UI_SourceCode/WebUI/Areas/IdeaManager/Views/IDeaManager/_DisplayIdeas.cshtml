@@ -1,0 +1,124 @@
+﻿
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Objects
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.IdeaManager.Dto;
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+
+
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.IMPostIdeaModel>
+
+
+@*<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>*@
+
+<div>
+
+    @{
+//using System.Web.Mvc;
+
+//// var Client = (Client)Session["Client"];
+
+        <div style="height:1000px">
+            <div class="row">
+                <div class="col-sm-2">
+                    <button tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">Post New Idea</button>
+                </div>
+            </div>
+            <div>
+                <div>
+                    @*<div class="grid_4 height400" style="height:620px; width:100%">*@
+                    <div>
+                        <table class="table" cellpadding="0" cellspacing="0" style="width:100%">
+                        @*<table style="width:100%;">*@
+                            <thead>
+                                <tr>
+
+
+                                    <th><u>@Html.ActionLink("Last Modified Date", "DisplayIdeas", new {Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>                                
+                                    <th><u>@Html.ActionLink("Ideas", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Ideas }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Posted by", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status Comments", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Created Date", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                </tr>
+                            </thead>
+                           
+                            
+                                @{
+
+                                    var uid = (int)Session["UserId"];
+
+
+                                    foreach (var vwItem in Model)
+                                    {
+
+                                        var name = (IMStatus)vwItem.StatusId;
+
+                                        <tr>
+                                            <td> @vwItem.LastUpdatedDate </td>
+
+                                            <td>
+                                                @if ((vwItem.StatusId == (int)IMStatus.Created || vwItem.StatusId == (int)IMStatus.Declined) && (vwItem.CreatedBy == uid))
+                                                {
+                                                    
+                                                    @Html.ActionLink(vwItem.ItemName, "DisplayHomePage", "IdeaManager", new {ClientId = vwItem.ClientId, ItemId = vwItem.Id, SaveData="", TabName="home" }, null)
+                                                }
+                                                else
+                                                {
+                                                    @vwItem.ItemName
+                                                }
+                                            </td>
+
+                                            <td> @vwItem.CreatedByUser </td>
+
+                                            <td>
+                                                @if (vwItem.StatusId == (int)IMStatus.Approved && (vwItem.CreatedBy == uid))
+                                                {
+                                                    <div data-toggle="tooltip" data-placement="right" title="Click here if Idea is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                        @name <br /> (@Html.ActionLink("Mark as Implemented", "implementedStatus", "IdeaManager", new { idid = vwItem.Id }, null))
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    @name
+                                                }
+                                            </td>
+
+                                            <td> @vwItem.StatusComments </td>
+                                            <td> @vwItem.CreateDateString </td>
+
+                                        </tr>
+
+                                    }
+
+                                    //}
+
+
+                                }
+                           
+
+                        </table>
+                        <div class="pagination">
+                            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            @Html.PagedListPager(Model, page => Url.Action("DisplayIdeas", new { page = page, sortOrder = Request["sortOrder"] }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                                    //}
+    }
+    <!--.valchainContent-->
+    <!--/.treeMenuContent container-->
+
+
+</div>
+

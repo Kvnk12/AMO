@@ -1,0 +1,177 @@
+﻿@*@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;*@
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@model DataTable
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/jszip.min.js"></script>
+@*<script src="~/Scripts/jquery-1.9.1.min.js"></script>*@
+@*<script src="~/Scripts/jquery-1.10.2.min.js"></script>*@
+
+@*<script src="~/Scripts/JScript/kendo.pager.min.js"></script>
+<script src="~/Scripts/JScript/kendo.excel.min.js"></script>
+<script src="~/Scripts/JScript/kendo.grid.min.js"></script>*@
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+@{
+
+    //DataTable dt = Model.RejectedRecords;
+    ViewBag.Title = "Client Profile Manager";
+
+    string clientid = "";
+    int clientidint = 0;
+    int jobid = 0;
+    if (ViewData["JobId"] != null)
+    {
+        jobid = Convert.ToInt32(ViewData["JobId"]);
+    }
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+}
+<style>
+    .k-grid table {
+        table-layout: fixed;
+    }
+
+    .k-grid tbody tr {
+        height: 50px;
+    }
+
+    .k-grid td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .custom-kendo-grid .k-widget.k-grid .k-grid-content {
+        overflow-y: auto;
+        height: 560px !important;
+        background-color: #fff;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Data Upload</li>
+    </ol>
+
+    <div style="padding: 1em;">
+
+        <div style=" color: white; font-size: 16px;">Data Upload- Rejected Records</div>
+        @*@if (Model.RejectedRecords.Rows.Count <= 0)
+            {
+                <div class="well well-sm"><strong>No records found; records could have been archived.</strong></div>
+            }*@
+        <div class="">
+            <!--valchainContent-->
+            <div>
+                @*<button type="button" id="btnCancel" tabindex="32" class="btn btn-default" onclick="location.href='@Url.Action("ExportRejRecords","DataUpload", new { JobId= jobid})';return false;">Export to Excel</button>*@
+
+                <div style="margin-top:2em">
+                    <div style="display:inline-block">
+                        <form action="@Url.Action("ExportRejectedRecords", "DataUpload")" method="POST">
+                            <input type="hidden" id="jobid" name="jobid" value="@jobid" />
+                            <button type="submit" id="ExportToExcel" style="background-color:rgb(91,121,171)" class="btn btn-primary">Export To Excel</button>
+                        </form>
+
+                    </div>
+                    <button style="display: inline-block; background: grey; color: white;" type="button" id="btnCancel" tabindex="32" class="btn btn-default" onclick="location.href='@Url.Action("index","DataUpload", new { ClientId= clientidint})';return false;">Back</button>
+                </div>
+
+                <div style="width:1140px;">
+                    @*class="grid_4 height400">*@
+                    <br />
+
+                    @*nput type="hidden" id="HidJobid"></input>*@
+                    @*@Html.HiddenFor(m=>m, new {@Id="HidJobid" })*@
+                    @*<table class="table table-striped" style="display:block; overflow-x:scroll; overflow-y:scroll; height:400px; width:1140px;" id="myTable" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    @foreach (DataColumn col in Model.RejectedRecords.Columns)
+                                    {
+                                        if (col.Ordinal > 2)
+                                        {
+                                            <th>@col.Caption</th>
+                                        }
+                                    }
+                                </tr>
+
+                                @foreach (DataRow dr in Model.RejectedRecords.Rows)
+                                {
+                                    <tr>
+                                        @foreach (DataColumn col in Model.RejectedRecords.Columns)
+                                        {
+                                            if (col.Ordinal > 2)
+                                            {
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => dr[col.Ordinal])
+                                                </td>
+                                            }
+                                        }
+                                    </tr>
+                                }
+                        </table>*@
+                    @*<button id="export">Export to Excel</button>*@
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid(Model)
+                    .Name("grid")
+                    .Resizable(resize => resize.Columns(true))
+
+                    //.Columns(columns=>columns.AutoGenerate(true))
+                    .Scrollable()
+                    .Sortable()
+
+
+                     .Pageable()
+
+                    // // .Filterable(true)
+
+
+                    .Scrollable()
+                    .Navigatable()
+                    //.HtmlAttributes(new { style = "width:130em;" })
+                  )
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $("#export").click(function (e) {
+        var grid = $("#grid").data("kendoGrid");
+        //alert(grid);
+        grid.saveAsExcel();
+       // alert("*");
+        return false;
+    });
+
+</script>
+<style>
+    .k-grid-header th.k-header{
+        width:100px;
+        font-weight:bold;
+    }
+    .k-grid tr td{
+        width:100px;
+    }
+</style>

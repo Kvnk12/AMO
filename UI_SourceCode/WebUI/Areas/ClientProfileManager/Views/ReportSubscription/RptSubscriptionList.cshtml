@@ -1,0 +1,494 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    @*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+
+
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    var Table = ViewData["Table"];
+
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    var userrole = ViewData["useridrole"];
+    var userIdInt = ViewData["useridInt"];
+    var reportNames = ViewData["reportName"];
+}
+<style>
+    .bg-image {
+        background-repeat: no-repeat;
+        width: 0.2em;
+        height: 1em;
+        margin-top: 2px;
+        margin-left: 7px;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+    }
+
+    /* .custom-kendo-grid .k-widget.k-grid .k-grid-pager {
+        display: flex;
+    }*/
+
+
+    .k-grid tbody tr {
+        height: 50px;
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .forTooltips1 {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .custom-kendo-grid {
+        margin-top: 0.55em;
+    }
+</style>
+
+<div class="content-main dark-bg" id="ReportSubList">
+    <div>
+        <ol class="breadcrumb">
+            <li>Report Scheduling</li>
+            <li class="active">Report Subscription List</li>
+        </ol>
+    </div>
+    <p hidden id="reportH">@reportNames</p>
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<RTPSubcriptionModel>()
+    .Name("RtpSubscriptionList")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Id).Hidden();
+        columns.Bound(p => p.ReportName).Title("Report Name").Width(120);
+        columns.Bound(p => p.Recipients).Title("Recipients").Width(120).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips1\">#=Recipients#</div>");
+        columns.Bound(p => p.ScheduleType).Title("Frequency").Width(125);
+        columns.Bound(p => p.ReportFor).Title("Report For").Width(125);
+        columns.Bound(p => p.StartDate).Title("Start Date").Width(120).Format("{0:MM/dd/yyyy}");
+        columns.Bound(p => p.EndDate).Title("End Date").Width(120).Format("{0:MM/dd/yyyy}");
+        columns.Bound(p => p.ReportParameters).Title("Report Criteria").Width(125).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips\">#=ReportParameters#</div>");
+        columns.Bound(p => p.CreatedByUser).Title("Created By").Width(120);
+        columns.Bound(p => p.CreatedBy).Hidden();
+        columns.Bound(p => p.UpdatedByUser).Title("Updated By").Width(120);
+        columns.Bound(p => p.UpdatedDate).Title("Updated Date").Width(120).Format("{0:MM-dd-yyyy}");
+        columns.Bound(p => p.Status).Title("Status").Width(100);
+        columns.Bound(p => p.ClientID).Title("Action").Width(120)
+        //.ClientTemplate("#if(data.ClientID!=null){#<div><div style='display:flex;margin-left:-5px'><button class='bg-image' title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");' onclick='editSub(#:Id#);'></button><button class='bg-image' title='Copy' style='background-image: url(" + @Url.Content("~/Content/images/copy.svg") + ");' onclick='copySub(#:Id#);'></button>#}if('true'=='" + @userrole + "'|| data.CreatedBy == " + @userIdInt + "){#<button class='bg-image' title='Delete' style='background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + ");padding-right:3px' onclick='deleteSub(#=Id#);'></button>#} if(('true'=='" + @userrole + "')&& data.Status != 'Approved' ){#<button class='bg-image' title='Approve Icon' style='background-image: url(" + @Url.Content("~/Content/images/approve_blue.svg") + ");' onclick='approveSub(#=Id#);'></button></div></div>#}#"
+        .ClientTemplate("#if(data.ClientID!=null){#<div><div style='display:flex;margin-left:-5px'><button class='bg-image' title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");' onclick='editSub(#:Id#);'></button>#if(data.Status == 'Approved' ){#<button class='bg-image' title='Copy' style='background-image: url(" + @Url.Content("~/Content/images/copy.svg") + ");' onclick='copySub(#:Id#);'></button>#}}if('true'=='" + @userrole + "'|| data.CreatedBy == " + @userIdInt + "){#<button class='bg-image' title='Delete' style='background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + ");padding-right:3px' onclick='deleteSub(#=Id#);'></button>#}if(('true'=='" + @userrole + "')&& data.Status != 'Approved' ){#<button class='bg-image' title='Approve Icon' style='background-image: url(" + @Url.Content("~/Content/images/approve_blue.svg") + ");' onclick='approveSub(#=Id#);'></button></div></div>#}#");
+
+    })
+
+            //.Pageable()
+            .Sortable()
+            .Scrollable(e => e.Endless(false))
+            .Filterable()
+
+            .Reorderable(r => r.Columns(true))
+            .Resizable(r => r.Columns(true))
+            .DataSource(dataSource => dataSource
+            .Ajax()
+
+
+            .Batch(true)
+            .Read(read => read.Action("GetReportSubscriptions", "ReportSubscription").Data("getReportName")))
+            )
+
+
+
+    </div>
+
+
+
+    <div id="addSubcriptionListModal" class="modal fade add-subcriptionList-alert" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="addListP" style="font-size: inherit; color: green; opacity: 70%;">Report subcription has been addded successfully"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    @(Html.Kendo().Tooltip()
+                  .For("#RtpSubscriptionList")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+    @(Html.Kendo().Tooltip()
+                  .For("#RtpSubscriptionList")
+                  .Filter(".forTooltips1")
+                  .ContentHandler("getDescriptionToolTipRec")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+
+</div>
+@Html.Partial("_RPTSubscriptionPartial", "EDIT")
+
+
+<script>
+
+    function editSub(Id) {
+
+       @*var baseurl1 = '@Url.Content("~/KEDB/GetReportDetailsForEdit")';*@
+         baseurl = '@Url.Content("~/ReportSubscription/GetReportDetailsForEdit")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'get',
+                data: {
+                    Ids: Id
+                },
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                error: function (response) {
+
+                    alert('Error');
+                },
+                success: function (data) {
+                    console.log(data);
+                    $('#parentEmail').empty();
+                    var Recip = data[0].Recipients;
+                    if (Recip != null) {
+                        var EmailArray = Recip.split(';');
+                    } else {
+                        var EmailArray = Recip;
+                    }
+
+                    document.getElementById('daily').checked = false;
+                    document.getElementById('weekly').checked = false;
+                    document.getElementById('monthly').checked = false;
+                    if (data[0].TelerikReportName != null) {
+                        $("#ReportFormat").data("kendoDropDownList").value(data[0].ReportFormat);
+                        $("#ReportFormatCtrl").addClass('show');
+                        $("#ReportFormatCtrl").removeClass('hide');
+
+                    }
+                    else
+                    {
+                        $("#ReportFormatCtrl").addClass('hide');
+                        $("#ReportFormatCtrl").removeClass('show');
+
+                    }
+                    $("#edit_Description").val(data[0].ReportParameters);
+                    if (data[0].ReportFor == 'xlsx') {
+                        data[0].ReportFor = 'EXCEL'
+                    }
+                    $("#ReportFortxt").data("kendoDropDownList").value(data[0].ReportFor);
+
+                    $("#Email_Subject").val(data[0].EmailSubject);
+
+                    if (EmailArray != null) {
+                        for (var i = 0; i < EmailArray.length; i++) {
+                            console.log(EmailArray[i]);
+                            var object = { id: EmailArray[i], class: "emailcustWord", onclick: "deleteemail(id)" };
+                            var addition = $("<div>", object);
+                            addition.html(EmailArray[i]);
+                            $(".email-word").append(addition);
+                        }
+                    }
+
+
+                    var Start_Date = kendo.toString(kendo.parseDate(new Date(data[0].StartDate)), 'MM/dd/yyyy');
+                    $("#StartDate").val(Start_Date);
+                    var End_Date = kendo.toString(kendo.parseDate(new Date(data[0].EndDate)), 'MM/dd/yyyy');
+                    $("#EndDate").data("kendoDatePicker").value(End_Date);
+
+
+                    var endDate = $("#EndDate").data("kendoDatePicker");
+                    endDate.value(data[0].EndDateConvert);
+
+                    var timeZone = data[0].Timezone;
+                    console.log("time zone " + data[0].Timezone);
+                  /*  CODE FOR IST*/
+                    //if (timeZone == "IST") {
+                    //    if (parseInt(data[0].selectMinutes) >= 00 && parseInt(data[0].selectMinutes) < 30) {
+                    //        data[0].selectHours = (parseInt(data[0].selectHours) + 10 ).toString();
+                    //        data[0].selectMinutes = (parseInt(data[0].selectMinutes) - 30 + 60).toString();
+                    //        if ((parseInt(data[0].selectHours) >= 24)) {
+                    //            data[0].selectHours = (parseInt(data[0].selectHours) - 24).toString();
+                    //        }
+
+
+                    //    }
+                    //    else if (parseInt(data[0].selectMinutes) >= 30 && parseInt(data[0].selectMinutes) <= 59) {
+                    //        data[0].selectHours = (parseInt(data[0].selectHours) + 11 ).toString();
+                    //        data[0].selectMinutes = (parseInt(data[0].selectMinutes) - 30).toString();
+                    //        if (parseInt(data[0].selectMinutes) == 0) {
+                    //            data[0].selectMinutes = "00";
+                    //        }
+                    //        if ((parseInt(data[0].selectHours) >= 24)) {
+                    //            data[0].selectHours = (parseInt(data[0].selectHours) - 24).toString();
+                    //        }
+                    //    }
+                    //}
+
+                    if (timeZone == "PST") {
+                        if (data[0].selectHours == "00") {
+                            data[0].selectHours = "23";
+                        }
+                        else {
+                            data[0].selectHours = (parseInt(data[0].selectHours) - 3).toString();
+                        }
+                    }
+
+                    if (timeZone == "CST") {
+                        if (data[0].selectHours == "00") {
+                            data[0].selectHours = "23";
+                        }
+                        else {
+                            data[0].selectHours = (parseInt(data[0].selectHours) - 1).toString();
+                        }
+                    }
+
+
+                    if (data[0].ScheduleType == "Daily") {
+                        document.getElementById('selectTimeMonthly').style.display = "none";
+                        document.getElementById('SelectTime_Day').style.display = "none";
+                        document.getElementById('selectTimeHid').style.display = "block";
+                        document.getElementById('selectTimeHid').style.display = "flex";
+                        document.getElementById('rpt_secrowfields').style.height = "10em";
+                        document.getElementById('select_time').style.marginTop = "0em";
+                        document.getElementById('select_day').style.marginTop = "0em";
+                        $("#selectMonth").data("kendoDropDownList").select(0);
+                        document.getElementById('daily').checked = true;
+                        $("#selectHours_Weekly").data("kendoDropDownList").select(0);
+                        $("#selectMinutes_Weekly").data("kendoDropDownList").select(0);
+                        $("#selectHours_Monthly").data("kendoDropDownList").select(0);
+                        $("#selectMinutes_Monthly").data("kendoDropDownList").select(0);
+                       $("#selectHours").data("kendoDropDownList").select(parseInt(data[0].selectHours));
+                        $("#selectMinutes").data("kendoDropDownList").select(parseInt(data[0].selectMinutes));
+                        console.log("hours is " + parseInt(data[0].selectHours));
+                        $("#selectTimeZone").data("kendoDropDownList").value(data[0].Timezone);
+                       /* $('.day-of-week').prop('checked', false);*/
+                    }
+
+                    if (data[0].ScheduleType == "Weekly") {
+                        document.getElementById('selectTimeMonthly').style.display = "none";
+                        document.getElementById('selectTimeHid').style.display = "none";
+                        document.getElementById('SelectTime_Day').style.display = "block";
+                        document.getElementById('rpt_secrowfields').style.height = "12em";
+                        document.getElementById('select_time').style.marginTop = "1em";
+                        document.getElementById('select_day').style.marginTop = "1.2em";
+                        document.getElementById('weekly').checked = true;
+                        $("#selectMonth").data("kendoDropDownList").select(0);
+                        $("#selectHours").data("kendoDropDownList").select(0);
+                        $("#selectMinutes").data("kendoDropDownList").select(0);
+                        $("#selectHours_Monthly").data("kendoDropDownList").select(0);
+                        $("#selectMinutes_Monthly").data("kendoDropDownList").select(0);
+                        $("#selectHours_Weekly").data("kendoDropDownList").select(parseInt(data[0].selectHours));
+                        $("#selectMinutes_Weekly").data("kendoDropDownList").select(parseInt(data[0].selectMinutes));
+                        $("#selectTimeZone1").data("kendoDropDownList").value(data[0].Timezone);
+                        var idval = data[0].WeekDay;
+                        console.log("WeekDay " + idval);
+                        document.getElementById(idval).checked = true;
+                    }
+
+                    if (data[0].ScheduleType == "Monthly") {
+                        document.getElementById('SelectTime_Day').style.display = "none";
+                        document.getElementById('selectTimeHid').style.display = "none";
+                        document.getElementById('selectTimeMonthly').style.display = "block";
+                        document.getElementById('selectTimeMonthly').style.display = "flex";
+                        document.getElementById('rpt_secrowfields').style.height = "10em";
+                        document.getElementById('select_time').style.marginTop = "0em";
+                        document.getElementById('select_day').style.marginTop = "0em";
+                        document.getElementById('monthly').checked = true;
+                        $("#selectHours_Weekly").data("kendoDropDownList").select(0);
+                        $("#selectMinutes_Weekly").data("kendoDropDownList").select(0);
+                        $("#selectHours").data("kendoDropDownList").select(0);
+                        $("#selectMinutes").data("kendoDropDownList").select(0);
+                        $("#selectHours_Monthly").data("kendoDropDownList").select(parseInt(data[0].selectHours));
+                        $("#selectMinutes_Monthly").data("kendoDropDownList").select(parseInt(data[0].selectMinutes));
+                        $("#selectMonth").data("kendoDropDownList").select(parseInt(data[0].MonthDay));
+                        $("#selectTimeZone2").data("kendoDropDownList").value(data[0].Timezone);
+                        /*$('.day-of-week').prop('checked', false);*/
+                    }
+
+
+                    document.getElementById('primaryID').innerHTML = Id;
+
+                    $('#saveForsub').hide();
+                    var rptpopup = $("#RPTSubspopUp").data("kendoWindow");
+                    rptpopup.open();
+                    //$("#kedbGrid").data("kendoGrid").dataSource.read();
+
+                }
+            });
+
+        //var rptpopup = $("#RPTSubspopUp").data("kendoWindow");
+        //rptpopup.open();
+        //console.log("ID of rpt is " + Id);
+
+    }
+
+    function copySub(Id) {
+        console.log("copy sub " + Id);
+        baseurl = '@Url.Content("~/ReportSubscription/CopyReportSubscription")';
+        var mod = {
+            Id: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var report = data.ReportName;
+                    document.getElementById("addListP").innerHTML = "Copy of Report Subscription for " + report +" has been created ";
+                    $('#addSubcriptionListModal').modal('show');
+                    setTimeout(function () {
+                        $('#addSubcriptionListModal').modal('hide');
+                    }, 5000);
+                    var grid = $("#RtpSubscriptionList").data("kendoGrid");
+                    grid.dataSource.read();
+
+
+                }
+
+
+            })
+    }
+
+    function deleteSub(Id) {
+
+        baseurl = '@Url.Content("~/ReportSubscription/DeleteReportSubscription")';
+        var mod = {
+            Id: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var report = data.ReportName;
+                    document.getElementById("addListP").innerHTML = "Selected Report Subscription for " + report +" has been deleted ";
+                    $('#addSubcriptionListModal').modal('show');
+                    //setTimeout(function () {
+                    //    $('#addSubcriptionListModal').modal('hide');
+                    //}, 5000);
+                    var grid = $("#RtpSubscriptionList").data("kendoGrid");
+                    grid.dataSource.read();
+
+
+                }
+
+
+            })
+    }
+
+    function approveSub(Id) {
+
+
+         console.log("copy sub " + Id);
+        baseurl = '@Url.Content("~/ReportSubscription/approveReportSubscription")';
+        var mod = {
+            Id: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var reportName = data.ReportName;
+                    document.getElementById("addListP").innerHTML = "Report Subscription for " + reportName+ " has been approved ";
+                    $('#addSubcriptionListModal').modal('show');
+                    setTimeout(function () {
+                        $('#addSubcriptionListModal').modal('hide');
+                    }, 5000);
+                    var grid = $("#RtpSubscriptionList").data("kendoGrid");
+                    grid.dataSource.read();
+
+
+                }
+
+
+            })
+
+
+    }
+
+    function getDescriptionToolTip(e) {
+        var dataItem = $("#RtpSubscriptionList").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ReportParameters;
+        return content;
+    }
+
+    function getDescriptionToolTipRec(e) {
+        var dataItem = $("#RtpSubscriptionList").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Recipients;
+        return content;
+    }
+
+    function getReportName() {
+        var reportName = document.getElementById("reportH").innerHTML;
+        console.log("reportName is " + reportName);
+
+        return {
+            reportBy: reportName
+        };
+
+    }
+
+</script>
+
+
+
+
+
+
+
+

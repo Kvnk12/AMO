@@ -1,0 +1,333 @@
+﻿
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.Resources;
+@model ClientTicketInfoViewModel
+
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOutWithoutFooter.cshtml";
+    //  var ticketinfo = Model.ClientTicketInfoList;
+}
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+<div class="content-main">
+    <div >
+
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li>Client Administration</li>
+                <li class="active">Ticket Info Details</li>
+            </ol>
+        </div>
+
+        <div>
+            <h3>Ticket Information Detail</h3>
+        </div>
+      
+        <div class="custom-grid" >
+            @(Html.Kendo().Grid<ClientTicketInfoViewModel>()
+.Name("grid")
+.HtmlAttributes(new { style = "height:500px; width:800px;" })
+.Columns(columns =>
+{
+    columns.Bound(e => e.Id).Width("120px").Hidden();
+})
+
+.ClientRowTemplate(
+            "<tr data-uid ='#:Id#'><td>" +
+            "<table>" +
+                "<tr>" +
+                    "<td>" +
+                         "<span><strong> Quarter :          #: Quarter#</strong></span> <span><strong> Year :          #: Year#</strong></span>" +
+                        "</td>" +
+                "<td><button class='btn btn-primary' onclick='btnDelClick(#: Id#)' type='button'>Delete</button> <button button class='btn btn-primary' onclick='OpenModalWindow(#: Id#)' type='button'>Edit</button> </td>" +
+                "</tr>" +
+
+
+                 "<tr>" +
+                    "<td valign = 'top'>" +
+                        "<table class='table table-striped'  border='1'>" +
+                            "<thead>" +
+                            "<tr>" +
+                                "<th>Tickets</th>" +
+                                "<th>Number</th>" +
+                                "<th>Effort Hrs.</th>" +
+                                "<th>Effort per Unit</th>" +
+                            "</tr>" +
+                            "</thead>" +
+
+                            "<tr>" +
+                                "<td><strong>Incidents</strong></td>" +
+                                "<td style='text-align:right;'>#: IncidentNumber#</td>" +
+                                "<td style='text-align:right;'>#: IncidentEffortHrs#</td>" +
+                                "<td style='text-align:right;'>#: IncidentEffortPerUnit#</td>" +
+                                "</tr>" +
+                                "<tr>" +
+                                    "<td><strong>User Support SR</strong></td>" +
+                                    "<td style='text-align:right;'>#: UssrNumber#</td>" +
+                                    "<td style='text-align:right;'>#: UssrEffortHrs#</td>" +
+                                    "<td style='text-align:right;'>#: UssrEffortPerUnit#</td>" +
+                                "</tr>" +
+                                "<tr>" +
+                                    "<td><strong>Enhancements</strong></td>" +
+                                    "<td style='text-align:right;'>#: EnhanceNumber#</td>" +
+                                    "<td style='text-align:right;'>#: EnhaceEffortHrs#</td>" +
+                                    "<td style='text-align:right;'>#: EnhanceEffortPerUnit#</td>" +
+                                "</tr>" +
+                                "<tr>" +
+                                    "<td><strong>Problems</strong></td>" +
+                                    "<td style='text-align:right;'>#: ProblemsNumber#</td>" +
+                                    "<td style='text-align:right;'>#: ProblemsEffortHrs#</td>" +
+                                    "<td style='text-align:right;'>#: ProblemsEffortPerUnit#</td>" +
+                                "</tr>" +
+                                 "<tr>" +
+                                    "<td><strong>SR Backlog</strong></td>" +
+                                    "<td style='text-align:right;'>#: SRBacklog#</td>" +
+                                 "</tr>" +
+
+                                 "<tr>" +
+                                 "<td><strong>Comments</strong></td>" +
+                                 "<td colspan = '3' style='height:40px'>#: Comment# </td>" +
+                                 "</tr>" +
+
+
+                            "</table>" +
+
+
+
+                        "</td>" +
+
+                        "<td valign = 'top'>" +
+                             "<table class='table table-striped'>" +
+                                "<thead>" +
+                                "<tr>" +
+                                    "<th>Mean time to</th>" +
+                                    "<th>MTTR-Sev1</th>" +
+                                    "<th>MTTR-Sev2</th>" +
+                                    "<th>MTTR-Sev3</th>" +
+                                    "<th>MTTR-Sev4</th>" +
+                                "</tr>" +
+                                "</thead>" +
+
+                                "<tr>" +
+                                    "<td><strong>Resolve Incident</strong></td>" +
+                                    "<td style='text-align:right;'>#: InMTTRSev1#</td>" +
+                                    "<td style='text-align:right;'>#: InMTTRSev2#</td>" +
+                                    "<td style='text-align:right;'>#: InMTTRSev3#</td>" +
+                                    "<td style='text-align:right;'>#: InMTTRSev4#</td>" +
+                                "</tr>" +
+
+                                "<tr>" +
+                                    "<td><strong>Fulfil SR</strong></td>" +
+                                    "<td style='text-align:right;'>#: SrMTTRSev1#</td>" +
+                                    "<td style='text-align:right;'>#: SrMTTRSev2#</td>" +
+                                    "<td style='text-align:right;'>#: SrMTTRSev3#</td>" +
+                                    "<td style='text-align:right;'>#: SrMTTRSev4#</td>" +
+                                "</tr>" +
+                             "</table>" +
+
+
+                             "<br />" +
+
+                             "<table class='table table-striped'>" +
+                                "<thead>" +
+                                "<tr>" +
+                                    "<th></th>" +
+                                    "<th>Onsite</th>" +
+                                    "<th>Offshore</th>" +
+                                    "<th>Nearshore</th>" +
+                                "</tr>" +
+                                "</thead>" +
+
+                                "<tr>" +
+                                    "<td><strong>NTTD FTEs</strong></td>" +
+                                    "<td style='text-align:right;'>#: NttFTEOnsite#</td>" +
+                                    "<td style='text-align:right;'>#: NttFTEOffshore#</td>" +
+                                    "<td style='text-align:right;'>#: NttFTENearShore#</td>" +
+                                "</tr>" +
+
+                             "</table>" +
+                             "<br />" +
+                             "<table>" +
+                                    "<tr>" +
+                                        "<td Class='fornoofapp' width = '40%'>" +
+                                            "<strong> Number of Applications </strong>" +
+                                        "</td>" +
+                                        "<td style='text-align:right;'>#: NoOfApplications#</td>" +
+
+                                    "</tr>" +
+                             "</table>" +
+
+                        "</td>" +
+
+                    "</tr>" +
+                 "</table>" +
+                 "</td></tr>"
+
+
+
+
+)
+
+
+.Editable(editable => editable.Mode(GridEditMode.PopUp).Window(w => { w.Width(900); w.Height(560); })
+.ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+.Pageable()
+.ToolBar(toolbar =>
+{
+    toolbar.Create().Text("Add new Ticket Info");
+    
+})
+.Scrollable()
+.HtmlAttributes(new { style = "height:800px;"})
+
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(10)
+    .Events(events => events.Error("grid_error"))
+    .PageSize(4)
+    .Model(model => model.Id(f => f.Id))
+    .Read(read => read.Action("ClientTicInfoList", "ClientTicketInfo"))
+    .Create(create => create.Action("AddTictetInfo", "ClientTicketInfo"))
+    .Update(update => update.Action("UpdateTicketInfo", "ClientTicketInfo"))
+    .Destroy(destroy => destroy.Action("DeleteTicketInfo", "ClientTicketInfo"))
+
+
+
+    )
+
+            )
+        </div>
+
+
+
+
+
+    </div>
+</div>
+
+<style>
+    .phot {
+        background-color: lightblue;
+    }
+
+    .valig {
+        vertical-align: top;
+    }
+
+    .fornoofapp {
+        background-color: #47A3DA;
+        width: 40%;
+        color: #fff;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+
+        function OpenModalWindow(f) {
+            //alert(f);
+            //var actionurl1 = '@Url.Content("~/ClientProfileManager/ClientTicketInfo/getTicketInforForId")';
+            var _d = f;
+
+
+
+
+            window.location.href = '@Url.Content("~/ClientProfileManager/ClientTicketInfo/getTicketInforForId")?_id=' + _d;
+
+            //alert(x);
+            //$.ajax({
+            //    url: actionurl,
+            //    type: "POST",
+            //    async: false,
+            //    data: {
+            //        _id: d,
+            //    },
+            //    error: function (response) {
+
+            //        alert('Error.');
+            //    },
+            //    success: function (response) {
+
+            //    }
+            //});
+        }
+
+
+
+
+
+
+        function btnDelClick(id)
+        {
+            //alert('asd');
+           // var tktinfoid = id;
+            //alert(id);
+            var actionurl = '@Url.Content("~/ClientProfileManager/ClientTicketInfo/DeleteTicketInfo")';
+            var d = id;
+
+            //alert(x);
+            $.ajax({
+                url: actionurl,
+                type: "POST",
+                async: false,
+                data: {
+                    did: d,
+                },
+                error: function (response)
+                {
+
+                    alert('Could not delete the Ticket detail.');
+                },
+                success: function (response) {
+                    $('#grid').data('kendoGrid').dataSource.read();
+                    $('#grid').data('kendoGrid').refresh();
+                }
+            });
+            //refresh grid false; u need to call delete action by passing this id and refresh the grid
+        }
+
+        function grid_error(e) {
+            // alert('err');
+            if (e.errors) {
+                var message = "Error occurred:\n";
+                // Create a message containing all errors.
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                // Display the message.
+                alert(message);
+                // Cancel the changes.
+                $('#grid').data('kendoGrid').dataSource.read();
+                $('#grid').data('kendoGrid').refresh();
+            }
+        }
+
+
+</script>

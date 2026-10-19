@@ -1,0 +1,366 @@
+﻿@using Kendo.Mvc.UI;
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@model IList<ClientSummaryModel>
+    @{
+        ViewBag.Title = "Client Profile Manager";
+        //  var clientlist = GetDropDownListItems.ClientList;
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+        //Layout = "~/Views/Shared/_AppLayout.cshtml";
+        Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+        <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+        <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+        <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+        <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    }
+
+
+    <style>
+            .jjCustom {
+                border-radius: 4px;
+                border-color: #a3d0e4;
+                color: #003f59;
+                border: none;
+                background-color: #daecf4;
+                background-position: 50% 50%;
+                background-image: none, linear-gradient(rgba(255, 255, 255, 0.45) 0px, rgba(255, 255, 255, 0) 100%);
+                min-height: 30px;
+                min-width: 300px;
+                cursor: pointer;
+                margin: 4px 2px;
+                display: inline-block;
+                text-align: center;
+                text-decoration: none;
+                transition-duration: 0.4s;
+                font-size: 16px;
+                padding: 16px 32px;
+            }
+
+            .button {
+                background-color: #4CAF50; /* Green */
+                color: white;
+            }
+            /*k-window-content k-content
+
+        .k-window-content{
+            color:#003f59;
+             background-color:#daecf4;
+             font-size: 16px;
+             background-image:none, linear-gradient(rgba(255, 255, 255, 0.45) 0px, rgba(255, 255, 255, 0) 100%);
+        }*/
+
+
+            .jjCustom:hover {
+                border-radius: 4px;
+                border-color: #000000;
+                /*border-color:#a3d0e4;*/
+                color: #ffffff;
+                min-height: 35px;
+                min-width: 305px;
+                background-color: #47a3da;
+            }
+
+            k-button:hover {
+                background-color: #47a3da;
+                color: #ffffff;
+            }
+
+
+
+
+
+
+            #example {
+                min-height: 500px;
+            }
+
+            #undo {
+                text-align: center;
+                position: absolute;
+                white-space: nowrap;
+                padding: 1em;
+                cursor: pointer;
+            }
+
+            .armchair {
+                float: left;
+                margin: 30px 30px 120px 30px;
+                text-align: center;
+            }
+
+                .armchair img {
+                    display: block;
+                    margin-bottom: 10px;
+                }
+
+            .k-window-content p {
+                margin-bottom: 1em;
+                color: 003f59;
+            }
+
+            .k-window-content a {
+                color: #BBB;
+            }
+
+            @@media screen and (max-width: 1023px) {
+                div.k-window {
+                    display: none !important;
+                }
+            }
+    </style>
+    <div class="content-main dark-bg">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb ">
+                <li>Client Profile Manager</li>
+                <li>Dashboard</li>
+                <li class="active">Client Summary</li>
+            </ol>
+        </div>
+        <div  style="padding: 0;">
+          
+
+            <div class="leftarea form-horizontal" style="padding-left:15px">
+                <h4><strong><u>Select Client</u></strong></h4>
+                <br />
+                <br />
+                @foreach (var x in Model)
+                {
+                    var iddd = x.ClientId;
+                    var naaaame = x.ClientName;
+                    //onmouseover = "repeater = setInterval(hoverfunc(this), 100);" onmouseout = "clearInterval(repeater);"   onmouseover="hoverfunc(this);" onmouseout="close();"
+                    <span class="jjCustom" data-CName="@x.ClientName" data-tPortfolio="@x.TotalPortfolios" data-tApplication="@x.TotalApplications"
+                          data-tAccounts="@x.TotalAccounts" data-tMetric="@x.TotalMetric" data-tIncidents="@x.TotalIncidents"
+                          data-tSR="@x.TotalServiceRequest" data-tTicketC_R="@x.TotalTicketsClosed_Resolved"
+                          data-tTicketRejected="@x.TotalTicketsRejected" data-tTicketSuspended="@x.TotalTicketSuspended"
+                          data-avgEffort="@x.AvgEffortPerTicket" data-avgCost="@x.AvgCostPerTicket" data-tSev1="@x.TotalSev1"
+                          data-tSev2="@x.TotalSev2" data-tSev3="@x.TotalSev3" data-tSev4="@x.TotalSev4"
+                          onmouseover="hoverfunc(this);" onmouseout="close();">
+                        @naaaame
+                    </span>
+                    <br />
+
+
+                }
+            </div>
+
+            <div id="wowPosition">
+
+                @(Html.Kendo().Window()
+.Name("window")
+.Title("Client Profile Summary")
+.Pinned(false)
+.HtmlAttributes(new { @style = "color:#003f59; font-size: 16px; background-image:linear-gradient(rgba(255, 255, 255, 0.45) 0px, rgba(255, 255, 255, 0) 100 %);" })
+.Visible(false)
+
+//.Modal(true)
+.Content(@<text>
+        <div class="treeMenuContent">
+            <div class="center">
+                <h4><u><strong id="cName"></strong></u></h4>
+            </div>
+            <br />
+            <div class="leftarea form-horizontal">
+                <div class="form-group">
+                    <label>Total Portfolios = </label><label id="Portfolios"> </label>
+                    <br />
+                    <br />
+                    <label>Total Applications = </label><label id="Applications"> </label>
+                    <br />
+                    <br />
+                    <label>Total accounts = </label><label id="accounts"> </label>
+                    <br />
+                    <br />
+                    <label>Total Metric = </label><label id="Metric"> </label>
+                    <br />
+                    <br />
+                    <label>Total Incidents = </label><label id="Incidents"> </label>
+                    <br />
+                    <br />
+                    <label>Total Service Request = </label><label id="SR"> </label>
+                    <br />
+                </div>
+                <br />
+                <br />
+                <div class="form-group">
+                    <label>Average Effort Per Ticket = </label><label id="avgEffort"> </label>
+                    <br />
+                    <br />
+                    <label>Average Cost Per Ticket = </label><label id="avgCost"> </label>
+                    <br />
+                </div>
+
+            </div>
+            <div class="rightarea form-horizontal">
+                <div class="form-group">
+                    <label>Total SEV1 = </label><label id="tSev1"> </label>
+                    <br />
+                    <br />
+                    <label>Total SEV2 = </label><label id="tSev2"> </label>
+                    <br />
+                    <br />
+                    <label>Total SEV3 = </label><label id="tSev3"> </label>
+                    <br />
+                    <br />
+                    <label>Total SEV4 = </label><label id="tSev4"> </label>
+                    <br />
+                </div>
+                <br />
+                <br />
+                <div class="form-group">
+                    <label>Total Tickets Closed/Resolved = </label><label id="CR"> </label>
+                    <br />
+                    <br />
+                    <label>Total Tickets Rejected = </label><label id="Rejected"> </label>
+                    <br />
+                    <br />
+                    <label>Total Tickets Suspended = </label><label id="Suspended"> </label>
+                    <br />
+
+                </div>
+            </div>
+        </div>
+    </text> )
+    .Draggable()
+    //.Resizable()
+    .Width(600)
+    //.Events(ev => ev.Close("onClose"))
+            )
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    @*<span id="undo" style="display:none" class="k-button hidden-on-narrow">Click here to open the window.</span>*@
+
+    @*<div class="responsive-message"></div>*@
+
+    <script>
+        var repeater;
+        function close() {
+            $("#window").data("kendoWindow").close();
+            //$(".k-window").fadeIn();
+        }
+
+        function hoverfunc(arg) {
+            $('#window').parent().find('.k-window-titlebar,.k-window-actions').css('backgroundColor', '#47a3da');
+            $(".k-window-title").css('color', '#ffffff');
+            //$(".k-window-title")
+            //alert(tPortfolio);
+            var posi = $('.jjCustom').position();
+            $("#window").data("kendoWindow").center().open().element.closest(".k-window").css({
+
+                left: posi.left + 360
+            });
+            $("#cName").empty();
+            $("#Portfolios").empty();
+            $("#Applications").empty();
+            $("#accounts").empty();
+            $("#Metric").empty();
+            $("#Incidents").empty();
+            $("#SR").empty();
+            $("#CR").empty();
+            $("#Rejected").empty();
+            $("#Suspended").empty();
+            $("#avgEffort").empty();
+            $("#avgCost").empty();
+            $("#tSev1").empty();
+            $("#tSev2").empty();
+            $("#tSev3").empty();
+            $("#tSev4").empty();
+
+            //initializing each element by the result
+            $("#cName").append(document.createTextNode($(arg).attr("data-CName")));
+            $("#Portfolios").append(document.createTextNode($(arg).attr("data-tPortfolio")));
+            $("#Applications").append(document.createTextNode($(arg).attr("data-tApplication")));
+            $("#accounts").append(document.createTextNode($(arg).attr("data-tAccounts")));
+            $("#Metric").append(document.createTextNode($(arg).attr("data-tMetric")));
+            $("#Incidents").append(document.createTextNode($(arg).attr("data-tIncidents")));
+            $("#SR").append(document.createTextNode($(arg).attr("data-tSR")));
+            $("#CR").append(document.createTextNode($(arg).attr("data-tTicketC_R")));
+            $("#Rejected").append(document.createTextNode($(arg).attr("data-tTicketRejected")));
+            $("#Suspended").append(document.createTextNode($(arg).attr("data-tTicketSuspended")));
+            $("#avgEffort").append(document.createTextNode($(arg).attr("data-avgEffort")));
+            $("#avgCost").append(document.createTextNode($(arg).attr("data-avgCost")));
+            $("#tSev1").append(document.createTextNode($(arg).attr("data-tSev1")));
+            $("#tSev2").append(document.createTextNode($(arg).attr("data-tSev2")));
+            $("#tSev3").append(document.createTextNode($(arg).attr("data-tSev3")));
+            $("#tSev4").append(document.createTextNode($(arg).attr("data-tSev4")));
+
+        }
+
+
+
+
+
+        //$(".jjCustom").click(function () {
+
+        //    //alert(tPortfolio);
+
+        //    $("#window").data("kendoWindow").center().open();
+
+        //    $("#Portfolios").empty();
+        //    $("#Applications").empty();
+        //    $("#accounts").empty();
+        //    $("#Metric").empty();
+        //    $("#Incidents").empty();
+        //    $("#SR").empty();
+        //    $("#CR").empty();
+        //    $("#Rejected").empty();
+        //    $("#Suspended").empty();
+        //    $("#avgEffort").empty();
+        //    $("#avgCost").empty();
+        //    $("#tSev1").empty();
+        //    $("#tSev2").empty();
+        //    $("#tSev3").empty();
+        //    $("#tSev4").empty();
+
+        //    //initializing each element by the result
+        //    $("#Portfolios").append(document.createTextNode($(this).attr("data-tPortfolio")));
+        //    $("#Applications").append(document.createTextNode($(this).attr("data-tApplication")));
+        //    $("#accounts").append(document.createTextNode($(this).attr("data-tAccounts")));
+        //    $("#Metric").append(document.createTextNode($(this).attr("data-tMetric")));
+        //    $("#Incidents").append(document.createTextNode($(this).attr("data-tIncidents")));
+        //    $("#SR").append(document.createTextNode($(this).attr("data-tSR")));
+        //    $("#CR").append(document.createTextNode($(this).attr("data-tTicketC_R")));
+        //    $("#Rejected").append(document.createTextNode($(this).attr("data-tTicketRejected")));
+        //    $("#Suspended").append(document.createTextNode($(this).attr("data-tTicketSuspended")));
+        //    $("#avgEffort").append(document.createTextNode($(this).attr("data-avgEffort")));
+        //    $("#avgCost").append(document.createTextNode($(this).attr("data-avgCost")));
+        //    $("#tSev1").append(document.createTextNode($(this).attr("data-tSev1")));
+        //    $("#tSev2").append(document.createTextNode($(this).attr("data-tSev2")));
+        //    $("#tSev3").append(document.createTextNode($(this).attr("data-tSev3")));
+        //    $("#tSev4").append(document.createTextNode($(this).attr("data-tSev4")));
+
+        //})
+
+    </script>
+
+    <style>
+        #example {
+            min-height: 400px;
+        }
+
+        #undo {
+            text-align: center;
+            position: absolute;
+            white-space: nowrap;
+            padding: 1em;
+            cursor: pointer;
+        }
+
+        @@media screen and (max-width: 1023px) {
+            div.k-window {
+                display: none !important;
+            }
+        }
+    </style>

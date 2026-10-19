@@ -1,0 +1,413 @@
+﻿@using WebUI.Areas.PortfolioAnalyzer.Models;
+@model APRFinancialModel
+<style>
+    .k-widget.k-window{
+        width:70%;
+    }
+    .k-popup-edit-form .k-edit-form-container .k-edit-buttons{
+        width:850px;
+    }
+</style>
+@{
+    ViewBag.Title = "Financial";
+    var dictionary = new Dictionary<int, string>
+{
+    { 2018, "2018" },
+    { 2017, "2017" },
+    { 2016, "2016" },
+    { 2015, "2015" },
+    { 2014, "2014" },
+    { 2013, "2013" },
+    { 2012, "2012" },
+    { 2011, "2011" },
+    { 2010, "2010" }
+    };
+}
+
+<div style="width:850px;padding:0 1em">
+    <table>
+        <tr>
+            <td style="width:150px">
+                @*@(Html.TextBoxFor(p => p.Id, new { @class = "k-textbox" }))*@
+                @Html.HiddenFor(x => x.Id, new
+                {
+                    id = "Id",
+               Name = "Id"
+           })
+                <span data-for="ID" class="k-invalid-msg"></span>
+            </td>
+            <td style="width:150px">
+                  @Html.HiddenFor(x => x.AppId, new
+                {
+                    id = "AppId",
+                    Name = "AppId"
+                    })
+            </td>
+
+        </tr>
+    </table>
+    <table style="width:100%;height:100%;">
+        <tr>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <Label class="custom-blue-label">Year: </Label>
+                                        </td>
+                                    <td>
+                                        <div class="custom-dropdown">
+                                        @(Html.Kendo().DropDownListFor(m => m.Year)
+                                                         .Name("Year")
+                                                         .OptionLabel("Select")
+                                                          .DataTextField("Text")
+                                                          .DataValueField("Value")
+                                                     .DataSource(datasource => datasource
+                                                    .Read(read => read.Action("getYears", "AppDashboard"))
+                                                    )
+                                                     )
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table style="border: 1px solid;">
+                                <thead style="background-color:rgb(91,121,171);color:#fff;">
+                                    <tr>
+                                        <th>IT Labor </th>
+                                        <th>Internal Cost </th>
+                                        <th>External Cost </th>
+                                        <th>Internal FTEs </th>
+                                        <th>External FTEs </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><label>Discretionary :</label></td>
+                                        <td>
+                                            <div class="apr-numeric-textbox">
+                                                @(Html.Kendo().NumericTextBoxFor(m => m.DiscretionaryCostInternal)
+            .Name("DiscretionaryCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+                                            </div>
+
+                                        </td>
+                                        <td>
+                                            <div class="apr-numeric-textbox">
+                                                @(Html.Kendo().NumericTextBoxFor(m => m.DiscretionaryCostExternal)
+            .Name("DiscretionaryCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+                                            </div>
+
+                                        </td>
+                                        <td>
+                                            <div class="apr-numeric-textbox">
+                                                @(Html.Kendo().NumericTextBoxFor(m => m.DiscretionaryFTEInternal)
+                                                        .Name("DiscretionaryFTEInternal")
+                                                        .HtmlAttributes(new { @style = "text-align:right" })
+                                                )
+                                                </div>
+                                        </td>
+                                        <td>
+                                            <div class="apr-numeric-textbox">
+                                                @(Html.Kendo().NumericTextBoxFor(m => m.DiscretionaryFTEExternal)
+                                                        .Name("DiscretionaryFTEExternal")
+                                                        .HtmlAttributes(new { @style = "text-align:right" })
+                                                )
+                                                </div>
+                                        </td>
+                                        </tr>
+
+<tr>
+    <td><label>Enhancement :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.EnhancementCostInternal)
+            .Name("EnhancementCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+)
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.EnhancementCostExternal)
+            .Name("EnhancementCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+            </div>
+
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.EnhancementFTEInternal)
+            .Name("EnhancementFTEInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+                                                )
+        </div>
+
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.EnhancementFTEExternal)
+            .Name("EnhancementFTEExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+                                                )
+</div>
+    </td>
+</tr>
+
+<tr>
+    <td><label>Support :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.SupportCostInternal)
+            .Name("SupportCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+        </div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.SupportCostExternal)
+            .Name("SupportCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.SupportFTEInternal)
+            .Name("SupportFTEInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+
+                                                )
+
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.SupportFTEExternal)
+            .Name("SupportFTEExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+
+                                                )
+</div>
+    </td>
+</tr>
+
+<tr>
+    <td><label>Other :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.OtherCostInternal)
+            .Name("OtherCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+            </div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.OtherCostExternal)
+            .Name("OtherCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.OtherFTEInternal)
+            .Name("OtherFTEInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+
+                                                )
+            </div>
+
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.OtherFTEExternal)
+            .Name("OtherFTEExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+
+                                                )
+            </div>
+    </td>
+</tr>
+<tr>
+    <td><label>Business :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.BusinessCostInternal)
+            .Name("BusinessCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                            )
+            </div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.BusinessCostExternal)
+            .Name("BusinessCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                            )
+            </div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.BusinessFTEInternal)
+            .Name("BusinessFTEInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+                                                )
+
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.BusinessFTEExternal)
+            .Name("BusinessFTEExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+
+                                                )
+</div>
+    </td>
+</tr>
+<tr>
+    <td><label>Infrastructure :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.InfrastructureCostInternal)
+            .Name("InfrastructureCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.InfrastructureCostExternal)
+            .Name("InfrastructureCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td></td>
+    <td></td>
+
+</tr>
+<tr>
+    <td><label>Licensing :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.LicensingCostInternal)
+            .Name("LicensingCostInternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.LicensingCostExternal)
+            .Name("LicensingCostExternal")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+                                                )
+</div>
+    </td>
+    <td></td>
+    <td></td>
+
+</tr>
+
+
+<tr class="apr-table-footer">
+    <td><label>TOTAL :</label></td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.TotalInternalCost)
+            .Name("TotalInternalCost")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+            .Enable(false)
+                                                )
+
+</div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.TotalExternalCost)
+            .Name("TotalExternalCost")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Format("c")
+            .Min(0)
+            .Enable(false)
+                                                )
+            </div>
+
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.TotalInternalFTEs)
+            .Name("TotalInternalFTEs")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Enable(false)
+                                                )
+            </div>
+    </td>
+    <td>
+        <div class="apr-numeric-textbox">
+            @(Html.Kendo().NumericTextBoxFor(m => m.TotalExternalFTEs)
+            .Name("TotalExternalFTEs")
+            .HtmlAttributes(new { @style = "text-align:right" })
+            .Enable(false)
+            //.HtmlAttributes(new { @readonly = "readonly" }
+
+                                                )
+
+            </div>
+    </td>
+</tr>
+
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+</div>
+

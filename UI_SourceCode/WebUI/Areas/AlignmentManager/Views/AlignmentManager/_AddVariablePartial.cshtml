@@ -1,0 +1,123 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string form_name = "frmSaveItemDetails";
+}
+
+<div class="accdetailhd">
+   
+             @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                    {
+                     @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                    }
+                    @if (ViewData.ModelState.ContainsKey("Success"))
+                    {
+                         @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                    }
+    </div>
+
+@using (Html.BeginForm("SaveVariableDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+    {
+
+            @Html.HiddenFor(m => m.ClientId);
+            <div class="form-group">
+                <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.VariableTypeId)</label>
+                <div class="col-sm-5">
+                    @Html.DropDownListFor(m => m.VariableTypeId, new SelectList(Model.GetVariableTypes, "value", "text", Model.GetVariableTypes), "", new { @class = "selectpicker", id = "TypeId", tabindex = "5", name = "TypeId", required = "required" })
+                </div>
+            </div>
+
+        
+            <div class="form-group">
+                <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.variableLabelInput.VariableCatId)</label>
+                <div class="col-sm-5">
+                    @Html.DropDownListFor(m => m.VariableCatId, new SelectList(Model.GetCategories, "value", "text", Model.GetCategories), "", new { @class = "selectpicker", id = "VariableCategoryId", tabindex = "5", name = "VariableCategoryId", required = "required" })
+                </div>
+            </div>
+
+
+
+
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.variableLabelInput.VariableLabel  )</label>
+                <div class="col-sm-5">
+                    @*@Html.TextBoxFor(m => m.variableLabelInput.VariableLabel, new { @class = "form-control"})*@
+                    @Html.TextBoxFor(m => m.GetvariableLabelInput.VariableLabel, new { @class = "form-control"})
+                </div>
+            </div>
+
+
+
+            
+            <div class="form-group">
+                
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(m => m.variableLabelInput.FullDescription)</label>
+                <div class="col-sm-5">
+                    @*@Html.TextAreaFor(m => m.variableLabelInput.FullDescription, new { @class = "form-control valdesc", rows="6", tabindex = "", placeholder = "", name = "valdesc"})*@
+                    @Html.TextAreaFor(m => m.GetvariableLabelInput.FullDescription, new { @class = "form-control valdesc"})
+                    @Html.HiddenFor(m => m.variableLabelInput.FullDescription, new { @Value = ViewData["VarDesc"], id="hdnFullDescription"})
+                    @Html.HiddenFor(m => m.VariableLabelId, new { id="hdnId"})
+                </div>
+            </div>
+
+
+
+            <div class="addvalaction">
+                <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+                @Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new { ClientId=Model.ClientId }, new { @class = "btn btn-default" })
+            </div>
+
+        
+
+    @*<div class="amgrcontentLeft">
+        <div class="well well-sm">
+            <strong>Value Chain Details</strong>
+        </div>
+        <div class="">
+
+            <div class="form-group">
+                <label class="dropdown-menu open"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.VarCatId)</label>
+                <div class="col-sm-5">
+                    @Html.DropDownListFor(m => m.VarCatId, new SelectList(Model.GetCategories, "value", "text", Model.GetCategories), "", new { @class = "selectpicker", id = "ClientId", tabindex = "5", name = "ClientId", required = "required" })
+                </div>
+            </div>
+
+
+
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.Name)</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control", width = "100%" })
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-5 control-label">@Html.DisplayNameFor(m => m.Description)</label>
+                <div class="col-sm-5">
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control valdesc", rows="6", tabindex = "", placeholder = "", name = "valdesc"})
+                </div>
+            </div>
+
+
+
+            <div class="addvalaction">
+                <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+                @Html.ActionLink("Cancel", "Index", "AlignmentManager", new { variableId = Model.ParentId }, new { @class = "btn btn-default" })
+            </div>
+
+        </div>
+
+        <!--.valchainContent-->
+    </div>*@
+    
+    }

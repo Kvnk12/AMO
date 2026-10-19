@@ -1,0 +1,59 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using WebUI.Dto;
+@model ExportViewModel
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    var clientlist = GetDropDownListItems.ClientList;
+    NTTData.AMOPortal.WebUI.Dto.HomeInput menuItemsInput = (NTTData.AMOPortal.WebUI.Dto.HomeInput)Session["MenuItemsInput"];
+    //NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    ClientDetail userclient = (ClientDetail)Session["SessionClient"];
+    //userclient.ClientName
+    if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    {
+        clientlist = clientlist.Where(w => w.Value == userclient.ClientId.ToString()).ToList();
+    }
+}
+<div class="container" style="padding: 0;">
+
+            @if (Model.RejectedRecords.Rows.Count <= 0)
+            {
+                <div class="well well-sm"><strong>No records found; records could have been archived.</strong></div>
+            }
+                <div class="container_12">
+                   
+                        <table class="table table-striped" id="myTable" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    @foreach (DataColumn col in Model.RejectedRecords.Columns)
+                                    {
+                                        if (col.Ordinal > 2)
+                                        {
+                                            <th scope="col">@col.Caption</th>
+                                        }
+                                    }
+                                </tr>
+
+                                @foreach (DataRow dr in Model.RejectedRecords.Rows)
+                                {
+                                    <tr>
+                                        @foreach (DataColumn col in Model.RejectedRecords.Columns)
+                                        {
+                                            if (col.Ordinal > 2)
+                                            {
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => dr[col.Ordinal])
+                                                </td>
+                                            }
+                                        }
+                                    </tr>
+                                }
+                        </table>
+                    </div>
+                </div>
+
+
+

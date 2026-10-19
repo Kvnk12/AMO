@@ -1,0 +1,31 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClassAndCategoryInput 
+<div class="col-xs-6 col-sm-4 accountCont">
+    <div class="accContracthdr">
+        <div class="left">Classifications</div>
+        <div class="right">
+            <button class="btn btn-primary" tabindex="2900" type="button" id="btnAddClassification">Add</button>
+        </div>
+    </div>
+    <div class="cptblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="100%" scope="col">Classification</th>
+                @*<th width="30%" scope="col">Status</th>*@
+            </tr>
+            
+            @{ 
+                foreach (var item in Model.GetClassification)
+                {
+                    if(item.Classification!=null)
+                    { 
+                    <tr>
+                    <td>@Html.ActionLink(@item.Classification,"DisplayClassAndCategory","ClassificationAndCategoryGrid", new {ClassId=item.Id, ClassificationName=@item.Classification}, null)</td>
+                        @*<td><a href="#" id="showaccdetail">@item.Status</a></td>*@
+                    </tr>
+                    }
+                }
+            }
+
+        </table>
+    </div>
+</div>

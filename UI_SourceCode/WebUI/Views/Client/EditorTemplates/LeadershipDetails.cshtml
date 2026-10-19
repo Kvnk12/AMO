@@ -1,0 +1,162 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Controllers;
+@using WebUI.Models;
+@using WebUI.App_Start;
+
+@model LeadershipDetails
+
+@{
+    var EmailList = ViewBag.EmailList;
+    var LeadRoleList = Helper.GetLeadRoleList();
+    var ShoreList = Helper.GetShoreList();
+
+}
+<style>
+    .otherClass {
+        width: 100px;
+        height: 100px;
+    }
+</style>
+
+<div class="edit-popup">
+    <div class="edit-popup-item">
+        <label>Email Address:</label>
+
+        @*@Html.DropDownList("EmailList", (IEnumerable<SelectListItem>)ViewData["EmailList"], "Select Email Address", new
+            {
+            @class = "selectpicker",
+            tabindex = "6",
+            autocomplete = "on",
+            id = "drpEmailId"
+            })*@
+        @(Html.Kendo().DropDownListFor(m => m.Id)
+                                    .Name("Id")
+                                    .OptionLabel("Select Email Address..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(EmailList)
+                                    .AutoBind(true)
+
+         )
+        @*@Html.DropDownListFor(m => m.Id, new SelectList(ViewBag.EmailList, "Value", "Text", Model.EmailAddress), "-Select Email Address-", new
+            {
+                @class = "selectpicker",
+
+            })*@
+
+    </div>
+
+    @*<div class="edit-popup-item">
+            <label style="width:auto"><span class="mandate">*</span>NTT Data Resource: @Html.CheckBoxFor(m => m.NttResource, new { @style = "height:20px; width:30px; display:inline;", disabled = "disabled" }) </label>
+
+        </div>
+        <div class="edit-popup-item">
+            <label>First Name :</label>
+            @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", id = "txtFrtName", disabled = "disabled" })
+        </div>
+        <div class="edit-popup-item">
+            <label>Last Name :</label>
+            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", id = "txtLstName", disabled = "disabled" })
+        </div>
+        <div class="edit-popup-item">
+            <label>Country:</label>
+            @Html.TextBoxFor(m => m.Country, new { @class = "form-control", id = "txtCountry", disabled = "disabled" })
+        </div>*@
+<div class="edit-popup-item">
+    <label>Shore:<span class="mandate">*</span></label>
+    @*@Html.DropDownListFor(m => m.ShoreID, new SelectList(Model.shoreList, "Value", "Text", Model.ShoreID), "", new
+        {
+           @class = "selectpicker",
+           id = "IDShoreCode"
+        })*@
+
+    @(Html.Kendo().DropDownListFor(m => m.Shore)
+                                    .Name("Shore")
+                                    .OptionLabel("Select Shore..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(ShoreList)
+                                    .AutoBind(true)
+
+         )
+</div>
+    @*<div class="edit-popup-item">
+            <label>Contact No :</label>
+            @Html.TextBoxFor(m => m.ContactNo, new { @class = "form-control", id = "txtJobTitle", disabled = "disabled" })
+        </div>*@
+<div class="edit-popup-item">
+    <label>Leadership Role :<span class="mandate">*</span></label>
+    @*@Html.DropDownListFor(m => m.LeadRoleID, new SelectList(Model.LeadRoleList, "Value", "Text", Model.LeadRoleID), "", new
+        {
+             @class = "selectpicker",
+             id = "IDLeadRole"
+        })*@
+    @(Html.Kendo().DropDownListFor(m => m.LeadRole)
+                                    .Name("LeadRole")
+                                    .OptionLabel("Select Leadership Role..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(LeadRoleList)
+                                    .AutoBind(true)
+
+         )
+
+</div>
+    @*<div class="edit-popup-item">
+            <label>Reporting Manager :</label>
+            @Html.TextBoxFor(m => m.ReportingManager, new { @class = "form-control", id = "txtJobTitle" })
+        </div>*@
+
+</div>
+@*<script type="text/javascript">
+
+        $('#drpEmailId').change(function () {
+
+        })
+        function setDetails(obj) {
+             var baseurl = '@Url.Content("~/Client/AddLeadershipTeam")';
+            console.log(obj.value);
+
+                $.ajax({
+                    url: baseurl,
+                    type: 'GET',
+                    data: { Id: obj.value },
+                    success: populatedata,
+                   // failure: errorIn
+                });
+        }
+        function populatedata(data) {
+
+
+            $("#txtFrtName").val(data.FirstName);
+            $("#checkResource").val(data.NttResource);
+            $("#txtLstName").val(data.LastName);
+            $("#txtCountryName").val(data.Country);
+            $("#txtPhone").val(data.ContactNo);
+            $("#txtRegisterManager").val(data.ReportingManager);
+
+            $('#txtFrtName').attr("disabled", true);
+            $('#txtLstName').attr("disabled", true);
+            $('#txtCountryName').attr("disabled", true);
+            $('#txtPhone').attr("disabled", true);
+
+            $('#txtRegisterManager').attr("disabled", false);
+            $("#IDShoreCode").attr("disabled", false);
+            $("#IDLeadRole").attr("disabled", false);
+
+        }
+    </script>*@
+

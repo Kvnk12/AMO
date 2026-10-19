@@ -1,0 +1,37 @@
+﻿@*@using WebUI.Areas.IdeaManager.Dto
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.Resources;
+@using Domain.Entities*@
+
+@model string
+
+
+
+@*<div id="gfd">
+        <div class="center">
+           <br />
+            @Html.HiddenFor(m=>m.Id)
+            @Html.HiddenFor(m=>m.ClientId)
+            <label style="margin-left:15px">Status:</label>
+
+            @(Html.Kendo().TextBoxFor(m => m.Status)
+                                    .Name("Status")
+                                 .Enable(true)
+            )
+
+
+
+            <label style="margin-left:15px">Pick Color:</label>
+
+
+        </div>
+    </div>*@
+
+
+
+@(Html.Kendo().ColorPickerFor(m=>m)
+//.Name("Color")
+//.Value("#ffffff")
+)
+

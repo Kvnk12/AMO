@@ -1,0 +1,139 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+
+<div id="Id-dynamicpartial">
+    <div class="custom-scrollbar" style="height:26em;overflow-x:hidden;overflow-y:auto;padding-right:5px">
+        <div class="ques-detail-main">
+            <label id="Idquesno" class="ques-label-2">Question @Model.SQNo:</label>
+            <div class="ques-display">
+                <div class="ques-display-textarea">
+                    <label id="Idquestext">@Model.Question</label>
+                    @Html.HiddenFor(m => m.SQNo)
+                </div>
+            </div>
+        </div>
+        <div style="display:flex">
+            <div style="margin: 4px 4px 4px auto;display:flex">
+                @*<button class="btn-selfassessment" onclick="openSelfAssessment()"></button>*@
+                <input type="hidden" id="Id-Discipline" value=@Model.DisciplineId />
+                <input type="hidden" id="Id-Component" value=@Model.ComponentId />
+                <input type="hidden" id="Id-Aspect" value=@Model.AspectID />
+                <label id="responseIDOnQuesClick" hidden>@Model.QuestionResponseID</label>
+                <label id="responseStatusOnQuestionClick" hidden>@Model.responseStatus</label>
+                @*<input type="hidden" id="ActiveSQNo" value=@Model.SQNo>*@
+                @*<button title="Assessment Rating" id="selfAssessmentbtn" onclick="buttonEngagementSelfAssessment()" class="btn-selfassessment"></button>*@
+                <div id="tooltips-exans" style="display:flex">
+                    <span id="tooltips-exans" href="#">
+                        <label>Example Answer</label>
+                        <img src="@Url.Content("~/Content/images/ex_answer.svg")" width="20" height="20" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        @(Html.Kendo().Tooltip()
+  .For("#tooltips-exans")
+  .Filter("span")
+  .Content(@Model.ExampleAnswer)
+  .Position(TooltipPosition.Top)
+  .Width(250)
+ // .Height(50)
+  .AutoHide(true)
+)
+        <div class="ques-eng-res">
+            <div>
+                @Html.Partial("_DynamicFollowup")
+            </div>
+        </div>
+        <div Id="id-eng-ques-edit">
+            @{
+                int cont = Model.RespAttachment.Count();
+                if (cont != 0)
+                {
+
+                <div class="a3mm-ref-material">
+                    <label class="ques-label-1" style="color: #707070">Reference Material : </label>
+                    <div class="demo-section">
+
+                        <button id="autohide-download" class="k-button wider btn-eng-download">@cont Attachments</button>
+                        
+                        
+
+
+                    </div>
+
+                    @(Html.Kendo().Tooltip()
+.For("#autohide-download")
+.AutoHide(false)
+.Position(TooltipPosition.Bottom)
+.ContentTemplateId("download-template")
+.Width(150)
+       //.Events(events => events.Hide("onHide").Show("onShow"))
+       )
+                </div>
+                    }
+                }
+            <div class="eng-rating-assdisplay">
+                <div class="arrow11">
+                    <label class="ques-label-1">Engagement Team Self Assessment</label>
+                </div>
+                <div class="a3mm-rating-section content11">
+                    <div class="rating-div">
+                        Rating :<label id="id-eng-rating-display">@Model.EngagementRating</label>
+                    </div>
+                    <div class="comments-div">
+                        Comments :<textarea disabled style="resize: none; width: 57.4vw; margin-left: 5px; height: 4em; border: 1px solid #aaa; border-radius: 4px;">@Model.engagementComments</textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="eng-rating-assdisplay">
+                <div class="arrow22">
+                    <label class="ques-label-1">Assessment Team Rating</label>
+                </div>
+                <div class="a3mm-rating-section content22">
+                    <div>
+                        <div class="rating-div">
+                            Rating :<label id="id-ass-rating-display">@Model.MaturityLevel</label>
+                        </div>
+                        <div class="ass-rescomments-div">
+                            Comments :<textarea disabled style="resize: none; width: 30vw; height: 4em; border: 1px solid #aaa; border-radius: 4px;">@Model.AssessmentResponse</textarea>
+                        </div>
+                    </div>
+                    <div class="ass-comments-div">
+                        <label class="ques-label-2">Area of Improvement</label>
+                        <textarea disabled style="resize: none; width: 33vw; height: 4em; border: 1px solid #aaa; border-radius: 4px;">@Model.AreasofImprovement</textarea>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="ques-deatil-footer">
+                <button class="custom-button" type="button" id="btnCancel" onclick="onCancelClick(SQNo.value,AssessmentID.value)">CANCEL</button>
+                <button class="custom-button" type="button" id="btnrating" onclick="buttonAssessmentRatingClick()">Rating</button>
+            </div>
+
+        </div>
+
+        @Html.Partial("_AssessmentRating", Model)
+
+    </div>
+
+</div>
+<script id="download-template" type="text/x-kendo-template">
+        <div>
+      @{
+      if (Model.RespAttachment != null)
+      {
+          foreach (var files in Model.RespAttachment)
+          {
+                  <ul style="padding:0">
+                   <li> <a class='dwn-file-tag' onclick='Downloaduploadedfile(@files.Id)'>@files.filename </a></li>
+                  </ul>
+          }
+      }
+  }
+        </div>
+</script>

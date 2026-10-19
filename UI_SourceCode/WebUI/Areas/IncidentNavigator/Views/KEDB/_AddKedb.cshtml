@@ -1,0 +1,308 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model KEDBInstanceModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+    
+</style>
+<html>
+<body>
+    <div class="addKedbpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("AddKEDBpopUp")
+    .Title("Add KEDB")
+    .Content(@<text>
+
+
+        <div class="addKedb">
+            <div class="viewTicketID">
+                <div class="hideTicketDetail">
+                <div class="view-icon" id="view-icon-detail" onclick="switchGridVisible();">
+
+                </div>
+                <div>
+                    <span class="custom-blue-label" id="view-ticket-detail" onclick="switchGridVisible();">View Ticket ID and Issue Description</span>
+                </div>
+                </div>
+                          <div class="hidden-grid" id="viewTicketdetail" style="display:none">
+                        <div class="custom-kendo-grid kedb-view-grid scrollbar-rail">
+                        @(Html.Kendo().Grid<KEDBInstanceModel>()
+ .Name("viewTicketgrid")
+ .Columns(columns =>
+ {
+     columns.Bound(p => p.isAutoIdentifiedVal).Hidden();
+     columns.Bound(p => p.TicketId).Title("Tickets ID").Width(200)
+         .ClientTemplate("# if (data.TicketId!=null) { #" + "<div style='display:flex;'>" + "# if(data.isAutoIdentifiedVal=='True') { #" + "<div style = 'background-image: url(" + @Url.Content("~/Content/images/marked_to_kedb.svg") + ");background-repeat: no-repeat; width:1.3em;height:2em;margin-top: 2px;margin-right: 7px;cursor:pointer;'> </div>" + "# } #" + "# if(data.isAutoIdentifiedVal=='False') { #" + " <div style = 'background-image: url(" + @Url.Content("~/Content/images/added_automation.svg") + ");background-repeat: no-repeat; width:1.3em;height:2em;margin-top: 2px;margin-right: 7px;cursor:pointer;'> </div>" + "# } #" + " <div>#=TicketId#</div></div>" + "# } #");
+     columns.Bound(p => p.Description).Title("Issue Description");
+ })
+  .AutoBind(false)
+  .DataSource(dataSource => dataSource
+  .Ajax()
+  .Model(model =>
+  {
+      model.Id(f => f.Id);
+  })
+      .Read(read => read.Action("GetKEDBIncidentDetail", "KEDB").Data("getKEDBIncidentDetailParam"))
+   )
+                         )
+                           
+                    </div>
+                </div>
+            </div>
+       @* -------------------here-----------------------*@
+
+            <div class="kedbTicketDetails">
+                <div class="popUpfirstrow">
+                    <div class="firstrowFields">
+                        <span class="mandate">*</span>
+                        <span class="custom-blue-label">KEDB #:</span>
+                        @Html.HiddenFor(m => m.Id, new { id = "Id" })   @*-----------------1*@
+                        @Html.HiddenFor(m => m.Incid, new { id = "Incid" })  @*-------------------2*@
+                        @(Html.Kendo().TextBoxFor(m => m.KEDBNumber).Name("KEDB"))  @*------------------3*@
+                    </div>
+                    <div class="firstrowFields">
+                        <span class="mandate">*</span>
+                        <span class="custom-blue-label">Symptom/Issue Type:</span>
+                        <div class="custom-dropdown issueType">
+                            @(Html.Kendo().DropDownListFor(m => m.IssueTypeId)    @*----------------------4*@
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo(Model.IssueTypeList)
+.Name("IssueTypeId"))
+                             <label id="IssueType_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                        </div>
+                    </div>
+                    <div class="firstrowFields">
+                        <span class="mandate"></span>
+                        <span class="custom-blue-label">Business Funtion:</span>
+                        <div class="custom-dropdown businessFunction">
+                            @(Html.Kendo().DropDownListFor(m => m.BusinessFunctionId)      @*-------------------------5*@
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo(Model.BusinessFunctionList)
+.Name("BusinessFunctionId"))
+                        </div>
+                    </div>
+                </div>
+                <div class="popUpSecondrow">
+                    <div class="secondrowFields" style="width:67%;">
+                        <span class="custom-blue-label">KEDB Description:</span>
+                        <div class="textBoxScroll ">
+                        @Html.TextAreaFor(m => m.Description, new { @class = "k-textbox scrollbar-rail", id = "Description", rows = 2, cols = 10, style = "width:36em !important;resize:none; height:5em; overflow:auto;box-shadow:none;" })  @*-------------------------6*@
+                        </div>
+                        </div>
+                   <div style="display:flex;width:35%">
+                       <span class="custom-blue-label" style="margin:0 1.5em 0 1.5em;">Solution Category:</span>
+                           <div class="custom-dropdown solutionCategory">
+                                @(Html.Kendo().DropDownListFor(m => m.SolutionCategoryId)      @*-------------------------7*@
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo(Model.SolutionCategoryList)
+.Name("SolutionCategoryId"))
+                </div>
+                   </div>
+
+                </div>
+                <div class="popUpThirdrow">
+                  <div class="thirdrowFields article" style="width:65%;height:auto">
+                        <div class="article-title">
+                        <label class="custom-blue-label">
+                            <span class="mandate" style="margin-right:0em;">*</span>
+                            Resolution Details
+                        </label>
+                        </div>
+                        <div class="row" style="display:flex;">
+                            <div class="col-md-3">
+                                <label class="custom-blue-label" for="KARadioBtn">
+                                    <input type="radio" id="KARadioBtn" name="chkRes" value="1" onclick="EnableKATextBox()" checked />
+                                         Knowledge Article:
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="margin-left: -3.5em; ">
+                                 @(Html.Kendo().TextBoxFor(m => m.KnowledgeArticle).Name("KnowledgeArticle").HtmlAttributes(new { placeholder = "Copy & Paste Knowledge Article external link here" }))     @*-------------------------8*@
+                            </div>
+                                <div class="col-md 3 search-article-icon" onclick="searchnewArticle()"></div>
+                        </div>
+
+                            <p class="custom-blue-label" style="margin-left:10.5em;margin-top:1em">or</p>
+
+                         <div class="res-details" style="display:flex;">
+                              <div class="form-group">
+                                 <div class="row" style="display: flex; margin-left: 18em;">
+                                    <div class="col-md-3 browseButton" style="margin-left: -1.7em;">
+                                        <label class="input-group-btn" id="lblid">
+
+                                        @(Html.Kendo().Upload()
+                                         .Name("KAFiles")
+                                         .Multiple(false)
+                                         .Async(a => a
+                                         .Save("Async_Save", "KEDB")
+                                       //.Remove("Async_Remove", "Upload")
+                                         .AutoUpload(true)
+                                        )
+                                         .Events(e => e.Upload("onUpload"))
+                                         .Validation(validation => validation
+                                         .AllowedExtensions(new string[] { ".txt", ".ppt", ".xlsx",".docx" }))
+                                         .Messages(m => m.Select("Browse"))
+                   )
+                         </label >
+
+                                    </div>
+                                 </div>
+                              </div>
+                         </div>
+
+                      <div class="row" style="display:flex;">
+                          <div class="col-md-3">
+                               <label class="custom-blue-label" for="ResSteps">
+                                  <input type="radio" id="ResSteps" name="chkRes" value="2" onclick="EnableResTextBox()" />
+                                  Resolution Steps:
+                               </label>
+                          </div>
+                          <div class="col-md-3" style=" margin-left: -4.5em;">
+                              @*<span class="custom-blue-label">KEDB Description:</span>*@
+                        @Html.TextAreaFor(m => m.ResolutionSteps, new { @class = "k-textbox",placeholder="Resolution Steps Text", id = "ResStepss", rows = 2, cols = 10, style = "width: 32.3em;resize: none;height: 5em;overflow: auto;box-shadow: none;" })     @*-------------------------11*@
+                          </div>
+                      </div>
+
+
+
+                         @*<label id="KnowledgeArticle_alert" hidden><span class="mandate" style="font-size:12px;margin-left:9em;"> required!</span></label>*@
+
+                    </div>
+
+                    <div class="thirdrowFields contact" style=" margin-left: 1em; width: 35%">
+                        <span class="custom-blue-label">Point of Contact:</span>
+                        @(Html.Kendo().TextBoxFor(m => m.PointOfContact).Name("PointOfContact"))      @*-------------------------12*@
+                    </div>
+
+                </div>
+                <div class="kedb-buttons">
+                    <div style="margin: 0 1em 0 0;">
+                        @*<button class="custom-button" type="button" id="btnAdd" onclick="onCancelClick()">CANCEL</button>*@
+                        <button class="custom-button" type="button" id="btnAdd" onclick="onCancelClick()">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button class="custom-button" type="button" onclick="onSaveClick()" id="btnAdd">SAVE</button>
+                        @*<button class="custom-button" type="submit"  id="btnSubmit">SAVE</button>*@
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+            </div>
+    </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(1050)
+    .Height(480)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+
+
+
+
+    </div>
+
+    
+    
+
+</body>
+</html>
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script>
+    $('.scrollbar-rail').scrollbar();
+
+    function switchGridVisible() {
+        var temp = document.getElementById('viewTicketdetail');
+        console.log(temp);
+        if (temp.style.display == "none") {
+            console.log("if");
+            document.getElementById('view-ticket-detail').innerHTML = 'Hide Ticket ID and Issue Description';
+            document.getElementById('viewTicketdetail').style.display = 'block';
+            $("#view-icon-detail").addClass("hide-eye-icon");
+
+        } else {
+            console.log("else");
+            document.getElementById('view-ticket-detail').innerHTML = 'View Ticket ID and Issue Description';
+            document.getElementById('viewTicketdetail').style.display = 'none';
+            $("#view-icon-detail").removeClass("hide-eye-icon");
+        }
+    }
+    function getKEDBIncidentDetailParam() {
+        var kedbid = $("#Id").val();
+        return {
+            kedbid: kedbid
+        };
+    }
+
+    function searchnewArticle() {
+        var searchart = $("#KnowledgeArticle").val();
+        if (searchart.trim() != '') {
+            //  window.location.href = searchart;
+            window.open(searchart, "_blank");
+        }
+    }
+
+    function onUpload(e) {
+        e.data = {
+            kedbID: $("#Id").val()
+        };
+    }
+    /*var kedbid = $("#Id").val();*/
+
+    function EnableKATextBox() {
+        if (document.getElementById('KARadioBtn').checked == true) {
+            
+            //document.getElementById('reaOnlyFileName').disabled = false;
+            document.getElementById('KAFiles').disabled = false;
+            document.getElementById('ResStepss').disabled = true;
+            document.getElementById('KnowledgeArticle').disabled = false;
+            document.getElementById('ResStepss').value = "";
+        }
+    }
+
+    function EnableResTextBox() {
+        if (document.getElementById('ResSteps').checked == true) {
+            document.getElementById('ResStepss').disabled = false;
+            //document.getElementById('reaOnlyFileName').disabled = true;
+            document.getElementById('KAFiles').disabled = true;
+            document.getElementById('KnowledgeArticle').disabled = true;
+            document.getElementById('KnowledgeArticle').value = "";
+        }
+    }
+
+    $(document).ready(function () {
+        document.getElementById('ResStepss').disabled = true;   
+
+    });
+    
+</script>
+
+
+

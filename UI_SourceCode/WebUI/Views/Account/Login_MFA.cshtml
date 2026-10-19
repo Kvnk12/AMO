@@ -1,0 +1,534 @@
+﻿
+@using WebUI.Dto;
+@model MFAModel
+@{
+    ViewBag.Title = "NextGen Tools | Auth";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    Layout = "~/Views/Shared/_AppLayout_MFA.cshtml";
+
+    var Tempuser = (MFAUserLogin)Session["MFAUserLogin"];
+    var userMail = "";
+    if (Tempuser != null)
+    {
+        userMail = Tempuser.UserName;
+    }
+    else
+    {
+        userMail = User.Identity.Name;
+    }
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+
+}
+<style>
+    /*.form-view-section {
+        width: 500px;
+        padding: 0;
+        border-color: #000000;
+        border: 1px solid;
+        border-radius: 5px;
+    }*/
+
+    /*.form-view-section form {
+            padding: 10px 10px 30px 10px;
+        }*/
+
+    /*.form-view-section h4 {
+            text-align: center;
+            margin-top: 30px;
+        }*/
+
+    /*.display-errors label {
+        margin-top: 25px;
+        margin-bottom: 0;
+    }*/
+
+    .contain-radio {
+        color: #0080b1;
+        display: inline;
+        position: relative;
+        padding-left: 27px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        margin-right: 20px;
+    }
+
+        .contain-radio input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+            .contain-radio input:checked ~ .checkmark-radio {
+                background-color: #2196F3;
+            }
+
+    .checkmark-radio {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+        border-radius: 50%;
+    }
+
+    .contain-radio input:checked ~ .checkmark-radio:after {
+        display: block;
+    }
+
+    .contain-radio .checkmark-radio:after {
+        top: 7px;
+        left: 7px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: white;
+    }
+
+    .checkmark-radio:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    #countdown-timer {
+        margin-bottom: 10px;
+        margin-left: 5px;
+    }
+
+    .phone-number .form-group {
+        display: inline-block;
+    }
+
+        .phone-number .form-group:nth-child(2) {
+            width: 375px;
+        }
+
+    .dropdown-countrycode {
+        width: 70px;
+        margin-right: 12px;
+    }
+
+    .display-text {
+        font-size: 15px;
+        color: #fff;
+        padding: 5px;
+        margin: 7px;
+    }
+    .button-group{
+        display:inline;
+    }
+    .ddMakeWide {
+        width: 75px;
+    }
+</style>
+<div class="container" style="padding-top: 100px;">
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-8">
+            <h4 class="motto">Consolidate and quantify key benefits from NTT DATA Next Generation Tools solution</h4>
+            <br>
+            <div style="padding-left:200px;"> <img src="@Url.Content("~/Content/images/BannerAMO.png")" style="width: 350px;" /></div>
+        </div>
+
+        <div id="sidebar" class="col-xs-6 col-sm-4 sidebar-offcanvas" role="form">
+            <h4 class="welcome" style="text-align:center">2-Step Verification</h4>
+            @* <h4 class="motto">Alignment Dashboard</h4>*@
+
+            <hr style="color:#000000;width:300px" />
+            <p class="motto">In order to access your account you need to verify with a sign-in code that will be sent to you over your registered phone / e-mail</p>
+            <div>
+
+            </div>
+            <div class="auth-section">
+                <div class="row">
+                    <div style="width:375px; padding:15px;">
+                        <div class="alert alert-danger" role="alert" id="InvalidOTP" hidden></div>
+                        <div class="alert alert-warning" role="alert" id="ExpiredOTP" hidden></div>
+                        <div class="alert alert-success" role="alert" id="SuccessOTP" hidden></div>
+                        <div class="form-view-section">
+                            <div name="send-otp">
+                                <label class="contain-radio">
+                                    Email
+                                    <input type="radio" class="otpMode" name="otpMode" value="Email">
+                                    <span class="checkmark-radio"></span>
+                                </label>
+
+                                <label class="contain-radio">
+                                    Mobile
+                                    <input type="radio" class="otpMode" checked="checked" name="otpMode" value="Phone">
+                                    <span class="checkmark-radio"></span>
+                                </label>
+
+                                <div class="form-group email-id hide">
+                                    <label for="emailID"></label>
+                                    <input class="form-control" data-val="true" name="emailID" placeholder="Enter Email Id" type="text" value="@userMail" readonly="">
+                                    <br />
+                                    <div class="button-group">
+                                        <button class="btn btn-primary" onclick="sendEmailClick()" id="btnSave">Send OTP</button>
+                                        @{
+                                            if (User.Identity.Name.Length > 0)
+                                            {
+                                                <a href='@Url.Action("AppStore", "Home", new { area = "" }, null)' class="btn btn-default">Back</a>
+                                            }
+                                            else
+                                            {
+                                                <a href='@Url.Action("LogOff", "Account", new { area = "" }, null)' title="This will logout" class="btn btn-default">Cancel</a>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="form-group phone-number ">
+
+
+                                    <div style="margin-top:10px">
+                                        @if (Model.IsPhoneNull || !Model.IsPhoneVerfied)
+                                        {
+                                            
+                                            <div>
+                                                @Html.DropDownList("CountryCode", new SelectList(Model.CountryList, "Value", "Text", Model.CountryCode),"", new
+                                                      {
+                                                          @class = "form-control",
+                                                          id="codetextbox"
+                                                      })
+                                            @*</div>
+                                            <div class="form-group" style="display:inline-block;">*@
+
+                                                <label for="phoneNumber"></label>
+                                                <input class="form-control" id="phonetextbox" data-val="true" name="phoneNumber" placeholder="Enter Phone Number" type="text" value="@Model.PhoneNumber">
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <label for="phoneNumber"></label>
+                                            <input class="form-control" data-val="true" name="phoneNumber" placeholder="Enter Phone Number" type="text" value="@Model.MphoneNum" readonly="">
+
+                                            @*<span>phone number **923980**</span>*@
+                                        }
+                                    </div>
+                                    <br />
+                                    <div>
+                                        <button class="btn btn-primary" onclick="sendSmsClick()" id="btnSave1">Send OTP</button>
+                                        @{
+                                            if (User.Identity.Name.Length > 0)
+                                            {
+                                                <a href='@Url.Action("AppStore", "Home", new { area = "" }, null)' class="btn btn-default">Back</a>
+                                            }
+                                            else
+                                            {
+                                                <a href='@Url.Action("LogOff", "Account", new { area = "" }, null)' title="This will logout" class="btn btn-default">Cancel</a>
+                                            }
+                                        }
+                                    </div>
+
+                                </div>
+
+                                <div class="display-errors">
+                                    <label class="alert alert-danger" role="alert" hidden>Please enter correct phone number</label>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-view-section hide">
+
+                            <div name="enter-otp">
+
+                                <div class="form-group otp-number" style="">
+                                    <label for="otpNumber"></label>
+                                    <input class="form-control" data-val="true" name="otpNumber" autocomplete="off" placeholder="Enter OTP Number" id="otptextbox" type="text" value="">
+                                </div>
+                                <div style="display:inline-block">
+                                    <input id="rememberDevice" type="checkbox" name="rememberDevice" class="custom-control-input">
+                                    <label class="custom-control-label" for="rememberDevice">Remember Device</label>
+                                </div>
+                                <div style="display:inline-block;color: #0080b1; text-align:right" id="countdown-timer"></div>
+
+                                <div class="button-group" style="display:block">
+
+                                    <button class="btn btn-primary" onclick="VerifyUserCodeFunc()" id="btnSave">Validate</button>
+                                    <a href="" class="btn btn-default back-button">Back</a>
+                                </div>
+
+                                <div class="display-errors">
+                                    <label class="alert alert-danger" role="alert" hidden>Please enter correct OTP number</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!--side bar-->
+    </div>
+</div>
+
+<!--/.container-->
+<div class="keyarea">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 keyareaOne">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/thinksmart.png")" height="100" width="92" />
+                </div>
+                <h3>Think Smart</h3>
+                <ul class="">
+                    <li style="padding-left:53px" class="lpagepoints">With Insightful Analytics</li>
+                </ul>
+            </div>
+            <div class="col-lg-4 keyareaOne">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/actfast.png")" height="81" width="70" />
+                </div>
+                <h3>Act Fast</h3>
+                <ul class="">
+                    <li style="padding-left:44px" class="lpagepoints">With Actionable Roadmaps</li>
+                </ul>
+            </div>
+            <div class="col-lg-4 keyareaTwo">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/flex.png")" height="81" width="70" />
+                </div>
+                <h3>Flex your Business</h3>
+                <ul class="">
+                    <li style="padding-left:47px;" class="lpagepoints">With Optimized Portfolios</li>
+                </ul>
+            </div>
+        </div>
+        <!--/.row-->
+    </div>
+    <!--/.container-->
+</div>
+<!--.keyarea-->
+
+<script type="text/javascript">
+
+		$('.otpMode').click(function(){
+            $('#ExpiredOTP').hide();
+            $('#InvalidOTP').hide();
+            $('#SuccessOTP').hide();
+			var radioValue = $("input[name='otpMode']:checked"). val();
+			if(radioValue == "Phone") {
+				$('.email-id').addClass('hide');
+				$('.phone-number').removeClass('hide');
+			} else {
+				$('.email-id').removeClass('hide');
+				$('.phone-number').addClass('hide');
+			}
+
+		});
+
+
+
+		$('.back-button').click(function(){
+				timeleft = 180;
+				document.getElementById("countdown-timer").innerHTML = '';
+				clearInterval(downloadTimer);
+				$('.form-view-section').toggleClass('hide');
+				return false;
+		});
+
+		var downloadTimer = '';
+		var timeleft = 180;
+
+		function countDownTimer(){
+			timeleft = 180;
+			downloadTimer = setInterval(function(){
+				document.getElementById("countdown-timer").innerHTML = timeleft + " seconds remaining";
+				timeleft -= 1;
+				if(timeleft <= 0){
+				//clearInterval(downloadTimer);
+				document.getElementById("countdown-timer").innerHTML = "<a href='' onclick='resendSmsClick()'>Resend OTP</a>";
+				}
+			}, 1000);
+        }
+
+    function VerifyUserCodeFunc() {
+        $('#ExpiredOTP').hide();
+        $('#InvalidOTP').hide();
+        $('#SuccessOTP').hide();
+        var rememberMe = $('#rememberDevice:checked').val() ? true : false;
+        var indexurl = '@Url.Content("~/")';
+        mod = {
+            code: $("#otptextbox").val().trim(),
+            RememberThisDevice: rememberMe
+        }
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/Account/VerifyUserCode")';
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            data:data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    document.getElementById("SuccessOTP").innerText = 'Correct OTP!';
+                    $('#SuccessOTP').show();
+                    window.location.href = indexurl + data.success;
+                }
+                else if (data.expire) {
+                    document.getElementById("ExpiredOTP").innerText = data.expire;
+                    $('#ExpiredOTP').show();
+                }
+                else {
+                    document.getElementById("InvalidOTP").innerText = data.failure;
+                    $('#InvalidOTP').show();
+                }
+            },
+            failure: function (err) {
+                document.getElementById("InvalidOTP").innerText = err.message;
+                $('#InvalidOTP').show();
+            }
+        });
+    }
+
+
+   
+    function sendEmailClick() {
+        $('#ExpiredOTP').hide();
+        $('#InvalidOTP').hide();
+        $('#SuccessOTP').hide();
+        var baseurl = '@Url.Content("~/MFA/SendOTPEmail")';
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                //alert(data);
+                if (data.success) {
+                    $('.form-view-section').toggleClass('hide');
+                    countDownTimer();
+                    document.getElementById("countdown-timer").innerHTML = '';
+                    $('#SuccessOTP').show();
+                    document.getElementById("SuccessOTP").innerText = data.success;
+                }
+                else {
+                    document.getElementById("InvalidOTP").innerText = data.failure;
+                    $('#InvalidOTP').show();
+                }
+            },
+            failure: function (err) {
+                document.getElementById("InvalidOTP").innerText = err.message;
+                $('#InvalidOTP').show();
+            }
+        });
+    }
+
+    function resendSmsClick() {
+        $('#ExpiredOTP').hide();
+        $('#InvalidOTP').hide();
+        $('#SuccessOTP').hide();
+        var baseurl = '@Url.Content("~/MFA/ReSendOTPSMS")';             
+      
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    countDownTimer();
+                    document.getElementById("countdown-timer").innerHTML = '';
+                    $('#SuccessOTP').show();
+                    document.getElementById("SuccessOTP").innerText = data.success;
+                }
+                else {
+                    document.getElementById("InvalidOTP").innerText = data.failure;
+                    $('#InvalidOTP').show();
+                }
+            },
+            failure: function (err) {
+                document.getElementById("InvalidOTP").innerText = err.message;
+                $('#InvalidOTP').show();
+            }
+        });
+        
+
+
+    }
+
+    function sendSmsClick() {
+        $('#ExpiredOTP').hide();
+        $('#InvalidOTP').hide();
+        $('#SuccessOTP').hide();
+        var baseurl = '@Url.Content("~/MFA/SendOTPSMS")';
+        mod = {
+            phone: $("#phonetextbox").val(),
+            CountryCode: $('#codetextbox :selected').val()
+        };
+        var data = JSON.stringify(mod);        
+        if ('@Model.IsPhoneNull.ToString().ToLower()' == 'true' || '@Model.IsPhoneVerfied.ToString().ToLower()' == 'false') {          
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.success) {
+                        $('.form-view-section').toggleClass('hide');
+                        countDownTimer();
+                        document.getElementById("countdown-timer").innerHTML = '';
+                        $('#SuccessOTP').show();
+                        document.getElementById("SuccessOTP").innerText = data.success;
+                    }
+                    else {
+                        document.getElementById("InvalidOTP").innerText = data.failure;
+                        $('#InvalidOTP').show();
+                    }
+                },
+                failure: function (err) {
+                    document.getElementById("InvalidOTP").innerText = err.message;
+                    $('#InvalidOTP').show();
+                }
+            });
+        }
+        else {
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.success) {
+                        $('.form-view-section').toggleClass('hide');
+                        countDownTimer();
+                        document.getElementById("countdown-timer").innerHTML = '';
+                        $('#SuccessOTP').show();
+                        document.getElementById("SuccessOTP").innerText = data.success;
+                    }
+                    else {
+                        document.getElementById("InvalidOTP").innerText = data.failure;
+                        $('#InvalidOTP').show();
+                    }
+                },
+                failure: function (err) {
+                    document.getElementById("InvalidOTP").innerText = err.message;
+                    $('#InvalidOTP').show();
+                }
+            });
+        }
+    }
+    
+
+
+
+
+
+</script>

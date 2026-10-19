@@ -1,0 +1,222 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+@model ClusterReportInput
+@{
+    ViewBag.Title = "Incident Navigator";
+ 
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+}
+<style>
+    .custom-kendo-grid .k-widget.k-grid .k-grid-content {
+        overflow-y: auto;
+        height: 560px !important;
+        background-color: #fff;
+    }
+    .k-grouping-header {
+        background-color: #5876AA;
+        border-bottom: 2px dashed white;
+        border-top: 2px dashed white;
+        color: #ffeb3b;
+        font-size: 11px;
+        line-height: 2;
+    }
+    .custom-kendo-grid .k-widget.k-grid .k-header.k-grid-toolbar {
+        border: unset;
+    }
+    .k-grid-header .k-link:link, .k-grid-header .k-link:visited, .k-grouping-header .k-link {
+        color: white;
+    }
+    .k-group-indicator .k-button.k-flat {
+        color: white;
+    }
+</style>
+
+
+<div class="content-main dark-bg">
+    @*<div class="selectappArea">
+      
+        <div class="container" style="padding: 0;">
+         
+
+            <div class="selectApp form-horizontal">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-4 control-label" id=""> Client Name </label>
+                    <div class="col-sm-5">
+                        @(Html.Kendo().ComboBox()
+          .Name("fabric")
+          .Filter("contains")
+          .Placeholder("Select Client")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .BindTo(clientlist)
+       
+         .Events(e => e
+
+            .Change("combobox_change")
+        )
+          .Suggest(true)
+          .HtmlAttributes(new { style = "width:250px;" })
+                        )
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </div>
+    </div>*@
+    @*<div class="selectappArea">
+       
+        @Html.Partial("_INHeaderFilters")
+
+    </div>
+    <div class="clear"></div>*@
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li>Incident Navigator</li>
+            <li class="active">Cluster Report</li>
+        </ol>
+    </div>
+
+    <div class="custom-kendo-grid" style="margin-top:2em;">
+        @*<div class="well well-sm">SLA Dashboard : Production Support Summary</div>*@
+        @*<form action="@Url.Action("ClusterExportServer", "AjaxService")" method="POST">
+            <input type="hidden" id="export-data" name="data" />
+            <input type="hidden" id="export-model" name="model" />
+
+          
+            <table style="width:20%;margin-right:0px;float:right ">
+                <tr>
+                    <td>
+                        <input type="submit" class="btn-primary download" data-format="xlsx" data-title="Title1" value="Export to XLSX" />
+
+                    </td>
+                    <td>
+                        <input type="submit" class="btn-primary download" data-format="csv" data-title="Title2" value="Export to CSV" />
+
+                    </td>
+                </tr>
+            </table>
+          
+
+
+        </form>*@
+        @*<div class="clearfix"></div>*@<!--This is to clear the floats-->
+        
+         
+            @(Html.Kendo().Grid<ClusterReportInput>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Configitemname).Title("Config Name").Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.TotalIncidents).Title("Total Tickets").Width(150);
+        columns.Bound(p => p.Type).Title("Type").Filterable(ftb => ftb.Multi(true)).Width(150);
+        columns.Bound(p => p.ClusterLabel).Title("Cluster Name");
+        columns.Bound(p => p.AvgResolutionTime).Title("Avg.Resolution Time in hours").Width(230).HtmlAttributes(new { style = "text-align:right;" });
+        columns.Bound(p => p.AvgCostPerTicket).Title("Avg. Cost of Resolving Tickets").Width(230).HtmlAttributes(new { style = "text-align:right;" });
+    })
+    .HtmlAttributes(new { style = "height: 450px;width:100%" })
+    .Pageable(pageable => pageable
+       .Input(true)
+       .Numeric(false)
+     )
+    .Sortable()
+    .Pageable()
+     .Groupable()
+.Scrollable(scr => scr.Height(430))
+.Resizable(resize => resize.Columns(true))
+.Filterable()
+.AutoBind(true)
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;" ,@class= "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("ClusterReport.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+      //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+      .Read(read => read.Action("GetData", "AjaxService"))
+ )
+            )
+
+
+    
+        <!--END OF LEFTAREA-->
+        <!--/.slarightpane -->
+    </div><!--/.treeMenuContent container-->
+    <!--/.container-->
+    @*<div class="container" style="padding:0;">*@
+
+
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    //function combobox_change() {
+
+    //    var grid = $("#Grid").data("kendoGrid");
+    //    grid.dataSource.read();
+
+    //}
+
+    //function additionalData(e) {
+    //    var ddlItem = $("#fabric").data("kendoComboBox").value();
+        
+    //    return { ClientID: ddlItem }
+    //}
+</script>
+
+<script>
+    $(".download").click(function () {
+        var grid = $("#Grid").data("kendoGrid");
+       
+        var options = {
+            format: $(this).data("format"),
+            title: "ClusterExport"
+        }
+        $("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+        $("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+   
+
+    });
+</script>

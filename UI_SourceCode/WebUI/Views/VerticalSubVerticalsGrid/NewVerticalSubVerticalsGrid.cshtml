@@ -1,0 +1,280 @@
+﻿@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto
+@model VerticalAndSubVerticalInput
+
+
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/business_alignment_white.svg");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    //Layout = "~/Views/Shared/_BAMAppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    string activeTab = string.Empty;
+    if (Request.QueryString["tabs"] != null)
+    {
+        activeTab = Request.QueryString["tabs"];
+    }
+    else
+    {
+        activeTab = "Tab1";
+    }
+}
+<style>
+    .k-treelist .k-grid-header {
+        display: none;
+    }
+    
+</style>
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Business Alignment Manager</li>
+            <li class="active">Business Capability Catalog</li>
+        </ol>
+    </div>
+    <input hidden id="subVId" value="@Model.subVId.ToString()" />
+    <input hidden id="title" value="@Model.title.ToString()" />
+    <div class="buss-catl-eye" style="margin-bottom:0.5em;">
+            <span class="busscat-eye-icon"></span>
+            <label class="custom-white-label">Business Capability Catalog</label>
+    </div>
+    <div style=" background-color: white; width: 100%; padding: 2em; height: 163%;">
+        @Html.Partial("_ViewVerticalSubVertical")
+
+        <div class="rightcont form-horizontal" style="float: right; width: 64%; height: 51em; overflow: auto;">
+            <div class="well well-sm">
+                <h5>Industry Vertical / Sub-Vertical :<b> @Model.title</b></h5>
+
+                <button class="btn btn-primary" tabindex="29" type="button" onclick="expToggle()">Expand/Collapse All</button>
+
+            </div>
+            <div class="panel panel-info">
+                <div class="panel-body" style=" height: 46em;">
+                    <div class="bampanelrtbdy custom-tree-grid">
+                        @* Tree View *@
+                        
+                            @(Html.Kendo().TreeList<BusinessCapabilitiesModel>()
+                                .Name("BusinessCapabilities")
+                    .Toolbar(toolbar => toolbar.Create().Text("New Capability"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capability");
+                        columns.Add().Title("Edit").Width(250).Command(c =>
+                        {
+                            c.Edit().Text(" ");
+                            c.Destroy().Text(" ");
+                            c.CreateChild().Text("Add Sub Capability");
+                        })
+                        .HtmlAttributes(new
+                        {
+                            // style = "text-align: center;"
+                        });
+                    })
+                    .Editable(e => e.Mode("inline"))
+                    .DataSource(dataSource => dataSource
+                        .Create(create => create.Action("Create", "BusinessCapabilities").Data("ParameterSubVIdData"))
+                        .Read(read => read.Action("GetAllTemplates", "BusinessCapabilities").Data("ParameterData"))
+                        .Update(update => update.Action("Update", "BusinessCapabilities"))
+                        .Destroy(delete => delete.Action("DestroyBCs", "BusinessCapabilities"))
+                        .Model(m =>
+                        {
+                            m.Id(f => f.BCId);
+                            m.ParentId(f => f.BCParentId);
+                            m.Field(f => f.SubVerticalId);
+                            m.Expanded(false);
+                            m.Field(f => f.BusinessCapName);
+
+                        })
+                    )
+                    .Height(600)
+                                    )
+                       
+                        <!--/.bamtreemenu-->
+
+                    </div>
+                    <!--/.bampanelrtbdy-->
+                </div>
+                <!--/.panel-body-->
+            </div>
+        </div>
+
+
+
+    </div>
+
+</div>
+
+
+<!--/.treeMenuContent-->
+<!--/.treeMenuArea-->
+
+<!--/.treeMenuArea-->
+<!--/.MetricSetup end of tab 2 -->
+
+<script>
+    $(document).ready(function () {
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        $('#btnAddSubVertical').click(function () {
+            var verticalId = $("#verticalId").val().toString();
+
+            var verticalName = $("#verticalName").val().toString();
+
+            if (verticalId == "0") {
+                alert('Please select Vertical name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'VerticalSubVerticalsGrid') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?VerticalId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?VerticalId='
+            }
+
+
+            var url = baseurl + verticalId + "&SubVerticalCreate=SubVerticalCreate" + "&VerticalName=" + verticalName + "&tabs=Tab2";
+            window.location = url;
+
+        });
+
+        $('#btnAddVertical').click(function () {
+
+
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'VerticalSubVerticalsGrid') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?VerticalId=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?VerticalId=0'
+
+            }
+
+            var url = baseurl + "&VerticalCreate=VerticalCreate&tabs=Tab2";
+            window.location = url;
+
+        });
+    });
+
+
+    function ParameterData(e) {
+        var mm = $("#subVId").val();
+        return {
+
+            SubVerticalId: mm
+
+        };
+    }
+
+    function ParameterSubVIdData() {
+        var mm = $("#subVId").val();
+        return {
+            SubVertId: mm
+        }
+    }
+
+    $('#btnAddViewDetails').click(function () {
+        var subVId = $("#subVId").val().toString();
+
+        var title = $("#title").val().toString();
+
+        if (subVId == "0") {
+            alert('Please select Sub Vertical name');
+            return false;
+        }
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+        var baseurl = '';
+        if (href[3] == 'VerticalSubVerticalsGrid') {
+            //alert('local url');
+
+            //var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?subVId='
+            var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilities/Index/?subVId='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilities/Index/?subVId='
+        }
+
+
+        var url = baseurl + subVId + "&title=" + title + "&tabs=Tab1";
+        window.location = url;
+
+    });
+
+
+    //$('#btnEdit').click(function () {
+    //    var href = window.location.href.split('/');
+
+    //    var baseurl = '';
+    //    if (href[3] == 'VerticalSubVerticalsGrid') {
+    //        //alert('local url');
+
+    //        var baseurl = href[0] + '//' + href[2] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?tabs=Tab2'
+    //    }
+    //    else {
+    //        //alert('server');
+    //        var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'VerticalSubVerticalsGrid/DisplayVerticalSubVerticals/?tabs=Tab2'
+
+    //    }
+
+    //    var url = baseurl;
+    //    window.location = url;
+
+    //});
+
+    function expToggle() {
+        var treelist = $("#BusinessCapabilities").data('kendoTreeList');
+        treelist.options.dataSource.schema.model.expanded = !treelist.options.dataSource.schema.model.expanded
+
+        treelist.setDataSource(treelist.options.dataSource)
+    }
+
+</script>
+<script>
+                         //function Fillvertical(id, name) {
+
+                         //    $("#lbltxt2").text(name);
+                         //  //  document.getElementById("subVId").value = id;
+                         //    //alert(document.getElementById("subVId").value);
+                         //}
+</script>

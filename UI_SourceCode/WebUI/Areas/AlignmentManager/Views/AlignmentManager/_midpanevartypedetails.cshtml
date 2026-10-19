@@ -1,0 +1,38 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput
+
+@{
+    string varType = Model.GetVariableTypes.Where(c => c.Value == Model.VarTypeId.ToString()).FirstOrDefault().Text; 
+    
+ }
+<div class="well well-sm"><strong>@varType Home Page</strong></div>
+@if (Model.ClientId > 0 && Model.VarTypeId > 0)
+    {
+    IEnumerable<vwVariableVariableLabel> lst = Model.GetAllOfTypesForVarTypeId;
+if(lst.Count() > 0)
+    {   
+<div class="heatmapContent">
+  
+    <div>
+
+        <div class="colrow" id="ppheat">
+            @{
+                //IEnumerable<vwVariableVariableLabel> lst = Model.GetAllOfTypesForVarTypeId;
+
+                foreach (vwVariableVariableLabel item in lst)
+                {
+                    @Html.ActionLink(item.VariableLabel, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableId=item.Id}, new {@class="htgrey"})
+                   @*<a class="htgrey" href="#">@item.VariableLabel</a>  *@
+                }
+                } 
+
+        </div>
+
+    </div>
+
+</div>
+    }
+    }
+

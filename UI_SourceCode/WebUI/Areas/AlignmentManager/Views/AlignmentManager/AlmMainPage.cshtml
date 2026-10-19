@@ -1,0 +1,443 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //ViewBag.ImageURL = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+
+@section PPMenu {
+    
+    @Html.Partial("_PPTopMenu")
+    
+    }
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @Html.Partial("_ClientList", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+<div class="container" style="padding: 0;">
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+        <div class="treemenu">
+            @if(Model.ClientId > 0)
+                {
+                
+            <div class="hdr">
+                
+                <h3>Performance Predictor</h3>
+               
+                @*<a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>*@
+            </div>
+                
+                <button id="btnAddNewChain" class="btn btn-primary" style="margin-left:10px;width:91%" tabindex="">Create New Item</button>
+            <!-- add the tree menu here-->@*
+            @{if (Model.ClientId > 0)
+                  {
+                  *@
+                @*<div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))</div>*@
+                
+                <div style="margin-top:20px;margin-left:12px">@Html.Partial("_TreeView", Model.PPTreeViewRoot)</div>
+                  } 
+                
+        </div>
+        
+
+
+        @*                        <div class="treemenu">
+                <div class="hdr">
+                    <h5>Performacne Predictor</h5>
+                    <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                </div>
+                <div style="float: left; margin-left: -220px; width: 200px; overflow-y: scroll; height: 500px">
+                    @Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))
+                </div>
+            </div>*@
+
+
+
+        <!-- treemenu ends-->
+        <div class="treeMenuContent">
+            <div class="container" style="padding: 0;">
+                <div class="amgrcontentLeft">
+
+                    @if (ViewData.ModelState.ContainsKey("Success"))
+                    {
+                         @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                    }                                              
+
+                    @if (Model.VarTypeId > 0 && Model.VariableId==0)
+                        {
+                    <div class="">@*valchainContent*@
+                    @Html.Partial("_midpanevartypedetails", Model)
+                    </div>
+                        @*<button class="btn btn-primary" tabindex=""  id="btnAddNewChain">Add</button>*@
+                        <button class="btn btn-default" tabindex=""  id="btnCancelChain">Cancel</button>
+                        }
+
+                    @if (Model.VariableId > 0)
+                        {
+                    <div class="">
+                    @Html.Partial("_midpanevariabledetails", Model)
+                    </div>
+                        <div class="addvalaction" style="border-top:none!important">
+                        @*<button class="btn btn-primary" tabindex=""  id="btnAddNewChain">Add</button>*@
+                        <button class="btn btn-primary" tabindex=""  id="btnEditChain">Edit</button>
+                        <button class="btn btn-default" tabindex=""  id="btnDeleteChain">Delete</button>
+                        </div>
+                        }
+                         
+                    
+
+
+
+                        @*<div class="addvalaction" style="border-top:none!important">*@
+
+        @*Commented On 11th Feb 2014 by Kumar  *@
+        @*@Html.ActionLink("Add", "AddVariable", "AlignmentManager", new { parentId = @Model.VariableId }, new { @class = "btn btn-primary" })*@
+
+        @*@Html.ActionLink("Add", "AddVariable", "AlignmentManager",new { @class = "btn-primary, id=btnAddNewChain, name=btnAddNewChain" })*@
+
+        @*<button class="btn btn-primary" tabindex=""  id="btnAddNewChain">Add</button>*@
+
+        @*<button class="btn btn-primary" tabindex="2900" type="button" id="btnAddAccount">Add</button>*@
+        @*<button class="btn btn-primary" tabindex=""  id="btnEditChain">Edit</button>*@
+
+@*
+        <a class="btn btn-primary" href="#">Edit</a>*@
+        @*<a class="btn btn-default" href="#" data-toggle="modal" data-target="#myModal" data-keyboard="true">Delete</a>*@
+
+        @*@Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new { variableId = 0, id = 0}, new { @class = "btn btn-default" })*@
+        @*<a class="btn btn-default">Cancel</a>*@
+    @*</div>*@
+
+                </div>
+
+                <!--/.amgrcontentLeft-->
+                <!--END OF LEFTAREA-->
+                @{if(Model.ClientId > 0)
+                      {
+
+                                      <div class="amgrcontentRight">
+                    @Html.Partial("_valuechainrightpane", Model)
+                </div>
+                    }
+                }
+                
+                <!-- end of right areaa-->
+
+            </div>
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+
+</div>
+
+
+
+
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $('.treemenuOpen').click();
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: true,
+                unique: true
+            });
+        });
+
+    </script>
+}
+
+
+<script>
+    $(document).ready(function () {
+
+        
+        $('select#VariableCategoryId').change(function () {
+            var clientId = $("select#VariableCategoryId").val().toString();
+            alert(clientId);
+
+        });
+                  //var SelectedclientId = $('#ClientId :selected').val();
+            ////var href = window.location.href.split('/');
+            ////var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            //var baseurl = '';
+            
+            //if (href[3].toLocaleLowerCase() == 'alignmentManager') {
+            //    //alert('local url');
+
+            //    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/alignmentmanager/displayhomepage/?ClientId='
+            //}
+            //else {
+            //    //alert('server');
+            //    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager' + '/' + 'AlignmentManager/AddVariable/?ClientId='
+            //}
+
+            //window.location = window.location + "?ClientId=" + SelectedclientId;
+
+
+
+            $('select#ClientId').change(function () {
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (SelectedclientId != 0) {
+                    var href = window.location.href.split('/');
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                    var baseurl = '';
+                    
+                    if (href[3].toLocaleLowerCase().indexOf('alignmentmanager') == 0) {
+                        //alert('local url');
+
+                        var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AlignmentManager/displayhomepage/?ClientId='
+                    }
+                    else {
+                        //alert('server');
+                        var baseurl = href[0] + '//' + href[2] + '/' + href[3] +  '/AlignmentManager/alignmentmanager/displayhomepage/?ClientId='
+                    }
+                    window.location = baseurl + SelectedclientId;
+                }
+
+
+        });
+
+        $('#btnAddNewChain').click(function () {
+            var clientId = $("select#ClientId").val().toString();
+            if (clientId == "0" || clientId == "") {
+                alert('Please select Client to create new value chain details');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AlignmentManager/AddVariable/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + "AlignmentManager/AlignmentManager/AddVariable/?ClientId="
+            }
+
+
+
+            baseurl = baseurl + $('#ClientId :selected').val();
+
+            window.location = baseurl;
+
+            //var localToServer = "/";
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var SelectedclientId = $('#ClientId :selected').val();
+            ////alert(window.location.host);
+            ////alert(localToServer);
+
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/AlignmentManager/AddVariable/?ClientId=" + SelectedclientId);
+            ////alert(strUrl);
+            //window.location = strUrl;
+
+        });
+
+        //Added by Neeraj starts
+        $('#btnEditChain').click(function () {            
+            var SelectedclientId = $("select#ClientId").val().toString();
+            var localToServer = "/";
+
+            if (SelectedclientId == "0" || SelectedclientId == "") {
+                alert('Please select Client to edit value chain details');
+                return false;
+            }
+
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (sURLVariables.length < 2) {
+                alert('Please select the variable to edit');
+                return false;
+            }
+
+            ///
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            if (href[3].toLowerCase().indexOf("alignmentmanager") == 0)
+                {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AlignmentManager/EditVariable/?ClientId={clientid}'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/EditVariable/?ClientId={clientid}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+
+            var varLblId = "&" + sURLVariables[1];
+
+            window.location = baseurl + varLblId;
+
+            ///
+
+
+
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var SelectedclientId = $('#ClientId :selected').val();
+            //var varLblId = "&" + sURLVariables[1];
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/AlignmentManager/EditVariable/?ClientId=" + SelectedclientId + varLblId);
+            //window.location = strUrl;
+
+
+
+
+        });
+
+        $('#btnDeleteChain').click(function () {
+            var clientId = $("select#ClientId").val().toString();
+            var localToServer = "/";
+
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (sURLVariables.length < 2) {
+                alert('Please select the variable to delete');
+                return false;
+            }
+            
+            var confirm = window.confirm('Are you sure to delete the variable ?');
+
+
+
+
+
+            if (confirm) {
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+                var varLblId = "&" + sURLVariables[1];
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/DeleteVariable/?ClientId=' + SelectedclientId + varLblId
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/DeleteVariable/?ClientId=' + SelectedclientId + varLblId
+                }
+
+                //baseurl = baseurl.replace("{clientid}", SelectedclientId);
+
+                //var varLblId = "&" + sURLVariables[1];
+
+                //window.location = baseurl + varLblId;
+
+                window.location = baseurl;
+
+            }
+            else
+            {
+                return false;
+            }
+
+            //    if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //        localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //    }
+
+            //    var SelectedclientId = $('#ClientId :selected').val();
+            //    var varLblId = "&" + sURLVariables[1];
+            //    var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/AlignmentManager/DeleteVariable/?ClientId=" + SelectedclientId + varLblId);
+            //    window.location = strUrl;
+            //    return false;
+            //}
+            //else { return false; }
+        });
+
+        $('#btnCancelChain').click(function () {
+            //var clientId = $("select#ClientId").val().toString();
+
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/DisplayHomePage/?ClientId=' + SelectedclientId
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/DisplayHomePage/?ClientId=' + SelectedclientId
+            }
+
+            window.location = baseurl;
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var SelectedclientId = $('#ClientId :selected').val();
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/AlignmentManager/DisplayHomePage/?ClientId=" + SelectedclientId);
+            //window.location = strUrl;
+
+
+
+
+        });
+
+        //Added by Neeraj ends
+
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode != 44 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+</script>
+

@@ -1,0 +1,39 @@
+﻿@using WebUI.Areas.PortfolioAnalyzer.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Models
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.PortfolioAnalyzer.Controllers
+@using NTTData.AMOPortal.Domain.Entities
+
+@model PortfolioEcoModel
+
+
+@{
+//var client = (Client)Session["Client"];
+//var v = new PortfolioController();
+//var applicationlist = v.ApplicationList(client.Id);
+
+}
+
+<div id="gfd">
+    <div class="center">
+        <br />
+        <br />
+
+
+        <label style="margin-left:15px">EcoSystem:</label>
+        &nbsp; &nbsp; &nbsp; 
+        @(Html.Kendo().DropDownListFor(m => m.EcoId)
+                         // .Name("tempAppId")
+                         .OptionLabel("Select")
+                         .DataTextField("Text")
+                         .DataValueField("Value")
+                         // .BindTo(applicationlist)
+                         .DataSource(dataSource => dataSource
+                           .Read(read => read.Action("GetClientEcos", "PortfolioEco")))
+                         .HtmlAttributes(new { style = "width: 250px" })
+        )
+
+       
+
+    </div>
+</div>

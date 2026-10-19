@@ -1,0 +1,169 @@
+﻿<div class="product_div" id="feedbackListView">
+    <div>
+        @foreach (var item in Model.Viewfeedbacklist)
+        {
+            <div class="product_header" id="main_@item.Prod_DigiId" onclick="collapseleft('@item.Prod_DigiId')"><span></span>@item.Prod_DigitalName</div>
+            <div id="@item.Prod_DigiId">
+                @foreach (var listitem in item.Searchfeedback)
+                {
+                    <div class="feedbackview" id="@listitem.FdbkId" onclick="selectFdbk('@listitem.FdbkId')">
+                        <div style="display:flex;justify-content: space-between;">
+                            <div class="feedback-title" id="title_@listitem.FdbkId">
+                                @listitem.shortDesc
+                            </div>
+                            @if(@listitem.Status=="Draft"){
+                            <span style="background-color: gray;padding: 3px 6px;border-radius: 4px;color: #fff;">@listitem.Status</span>
+                            }
+                        </div>
+                     
+                        <div class="feedback-typeDt">Feedback Type : <span id="type_@listitem.FdbkId">@listitem.FeedbackType</span></div>
+                        <div class="feedback-DescDt" id="brief_@listitem.FdbkId">
+                            @{string strTest = listitem.breif;
+                                @Html.Raw(strTest);
+                              }
+                        </div>
+                        <div class="feedback-Detail">
+                            <div>Submitted by :<span id="submitBy_@listitem.FdbkId">@listitem.creatorName</span></div>
+                            <div>Last Activity :<span id="lastAct_@listitem.FdbkId">@listitem.LastActivity</span></div>
+                        </div>
+                    </div>
+                    <span hidden id="fdbkid_@listitem.FdbkId">@listitem.FdbkId</span>
+                    <span hidden id="vote_@listitem.FdbkId">@listitem.voteCount</span>
+                    <span hidden id="voteStatus_@listitem.FdbkId">@listitem.Votestatus</span>
+                    <span hidden id="status_@listitem.FdbkId">@listitem.Status</span>
+                    <span hidden id="typeid_@listitem.FdbkId">@listitem.Typeid</span>
+                    <span hidden id="prodDigiid_@listitem.FdbkId">@item.Prod_DigitalName</span>
+                    <span hidden id="isMyFdbk_@listitem.FdbkId">@listitem.isMyFeekback</span>
+                }
+               
+            </div>
+        }
+    </div>
+   
+</div>
+<script>
+    function collapseleft(productid) {
+        $('#' + productid).toggleClass('hide');
+        $('#main_' + productid).toggleClass('show-content');
+    }
+    function selectFdbk(fdbkid) {
+        $("#detail_view").css("display", "unset");
+        var fdbkid = $("#fdbkid_" + fdbkid).text();
+        var typeid = $("#type_" + fdbkid).text();
+        var title= $("#title_" + fdbkid).text();
+        var type = $("#type_" + fdbkid).text();
+        var brief = $("#brief_" + fdbkid).text();
+        var submiby = $("#submitBy_" + fdbkid).text();
+        var lastAct = $("#lastAct_" + fdbkid).text();
+        var vote = $("#vote_" + fdbkid).text();
+        var status = $("#status_" + fdbkid).text();
+        var typeid = $("#typeid_" + fdbkid).text();
+        var proddigiid = $("#prodDigiid_" + fdbkid).text();
+        var isMyfdbk = $("#isMyFdbk_" + fdbkid).text();
+        //console.log("#isMyFdbk_" + fdbkid)
+        console.log(status)
+        console.log(isMyfdbk)
+        $("#dtl_title").text(title);
+        if (status === 'Draft') {
+           // console.log(status)
+            if (isMyfdbk === 'True') {
+               // console.log(isMyfdbk)
+                document.getElementById("dtl_title").onclick = function () {
+                    onclicktitle(fdbkid, status,isMyfdbk)
+                };
+            }
+        }      
+
+        if (typeid == "1") {
+            $("#dtl_prod").text(proddigiid) ;
+            $("#feature_view").css("display", "unset");
+            $("#business_view").css("display", "none");
+        } else if (typeid == "2") {
+            $("#dtl_Digi").text(proddigiid);
+            $("#feature_view").css("display", "none");
+            $("#business_view").css("display", "unset");
+        }
+        $("#dtl_submtBy").text(submiby);
+        $("#dtl_lastAct").text(lastAct);
+        $("#vote").text(vote);
+        $("#dtl_status").text(status);
+        $("#dtl_fdbkId").text(fdbkid);
+        $("#dtl_desc").html(brief);
+        
+        var voteStatus = $("#voteStatus_" + fdbkid).text();
+        if (voteStatus == "True") {
+           // console.log("true");
+            $(".voted").css("display", "unset");
+            $(".vote").css("display", "none");
+            $("#dtl_voted").text(vote);
+          //  console.log(vote);
+        }
+        else {
+           // console.log("false");
+            $("#dtl_vote").text(vote);
+            $(".voted").css("display", "none");
+            $(".vote").css("display", "unset");
+            //console.log(vote);
+        }
+       // console.log(voteStatus);
+        //if()
+    }
+    function onclicktitle(e, status,myfd) {
+        console.log(myfd)
+        if (myfd==='True' && status ==='Draft') {
+            document.getElementById("Postfdbk").style.display = "block";
+        }
+       
+        var brief = $("#brief_" + e).text();
+        var title = $("#title_" + e).text();
+        var typeid = $("#typeid_" + e).text();
+        var proddigiid = $("#prodDigiid_" + e).text();
+        $("#fdbkid").text(e);
+       // console.log(typeid);
+        $("#Typeid").data("kendoDropDownList").value(typeid);
+        if (typeid == 1) {
+            document.getElementById("product").style.display = "flex";
+            document.getElementById("digitalOff").style.display = "none";
+            $("#Productid").data("kendoDropDownList").text(proddigiid);
+        } else {
+          //  console.log(proddigiid);
+            document.getElementById("product").style.display = "none";
+            document.getElementById("digitalOff").style.display = "flex";
+            $("#Digitalid").data("kendoDropDownList").text(proddigiid);
+        }
+        $('#ShortDescription').val(title.trim());
+        var editor = $("#DetailDesc_editor").data("kendoEditor");
+        editor.value(brief);
+        var model = {
+            fdbkid: e
+        };
+       // console.log(model);
+        var data = JSON.stringify(model);
+        $.ajax(
+            {
+                type: 'post',
+                url: 'ViewFeedback/GetFeedbackINCClient',
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+   // console.log(clvalues)
+                    $("#internalclient").data("kendoMultiSelect").value(data.array);
+                    //const str = data.temp;
+                    //const clvalues = str.split('#');
+                    //console.log(clvalues)
+                    //const values;
+                   // var required = $("#internalclient").kendoMultiSelect().data("kendoMultiSelect");
+                    //for (var i = 0; i < clvalues.length; i++) {
+                    //    values[i] = parseInt(clvalues[i]);
+                    //}
+                    //console.log(values)
+                  //  multisel.value(1);
+
+                },
+                error: function (err, data) {
+                }
+
+            });
+    }
+</script>

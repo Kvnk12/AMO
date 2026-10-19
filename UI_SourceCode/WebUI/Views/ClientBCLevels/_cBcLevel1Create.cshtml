@@ -1,0 +1,93 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+
+
+
+<div class="grpbamArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Group</h4>
+                    </div>
+                       @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                    
+                   
+                  </div>
+                  <div class="row">
+                    <div class="form-horizontal">
+                           <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+            
+           <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+            <input hidden id="CLevel1Create" value="@Model.CLevel1Create.ToString()"   />
+            <input hidden id="Cancel" value="CancelClick" />
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <label class="col-sm-4 control-label" for="grpID">GroupName</label>
+                         @* <div class="col-sm-8"> <span class="calc">Policy Management</span> </div>*@
+                         <div class="col-sm-8">  @Html.TextBoxFor(m => m.clientBCLevel1Input.ClientLevel1Name, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtLevel1name" })
+                             </div>
+                        </div>
+                      </div>
+                      <!--/.first col-->
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <label class="col-sm-3 control-label" for="type">Type</label>
+                          <div class="col-sm-8">
+                            <select name="ClientLevel1Type" id="ClientLevel1Type" class="form-control">
+                              <option value="Directing">Directing</option>
+                              <option value="Controlling">Controlling</option>
+                              <option value="Executing">Executing</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <!--/.second col-->
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <label class="col-sm-4 control-label" for="type">Importance</label>
+                          <div class="col-sm-8">
+                            <select name="ClientLevel1Importance" id="ClientLevel1Importance" class="form-control">
+                              <option value="one">one</option>
+                              <option value="two">two</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <!--/.third col-->
+                      <div class="col-lg-3">
+                        <div class="form-group">
+                          <label class="col-sm-4 control-label" for="grpdesc">Description</label>
+                          <div class="col-sm-8">
+                          @*  <textarea class="form-control" rows="4" name="grpdesc"></textarea>*@
+                               @Html.TextAreaFor(m => m.clientBCLevel1Input.ClientLevel1Des, new { @class = "form-control", rows = "4" })
+                            @Html.HiddenFor(m => m.clientBCLevel1Input.ClientInternalExternal, new { Value = "Internal" })
+                          </div>
+                        </div>
+                      </div>
+                      <!--/.forth col--> 
+                    </div>
+                    <!--/.form-horizontal--> 
+                        <div class="accdetailacction" style="margin-right:20px">
+                  @*    <button class="btn btn-primary" tabindex="29" type="button">Edit</button>*@
+                      <button class="btn btn-primary" tabindex="30" type="Submit">Save</button>
+                      <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+@*                      <button class="btn btn-default" tabindex="31" id="deleteLevel1" @((Model.CLevel1Id == 0) ? "disabled" : "")  type="submit" onclick="location.href='@Url.Action("DelLevel1", "BusinessCapabilitiesLevels", new {Level1Id = Model.Level1Id,Level1Name = Model.Level1Name,InExValue = Model.InExValue,subVId=@Model.subVId })'; return false;">Delete</button>*@
+
+                    </div>
+                  </div>
+                  <!--row--> 
+   
+                </div>
+    
+}

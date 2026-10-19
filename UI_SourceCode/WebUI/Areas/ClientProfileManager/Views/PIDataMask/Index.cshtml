@@ -1,0 +1,259 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions
+
+
+@model PIDataMaskList
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+
+@{
+
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+
+
+
+<div id="wrap" class="content-main">
+    <br />
+    <br />
+    <div style="padding:0;height:1000px">
+        
+            <div class="glyphicon-align-center"><label><strong>PI Data Masking Patterns</strong></label></div>
+            <div class="leftarea form-horizontal">
+                <div class="form-group">
+                    @(Html.Kendo().Grid<PIDataMaskListModel>()
+            .Name("DataMaskGrid")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.Id).Hidden();
+                columns.Bound(e => e.DataFieldName).Title("Name").MinResizableWidth(100);
+                columns.Bound(e => e.DataMaskPattern).Title("Pattern(RegEx)").MinResizableWidth(100);
+                columns.Bound(e => e.DataFieldDescription).Title("Description").MinResizableWidth(100);
+                columns.Bound(e => e.DataMaskExample).Title("Test Input").MinResizableWidth(100);
+                columns.Bound(e => e.ReplacementValue).Title("Replacement Text").MinResizableWidth(100);
+                columns.Command(c => { c.Edit(); c.Destroy(); });
+
+            })
+            .Pageable()
+            
+            .Scrollable()
+            .ToolBar(toolbar=>toolbar.Create().Text("Add New Pattern") )
+            .Editable(e => e.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to remove? "))
+            .HtmlAttributes(new { style = "height:650px; width:700px; " })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(10)
+            .Model(model=>model.Id(e=>e.Id))
+            .Read(read => read.Action("Read", "PIDataMask"))
+            .Create(create=>create.Action("Add","PIDataMask"))
+            .Update(update => update.Action("Update", "PIDataMask"))
+            .Destroy(delete => delete.Action("Delete", "PIDataMask"))
+            .Events(e=>e.Error("Event_Handler"))
+                )
+                    )
+                </div>
+                <div class="form-group">
+                    <text>
+                        <strong>**</strong>Please make sure your RegEx is proper before entering.
+                    </text>
+                </div>
+                
+            </div>
+
+            <div class="rightarea form-horizontal" style="padding-left:300px">
+                <div class="form-group" >
+                    <h3><text><label style="color:rosybrown"><u><strong>Regular Expression Testing</strong></u></label></text></h3>
+                    <div>
+                        <label>Enter the Input string to be masked.</label>
+                        <br />
+                        <textarea type="text" id="InputString" class="textbox" style="width:195px;"></textarea>
+                        <br />
+                        <br />
+                        <label>Enter the Regular(Regulatary) Expression(Please refer the links given below to build  the RegEx).</label>
+                        <br />
+                        <textarea type="text" id="InputPatten" class="textbox" style="width:195px;"></textarea>
+                        <br />
+                        <br />
+                        <input type="button" id="ToController" value="Get Masked Ouput"  />
+
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <text>
+                        <strong>**</strong>For more details about Regular Expression (RegEx), refer below links.
+                    </text>
+                    <br />
+                    <br />
+                    <text><a href="https://regexr.com/" target="_blank">Know more about how RegEx works</a> </text>
+                    <br />
+                    <br />
+                    <text><a href="http://www.regexlib.com/DisplayPatterns.aspx" target="_blank">RegEx Library</a></text>
+                    <br />
+                    <br />
+                    <span>
+                        <span class="jjCustom"><img height="30" width="30" src="~/Content/images/downloadIcon.png" /> @Html.ActionLink("Click here to download the client utility for data masking.", "Download", "PIDataMask", new { @style = "color:#000000" })</span>
+                    </span>
+                 
+                </div>
+
+            </div>
+
+            </div>
+        </div>
+
+<style>
+
+       .jjCustom {
+        border-radius:4px;
+        /*border-color:#a3d0e4;*/
+        color:#003f59;
+        border: medium;
+        /*background-color:#daecf4;*/
+        background-position: 50% 50%;
+        background-image:none, linear-gradient(rgba(255, 255, 255, 0.45) 0px, rgba(255, 255, 255, 0) 100%);
+        height:75px;
+        width:300px;
+        cursor: pointer;
+        margin: 4px 2px;
+        display: inline-block;
+        text-align: center;
+        text-decoration: none;
+        transition-duration: 0.4s;
+        font-size: 14px;
+        padding: 16px 32px;
+        border-color:#000000;
+        
+    
+    }
+
+    .button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+   
+    
+  .jjCustom:hover {
+      display: inline-block;
+       border-radius:4px;
+        border:solid;
+        border-color:#000000;
+       text-align: center;
+       font-size: 14px;
+       padding: 16px 32px;
+        text-decoration: underline;
+        /*border-color:#a3d0e4;*/
+         /*color:#ffffff;*/
+        /*min-height:75px;
+         min-width:305px;*/
+         /*background-color:#47a3da;*/   
+    }
+
+ input[type=text], textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+    input[type=button] {
+    background-color: #428bca;
+    color: white;
+    padding: 12px 20px;
+    
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+}
+
+input[type=button]:hover {
+    background-color: #45a049;
+}
+</style>
+
+
+<script>
+        $(function () {
+            $("#ToController").click(function () {
+               
+                var sin = $("#InputString").val().trim();
+                var pin = $("#InputPatten").val().trim();
+                var datacollection = {
+                    input:sin ,
+                    inputPattern: pin
+                };
+                baseurl1 = '@Url.Content("~/PIDataMask/maskuniversal")';
+                var data1 = JSON.stringify(datacollection);
+                $.ajax({
+                    async:false,
+                    type: "POST",
+                    url: baseurl1,
+                    data: data1,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response[1] != response[0]) {
+                            alert("The Original String : " + response[1] + "\n" + "Masked Output : " + response[0] + "\n" + "\n" + "If this is what the output you want use this RegEx ");
+                        }
+                        else {
+                            alert("The Output is same as Input! " +"\n"+ "This Regular Expression do not work" )
+                        }
+                    },
+                    failure: function (response) {
+                        //alert(response.responseText);
+                        alert("Failure : Connot Perform the operation ");
+                    },
+                    error: function (response) {
+                        alert("Invalid Regular Expression");
+                        //alert(response.responseText);
+                    }
+                });
+            });
+        });
+
+    
+    function Event_Handler(e) {
+        // alert('err');
+        if (e.errors) {
+            var message = "Error occurred:\n";
+            // Create a message containing all errors.
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            // Display the message.
+            alert(message);
+            // Cancel the changes.
+            $('#DataMaskGrid').data('kendoGrid').dataSource.read();
+            $('#DataMaskGrid').data('kendoGrid').refresh();
+        }
+    }
+
+</script>
+

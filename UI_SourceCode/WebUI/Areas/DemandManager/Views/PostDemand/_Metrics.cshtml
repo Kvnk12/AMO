@@ -1,0 +1,45 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+@*<div class="custom-grid content-wrapper">*@
+<div>
+    @(Html.Kendo().Grid<DemandMetricTargetModel>()
+                             .Name("MetricTargetGrid")
+                             .Columns(columns =>
+                             {
+                                 columns.Bound(e => e.Id).Hidden();
+                                 columns.Bound(e => e.ItemId).Hidden();
+                                 columns.Bound(e => e.MetricTarget).Title("Metrics");
+                                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(100);
+                             })
+                          .Sortable()
+                          .Scrollable()
+                          //.Pageable()
+                          .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                          .ToolBar(toolbar => toolbar.Create().Text("Add New Metric Target"))
+                          .HtmlAttributes(new { @style = "height:350px;" })
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          //.PageSize(10)
+                          .Model(model => model.Id(f => f.Id))
+                          .Read(read => read.Action("GetMetricTarget", "PostDemand").Data("GetDemandId"))
+                          .Create(create => create.Action("AddMetricTarget", "PostDemand").Data("GetDemandId"))
+                          .Update(update => update.Action("EditMetricTarget", "PostDemand"))
+                          .Destroy(destroy => destroy.Action("DeleteMetricTarget", "PostDemand"))
+
+                              )
+
+    )
+</div>
+@*</div>*@

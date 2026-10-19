@@ -1,0 +1,466 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    @*<script src="~/Scripts/JScript/jquery.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    var client = (Client)Session["Client"];
+    var v = new APRAjaxServiceController();
+    var ApplicationList = v.ApplicationList(client.Id);
+}
+
+
+
+@using (Html.BeginForm("SavePostChallenge", "ChallengeHistoryManager", new { ClientId = Model.ClientId }, FormMethod.Post))
+    {
+    
+    
+    
+    
+    
+    <div class="treeMenuContent" style="min-height: 700px">
+        @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+            {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container", id = "danger" })               
+            }
+
+        @if (ViewData.ModelState.ContainsKey("Success"))
+            {                        
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-success container", id = "success" })
+            }
+        else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+
+        <!--end of grid-->
+        @*<div class="addvalaction"> <a href="#" class="btn btn-primary">Back</a> *@
+
+        <div class="ideaManagerContent">
+            <h4>Post Challenge</h4>
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist" id="ideatab">
+                <li class="active"><a href="#home" role="tab" data-toggle="tab">Home</a></li>
+                <li><a href="#classification" role="tab" data-toggle="tab">Classification</a></li>
+                <li><a href="#benefits" role="tab" data-toggle="tab">Benefits</a></li>
+                <li><a href="#itsavings" role="tab" data-toggle="tab">IT Savings</a></li>
+                <li><a href="#divcomments" role="tab" data-toggle="tab">Comments</a></li>
+                <li><a href="#divsuggestidea" role="tab" data-toggle="tab">Suggest an Idea</a></li>
+                <li><a href="#divlistsolutions" role="tab" data-toggle="tab">Suggested Solutions</a></li>
+                <li><a href="#divprioirtyhistory" role="tab" data-toggle="tab">Priority & Status Update</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active" id="home">
+                    @Html.Hidden("ItemId", @Model.Id)
+                    <div class="leftarea form-horizontal">
+
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Challenge Name</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.PostChallengeInput.ItemName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtchallange" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="qtfyIdea">Value (Quantify)</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.PostChallengeInput.QtyFication, new { @class = "form-control", placeholder = "", tabindex = "2", id = "txtqtfyidea", onkeypress = "return isNumberKey(this)", maxlength = "5" })
+
+                                @*<input type="text"  value="@Model.PostIdeaInput.QtyFication.ToString()" class = "form-control" style="width:150px;margin-left:27%"  tabindex="2", id="txtqtfyidea" name="txtqtfyidea" onkeypress = "return isNumberKey(this)" maxlength="5"  />*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <label for="desc" class="col-sm-5 control-label">Description</label>
+                                @Html.TextAreaFor(m => m.PostChallengeInput.Description, new { @class = "", rows = "10", style = "width:750px;height:250px", placeholder = "Description", tabindex = "3", id = "txtdescription" })
+
+                            </div>
+                        </div>
+                        
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Config Item</label>
+                                <div class="col-sm-5">
+                                    @(Html.Kendo().DropDownListFor(m => m.PostChallengeInput.ConfigItem)
+                            .Name("ConfigItem")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .BindTo(ApplicationList)
+                            .AutoBind(true)
+                                    )
+                                </div>
+                            </div>
+                       
+
+                        <div id="action">
+                            <button class="btn btn-primary" id="btnSave" name="command" value="saveidea" style="margin-left: 40%">Post Challenge</button>
+                            <button class="btn btn-default" id="cancelidea">Cancel</button>
+                            <button class="btn btn-primary" id="homepage">Home</button>
+                        </div>
+                        <!--/.form-horizontal-->
+                    </div>
+                    
+
+                </div>
+                                    <div id="PostedIdeaContainer">
+
+                        <div id="PostedIdeas" style="width:100%;margin:auto"></div>
+                    </div>
+
+                <div class="tab-pane" id="classification">
+                    @Html.Partial("_AssignItemCategory", Model)
+                </div>
+                @*<div class="tab-pane" id="benefits"></div>*@
+                <div class="tab-pane" id="benefits">@Html.Partial("_BusinessBenefits", Model)</div>
+                <div class="tab-pane" id="itsavings">@Html.Partial("_ITBenefits", Model)
+                </div>
+                <div class="tab-pane" id="divcomments">@Html.Partial("_ItemComments", Model)</div>
+                <div class="tab-pane" id="divsuggestidea">@Html.Partial("_SuggestIdea", Model)</div>
+                <div class="tab-pane" id="divlistsolutions">@Html.Partial("_ListedIdeas", Model)</div>
+                <div class="tab-pane" id="divprioirtyhistory">@Html.Partial("_PriorityHistory", Model)</div>
+                
+            </div>
+
+
+
+            <!--/.leftarea-->
+
+
+
+
+            <!--/.rightarea-->
+
+        </div>
+
+    </div>
+    
+                  
+    }
+
+
+<script>
+    function getPostedIdeas()
+    {
+
+        var ClientId = "@Model.ClientId";
+        if (ClientId != null) {
+            $('#PostedIdeas').jtable({
+                title: 'Ideas',
+                messages: {
+                    addNewRecord: 'Suggest  a New Idea'
+                },
+                actions: {
+                    listAction: "@Url.Action("GetIdeaDetails")" + "?ClientId=" + ClientId,
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+
+                    ItemName: {
+                        title: 'Name',
+                        width: '30%'
+                    },
+
+
+
+                    Description: {
+                        title: 'Description',
+                        width: '30%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%'
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%'
+            }
+
+
+
+
+                }
+
+            });
+            
+        }
+        return false;
+
+    }
+
+    $(document).ready(function () {
+
+        //For Tab Activation  On 10th Dec 2014
+        var tabName = "@Model.TabName";
+        if (tabName == "classification") {
+            $('#ideatab li:eq(1) a').tab('show');
+        }
+
+        
+        
+
+        ////
+
+        //$(function () {
+
+        //    $("#accordion").accordion({
+
+        //        collapsible: true
+
+        //    });
+
+        //});
+
+
+
+
+        //$('#txtdescription').htmlarea();
+
+        $('#txtdescription').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter", "justifyright", "Increasefontsize", "decreasefontsize", "Forecolor", "horizontalrule"],
+                    ["cut", "copy", "paste"],
+            ]
+        });
+
+
+        @*        var blndataSetNameExists = false;
+
+        $('#btnAdd').click(function () {
+
+
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager")
+            {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add");
+
+            window.location = strUrl;
+            return false;
+
+           });*@
+        
+
+        @*        $('#cancelregDataSetMap').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+        });*@
+
+
+        @*        $('#btnDelete').click(function () {
+
+            var RegDataSetid = $('#RegDataSetid')[0].value;
+
+            var DataSetName = $('#txtDataSetName')[0].value;
+            
+            if (RegDataSetid == 0)
+            { return false; }
+            var confirm = window.confirm('Do you want delete this data Set: '+DataSetName+'?');
+            if (confirm) {
+
+
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DeleteDatSetName/?ClientId=@Model.ClientId");
+                strUrl  += "&RegDataSetId=" + RegDataSetid;
+                
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+           });*@
+        
+
+    })
+
+  @*  $('#btnBack').click(function () {
+       
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+       
+     });*@
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+
+
+        //if (charCode != 46 && charCode > 31
+        //&& (charCode < 48 || charCode > 57))
+        //    return false;
+
+        if ((charCode < 48 || charCode > 57))
+            if (charCode != 46 && charCode != 44 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+        return true;
+    }
+
+
+    $('#btnSave').click(function () {
+
+        var SelectedclientId = $('#ClientId :selected').val();
+        if (SelectedclientId == "" || SelectedclientId == "0") {
+            alert('Please Select Client name from the list');
+            return false;
+        }
+
+        if ($('#txtchallange').val() == "") {
+            alert('Please enter name');
+            $('#txtchallange').focus();
+            return false;
+        }
+        else {
+
+            var itemName = $('#txtchallange').val();
+            var itemId = $('#ItemId')[0].value;
+
+            ItemNameExists(itemName, itemId);
+            if (blnItemNameExists) {
+                alert('Item name already exists, please change');
+                $('#txtchallange').focus();
+                return false;
+
+            }
+        }
+
+
+
+
+    });
+
+
+    function ItemNameExists(ItemName, ItemId) {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'ideamanager')
+        {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/ChallengeHistoryManager/CheckItemName';
+        }
+        else
+        {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/ChallengeHistoryManager/CheckItemName';
+        }
+        //var localToServer = "/";
+        //var sPageURL = window.location.search.substring(1);
+        //var sURLVariables = sPageURL.split('&');
+
+        //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+        //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+        //}
+
+        //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager/CheckItemName");
+
+        {
+            $.ajax({
+                url: baseurl,
+                type: 'POST',
+                data: { ItemName: ItemName, ItemId: ItemId },
+                success: checkItemSuccess,
+                failure: errorItem,
+                async: false
+
+            })
+        }
+
+    }
+
+    function checkItemSuccess(status) {
+
+
+        blnItemNameExists = status;
+
+
+
+    }
+
+    function errorItem() {
+        alert('An error occurred. Please contact administrator');
+    }
+
+
+
+
+    $('.tab-pane a').click(function (e) {
+        $("#success").hide();
+        $("#danger").hide();
+
+    })
+
+</script>

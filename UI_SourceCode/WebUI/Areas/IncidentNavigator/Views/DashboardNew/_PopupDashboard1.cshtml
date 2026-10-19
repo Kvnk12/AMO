@@ -1,0 +1,881 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+
+
+@(Html.Kendo().Window()
+                .Name("chartTrendWindow")
+                .Title("Ticket Trend by Year/Month")
+                .Content(@<text>
+                    @(Html.Kendo().Chart<INChartDashboardModel>
+                                                ()
+                                                .Name("winChartTrend")
+                                                .Legend(legend => legend
+                                                    .Visible(true)
+                                                    .Align(ChartLegendAlign.Start)
+                                                    .Position(ChartLegendPosition.Bottom)
+                                                    )
+                                                      .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                .Height(400)
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTrend", "DashboardNew").Data("ParameterDataTrend")))
+                                                 .AutoBind(false)
+                                                .Series(series =>
+                                                {
+                                                    series.Line(model => model.IncidentCount).Name("No. of Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#19BDFF").Visible(true)).Color("#19BDFF").Visible(true)
+                                                                                                                                                                                                           .Color("#19BDFF");
+                                                    series.Line(model => model.ResolvedCount).Name("No. of Resolved Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#2FB447").Padding(0, 0, -45, 0).Visible(true))
+                                                                                                                                                                                            .Color("#2FB447").Visible(false);
+                                                    series.Line(model => model.TrendVal).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(true);
+                                                    series.Line(model => model.ResolvedTrend).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(false);
+
+
+
+                                                })
+                                                .CategoryAxis(axis => axis
+                                                .Min(0)
+                                                .Max(13)
+                                                .Categories(model => model.DrpCategory)
+                                                .MajorGridLines(lines => lines.Visible(false))
+                                                .Labels(labels => labels.Rotation("auto"))
+                                                .AxisCrossingValue(0, 1000)
+                                                .Crosshair(c => c.Visible(true).DashType(ChartDashType.Dot))
+                                                //.Title(title => title.Text("Year/Month").Font("12px Arial,Helvetica,sans-serif"))
+                                                )
+
+                                                .ValueAxis(axis => axis.Numeric("TktCnt")
+                                                .Labels(labels => labels.Format("{0:N0}"))
+                                                //.Visible(true)
+                                                 .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                //.MajorGridLines(lines => lines.Visible(true))
+                                                // .Title(title => title.Text("# of Tickets").Font("12px Arial,Helvetica,sans-serif"))
+                                                //.MajorUnit(100)
+                                                )
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= series.name #: #= value #"))
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                 .Events(events => events
+
+            .DataBound("winInflow_onDataBound")
+           // .Render("onRender")
+        )
+
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+
+@(Html.Kendo().Window()
+                .Name("ChartPriortyWindow")
+                .Title("Distribution By Priority")
+                .Content(@<text>
+                    
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                                .Name("winChartPriority")
+
+                                               //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                               .Legend(legend => legend
+                                .Visible(true)
+                                .Align(ChartLegendAlign.Start)
+                                .Position(ChartLegendPosition.Bottom)
+                                //.Offset(1, 1)
+                                )
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                //.Height(280)
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("GetPriorityParameter")))
+                                                .AutoBind(false)
+                                                .Series(series =>
+                                                {
+                                                    series.Bar(model => model.IncidentCount).Name("Tickets Count").Spacing(0).CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# #= kendo.format('{0:P}', percentage)#").Visible(true)).Color("#19BDFF");
+                                                    series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %")).Color("LightGray");
+
+
+                                                })
+                                                .CategoryAxis(axis => axis
+                                                //.Categories(model =>model.)
+                                                 .Labels(labels => labels.Visible(true).Template("P:#= value# ")/*.Mirror(true)*/)
+                                                .Line(line => line.Visible(false))
+                                               // .Labels(labels => labels.Rotation("auto"))
+                                                .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                //.MajorGridLines(lines => lines.Visible(true))
+                                                //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                                )
+                                                .ValueAxis(axis => axis
+                                                .Numeric()
+                                                //.Max(10)
+                                                .Line(line => line.Visible(false))
+                                                .Labels(labels => labels.Rotation("auto"))
+                                                .MajorGridLines(lines => lines.Visible(false))
+                                                //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                                )
+                                                     .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(false))
+            .Line(line => line.Visible(false))
+             .MajorGridLines(lines => lines.Visible(false))
+        // .AxisCrossingValue(-10)
+        )
+                                                .Tooltip(tooltip => tooltip
+                                                //.Background("transparent")
+                                                .Visible(true)
+                                                .Color("#000000")
+                                                .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+                                                )
+                    )
+
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1100)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+
+@(Html.Kendo().Window()
+                .Name("ChartStatusWindow")
+                .Title("Distribution By Status")
+                .Content(@<text>
+                   
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                                .Name("winStatusChart")
+                                                .Legend(legend => legend.Position(ChartLegendPosition.Right)
+                                                )
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("GetStatusParameter")))
+                                                 .AutoBind(false)
+                                                .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+
+                                                .Series(series =>
+                                                {
+                                                            series.Donut(model => model.IncidentCount, model => model.LongCategory, null)
+            .Labels(labels => labels
+            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+            .Background("transparent")
+            .Visible(true)
+            .Position(ChartPieLabelsPosition.OutsideEnd)
+            
+            )
+             .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(150);
+                                                        })
+
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                                )
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+
+@(Html.Kendo().Window()
+                .Name("Chart4Window")
+                .Title("Total Incident In %")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<INChartDashboardModel>
+    ()
+    .Name("winChart4")
+
+    //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+    .Legend(legend => legend
+    .Visible(true)
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    //.Offset(1, 1)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    // .Height(280)
+    )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("GetParameter")))
+    .AutoBind(false)
+    .SeriesDefaults(seriesDefaults => seriesDefaults
+    .Bar().Visual("LabelVisual")
+    )
+    .Series(series =>
+    {
+    series.Bar(model => model.IncidentCount).Name("Ticket Count").Spacing(0).CategoryField("LongCategory").Labels(labels => labels.Background("transparent").Visible(true)).Color("#19BDFF");
+    series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("LongCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %")).Color("LightGray");
+
+
+
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(8)
+    //.Categories(model =>model.)
+    .Line(line => line.Visible(false))
+    .MajorGridLines(lines => lines.Visible(false))
+    .Labels(labels => labels.Mirror(false).Visible(false))
+    //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+    )
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(false))
+    .MajorGridLines(lines => lines.Visible(false))
+    .Labels(labels => labels.Rotation("auto"))
+    //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+    )
+    .ValueAxis(axis => axis
+    .Numeric("%")
+    .Min(0).Max(100)
+    .Labels(labels => labels.Format("{0}%").Visible(false))
+    .Line(line => line.Visible(false))
+    .MajorGridLines(lines => lines.Visible(false))
+    // .AxisCrossingValue(-10)
+    )
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    .Template("#= series.name #: #= value #")
+
+    )
+    .Panes(panes => panes.Add().Clip(false))
+    .Pannable(pannable => pannable
+    .Lock(ChartAxisLock.X)
+    )
+    .Zoomable(zoomable => zoomable
+    .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+    .Selection(selection => selection.Lock(ChartAxisLock.X))
+    )
+     .Events(events => events
+        .DataBound("Winminmax_onDataBound")
+        )
+    )
+
+
+</text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("Chart5Window")
+                .Title("Incident Distribution")
+                .Content(@<text>
+                    
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                                .Name("winChart5")
+                                                //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                                .Legend(legend => legend
+                                                .Visible(false)
+                                                )
+
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                //.Height(480)
+                                                )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("ParameterDatanew5")))
+    .AutoBind(false)
+    .Series(series =>
+    {
+        series.Column(model => model.Percent).Name("Percentage").Axis("%").CategoryField("LongCategory").Spacing(-1).Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true).Position(ChartBarLabelsPosition.InsideBase)).Visible(true).Color("transparent").Tooltip(tooltip => tooltip.Visible(false));
+        series.Column(model => model.IncidentCount).Name("Ticket Count").CategoryField("LongCategory").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(8)
+    //.Categories(model =>model.)
+    .MajorGridLines(lines => lines.Visible(false))
+     .Labels(labels => labels.Template("#= wrapText(text)#").Rotation(-90))
+    .AxisCrossingValue(0, 1000)
+    .Title(title => title.Text("Config Item Name"))
+    )
+
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(true))
+    //.Labels(labels => labels.Rotation(-90))
+    //.MajorGridLines(lines => lines.Visible(true))
+    .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+    .Title(title => title.Text("Total Tickets"))
+    // .Title(title => title.Text("drpval"))
+    )
+    .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(true))
+            .Line(line => line.Visible(false))
+              .MajorGridLines(lines => lines.Visible(false))
+        )
+
+
+                                                .Tooltip(tooltip => tooltip
+                                                //.Background("transparent")
+                                                .Visible(true)
+                                                .Color("#000000")
+                                                .Template("#= series.name #: #= value #")
+
+                                                )
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                   .Events(events => events
+            .DataBound("onChangeWinTitle_onDataBound")
+        )
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+                                                .Actions(actions => actions.Close())
+)
+
+@(Html.Kendo().Window()
+                .Name("Chart6Window")
+                .Title("Incident Distribution")
+                .Content(@<text>
+                   @(Html.Kendo().Chart<INChartDashboardModel>()
+                                                .Name("winchart6")
+                                                .Legend(legend => legend.Position(ChartLegendPosition.Right)
+                                                )
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("ParameterDatanew6")))
+                                                .AutoBind(false)
+                                                .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+
+                                                .Series(series =>
+                                                {
+                                                            series.Pie(model => model.IncidentCount, model => model.LongCategory, null)
+            .Labels(labels => labels
+            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+            .Background("transparent")
+            .Visible(true)
+            .Position(ChartPieLabelsPosition.OutsideEnd)
+            )
+             .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(150);
+                                                        })
+
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                                )
+                    )
+
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+
+@(Html.Kendo().Window()
+                .Name("DistributionbyYearChartWindow")
+                .Title("Distribution By Year")
+                .Content(@<text>
+
+@(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("winDistributionbyYearChart")
+                                        .Legend(legend => legend.Position(ChartLegendPosition.Right).Visible(true)
+                                )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetDistributionYearParameter")))
+                                        .AutoBind(false)
+                                        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+                                        .Series(series =>
+                                        {
+                                            series.Donut(model => model.IncidentCount, model => model.Dim, null)
+                                            .Labels(labels => labels
+                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                            .Background("transparent")
+                                            .Visible(true)
+                                            .Position(ChartPieLabelsPosition.OutsideEnd)
+                                            )//SharpBevel
+                                            .Overlay(ChartPieSeriesOverlay.None)
+                                            .StartAngle(150);
+                                        })
+
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                    )
+)
+
+
+
+                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("DistributionbyMonthChartWindow")
+                .Title("Distribution By Month")
+                .Content(@<text>
+                 
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("winDistributionbyMonthChart")
+                                        //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                        .Legend(legend => legend
+                                                        .Visible(true)
+                                                        .Labels(labels => labels
+                                                        .Template("Values in Numbers")
+                                                        )
+                                                        .Align(ChartLegendAlign.Start)
+                                                        .Position(ChartLegendPosition.Bottom)
+                                                        )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        //.Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetDistributionMonthParameter")))
+                                        .AutoBind(false)
+                                        .Series(series =>
+                                        {
+                                            series.Column(model => model.IncidentCount).Name("Ticket Count").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+                                        })
+                                        .CategoryAxis(axis => axis
+                                         .Min(0)
+                                         .Max(8)
+                                         .Line(line => line.Visible(false))
+                                        //.Categories(model =>model.)
+                                        .MajorGridLines(lines => lines.Visible(false))
+                                        // .Labels(labels => labels.Rotation(-90))
+                                        //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+                                        .ValueAxis(axis => axis
+                                        .Numeric()
+                                        //.Max(10)
+                                        .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                        .Line(line => line.Visible(false))
+                                        //.Labels(labels => labels.Rotation(-90))
+                                        //.MajorGridLines(lines => lines.Visible(true))
+                                        //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                        )
+                                        .Tooltip(tooltip => tooltip
+                                        //.Background("transparent")
+                                        .Visible(true)
+                                        .Color("#000000")
+                                        .Template("#= series.name #: #= value #")
+
+                                        )
+                                        .Pannable(pannable => pannable
+                                        .Lock(ChartAxisLock.Y)
+                                        )
+                                        .Zoomable(zoomable => zoomable
+                                        .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                        .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                    )
+                    )
+
+
+                                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("DistributionbyDayChartWindow")
+                .Title("Distribution By Day")
+                .Content(@<text>
+             
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("winDistributionbyDayChart")
+                                        //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                        .Legend(legend => legend
+                                        .Visible(true)
+                                        )
+
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        //.Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetDistributionDayParameter")))
+                                        .AutoBind(false)
+                                        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+                                       .Series(series =>
+                                       {
+                                           series.Donut(model => model.IncidentCount, model => model.Dim, null)
+                                           .Labels(labels => labels
+                                           .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                           .Background("transparent")
+                                           .Visible(true)
+                                           .Position(ChartPieLabelsPosition.OutsideEnd)
+                                           )//SharpBevel
+                                           .Overlay(ChartPieSeriesOverlay.None)
+                                           .StartAngle(150);
+                                       })
+
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                    )
+                    )
+
+
+                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("DistributionbyHourChartWindow")
+                .Title("Distribution By Hour")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<INChartDashboardModel>
+    ()
+    .Name("winDistributionbyHourChart")
+    //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+    .Legend(legend => legend
+    .Visible(true)
+    .Labels(labels => labels
+    .Template("Values in Numbers")
+    )
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    //.Height(280)
+    )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetDistributionHourParameter")))
+    .AutoBind(false)
+    .SeriesDefaults(seriesDefaults => seriesDefaults
+    .Bar().Visual("D2LabelVisual")
+    )
+    .Series(series =>
+    {
+    series.Bar(model => model.IncidentCount).Name("Ticket Count").Spacing(0).CategoryField("Dim").Labels(labels => labels.Background("transparent").Template("#= value# #= kendo.format('{0:P}', percentage)#").Visible(true).Position(ChartBarLabelsPosition.InsideEnd)).Color("#19BDFF");
+    //  series.Bar(model => model.Percent).CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Color("LightGray");
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(10)
+    //.Categories(model =>model.)
+    .Line(line => line.Visible(false))
+    .Labels(labels => labels.Rotation("auto").Visible(false))
+    .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+    //.MajorGridLines(lines => lines.Visible(true))
+    //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+    )
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(false))
+    //.Labels(labels => labels.Rotation("auto"))
+    .MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+    )
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+    )
+    .Pannable(pannable => pannable
+    .Lock(ChartAxisLock.X)
+    )
+    .Zoomable(zoomable => zoomable
+    .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+    .Selection(selection => selection.Lock(ChartAxisLock.X))
+    )
+    .Events(events => events
+    .DataBound("Winhourminmax_onDataBound")
+    )
+    )
+
+
+</text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("PriorityDistributionbyDayChartWindow")
+                .Title("Distribution by Day")
+                .Content(@<text>
+                  
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("winPriorityDistributionbyDayChart")
+                                        //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                        .Legend(legend => legend
+                                .Visible(true)
+                                .Align(ChartLegendAlign.Start)
+                                .Position(ChartLegendPosition.Right)
+                                //.Offset(1, 1)
+                                )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        // .Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetPriorityDistributionbyDayChartParameter")).Group(group => group.Add(model => model.DrpCategory)))
+                                        .AutoBind(false)
+                                        .SeriesColors(new string[] {"#4BD161",   "#3BA3F8", "#9F66BC","#EAD900", "#18C6BD","#FFA100", "#3BA3F8", "#D15D5D","#FF64A3", "#9B67FF", "#18C6BD",
+                                                                        "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                            .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                   .Column().Visual("columnVisual")
+                                                            .Stack(false)
+                                                            .Highlight(highlight => highlight.Toggle("toggleHandler"))
+                                                )
+                                                                .Series(series =>
+                                                                {​​​​​​​
+                                             series.Column(model => model.IncidentCount).Spacing(0).Name("").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Rotation(-90).Background("transparent").Visible(true)).Color("#19BDFF");
+                                                                }​​​​​​​)
+
+                                        .CategoryAxis(axis => axis
+                                         .Min(0)
+                                         .Max(7)
+                                        //.Categories(model =>model.)
+                                        .MajorGridLines(lines => lines.Visible(false))
+                                        .Labels(labels => labels.Rotation("auto"))
+                                        //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+                                        .ValueAxis(axis => axis
+                                        .Numeric()
+                                        //.Max(10)
+                                        .Line(line => line.Visible(false))
+                                        //.Labels(labels => labels.Rotation(-90))
+                                         .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                        //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                        )
+                                        .Tooltip(tooltip => tooltip
+                                        //.Background("transparent")
+                                        .Visible(true)
+                                        .Color("#000000")
+                                        .Template("#= series.name #: #= value #")
+                                        )
+                                        .Pannable(pannable => pannable
+                                        .Lock(ChartAxisLock.Y)
+                                        )
+                                        .Zoomable(zoomable => zoomable
+                                        .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                        .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                    )
+                                        .Events(events => events                                       
+                                        .DataBound("WinDispriminmax_onDataBound")
+                                        )
+                    )
+
+
+                                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+                    .Actions(actions => actions.Close())
+)
+@(Html.Kendo().Window()
+                .Name("TicketountFlowbyHourChartWindow")
+                .Title("Ticket Count Flow by Hour")
+                .Content(@<text>
+                   
+                    @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("winTicketountFlowbyHourChart")
+                                          //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                          .Legend(legend => legend
+                                .Visible(true)
+                                .Align(ChartLegendAlign.Start)
+                                .Position(ChartLegendPosition.Right)
+                                //.Offset(1, 1)
+                                )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        //.Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetTicketCountFlowbyHourParameter")).Group(group => group.Add(model => model.DrpCategory)))
+                                           .AutoBind(false)
+                                        .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                   .Column().Visual("columnVisual")
+                                                            .Stack(false)
+                                                            .Highlight(highlight => highlight.Toggle("toggleHandler"))
+                                                )
+                                        .SeriesColors(new string[] {"#4BD161",   "#3BA3F8", "#9F66BC","#EAD900", "#18C6BD","#FFA100", "#3BA3F8", "#D15D5D","#FF64A3", "#9B67FF", "#18C6BD",
+                                                                        "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                        .Series(series =>
+                                        {​​​​​​​
+                                            series.Column(model => model.IncidentCount).Spacing(0).Name("").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Rotation(-90).Background("transparent").Visible(true)).Color("#19BDFF");
+                                        }​​​​​​​)
+
+                                        .CategoryAxis(axis => axis
+                                         .Min(0)
+                                         .Max(12)
+                                        .MajorGridLines(lines => lines.Visible(false))
+                                        .Labels(labels => labels.Rotation("auto"))
+                                        //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+                                        .ValueAxis(axis => axis
+                                        .Numeric()
+                                        //.Max(10)
+                                        .Line(line => line.Visible(false))
+                                        //.Labels(labels => labels.Rotation(-90))
+                                         .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                        //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                        )
+                                        .Tooltip(tooltip => tooltip
+                                        //.Background("transparent")
+                                        .Visible(true)
+                                        .Color("#000000")
+                                        .Template("#= series.name #: #= value #")
+
+                                        )
+                                        .Pannable(pannable => pannable
+                                        .Lock(ChartAxisLock.Y)
+                                        )
+                                        .Zoomable(zoomable => zoomable
+                                        .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                        .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                    )
+                                          .Events(events => events
+                                          .DataBound("Winticketcountminmax_onDataBound")
+    )
+                    )
+
+
+                                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)

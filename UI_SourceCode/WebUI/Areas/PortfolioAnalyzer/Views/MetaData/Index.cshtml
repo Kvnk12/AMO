@@ -1,0 +1,183 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model  metadatadto
+@{
+
+    ViewBag.Title = "Portfolio Analyzer";
+    ////var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+   // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+<style>
+    .top-content{
+        background:white;
+        padding:1em;
+        margin:1em 0;
+    }
+    .form-control {
+        display: block;
+        width: 100%;
+        height: 33px;
+        padding-left: 2px;
+        font-size: 13px;
+        line-height: 1.428571429;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        border: none;
+        border-bottom: 1px solid;
+        border-radius: unset;
+    }
+    .MetaBtn {
+        background-color: rgb(91,121,171);
+        color:white;
+    }
+</style>
+<div class="content-main dark-bg">
+    
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li class="active">Meta Data Maintenance</li>
+        </ol>
+
+   
+                <div>
+                    <div >
+                        <div class="top-content">
+                            <div style="margin-bottom:1em;">
+                                <label for="clientName" class="col-sm-5 control-label" id="" style="width: 15%; margin-top: 1em;"> Meta Data Type: </label>
+                                @Html.DropDownList("metadataitemid", new List<SelectListItem>
+                                                     {
+                                                        new SelectListItem{ Text="Select Meta data type", Value = "0" },
+                                                        new SelectListItem{ Text="App Life Cycle", Value = "1" },
+                                                        new SelectListItem{ Text="Diposition Rationale", Value = "2" },
+                                                        new SelectListItem{ Text="Application Type", Value = "3" },
+                                                        new SelectListItem{ Text="Application Domain", Value = "4" },
+                                                        new SelectListItem{ Text="Application Criticality", Value = "5" },
+                                                        //new SelectListItem{ Text="Industry Tech Stack", Value = "6" },
+                                                        new SelectListItem{ Text="Application Security", Value = "7" },
+                                                        //new SelectListItem{ Text="Disaster Recovery", Value = "8" },
+                                                        //new SelectListItem{ Text="Tech Doc Available", Value = "9" },
+                                                        //new SelectListItem{ Text="App Doc Avaialble", Value = "10" },
+                                                        new SelectListItem{ Text="App Processing Type", Value = "11" },
+                                                        new SelectListItem{ Text="App Architecture", Value = "12" },
+                                                        new SelectListItem{ Text="App Source code Type", Value = "13" },
+                                                        new SelectListItem{ Text="Disposition", Value = "14" },
+                                                        //new SelectListItem{ Text="Target Platform Capability", Value = "15" },
+                                                        new SelectListItem{ Text="Diposition Immediacy", Value = "16" },
+                                                        new SelectListItem{ Text="App Environment", Value = "17" },
+                                                        new SelectListItem{ Text="Application Classification", Value = "18" },
+                                                        new SelectListItem{ Text="External Hosting", Value = "19" },
+                                                        new SelectListItem{ Text="Application Redundancy", Value = "20" },
+                                                         new SelectListItem{ Text="Owning Companies", Value = "21" },
+                                                         new SelectListItem{ Text="Deployment Model", Value = "22" },
+                                                          new SelectListItem{ Text="Standard Status", Value = "23" },
+                                                           new SelectListItem{ Text="Differentiation Level", Value = "24" },
+                                                             new SelectListItem{ Text="Interface Methods", Value = "25" },
+                                                             new SelectListItem{ Text="Disposition Solutions", Value = "26" },
+                                                    }, new { @class = "form-control", @id = "metadataitemid", @style = "width:250px;" })
+                            </div>
+                            <div>
+                                <label for="clientName" class="col-sm-5 control-label" id="" style="width: 15%; margin-top: 1em;"> New/Selected value: </label>
+                                @Html.TextBox("newValue", "Sample", new { @class = "form-control", @id = "newValue", @style = "width:250px;padding-left: 2px;" })
+                                @Html.Hidden("metadataid", "", new { @id = "metadataid" })
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <input class="btn MetaBtn" type="button" id="btnAddNew" onclick="Save(); return false;" name="btnAddNew" value="Save" />
+                            <input class="btn MetaBtn" type="reset" id="btnReset" onclick="Reset(); return false;" name="btnReset" value="Reset" />
+                        </div>
+                         </div>
+                    <div>
+                        <div class="grid_4" id="metaDataView">
+                            @Html.Partial("_MetadataList", Model.AppInfo)
+                        </div>
+                    </div>
+
+                </div>
+           
+</div>
+
+        <script>
+
+            $('select#metadataitemid').change(function () {
+
+
+                $('#metadataid').val('');
+                $('#newValue').val('');
+
+                var metadatatypeId = $('#metadataitemid :selected').val();
+                var dataToPost = {
+                    MetadataTypeId: metadatatypeId
+                }
+                var path = '@Url.Content("~/PortfolioAnalyzer/MetaData/ViewMetaData")';
+
+                $.ajax(
+               {
+                   url: path,
+                   type: 'POST',
+                   data: JSON.stringify(dataToPost),
+                   contentType: 'application/json; charset=utf-8',
+                   success: function (data) {
+                       $("#metaDataView").html(data);
+
+                   },
+                   error: function () {
+                       alert('error')
+                      // $("#divLoading").hide();
+                   }
+               });
+            });
+
+            $('#btnReset').click(function () {
+                $("#metadataid").val('');
+                $("#newValue").val('');
+            });
+
+            $('#btnAddNew').click(function () {
+                
+                if ($('#newValue').val() == '') {
+                    alert('Please enter New/Selected value.');
+                    return false;
+                }
+
+
+                var metadataid = $('#metadataitemid :selected').val();
+                var metadataitem = $("#newValue").val();
+                var metadataitemid = $("#metadataid").val();
+                var dataToPost = {
+                    MetadataTypeId: metadataid,
+                    MetaDataItemText: metadataitem,
+                    metadataid: metadataitemid
+                    } ;
+                var path = '@Url.Content("~/PortfolioAnalyzer/MetaData/SaveMetaData")'
+               // window.location = path;
+                $.ajax(
+                {
+                  url: path,
+                  type: 'POST',
+                  data: JSON.stringify(dataToPost),
+                  contentType: 'application/json; charset=utf-8',
+                  success: function (data) {
+                      $("#metaDataView").html(data);
+
+                  },
+                  error: function () {
+                      alert('error')
+                      // $("#divLoading").hide();
+                  }
+              });
+            });
+
+        </script>
+

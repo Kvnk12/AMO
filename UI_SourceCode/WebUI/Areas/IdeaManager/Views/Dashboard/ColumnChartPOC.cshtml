@@ -1,0 +1,135 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using System.Web.Configuration;
+@using NTTData.AMOPortal.WebUI.Dto
+@using Telerik.Reporting
+@using Telerik.ReportViewer.Mvc
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model IMReportParamModel
+
+@{
+    ViewBag.Title = "Idea Manager";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    /*new*/
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    /*new*/
+
+
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+
+    var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+    var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+    var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+    var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+
+}
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+<link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+<script src="@RepJsResources"></script>
+
+
+
+
+
+<style>
+    #IMConsolidatedAnalysis {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+
+    /*   #wrap {
+        min-height: 100%;
+        height: auto;
+        padding: 0 0 0 0 !important;
+    }*/
+</style>
+
+
+
+
+
+
+
+<div class="content-main dark-bg support-body-container">
+
+    <div id="wrap" style="margin:20px; position: relative; overflow: hidden; padding: 0; height: auto;min-height: unset; ">
+        <div class="parameter-slider-overlay"></div>
+
+
+
+        <div style="padding:0;padding-top: 15px;width:100%;margin:8px" id="reportPartialID">
+
+           <div>
+
+              @(Html.TelerikReporting().ReportViewer()                                                  
+                                       .Id("ColumnPOC")
+                                       .ViewMode(ViewMode.Interactive)                                              
+                                       .ReportServer(new ReportServer()
+                                       {
+                                         Url = repSiteLink,
+                                         Username = repSiteUserName,
+                                         Password = repSitePassword
+                                       })
+                                       .ReportSource("IdeaManager/ColumnPOC")
+                                       .ViewMode(ViewMode.Interactive)
+                                       .ScaleMode(ScaleMode.Specific)
+                                       .Scale(1.0)
+                                       .PersistSession(false)
+                                       .PrintMode(PrintMode.AutoSelect)
+                                       .SendEmail(new SendEmail { Enabled = false })
+                                       .EnableAccessibility(true)
+                                       .ClientEvents(
+                                                    events => events
+                                                    .InteractiveActionExecuting("interactiveAction")
+                                         )
+                )
+     </div>
+   </div>
+  </div>
+ </div>
+
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+<script>
+    function interactiveAction(e, args) {
+        if (args.action.Type === 'customAction') {
+            var paramX = args.action.Value.Parameters[0].Value;
+            var paramY = args.action.Value.Parameters[1].Value;
+
+            alert('You clicked on a column from series ' + paramX + ' and value ' + paramY);
+        }
+    }
+</script>

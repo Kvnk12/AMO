@@ -1,0 +1,30 @@
+﻿@model WebUI.Areas.ClientProfileManager.Dto.datConcatenationInput
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="myModalLabel">FriendsInfo</h4>
+    </div>
+    <hr />
+    <table id="Table1" cellspacing="3">
+        @for (int i=0; i<Model.Sfields.Count; i++)
+        {
+        <tr>
+            <td>
+                Source Field:
+            <td>@Html.DropDownListFor(m => Model.Sfields[i].Text, new SelectList(Model.SourceFields, "value", "text", Model.SourceFields), "", new { @class = "selectpicker" })</td>
+
+            <td>
+                Seperator:
+                @Html.TextBoxFor(m => Model.Sfields[i].Value, new { @class = "form-control", @readonly = "true" })
+            </td>
+            @*<td>
+                <input type="button" class="BtnPlus" value="+" />
+            </td>
+            <td>
+                <input type="button" class="BtnMinus" value="-" />
+            </td>*@
+        </tr>
+        }
+    </table>
+</div>

@@ -1,0 +1,690 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput
+@using WebUI.Dto;
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/bam.png");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string activeTab = string.Empty;
+    if (Request.QueryString["tabs"] != null)
+    {
+        activeTab = Request.QueryString["tabs"];
+    }
+    else
+    {
+        activeTab = "Tab1";
+    }
+    var client = "";
+    //if (Session["Client"] != null)
+    //{
+    //    var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //    client = objclient.ClientName;
+    //    //clientId = objclient.Id.ToString();
+    //}
+    if (Session["SessionClient"] != null)
+    {
+       
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        //clientId = objclient.Id.ToString();
+    }
+}
+
+@{
+    if (TempData["IsDuplicate"] == "1")
+    {
+        <script>
+            alert('Application Name already Exists. Please enter different name');
+        </script>
+    }
+}
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp bamSubhdArea form-horizontal">
+            @*<div class="pull-left">
+                  <div class="form-group">
+                    <label for="clientName" class="col-sm-4 control-label"><span class="mandate">*</span>Client Name</label>
+                    <div class="col-sm-5">
+                        @Html.Partial("_ClientList", Model)
+                    </div>
+                  </div>
+                </div>*@
+
+            <div class="pull-right" style="width:30%">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-4 control-label">Sub - Vertical</label>
+                    <div class="col-sm-7">
+                        <span class="calc">
+                            @if (Model.ClientId != 0 && Model.ClientId != null)
+                            {
+                                @Model.subVerticalName
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="pull-right" style="width:30%">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-4 control-label">Industry Vertical</label>
+                    <div class="col-sm-7">
+                        <span class="calc">
+                            @if (Model.ClientId != 0 && Model.ClientId != null)
+                            {
+                                @Model.verticalName
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/.selectApp-->
+
+    </div>
+    <!--/.container-->
+</div>
+<!--/.selectappArea-->
+<div class="clear"></div>
+<div>
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb container">
+        <li><a href="#">Business Alignment Manager</a></li>
+        <li><a href="#">@client Business Capability Setup</a></li>
+        <li class="active">Client Setup</a></li>
+    </ol>
+</div>
+
+<div class="container" style="padding:0;">
+    <ul class="nav nav-tabs">
+        @if (activeTab == "Tab1")
+        {
+
+            Html.ViewContext.Writer.Write("<li class=\"active\"><a href=\"#bcm\" data-toggle=\"tab\">Business Capability Model</a></li>");
+            Html.ViewContext.Writer.Write("<li ><a href=\"#appInventory\" data-toggle=\"tab\">Application Inventory</a></li>");
+            Html.ViewContext.Writer.Write("<li ><a href=\"#lob\" data-toggle=\"tab\">Line of Business</a></li>");
+            Html.ViewContext.Writer.Write("</ul> <div class=\"treeMenuArea tab-pane opened\" id=\"bcm\">");
+        }
+        else if (activeTab == "Tab2")
+        {
+            Html.ViewContext.Writer.Write("<li><a href=\"#bcm\" data-toggle=\"tab\">Business Capability Model</a></li>");
+            Html.ViewContext.Writer.Write("<li class=\"active\" ><a href=\"#appInventory\" data-toggle=\"tab\">Application Inventory</a></li>");
+            Html.ViewContext.Writer.Write("<li ><a href=\"#lob\" data-toggle=\"tab\">Line of Business</a></li>");
+            Html.ViewContext.Writer.Write("</ul> <div class=\"treeMenuArea tab-pane closed\" id=\"bcm\">");
+        }
+        else
+        {
+            Html.ViewContext.Writer.Write("<li><a href=\"#bcm\" data-toggle=\"tab\">Business Capability Model</a></li>");
+            Html.ViewContext.Writer.Write("<li ><a href=\"#appInventory\" data-toggle=\"tab\">Application Inventory</a></li>");
+            Html.ViewContext.Writer.Write("<li class=\"active\"  ><a href=\"#lob\" data-toggle=\"tab\">Line of Business</a></li>");
+            Html.ViewContext.Writer.Write("</ul> <div class=\"treeMenuArea tab-pane closed\" id=\"bcm\">");
+        }
+    </ul>
+    @*   <li ><a href="#bcm" data-toggle="tab">Business Capability Model</a></li>
+          <li><a href="#appInventory" data-toggle="tab">Application Inventory</a></li>
+          <li class="active"><a href="#lob" data-toggle="tab">Line of Business</a></li>
+        </ul>
+        <div class="treeMenuArea tab-pane closed" id="bcm">*@
+    <div class="treeMenuContent">
+        <div class="container" style="padding:0;">
+
+            @* Partial View Alternative *@
+            <input hidden id="clientId" value="@Model.ClientId.ToString()" />
+            <div class="leftarea form-horizontal">
+                <div class="panel panel-info">
+                    <div class="panel-heading" style="height:50px">
+                        FoundationType / Group / Business Capability / Sub-Capability
+                        <div class="pull-right">
+                            <button class="btn btn-primary" tabindex="29" type="button" 
+                                    onclick="location.href='@Url.Action("ClientCapabilities", "BusinessCapabilities")';return false;">
+                                    View / Edit Details
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body" style="height:700px;">
+
+                        @* Removed normal Tree View for Business Capabilities and TreeList -Telerik *@
+
+                        <div>
+                            @(Html.Kendo().TreeList<BusinessCapabilitiesModel>()
+                                .Name("ClientBusinessCapabilities")
+                                .Columns(columns =>
+                                {
+                                    columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capabilities");
+                                })
+                                .DataSource(dataSource => dataSource
+                                    .Read(read => read.Action("GetClientCapabilities", "BusinessCapabilities"))
+                                    .Model(m =>
+                                    {
+                                        m.Id(f => f.BCId);
+                                        m.ParentId(f => f.BCParentId);
+                                        m.Field(f => f.SubVerticalId);
+                                        m.Field(f => f.BusinessCapName);
+                                    })
+                                )
+                                .Height(650)
+                            )
+                        </div>
+
+
+                        <!--/.bampanelrtbdy-->
+                    </div>
+                    <!--/.panel-body-->
+                </div>
+                <!--end of panel-->
+            </div>
+            <!--END OF LEFTAREA-->
+            <div class="rightarea form-horizontal">
+                @*<button type="Submit" class="btn btn-info" style="margin-bottom: 10px;margin-left:28px;" onclick="if (confirm('Import will override Business capabilities and delete old mapping as well. are you sure you want to import it?')) location.href='@Url.Action("SaveClientBCLevels", "LOBandApplications", new {ClientID=Model.ClientId,subVerticalName=Model.subVerticalName,verticalName = Model.verticalName,tabs="Tab1" })'; return false;"> Import Standard Business Capability Mode</button>*@
+                <button type="Submit" class="btn btn-info" style="margin-bottom: 10px;margin-left:28px;" onclick="ImportTemplate()"> Import Standard Business Capability Model</button>
+                <div class="alert-success" id="importSuccess" hidden>
+                    Successfully Imported!
+                </div>
+                <div class="alert-danger" id="importFailure" hidden>
+                    Error Occured!
+                </div>
+
+            </div>
+
+
+
+            <!-- end of right areaa-->
+        </div>
+        <!--/.treeMenuContent container-->
+    </div>
+    <!--/.treeMenuContent-->
+</div>
+<!--/.treeMenuArea-->
+@if (activeTab == "Tab1")
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane closed\" id=\"appInventory\" style=\"min-height:600px\"> ");
+    //  <div class="MetricSetup tab-pane closed" id="ecExternal" style="min-height:600px">
+}
+else if (activeTab == "Tab2")
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane opened\" id=\"appInventory\" style=\"min-height:600px\"> ");
+
+}
+else
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane closed\" id=\"appInventory\" style=\"min-height:600px\"> ");
+
+}
+@* <div class="MetricSetup tab-pane closed" id="appInventory" style="min-height:600px">*@
+
+@if (TempData["DeleteApp"] == "0")
+{
+    <div align="left" id="show_deleteusr_msg">
+        <label style="color: #FF0000; text-align:right">Application is mapped to Line of business and can not be deleted</label>
+    </div>
+}
+
+
+<div id="det" class="grpbamArea" style="display:none;">
+    <div class="accdetailhdr">
+        <div class="accdetailhd">
+            <h4>Application Inventory</h4>
+        </div>
+        <div class="accdetailacction">
+            <button class="btn btn-primary" tabindex="30" type="button" id="btnSaveAppInvt">Save</button>
+            <button class="btn btn-default" tabindex="31" type="button" name="btncancel" id="btncancel">Cancel</button>
+            <button class="btn btn-default" tabindex="31" type="button" id="btnDelAppInvt">Delete</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="contName">Application Name</label>
+                    <div class="col-sm-8">@Html.TextBoxFor(model => model.AppName, "abc", new { id = "idAppName", @class = "calc" }) </div>
+                    <div><input type="hidden" id="hdnAppId"></div>
+                    <div><input type="hidden" id="hdnAppName"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="grpdesc">Active</label>
+            <div class="col-sm-2">
+                <input type="checkbox" name="" id="pnlchk" class="messageCheckbox">
+            </div>
+        </div>
+    </div>
+</div>
+<!--/.grpbamArea-->
+@*Added for Add Application (Application Inventory) starts *@
+<div id="addInvt" class="grpbamArea" style="display:none;">
+    <div class="accdetailhdr">
+        <div class="accdetailhd">
+            <h4>Add Inventory</h4>
+        </div>
+        <div class="accdetailacction">
+            <button class="btn btn-primary" tabindex="30" type="button" id="btnAddAppInvt">Save</button>
+            <button class="btn btn-default" tabindex="31" type="button" name="btncancel" id="btnAddInvtcancel">Cancel</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="contName">Application Name</label>
+                    @*<div class="col-sm-8">@Html.LabelFor(model => model.AppName, "abc", new { id = "idAddAppName", @class="addcalc" }) </div>*@
+                    <div class="col-sm-8">@Html.TextBoxFor(model => model.AppName, new { id = "idAddAppName", @class = "form-control" }) </div>
+                    <div><input type="hidden" id="hdnAddActive"></div>
+                    <div><input type="hidden" id="hdnAddAppName"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="grpdesc">Active</label>
+            <div class="col-sm-2">
+                <input type="checkbox" name="" id="addchk" class="chkbox">
+            </div>
+        </div>
+    </div>
+</div>
+@*<div id="show_Add_Application_msg" style="display:none;"><label style="color: #009900;">Application Saved Successfully</label></div>
+    <div id="show_Edit_Application_msg" style="display:none;"><label style="color: #009900;">Application Edited Successfully</label></div>*@
+@*Added for Add Application (Application Inventory) ends *@
+
+
+          </div>
+<!-- end of Tab 2 -->
+@if (activeTab == "Tab1")
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane closed\" id=\"lob\" style=\"min-height:600px\"> ");
+    //  <div class="MetricSetup tab-pane closed" id="ecExternal" style="min-height:600px">
+}
+else if (activeTab == "Tab2")
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane closed\" id=\"lob\" style=\"min-height:600px\"> ");
+
+}
+else
+{
+    Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane opened\" id=\"lob\" style=\"min-height:600px\"> ");
+
+}
+@* <div class="MetricSetup tab-pane opened" id="lob" style="min-height:600px;">*@
+<div class="treeMenuContent">
+    <div class="container" style="padding:0;">
+        <div class="row">
+            @*@Html.Partial("_LineOfBusiness")*@
+            @*@Html.Partial("_ApplicationLOBJunction")*@
+            <!--/.accountCont -->
+            <!-- Optional: clear the XS cols if their content doesn't match in height -->
+            <div class="clearfix visible-xs"></div>
+
+        </div>
+        <!--/.end of row-->
+
+        <div>
+            @{
+
+                if (Model.ClientId > 0 && (Model.LOBId > 0 || Model.LOBCreate == "LOBCreate") && (Model.AppId == 0 && Model.AppCreate != "AppCreate") && Model.AppLOBId == 0)
+                {
+                    @*@Html.Partial("_LOBCreate")*@
+                }
+            }
+        </div>
+
+
+        <div>
+            @{
+                if (Model.ClientId > 0 && Model.LOBId > 0 && (Model.AppId > 0 || Model.AppCreate == "AppCreate"))
+                {
+                    @*@Html.Partial("_AppLOBCreate")*@
+                }
+            }
+        </div>
+        <!--/.grpArea-->
+    </div>
+    <!--/.treeMenuContent container-->
+</div>
+          </div>
+
+        </div>
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+
+    $(document).ready(function () {
+
+        $('.selectpicker').selectpicker();
+        //$('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        ////$('select#ClientId').change(function () {
+        ////    var SelectedclientId = $('#ClientId :selected').val();
+        ////    //var tabs = $("#tabs").val().toString();
+        ////    //alert(tabs);
+        ////    var href = window.location.href.split('/');
+        ////    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        ////    var baseurl = '';
+        ////    if (href[3] == 'LOBandApplications') {
+        ////        //alert('local url');
+
+        ////        var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+        ////    }
+        ////    else {
+        ////        //alert('server');
+        ////        var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+        ////    }
+
+        ////    window.location = baseurl + SelectedclientId;
+
+        ////});
+
+
+
+
+
+        $('#btnAddApp').click(function () {
+            //var clientId = $("#ClientId").val().toString();
+            var clientId = '0';
+            var LOBId = $("#LOBId").val().toString();
+            var LOBName = $("#LOBName").val().toString();
+
+            if (LOBId == "0") {
+                alert('Please select Client & LOB');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'LOBandApplications') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+            }
+
+
+            var url = baseurl + clientId + "&LOBId=" + LOBId + "&AppCreate=AppCreate" + "&LOBName=" + LOBName + "&tabs=Tab3";;
+            window.location = url;
+
+        });
+
+        $('#btnAddLOB').click(function () {
+            //var clientId = $("#ClientId").val().toString();
+            var clientId = '0';
+            ////if (clientId == "0") {
+            ////    alert('Please select Client ');
+            ////    return false;
+            ////}
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'LOBandApplications') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/DisplayLOBandApplications/?ClientId='
+            }
+
+            var url = baseurl + clientId + "&LOBCreate=LOBCreate" + "&tabs=Tab3";;
+            window.location = url;
+
+        });
+        $('#btnEditViewDetails').click(function () {
+            ////var clientId = $("#ClientId").val().toString();
+            var clientId = '0';
+            ////if (clientId == "0") {
+            ////    alert('Please select Client ');
+            ////    return false;
+            ////}
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'LOBandApplications') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?ClientId='
+            }
+
+
+            var url = baseurl + clientId;
+            window.location = url;
+
+        });
+    });
+
+</script>
+
+@* For Application Inventory starts *@
+<script>
+    $(".table").on('click', 'tr', function () {
+        var tdValue = $(this).children('td').map(function (index, val) {
+            return $(this).text();
+        }).toArray();
+
+        $("#idAppName").val(tdValue[1]);
+        document.getElementById('hdnAppId').value = tdValue[0];
+        document.getElementById('hdnAppName').value = tdValue[1];
+
+        if (tdValue[2].toString() == "True") {
+            $('#pnlchk').prop("checked", true);
+        }
+        else {
+            $('#pnlchk').prop("checked", false);
+        }
+
+        $('#det').show();
+        $('#addInvt').hide();
+        $('#show_deleteusr_msg').hide();
+    });
+
+    $(document).ready(function (e) {
+        $('#btncancel').click(function (e) {
+            $('#det').hide();
+            $('#show_deleteusr_msg').hide();
+            $("#idAppName").val("");
+            if ($('#pnlchk').prop('checked') == true) {
+                $('#pnlchk').prop("checked", false);
+            }
+        });
+    });
+
+    $('#btnSaveAppInvt').click(function () {
+        var Id = document.getElementById('hdnAppId').value;
+        // var clientId = $('#ClientId :selected').val();
+        var clientId = '0';
+        var appName = $("#idAppName").val().toString();
+
+        if ($('#pnlchk').prop('checked') == true) {
+            active = true;
+        }
+        else {
+            active = false;
+        }
+
+        if (Id == "0") {
+            alert('Please select Application to Modify');
+            return false;
+        }
+
+        var href = window.location.href.split('/');
+        var baseurl = '';
+
+        if (href[3] == 'LOBandApplications') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/SaveInvApplication/?Id='
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/SaveInvApplication/?Id='
+        }
+
+        var url = baseurl + Id + "&active=" + active + "&ClientId=" + clientId + "&AppName=" + appName;
+        window.location = url;
+    });
+
+    $('#btnDelAppInvt').click(function () {
+        var Id = document.getElementById('hdnAppId').value;
+        //var clientId = $('#ClientId :selected').val();
+        var cliientId = '0';
+        var appName = $("#idAppName").val().toString();
+        var confirm = window.confirm('Do you want to delete the Application?');
+
+        if (Id == "0") {
+            alert('Please Select Application to Delete');
+            return false;
+        }
+
+        if (confirm) {
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3] == 'LOBandApplications') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/DeleteInvApplication/?Id='
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/DeleteInvApplication/?Id='
+            }
+            //var url = baseurl + Id + "&ClientId=" + clientId;
+            var url = baseurl + Id + "&ClientId=" + clientId + "&AppName=" + appName;
+            window.location = url;
+            return false;
+        }
+        else { return false; }
+    });
+
+
+    $('#btnAddAppInvt').click(function () {
+        //var clientId = $('#ClientId :selected').val();
+        var clientId = '0';
+        var appName = $("#idAddAppName").val().toString();
+
+        if ($('#addchk').prop('checked') == true) {
+            active = true;
+        }
+        else {
+            active = false;
+        }
+
+        ////if (clientId == "") {
+        ////    alert('Please select the client name');
+        ////    return false;
+        ////}
+
+        if (appName == "") {
+            alert('Please enter Application Name');
+            return false;
+        }
+
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3] == 'LOBandApplications') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'LOBandApplications/AddInvApplication/?ClientId='
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'LOBandApplications/AddInvApplication/?ClientId='
+        }
+        var url = baseurl + clientId + "&AppName=" + appName + "&active=" + active;
+        window.location = url;
+    });
+
+    $(document).ready(function (e) {
+        $('#btnAddAppInv').click(function (e) {
+            $('#addInvt').show();
+            $('#det').hide();
+            $('#show_deleteusr_msg').hide();
+            $("#idAddAppName").val("");
+            $('#addchk').prop("checked", false);
+        });
+    });
+
+    $(document).ready(function (e) {
+        $('#btnAddInvtcancel').click(function (e) {
+            $("#idAddAppName").val("");
+            $('#show_deleteusr_msg').hide();
+            $('#addchk').prop("checked", false);
+        });
+    });
+
+    function ImportTemplate() {
+        $("#importSuccess").hide();
+        $("#importFailure").hide();
+        if (confirm('Import will override existing Business capabilities and delete mappings with Applications as well. Are you sure you want to import it?'))
+        {
+
+            var mod = {
+                SubVerticalId: '@Model.SubVerticalId'
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/BusinessCapabilities/ImportDefaultCapabilities")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data.result === true) {
+                            $("#importSuccess").text(data.msg)
+                            $("#importSuccess").show();
+                            var treelist = $("#ClientBusinessCapabilities").data("kendoTreeList");
+                            treelist.dataSource.read();
+                        }
+                        else {
+                            $("#importFailure").text(data.msg);
+                            $("#importFailure").show();
+                        }
+                    },
+                    error: function (data) {
+                        $("#importFailure").show();
+                    }
+                })
+        }
+        else {
+            return false;
+        }
+    }
+
+
+</script>
+@* For Application Inventory ends *@

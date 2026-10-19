@@ -1,0 +1,45 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+<style>
+    .k-toolbar.k-editor-toolbar, .k-editor-toolbar-wrap {
+        display: none;
+    }
+    table.k-editor {
+        border: 1px solid #5876AA;
+        border-radius: unset;
+    }
+</style>
+<div class="recomDashboard">
+    <div class="recommHeader"> Analysis</div>
+    <div id="analysisEditor" style="margin: 0 1em;">
+        @(Html.Kendo().EditorFor(e => e.Analysis)
+        .Name("Analysis")
+        .Tools(tools => tools.Clear())
+        //.HtmlAttributes(new { disabled= "disabled", style = "width:90%;height:100%", aria_label = "editor" })
+        .Resizable(resizable => resizable.Content(false).Toolbar(false))
+                )
+
+    </div>
+    <div id="pdfAnalysis" style="display: none; border: 1px solid #5876AA; margin: 0 1em; padding: 1em;">
+        <p id="Analys" ></p>
+    </div>
+    <div class="recommHeader"> Recomendation</div>
+    <div id="recommEditor" style="margin: 0 1em;">
+        @(Html.Kendo().EditorFor(e => e.Reccommendation)
+        .Name("Reccommendation")
+       .Tools(tools => tools.Clear())
+        //.HtmlAttributes(new { disabled= "disabled",style = "width:90%;height:100%", aria_label = "editor" })
+        .Resizable(resizable => resizable.Content(false).Toolbar(false))
+                )
+
+    </div>
+    <div id="pdfRecom" style="display: none; border: 1px solid #5876AA; margin: 0 1em; padding: 1em;">
+        <p id="Reccoms" ></p>
+    </div>
+</div>
+

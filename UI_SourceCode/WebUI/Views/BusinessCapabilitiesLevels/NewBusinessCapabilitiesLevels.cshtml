@@ -1,0 +1,365 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.BusinessCapabilitiesLevelsInput   
+@{
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/bam.png");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string activeTab = string.Empty;
+    if (Request.QueryString["InExValue"] != null)
+   {
+       activeTab = Request.QueryString["InExValue"];
+   }
+    else
+    {
+        activeTab = "Internal";
+    }
+}
+
+  <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div><!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">Business Alignment Manager</a></li>
+             <li><a href="#">Business Capability Catalog</a></li>
+              <li><a href="#">@Model.titleName</a></li>
+            <li class="active">View-Edit Details</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container--> 
+    <input hidden id="tabid" value="0"  />
+
+<div id="aspdotnettabs" class="container" style="padding:0;">
+          <ul class="nav nav-tabs">
+              @if(activeTab == "Internal")
+              {
+
+                  Html.ViewContext.Writer.Write("<li class=\"active\"><a href=\"#ocInternal\" data-toggle=\"tab\">Internal Capabilities</a></li>");
+                  Html.ViewContext.Writer.Write("<li ><a href=\"#ecExternal\" data-toggle=\"tab\">External Capabilities</a></li>");
+                  Html.ViewContext.Writer.Write("</ul> <div class=\"treeMenuArea tab-pane opened\" id=\"ocInternal\">");
+              }
+              else
+              {
+                  Html.ViewContext.Writer.Write("<li><a href=\"#ocInternal\" data-toggle=\"tab\">Internal Capabilities</a></li>");
+                  Html.ViewContext.Writer.Write("<li class=\"active\" ><a href=\"#ecExternal\" data-toggle=\"tab\">External Capabilities</a></li>");
+                  Html.ViewContext.Writer.Write("</ul> <div class=\"treeMenuArea tab-pane closed\" id=\"ocInternal\">");
+              }
+              <div class="treeMenuContent">
+                <div class="container" style="padding:0;">
+                     <div class="row">
+                        
+                         @Html.Partial("_BcLevel1")
+                         @Html.Partial("_BcLevel2")
+                         @Html.Partial("_BcLevel3")
+                        
+                    @* @Html.Partial("_Verticals")
+                   @Html.Partial("_SubVerticals")*@
+                  <!--/.accountCont --> 
+                  <!-- Optional: clear the XS cols if their content doesn't match in height -->
+                  <div class="clearfix visible-xs">
+                        
+                  </div>
+                  
+                </div>
+                        <div>
+                    @{
+                        if ((Model.Level1Id > 0 || Model.Level1Create == "Level1Create") && (Model.Level2Id == 0 && Model.Level2Create != "Level2Create")&& Model.InExValue =="Internal")
+                            {
+                        @Html.Partial("_BcLevel1Create") 
+                            }
+                    }
+                </div>
+                     <div>
+                    @{
+                        if (Model.Level1Id > 0 && (Model.Level2Id > 0 || Model.Level2Create == "Level2Create") && (Model.Level3Id == 0 && Model.Level3Create != "Level3Create") && Model.InExValue == "Internal")
+                            {
+                        @Html.Partial("_BcLevel2Create") 
+                            }
+                    }
+                </div>
+
+                      <div>
+                    @{
+                        if (Model.Level2Id > 0 && (Model.Level3Id > 0 || Model.Level3Create == "Level3Create") && Model.InExValue == "Internal")
+                            {
+                        @Html.Partial("_BcLevel3Create") 
+                            }
+                    }
+                </div>
+                </div>
+                <!--/.treeMenuContent container--> 
+              </div>
+
+            
+            <!--/.treeMenuContent--> 
+          </div>
+          <!--/.treeMenuArea-->
+              @if(activeTab == "Internal")
+              {
+                  Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane closed\" id=\"ecExternal\" style=\"min-height:600px\"> ");
+        //  <div class="MetricSetup tab-pane closed" id="ecExternal" style="min-height:600px">
+              }
+else
+              {
+                  Html.ViewContext.Writer.Write("</ul> <div class=\"MetricSetup tab-pane opened\" id=\"ecExternal\" style=\"min-height:600px\"> ");
+
+              }
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+              <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div class="row">
+                   @Html.Partial("_BcLevel1External")
+                         @Html.Partial("_BcLevel2External")
+                         @Html.Partial("_BcLevel3External")
+                  <!--/.accountCont --> 
+                  <!-- Optional: clear the XS cols if their content doesn't match in height -->
+                  <div class="clearfix visible-xs"></div>
+                  
+                </div>
+                <!--/.end of row-->
+              
+               <div>
+                    @{
+                        if ((Model.Level1Id > 0 || Model.Level1Create == "Level1Create") && (Model.Level2Id == 0 && Model.Level2Create != "Level2Create") && Model.InExValue == "External")
+                            {
+                        @Html.Partial("_BcLevel1ExternalCreate") 
+                            }
+                    }
+                </div>
+                     <div>
+                    @{
+                        if (Model.Level1Id > 0 && (Model.Level2Id > 0 || Model.Level2Create == "Level2Create") && (Model.Level3Id == 0 && Model.Level3Create != "Level3Create") && Model.InExValue == "External")
+                            {
+                        @Html.Partial("_BcLevel2ExternalCreate") 
+                            }
+                    }
+                </div>
+
+                      <div>
+                    @{
+                        if (Model.Level2Id > 0 && (Model.Level3Id > 0 || Model.Level3Create == "Level3Create") && Model.InExValue == "External")
+                            {
+                        @Html.Partial("_BcLevel3ExternalCreate") 
+                            }
+                    }
+                </div>
+                <!--/.grpArea--> 
+              </div>
+              <!--/.treeMenuContent container--> 
+            </div>
+              <!--/.treeMenuContent--> 
+            </div>
+            <!--/.treeMenuArea--> 
+          </div>
+          <!--/.MetricSetup end of tab 2 --> 
+          
+        </div>
+
+<script>
+    $(document).ready(function () {
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+        $('#btnAddLevel3').click(function () {
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var level1Id = $("#level1Id").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var level1Name = $("#level1Name").val().toString();
+            var subvid = $("#subvid").val().toString();
+
+            if (level2Id == "0") {
+                alert('Please select Business Capability');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level2Id='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level2Id='
+            }
+
+
+            var url = baseurl + level2Id + "&Level3Create=Level3Create" + "&Level2Name=" + level2Name + "&Level1Name=" + level1Name + "&Level1Id=" + level1Id + "&InExValue=" + inExValue + "&subVId=" + subvid;
+            window.location = url;
+
+        });
+
+        $('#btnAddLevel2').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+           
+            var level1Name = $("#level1Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var subvid = $("#subvid").val().toString();
+
+            if (level1Id == "0") {
+                alert('Please select Group name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id='
+            }
+
+            
+            var url = baseurl + level1Id + "&Level2Create=Level2Create" + "&Level1Name=" + level1Name + "&InExValue=" + inExValue + "&subVId=" + subvid;
+            window.location = url;
+
+        });
+
+        $('#btnAddLevel1').click(function () {
+           
+            var subvid = $("#subvid").val().toString();
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+              
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id=0'
+            
+            }
+           
+            var url = baseurl + "&Level1Create=Level1Create" + "&InExValue=Internal" + "&subVId=" + subvid;
+            window.location = url;
+           
+        });
+
+
+        $('#btnAddLevel1Ex').click(function () {
+
+            var subvid = $("#subvid").val().toString();
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id=0'
+
+            }
+
+            var url = baseurl + "&Level1Create=Level1Create" + "&InExValue=External" + "&subVId=" + subvid;
+            window.location = url;
+
+        });
+
+        $('#btnAddLevel2Ex').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var subvid = $("#subvid").val().toString();
+
+            if (level1Id == "0") {
+                alert('Please select Group name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level1Id='
+            }
+
+
+            var url = baseurl + level1Id + "&Level2Create=Level2Create" + "&Level1Name=" + level1Name + "&InExValue=" + inExValue + "&subVId=" + subvid;
+            window.location = url;
+
+        });
+
+        $('#btnAddLevel3Ex').click(function () {
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var level1Id = $("#level1Id").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var level1Name = $("#level1Name").val().toString();
+            var subvid = $("#subvid").val().toString();
+            if (level2Id == "0") {
+                alert('Please select Business Capability');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'BusinessCapabilitiesLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level2Id='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'BusinessCapabilitiesLevels/DisplayBusinessCapabilitiesLevels/?Level2Id='
+            }
+
+
+            var url = baseurl + level2Id + "&Level3Create=Level3Create" + "&Level2Name=" + level2Name + "&Level1Name=" + level1Name + "&Level1Id=" + level1Id + "&InExValue=" + inExValue + "&subVId=" + subvid;
+            window.location = url;
+
+        });
+
+    });
+
+</script>
+
+@*<script type="text/javascript">
+    $(function () {
+        $("#aspdotnettabs").tabs({
+            activate: function() {
+                var selectedTab = $('#aspdotnettabs').tabs('option', 'active');
+                $("#tabid").val(selectedTab);
+            },
+            active: $("#tabid").val()
+                    
+            });
+    });
+    </script>*@

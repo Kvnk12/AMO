@@ -1,0 +1,1442 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Controllers;
+@using WebUI.Dto;
+@using WebUI.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Areas.AssessmentManager.Models;
+
+@model A3MMModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+@*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<style>
+    .k-popup-edit-form.k-window-content {
+        height: 42em;
+    }
+
+    .k-edit-form-container {
+        width: 84vw;
+        overflow-wrap: inherit
+    }
+
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-tooltip, .k-tooltip.k-popup, .k-tooltip.k-widget {
+        /*// .k-tooltip {*/
+        border-radius: 4px;
+        border-color: #fff;
+        color: #000;
+        background-color: #fff;
+        max-width: 250px;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid .k-grid-content-locked {
+        background-color: white;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid {
+        background-color: white;
+    }
+
+    #saveAlertModal .alert {
+        width: 30vw;
+        height: 5vh !important;
+        padding: unset;
+        display: flex;
+    }
+
+    /*  .bg-image{
+        display:none;
+    }*/
+
+    .custom-tooltip {
+        white-space: normal;
+        width: 20vw;
+        word-wrap: break-word;
+        position: absolute;
+        padding: 1px 3px;
+        border-radius: 3px;
+        z-index: 999999;
+        display: none;
+        border: none;
+        background-color: lightgrey !important;
+    }
+
+    label:hover .custom-tooltip {
+        position: absolute;
+        display: block;
+        visibility: visible;
+    }
+
+    #New_QuestionsTreeList .k-pager-wrap .k-link.k-state-selected, #New_QuestionsTreeList .k-pager-wrap .k-link.k-state-selected:hover {
+        background-color: rgb(91,121,171);
+        border-color: rgb(91,121,171);
+        color: white;
+    }
+
+    #New_QuestionsTreeList .k-pager-wrap .k-link {
+        border-color: #ccc;
+        color: #333;
+        background: #fff;
+    }
+
+        #New_QuestionsTreeList .k-pager-wrap .k-link:focus {
+            box-shadow: none;
+        }
+
+        #New_QuestionsTreeList .k-pager-wrap .k-link:hover {
+            color: #333;
+            border-color: #ccc;
+            background: #fff;
+        }
+
+    #New_QuestionsTreeList .k-i-arrow-60-down, #New_QuestionsTreeList .k-i-arrow-60-left, #New_QuestionsTreeList .k-i-arrow-60-right, #New_QuestionsTreeList .k-i-arrow-60-up {
+        cursor: pointer;
+        color: #333;
+    }
+
+    #New_QuestionsTreeList .k-pager-nav .k-icon, #New_QuestionsTreeList .k-pager-nav .k-tool-icon {
+        color: #333;
+    }
+
+    #New_QuestionsTreeList .k-column-title {
+        color: white;
+    }
+    .custom-blue-label {
+        font-size: 1vw !important;
+    }
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+    }
+
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track {
+        background-repeat: repeat-y;
+    }
+
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track-piece {
+        border-radius: 3px;
+        background-color: #C4C4C4;
+        border: 3px solid #eee;
+    }
+
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: #0780B0;
+        border-radius: 6px;
+    }
+
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: rgb(91,121,171);
+        border-radius: 6px;
+    }
+
+    #New_QuestionsTreeList .k-grid-content.k-auto-scrollable {
+        height: 46vh;
+    }
+    .custom-kendo-treelist .k-treelist .k-grid-content table tr td {
+        font-size: 0.86vw !important;
+    }
+    .custom-kendo-treelist .k-treelist .k-grid-header .k-grid-header-wrap th.k-header {
+        font-size: 1vw !important;
+        font-weight: 600;
+    }
+    #New_QuestionsTreeList .k-icon.k-i-filter:before {
+        content: "\e031";
+    }
+</style>
+<div class="content-main dark-bg buildDiscpl">
+    <div>
+        <ol class="breadcrumb">
+            <li style="font-size:10px">Home</li>
+            <li class="active" style="font-size:10px">Question Set Administration</li>
+        </ol>
+    </div>
+
+    @*Question Type search criteria*@
+    <div>
+        <h5 style="color: white; margin: 2px;">Question Set Administration </h5>
+    </div>
+    <div style="margin-top:0.5em;">
+        @Html.Partial("_QuestionSetAdministrationSearch")
+    </div>
+
+    <div style="display: flex;justify-content:flex-end;margin: 0.8em 0;" class="addExpButton">
+        @if (Model.QSetStatus.ToLower() == "draft")
+        {
+            <button  class="plain-button btn-add-Pques" type="button" onclick="buttonAddParentQuestion()" id="btn-addPques" style="font-size: 1.02vw; cursor: pointer"> Add Question </button>
+        }
+        else
+        {
+            <button disabled class="plain-button btn-add-Pques" type="button" onclick="buttonAddParentQuestion()" id="btn-addPques" style="font-size: 1.02vw; cursor: default"> Add Question </button>
+        }
+
+        <button class="plain-button export-button" type="button" onclick="ExportBuildTemplate()" id="btn-export-qset" style="font-size: 1.02vw;">Export - </button>
+
+        <!--comment by dp----<div class="kedb-buttons" style="display: flex; justify-content: flex-end; margin-top: 2em; margin-bottom: 1em; margin-left: 63em; ">
+
+        <div id="genbutton">-->
+        @* <button disabled class="custom-button" type="button" onclick="buttonGen()" id="btnGen">Build Discipline</button>*@
+        <!--</div>-->
+        @*<div id="datagatherbutton">
+                <button  class="custom-button" type="button" onclick="dataGathering()" id="btnGen">Data Gathering</button>
+            </div>*@
+
+        <!--<div id="launchbutton">-->
+        @*<button   class="custom-button" title="Launch Assessment" type="button" onclick="buttonLaunch()" id="btnlaunch">Launch</button>*@
+        @*<button class='custom-button'  title='Launch Assessment Icon' style='background-image: url("/Content/images/launch.svg");background-repeat: no-repeat; width:10em;height:2em;margin-top: 2px;margin-left: 27px;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -46px;background-color: transparent;background-size: 1.17em;display: inline-grid;' onclick='launchAssessment();'>Launch</button>*@
+        @*<button onclick='launchAssessment()' style="background-color: rgb(91,121,171); color: white; font-size: 12px; width: 100px; vertical-align: middle; border-radius: 4px; border: none; padding: 0.3em; width: fit-content; padding-left: 9px; padding-right: 9px; padding-top: 7px; padding-bottom: 5px; margin-left: 0.5em;  "> <img style="width: 1em;" src="~/Content/images/launch_white.svg"> Launch Assessment</button>*@
+        <!--</div>
+        </div> comment by dp-->
+    </div>
+
+    <div class="custom-kendo-treelist">
+
+
+        @(Html.Kendo().TreeList<A3MMModel>()
+                                            .Name("New_QuestionsTreeList")
+
+                                            .Columns(columns =>
+                                            {
+                                                // columns.Add().Selectable(true).Width("20px");
+
+                                                // columns.Add().Field(e => e.QNo).Title("QNo").Width(60);
+                                                columns.Add().Field(e => e.SQNo).Title("QNo").Width(40);
+                                                columns.Add().Field(e => e.QuestionIdentifier).Title("Question Identifier").Width(50);
+                                                columns.Add().Field(e => e.DisciplineName).Title("Discipline").Width(50).Filterable(true);
+                                                columns.Add().Field(e => e.ComponentName).Title("Component").Width(50).Filterable(true);
+                                                columns.Add().Field(e => e.AspectName).Title("Aspect").Width(50).Filterable(true);
+                                                columns.Add().Field(e => e.Question).Title("Question").TemplateId("DisplayQDesc").HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" }).Width(80).Filterable(true);
+                                                columns.Add().Field(e => e.ExampleAnswer).Title("Example Answer").TemplateId("DisplayExAnsDesc").HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" }).Width(60).Filterable(true);
+                                                //columns.Add().Field(e => e.ParentID).Title("Parent ID").Width(60);
+
+                                                columns.Add().Field(e => e.Datasource).Title("Data source").Width(60).Filterable(true);
+                                                columns.Add().Field(e => e.Status).Title("Status").Width(60);
+                                                //columns.Add().Title("Action").Width(26).Template("#if(data.Status=='Draft' && data.isView=='No' && data.UserRole=='Admin'){#<div><div style='display:flex;margin-left:-19px'><button class='bg-image' title='Edit Question' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 2px;margin-left: 7px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.38em;' onclick='editQuestion(#:QuestionId#);'></button>#}if(data.Question != null ){#<button class='view' title='View Question' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 5px;margin-left: 7px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.58em;display: inline-grid;' onclick='viewQuestion(#:QuestionId#);'></button>if(data.ParentId==null){#<button class='view' title='Add Sub Question' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 5px;margin-left: 7px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.58em;display: inline-grid;' onclick='addsubQuestion(#:QuestionId#);'></button>	#}</div></div>#}#");
+
+                                                // columns.Add().Title("Action").Width(100).Template("#if(data.Status=='Draft' && data.isView=='No' && data.UserRole=='Admin'){#<div><div><button class='bg-image edit-question' title='Edit Question' onclick='editQuestion(#:QuestionId#);'></button>#}if(data.Question != null ){#<button class='view-question' title='View Question' onclick='viewQuestion(#:QuestionId#);'></button>#}if(data.ParentID == null&&data.Status=='Draft' ){#<button class='add-question' title='Add Sub Question' onclick='AddSubQuestion(#:Id#);'></button></div></div>#}#");
+
+                                                // columns.Add().Title("Action").Width(29).Template("#if(data.Question != null ){#<button class='view-question' title='View Question' onclick='viewQuestion(#:QuestionId#);'></button>#}#");
+                                                //  columns.Add().Title("").Width(20).Template("#if(data.Status=='Draft' && data.isView=='No' && data.UserRole=='Admin'){#<button class='bg-image edit-question' title='Edit Question' onclick='editQuestion(#:QuestionId#);'></button>#}#");
+                                                //  columns.Add().Title("").Width(20).Template("#if(data.ParentID == null&&data.Status=='Draft' ){#<button class='add-question' title='Add Sub Question' onclick='AddSubQuestion(#:Id#);'></button>#}#");
+
+                                                columns.Add().Filterable(false).Title("Action").Width(50).Template("#if(data.Question != null && data.ParentID == null){#<div style='display:flex;'><button class='view-question' title='View Question' onclick='viewQuestion(#:QuestionId#);'></button>#}if(data.ParentID != null){#<button class='view-question' title='View Sub Question' onclick='viewQuestion(#:QuestionId#);'></button>#}if(data.Status=='Draft' && data.isView=='No' && data.UserRole=='Admin'&& data.ParentID == null){#<button class='bg-image edit-question' title='Edit Question' onclick='editQuestion(#:QuestionId#);'></button>#}if(data.Status=='Draft' && data.isView=='No' && data.UserRole=='Admin'&& data.ParentID != null){#<button class='bg-image edit-question' title='Edit Sub Question' onclick='editQuestion(#:QuestionId#);'></button>#}if(data.ParentID == null&&data.Status=='Draft'&& data.isView=='No' ){#<button class='add-question' title='Add Sub Question' onclick='AddSubQuestion(#:Id#);'></button></div>#}#");
+                                            })
+                                              // .Selectable(true)
+                                              .Toolbar(tools =>
+                                              {
+                                                  // tools.Excel().Text(" ");
+                                                  // tools.Create().Text("Add Question set");
+                                              })
+                                            .Filterable()
+                                            .Sortable()
+                                            .DataSource(dataSource => dataSource
+                                                // .ServerOperation(true)
+                                                .Read(read => read.Action("GetQuestionsAndSubQuestions", "Assessment").Data("getWhereClause"))
+                                                //.Create(create => create.Action("AddQuesAndSubQues", "Assessment"))
+                                                .Model(m =>
+                                                {
+                                                    m.Id(f => f.Id);
+                                                    m.ParentId(f => f.ParentID);
+                                                    m.Expanded(true);
+                                                    //  m.Field(f => f.DisciplineName);
+                                                })
+                                                .PageSize(10)
+                                                .ServerOperation(false)
+                                            )
+
+                                             //.Height(250)
+                                             .Pageable(true)
+                                             //.ColumnMenu()
+                                            //.PageSizes(true)
+                                            )
+    </div>
+    @Html.Partial("_AddQuestion", Model)
+    @Html.Partial("_AddSubQuestion", Model)
+    @Html.Partial("_EditQuestion", Model)
+    @Html.Partial("_LaunchAssessment", Model)
+    @Html.Partial("_DataGatheringAT", Model)
+
+
+    <div class="actionButtons" id="actionButtons" style="margin-top: 1.5em;display:flex;justify-content:flex-end">
+        <div style="margin: 0 1.5em 0 0;">
+            <button id="btnFinalize" disabled style="width: 12vw; margin-right: 1em; margin-left: -7px;" class="custom-button" type="button" onclick="onFinalize()">Finalize</button>
+        </div>
+    </div>
+</div>
+
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+
+                    <label id="labelError" style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while saving Question.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+
+                    <label id="labelSuccess" style="width: 29vw; margin-top: 4px; margin-left: 1em;">Question Added Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: -1.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+<script id="DisplayQDesc" type="text/x-kendo-template">
+    @{
+
+        if (true)
+        {
+            <label>#: Question #<span class="custom-tooltip">#: Question #</span></label>
+
+        }
+        else
+        {
+            <label>#: Question #</label>
+        }
+    }
+
+</script>
+<script id="DisplayExAnsDesc" type="text/x-kendo-template">
+    @{
+
+        if (true)
+        {
+            <label>#: ExampleAnswer #<span class="custom-tooltip">#: ExampleAnswer #</span></label>
+
+        }
+        else
+        {
+            <label>#: ExampleAnswer #</label>
+        }
+    }
+
+</script>
+
+<script>
+    $(document).ready(function () {
+        var winObject = $("#AddQuestionpopUp").data("kendoWindow");
+        winObject.wrapper.addClass("addQuest");
+        var winObject1 = $("#EditQuestionpopUp").data("kendoWindow");
+        winObject1.wrapper.addClass("editQuest");
+        var winObject2 = $("#AddSubQuestionpopUp").data("kendoWindow");
+        winObject2.wrapper.addClass("addSubQuest");
+
+    });
+    var isEditdrpdwnchange = false;
+    var isEditDisciplineComponentChange = false;
+       $(window).on("load", function () {
+
+      
+            var QSetStatus = @Html.Raw(Json.Encode(Model.QSetStatus));
+
+            if (QSetStatus == "Draft") {
+                document.getElementById("btnFinalize").disabled = false;
+                document.getElementById("btn-addPques").disabled = false;
+
+            }
+            else {
+                document.getElementById("btnFinalize").disabled = true;
+                document.getElementById("btn-addPques").disabled = true;
+
+           }
+            var isView = @Html.Raw(Json.Encode(Model.isView));
+
+            if (isView == "Yes") {
+                document.getElementById("AssessmentID_panel").disabled = true;
+                document.getElementById("QuestionVerDrpdown").disabled = true;
+                document.getElementById("btnLaunch").disabled = true;
+                document.getElementById("btn-addPques").disabled = true;
+                document.getElementById("btnFinalize").style.display = 'none';
+
+
+            } else {
+                document.getElementById("AssessmentID_panel").disabled = false;
+                document.getElementById("QuestionVerDrpdown").disabled = false;
+                document.getElementById("btnLaunch").disabled = false;
+                document.getElementById("btn-addPques").disabled = false;
+                document.getElementById("btnFinalize").style.display = 'block';
+            }
+
+        });
+
+
+
+    function getComponentDefToolTip(e) {
+            var dataItem = $("#DisciplineGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+            var content = dataItem.ComponentDefinition;
+            return content;
+        }
+
+        function getQuestionToolTip(e) {
+            var dataItem = $("#DisciplineGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+            var content = dataItem.Question;
+            return content;
+        }
+
+        function addQuestion(AspectID) {
+            document.getElementById("Question").value = " ";
+           // console.log(AspectID);
+            var aspectID = parseInt(AspectID);
+            var mod = {
+            AspectID: aspectID
+            };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetMetaDetails")';
+        $.ajax(
+            {
+        url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                var Disciplinedrpdpwn = $("#DisciplineId").data("kendoDropDownList");
+                Disciplinedrpdpwn.value(data.DisciplineId);
+                var Componentdrpdpwn = $("#ComponentId").data("kendoDropDownList");
+                Componentdrpdpwn.value(data.ComponentId);
+                var Aspectdrpdpwn = $("#AspectID").data("kendoDropDownList");
+                Aspectdrpdpwn.value(data.AspectID);
+                var popup = $("#AddQuestionpopUp").data("kendoWindow");
+                //$('.k-window-title').text("Add KEDB");
+                popup.open();
+                popup.center();
+            }
+        })
+
+
+    }
+
+    @*function onSaveClick() {
+
+        var AssessmentID = $("#AssessmentID").data("kendoDropDownList").value();
+        //if (AssessmentID == '') {
+        //    $('#AssessmentID_alert').show();
+        //    return false;
+        //}
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        var AspectID = $("#AspectID").data("kendoDropDownList").value();
+
+        var QVerTxtBox = $("#QVerTxtBox").data("kendoTextBox").value();
+        //QVerTxtBox = QVerTxtBox.toString();
+        //if (QVerTxtBox.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    QVerTxtBox = " ";
+        //}
+
+        var QuestionField = $("#Question").val();
+        //QuestionField = QuestionField.toString();
+        //if (QuestionField.trim() == '') {
+        //    QuestionField = " ";
+        //}
+
+
+        //var AnswerField = $("#ExampleAnswer").val();
+        //AnswerField = AnswerField.toString();
+        //if (AnswerField.trim() == '') {
+        //    AnswerField = " ";
+        //}
+        var AnswerField = $("#ExampleAnswer").val();
+        //var dataSource = $("#dSourceBox").data("kendoTextBox").value();
+        var dataSource = $("#DatasourceId").data("kendoDropDownList").value();
+        //if (dataSource.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    dataSource = " ";
+        //}
+        console.log(AssessmentID + " " + DisciplineId + " " + ComponentId + " " + AspectID + " " + QVerTxtBox+" "+QuestionField+" "+AnswerField)
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              DisciplineId: DisciplineId,
+              ComponentId: ComponentId,
+              AspectID: AspectID,
+              VersionID: QVerTxtBox,
+              Question: QuestionField,
+              ExampleAnswer: AnswerField,
+              DatasourceId: dataSource,
+        }
+
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/SaveQuestion")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    $("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                    //alert("Success");
+                    console.log(response);
+                    var popup = $("#AddQuestionpopUp").data("kendoWindow");
+                    popup.close();
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess1').show();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#lblErr').show();
+                }
+            });
+    }*@
+
+    function launchAssessment() {
+      //  console.log("Launch ");
+        $('#ContractList_alert').hide();
+        document.getElementById("confirmLaunch").style.display = "none";
+        var popup = $("#LaunchAssessmentpopUp").data("kendoWindow");
+        $("#AssessmentID_Launch").data("kendoDropDownList").select(0);
+        $("#AccountNamesList").data("kendoDropDownList").select(0);
+        $("#EnagagementPOC").data("kendoDropDownList").select(0);
+        $("#ContractList").data("kendoDropDownList").select(0);
+        $("#EngagementTC").data("kendoDropDownList").select(0);
+        $("#QVerTxtBox_Launch").data("kendoTextBox").value("Ver - 0.1");
+        $("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+        $("#AssessmentName_Launch").data("kendoTextBox").value("Loblaw-A3MM-2022Q1");
+        //$('.k-window-title').text("Add KEDB");
+        $("#AssessmentID_Launch").data("kendoDropDownList").enable(true);
+        $("#AccountNamesList").data("kendoDropDownList").enable(true);
+        $("#ContractList").data("kendoDropDownList").enable(true);
+        $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+        $("#EngagementTC").data("kendoDropDownList").enable(true);
+        $("#AssessmentTeam").data("kendoTextBox").enable(true);
+        $("#QVerTxtBox_Launch").data("kendoTextBox").enable(true);
+        $("#StartDate_Launch").data("kendoDatePicker").enable(true);
+        //$("#AssessmentName_Launch").data("kendoTextBox").enable(true);
+
+
+
+
+        popup.open();
+        popup.center();
+    }
+
+    function onLaunchClick() {
+     //   console.log("Inside onLaunchClick()");
+
+        var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+        document.getElementById("btnConfirmNo").style.marginLeft = "44.5em";
+        document.getElementById("btnConfirmNo").style.marginTop = "-3.25em";
+        document.getElementById("btnConfirmYes").style.marginTop = "-3.25em";
+
+
+        var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+        var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+        var ContractName = $("#ContractList").data("kendoDropDownList").text();
+        if (ContractName == 'Select contract...') {
+            $('#ContractList_alert').show();
+            setTimeout(function () {
+                $('#ContractList_alert').hide();
+             }, 4000);
+            return false;
+        }
+        const date = new Date();
+        var quarter = Math.floor((date.getMonth() + 3) / 3);
+        let year = date.getFullYear();
+        var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+       // console.log("AssessmentNameLogic is "+ AssessmentNameLogic);
+        //$("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+        $("#AssessmentID_Launch").data("kendoDropDownList").enable(false);
+        $("#AccountNamesList").data("kendoDropDownList").enable(false);
+        $("#ContractList").data("kendoDropDownList").enable(false);
+        $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+        $("#EngagementTC").data("kendoDropDownList").enable(false);
+        $("#AssessmentTeam").data("kendoTextBox").enable(false);
+        $("#QVerTxtBox_Launch").data("kendoTextBox").enable(false);
+        $("#StartDate_Launch").data("kendoDatePicker").enable(false);
+        //$("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+
+
+        document.getElementById("confirmLaunch").style.display = "block";
+    }
+
+    function onConfirmLaunchYes() {
+        var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var ContractID = $("#ContractList").data("kendoDropDownList").value();
+           //if (ContractID == '') {
+        //    $('#ContractList_alert').show();
+        //    return false;
+        //}
+        var EngagementPocID = $("#EnagagementPOC").data("kendoDropDownList").value();
+
+        var EngagementComID = $("#EngagementTC").data("kendoDropDownList").value();
+        var VersionID = $("#QVerTxtBox_Launch").data("kendoTextBox").value();
+        var AssessmentTeam = $("#AssessmentTeam").data("kendoTextBox").value();
+        var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+        var StartDate = kendo.toString($("#StartDate_Launch").data("kendoDatePicker").value(), 'dd/MM/yyyy');
+        var Status = "Initiated";
+      //  console.log(AssessmentID + " " + AccountID + " " + EngagementPocID + " " + ContractID + " " + EngagementComID + " " + VersionID + " " + AssessmentTeam + " " + AssessmentName + " " + StartDate)
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              AccountID: AccountID,
+              EngagementPocID: EngagementPocID,
+              ContractID: ContractID,
+              EngagementComID: EngagementComID,
+              VersionID: VersionID,
+              AssessmentTeam: AssessmentTeam,
+              AssessmentName: AssessmentName,
+              startDateIgnore: StartDate,
+              Status:Status,
+              }
+
+            var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/LaunchAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+               // console.log("Success");
+               // console.log(response);
+                var popup = $("#LaunchAssessmentpopUp").data("kendoWindow");
+                popup.close();
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#labelSuccess').text("Assessment Launched Successfully with status 'Initiated'");
+                $('#lblSuccess1').show();
+            },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#labelError').text("Error while Launching Assessment");
+
+                $('#lblErr').show();
+            }
+        });
+    }
+
+    function onConfirmLaunchNo() {
+        var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var EngagementPocID = $("#EnagagementPOC").data("kendoDropDownList").value();
+        var ContractID = $("#ContractList").data("kendoDropDownList").value();
+        //if (ContractID == '') {
+        //    $('#ContractList_alert').show();
+        //    return false;
+        //}
+        var EngagementComID = $("#EngagementTC").data("kendoDropDownList").value();
+        var VersionID = $("#QVerTxtBox_Launch").data("kendoTextBox").value();
+        var AssessmentTeam = $("#AssessmentTeam").data("kendoTextBox").value();
+        var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+        var StartDate = kendo.toString($("#StartDate_Launch").data("kendoDatePicker").value(), 'dd/MM/yyyy');
+        var Status = "Preparation";
+        //console.log(AssessmentID + " " + AccountID + " " + EngagementPocID + " " + ContractID + " " + EngagementComID + " " + VersionID + " " + AssessmentTeam + " " + AssessmentName + " " + StartDate)
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              AccountID: AccountID,
+              EngagementPocID: EngagementPocID,
+              ContractID: ContractID,
+              EngagementComID: EngagementComID,
+              VersionID: VersionID,
+              AssessmentTeam: AssessmentTeam,
+              AssessmentName: AssessmentName,
+              startDateIgnore: StartDate,
+              Status: Status,
+              }
+
+            var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/LaunchAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+               // console.log("Success");
+               // console.log(response);
+                var popup = $("#LaunchAssessmentpopUp").data("kendoWindow");
+                popup.close();
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#labelSuccess').text("Assessment Launched Successfully with status 'Preparation'");
+                $('#lblSuccess1').show();
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#labelError').text("Error while Launching Assessment");
+
+                $('#lblErr').show();
+            }
+        });
+    }
+
+    function onWinClose() {
+        clearaddparentQ();
+    }
+    function onSubWinClose() {
+        clearaddSubQ();
+    }
+
+    function editQuestion(QuestionID) {
+      //  console.log(QuestionID);
+        var QuestionID1 = parseInt(QuestionID);
+         var mod = {
+             QuestionID: QuestionID1
+        };
+       var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetQuestionDetails")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    var Disciplinedrpdpwn = $("#DisciplineId_edit").data("kendoDropDownList");
+                    Disciplinedrpdpwn.value(data.DisciplineId);
+                    var Componentdrpdpwn = $("#ComponentId_edit").data("kendoDropDownList");
+                    Componentdrpdpwn.dataSource.read();
+
+                    setTimeout(function () {
+                        Componentdrpdpwn.value(data.ComponentId);
+                    }, 500);
+
+
+                    //console.log("response : "+data.ComponentId)
+
+                    var Aspectdrpdpwn = $("#AspectID_edit").data("kendoDropDownList");
+                    setTimeout(function () {
+                        Aspectdrpdpwn.dataSource.read();
+                        setTimeout(function () {
+                            Aspectdrpdpwn.value(data.AspectID);
+                        }, 900);
+
+                    }, 1000);
+
+
+
+
+
+
+                    var assessmentdropdownlist = $("#AssessmentID_edit").data("kendoDropDownList");
+                    assessmentdropdownlist.value(data.SurveyTypeID);
+                    assessmentdropdownlist.enable(false);
+
+                    var qvertxtbox = $("#QVerTxtBox_edit").data("kendoTextBox");
+                    qvertxtbox.value(data.VersionID);
+                    qvertxtbox.enable(false);
+
+
+                    var qNotxtbox = $("#QNumber_edit").data("kendoTextBox");
+                    qNotxtbox.value(data.SQNo);
+
+
+                    var Datasourcedropdownlist = $("#DatasourceId_edit").data("kendoDropDownList");
+                    Datasourcedropdownlist.enable(false);
+
+                    $("textarea#Question_edit").val(data.Question);
+                    $("textarea#ExampleAnswer_edit").val(data.ExampleAnswer);
+                    document.getElementById("Question_edit").disabled = false;
+                    document.getElementById("ExampleAnswer_edit").disabled = false;
+                    var textbox = $("#QVerTxtBox_edit").data("kendoTextBox");
+                    textbox.value(data.QVerTxtBox_edit);
+                    document.getElementById("questionIDHidden").value = data.QuestionId;
+                    document.getElementById("btnfinalize").style.display = "block";
+                    document.getElementById("btnEdit").style.display = "block";
+                    document.getElementById("btncancelledit").style.display = "block";
+                    var Disciplinedrpdpwn = $("#DisciplineId_edit").data("kendoDropDownList");
+                    var Componentdrpdpwn = $("#ComponentId_edit").data("kendoDropDownList");
+                    var Aspectdrpdpwn = $("#AspectID_edit").data("kendoDropDownList");
+                    var Datasourcedropdownlist = $("#DatasourceId_edit").data("kendoDropDownList");
+
+                    if (data.ParentID == null) {
+
+                        Disciplinedrpdpwn.enable(true);
+                        Componentdrpdpwn.enable(true);
+                        Aspectdrpdpwn.enable(true);
+                        Datasourcedropdownlist.enable(true);
+                        $('.k-window-title').text("Edit Question");
+                        document.getElementById("ParentIDHidden").value = null;
+                    } else {
+                        Disciplinedrpdpwn.enable(false);
+                        Componentdrpdpwn.enable(false);
+                        Aspectdrpdpwn.enable(false);
+                        Datasourcedropdownlist.enable(false);
+                        $('.k-window-title').text("Edit sub Question");
+                        document.getElementById("ParentIDHidden").value = data.ParentID;
+                    }
+
+                    var popup = $("#EditQuestionpopUp").data("kendoWindow");
+
+                    popup.open();
+                    popup.center();
+                }
+            })
+    }
+
+        function viewQuestion(QuestionID) {
+      //  console.log(QuestionID);
+
+       var questionID1 = parseInt(QuestionID);
+         var mod = {
+             QuestionID: questionID1
+        };
+       var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetQuestionDetails")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var Disciplinedrpdpwn = $("#DisciplineId_edit").data("kendoDropDownList");
+                    Disciplinedrpdpwn.value(data.DisciplineId);
+                    Disciplinedrpdpwn.enable(false);
+                    var Componentdrpdpwn = $("#ComponentId_edit").data("kendoDropDownList");
+                    Componentdrpdpwn.value(data.ComponentId);
+                    Componentdrpdpwn.enable(false);
+                    var Aspectdrpdpwn = $("#AspectID_edit").data("kendoDropDownList");
+                    Aspectdrpdpwn.value(data.AspectID);
+                    Aspectdrpdpwn.enable(false);
+                    var assessmentdropdownlist = $("#AssessmentID_edit").data("kendoDropDownList");
+                    assessmentdropdownlist.value(data.SurveyTypeID);
+                    assessmentdropdownlist.enable(false);
+
+                    var qvertxtbox = $("#QVerTxtBox_edit").data("kendoTextBox");
+                    qvertxtbox.value(data.VersionID);
+                    qvertxtbox.enable(false);
+                    var qNotxtbox = $("#QNumber_edit").data("kendoTextBox");
+                    qNotxtbox.value(data.SQNo);
+
+
+                    var Datasourcedropdownlist = $("#DatasourceId_edit").data("kendoDropDownList");
+                    Datasourcedropdownlist.enable(false);
+
+                    $("textarea#Question_edit").val(data.Question);
+                    $("textarea#ExampleAnswer_edit").val(data.ExampleAnswer);
+                    document.getElementById("Question_edit").disabled = true;
+                    document.getElementById("ExampleAnswer_edit").disabled = true;
+                    var textbox = $("#QVerTxtBox_edit").data("kendoTextBox");
+                    textbox.value(data.QVerTxtBox_edit);
+
+                    document.getElementById("questionIDHidden").value = data.QuestionId;
+                    var popup = $("#EditQuestionpopUp").data("kendoWindow");
+                    if (data.ParentID == null) {
+                        $('.k-window-title').text("View Question");
+                    } else {
+                        $('.k-window-title').text("View Sub Question");
+                    }
+
+
+                    document.getElementById("btnEdit").style.display = "none";
+                    document.getElementById("btncancelledit").style.display = "none";
+                    document.getElementById("btnfinalize").style.display = "none";
+                    popup.open();
+                    popup.center();
+                }
+            })
+
+
+
+
+
+    }
+
+    function onSelectAccount(e) {
+        //$("#Contract").data("kendoMultiSelect").dataSource.read(); //for multi select
+        //$("#ContractList").data("kendoDropDownList").dataSource.read();
+        var contractDropdown = $("#ContractList").data("kendoDropDownList");
+        var contract = contractDropdown.value();
+        var oldSel = contractDropdown.selectedIndex;
+        contractDropdown.dataSource.read();
+        setTimeout(function () {
+            contractDropdown.selectedIndex=0;
+        }, 500);
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountNamesList").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+    function onSubCancelClick() {
+        var popup = $("#AddSubQuestionpopUp").data("kendoWindow");
+        popup.close();
+        var qNotxtbox = $("#ParentQNumber").data("kendoTextBox");
+        qNotxtbox.value("");
+        clearaddSubQ();
+    }
+
+    function onCancelClick() {
+        var popup = $("#AddQuestionpopUp").data("kendoWindow");
+        popup.close();
+        clearaddparentQ();
+    }
+    function clearaddparentQ() {
+        $("#DisciplineId").data("kendoDropDownList").select(0);
+        $("#ComponentId").data("kendoDropDownList").select(0);
+        $("#AspectID").data("kendoDropDownList").select(0);
+        $("#DatasourceId").data("kendoDropDownList").select(0);
+        $("#Question").val("");
+        $("#ExampleAnswer").val("");
+        document.getElementById("id_addQ").style.display = 'none';
+        document.getElementById("id_Dis").style.display = 'none';
+        document.getElementById("id_comp").style.display = 'none';
+        document.getElementById("id_Asp").style.display = 'none';
+    }
+
+    function clearaddSubQ(){
+        $("#SubDisciplineId").data("kendoDropDownList").select(0);
+        $("#subComponentId").data("kendoDropDownList").select(0);
+        $("#SubAspectID").data("kendoDropDownList").select(0);
+        $("#SubDatasourceId").data("kendoDropDownList").select(0);
+        $("#SubQuestion").val("");
+        $("#SubExampleAnswer").val("");
+        document.getElementById("id_addSubQ").style.display = 'none';
+    }
+
+    function onCancelClickEdit() {
+        var popup = $("#EditQuestionpopUp").data("kendoWindow");
+        popup.close();
+    }
+
+    function dataGathering() {
+        var popup = $("#DatagathringATpopUp").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function onSelectContract() {
+        var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+        var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+        var ContractName = $("#ContractList").data("kendoDropDownList").text();
+        const date = new Date();
+        var quarter = Math.floor((date.getMonth() + 3) / 3);
+        let year = date.getFullYear();
+        var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+      //  console.log("AssessmentNameLogic is " + AssessmentNameLogic);
+        $("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+    }
+
+
+
+
+    //function onExcelExport(e) {
+    //    //var AssessmentID = $("#AssessmentName").data("kendoDropDownList").text();
+    //    //var SurveyTypeID = $("#AssessmentID").data("kendoDropDownList").text();
+    //    //e.workbook.fileName = SurveyTypeID + "_" + AssessmentID + ".xlsx";
+
+    //    var exportFlag = false;
+
+    //    var grid = $("#DisciplineGrid").data("kendoGrid");
+    //    grid.hideColumn(9);
+    //    setTimeout(function () {
+    //        grid.showColumn(9);
+    //    }, 4000);
+
+
+    //}
+
+
+    //$("#DisciplineGrid").data("kendoGrid").bind("onExcelExport", function (e) {
+    //    if (!exportFlag) {
+    //        e.sender.hideColumn(1);
+    //        e.preventDefault();
+    //        exportFlag = true;
+    //        setTimeout(function () {
+    //            e.sender.saveAsExcel();
+    //        });
+    //    } else {
+    //        e.sender.showColumn(1);
+    //        exportFlag = false;
+    //    }
+    //});
+
+
+    function addQuestion1() {
+
+       // console.log(AspectID);
+        var popup = $("#AddQuestionpopUp").data("kendoWindow");
+        $('.k-window-title').text("Add Question");
+        var AssessmentID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        $("#AssessmentID").data("kendoDropDownList").value(AssessmentID);
+        $("#DisciplineId").data("kendoDropDownList").select(0);
+        $("#ComponentId").data("kendoDropDownList").select(0);
+        $("#DatasourceId").data("kendoDropDownList").select(0);
+        $("#AspectID").data("kendoDropDownList").select(0);
+        //$("#QVerTxtBox").data("kendoTextBox").value("Ver - 0.1");
+        document.getElementById("Question").value = " ";
+        document.getElementById("ExampleAnswer").value = " ";
+        document.getElementById("ParentIDHidden").value = null;
+        var mod = {
+            SurveyTypeID: AssessmentID
+        }
+
+        var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/latestDraftVersionForType")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    $("#QVerTxtBox").data("kendoTextBox").value(response);
+                    popup.open();
+                    popup.center();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+
+                }
+            });
+
+
+
+
+
+    }
+
+    function onSaveClick() {
+        var QuestionField = $("#Question").val();
+        if (QuestionField == "") {
+
+            document.getElementById("id_addQ").style.display = 'block';
+            return false;
+        }
+        else {
+           // console.log("in");
+            document.getElementById("id_addQ").style.display = 'none';
+
+        }
+
+        var SurveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+        //if (AssessmentID == '') {
+        //    $('#AssessmentID_alert').show();
+        //    return false;
+        //}
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        var AspectID = $("#AspectID").data("kendoDropDownList").value();
+       // console.log(ComponentId);
+        if (DisciplineId=='') {
+            document.getElementById("id_Dis").style.display = 'block';
+            return false;
+        } else {
+            document.getElementById("id_Dis").style.display = 'none';
+        }
+        if (ComponentId == '') {
+            document.getElementById("id_comp").style.display = 'block';
+            return false;
+        } else {
+            document.getElementById("id_comp").style.display = 'none';
+        }
+        if (AspectID == '') {
+            document.getElementById("id_Asp").style.display = 'block';
+            return false;
+        } else {
+            document.getElementById("id_Asp").style.display = 'none';
+        }
+
+        var QVerTxtBox = $("#QVerTxtBox").data("kendoTextBox").value();
+        //QVerTxtBox = QVerTxtBox.toString();
+        //if (QVerTxtBox.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    QVerTxtBox = " ";
+        //}
+
+
+        //QuestionField = QuestionField.toString();
+        //if (QuestionField.trim() == '') {
+        //    QuestionField = " ";
+        //}
+
+
+        //var AnswerField = $("#ExampleAnswer").val();
+        //AnswerField = AnswerField.toString();
+        //if (AnswerField.trim() == '') {
+        //    AnswerField = " ";
+        //}
+        var AnswerField = $("#ExampleAnswer").val();
+        //var dataSource = $("#dSourceBox").data("kendoTextBox").value();
+        var dataSource = $("#DatasourceId").data("kendoDropDownList").value();
+        //if (dataSource.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    dataSource = " ";
+        //}
+      //  console.log(SurveyTypeID + " " + DisciplineId + " " + ComponentId + " " + AspectID + " " + QVerTxtBox+" "+QuestionField+" "+AnswerField)
+
+          var mod ={
+              SurveyTypeID: SurveyTypeID,
+              DisciplineId: DisciplineId,
+              ComponentId: ComponentId,
+              AspectID: AspectID,
+              VersionID: QVerTxtBox,
+              Question: QuestionField,
+              ExampleAnswer: AnswerField,
+              DatasourceId: dataSource,
+        }
+
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/SaveQuestion")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                    $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+                    //alert("Success");
+                    //console.log(response);
+                    var popup = $("#AddQuestionpopUp").data("kendoWindow");
+                    popup.close();
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess1').show();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#lblErr').show();
+                }
+            });
+    }
+
+    function getWhereClause() {
+        var SurveyTypeID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        var QSetNo = $("#QuestionVerDrpdown").data("kendoDropDownList").text();
+
+        var isView = @Html.Raw(Json.Encode(Model.isView));
+
+
+        return {
+            SurveyTypeID: SurveyTypeID,
+            QSetNo: QSetNo,
+            isView: isView
+        };
+
+    }
+
+
+    function onFinalize() {
+        var SurveyTypeID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        var QSetNo = $("#QuestionVerDrpdown").data("kendoDropDownList").text();
+
+        var mod = {
+            AssessmentTypeID: SurveyTypeID,
+            QSetNo: QSetNo
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/FinalizeQuestionSet")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                   // console.log(data);
+
+                    //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                    $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+                    alert("Question Set has been finalized ");
+                    $("#QsetStatus").data("kendoTextBox").value("Finalized");
+
+
+                }
+            })
+
+    }
+
+
+
+
+    @*function onDataBound() {
+        var isView = @Html.Raw(Json.Encode(Model.isView));
+        console.log("On data bound" + isView);
+        if (isView == "Yes") {
+            document.getElementsByClassName("bg-image").style.display = 'none';
+
+        }
+        else {
+            document.getElementsByClassName("bg-image").style.display = 'block';
+        }
+    }*@
+
+
+    function buttonAddParentQuestion() {
+        $('.k-window-title').text("Add Question");
+        var status = $("#QsetStatus").data("kendoTextBox").value();
+        if (status == "Draft") {
+            var popup = $("#AddQuestionpopUp").data("kendoWindow");
+            //$('.k-window-title').text("Add KEDB");
+            var qver = $("#QuestionVerDrpdown").data("kendoDropDownList").text();
+            var assid = $("#AssessmentID_panel").data("kendoDropDownList").value();
+            //console.log(qver + "   " + assid)
+            $("#QVerTxtBox").data("kendoTextBox").value(qver);
+            $("#AssessmentID").data("kendoDropDownList").value(assid);
+            popup.open();
+            popup.center();
+            clearaddparentQ();
+        }
+
+    }
+    function AddSubQuestion(QuestionID) {
+        $('.k-window-title').text("Add Sub Question");
+      //  console.log("QuestionID:" + QuestionID)
+
+            var mod = {
+                QuestionID: QuestionID
+            };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetQuestionDetails")';
+        $.ajax(
+            {
+        url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    document.getElementById("ParentIDHidden").value =data.QuestionId;
+                    var Disciplinedrpdpwn = $("#SubDisciplineId").data("kendoDropDownList");
+                Disciplinedrpdpwn.value(data.DisciplineId);
+                    Disciplinedrpdpwn.enable(false);
+                    var Componentdrpdpwn = $("#subComponentId").data("kendoDropDownList");
+                Componentdrpdpwn.value(data.ComponentId);
+                    Componentdrpdpwn.enable(false);
+                    var Aspectdrpdpwn = $("#SubAspectID").data("kendoDropDownList");
+                    Aspectdrpdpwn.value(data.AspectID);
+                    Aspectdrpdpwn.enable(false);
+                    var assessmentdropdownlist = $("#SubAssessmentID").data("kendoDropDownList");
+                    assessmentdropdownlist.value(data.SurveyTypeID);
+                    assessmentdropdownlist.enable(false);
+                    var qvertxtbox = $("#SubQVerTxtBox").data("kendoTextBox");
+                    qvertxtbox.value(data.VersionID);
+                    qvertxtbox.enable(false);
+                    var Datasourcedropdownlist = $("#SubDatasourceId").data("kendoDropDownList");
+                    Datasourcedropdownlist.value(data.DatasourceId);
+                    Datasourcedropdownlist.enable(false);
+                    var qNotxtbox = $("#ParentQNumber").data("kendoTextBox");
+                    qNotxtbox.value(data.QNo);
+                    var popup = $("#AddSubQuestionpopUp").data("kendoWindow");
+                    popup.open();
+                    popup.center();
+
+            }
+            })
+
+    }
+
+    function onSaveSubQuesClick() {
+        var QuestionField = $("#SubQuestion").val();
+        if (QuestionField == "") {
+
+            document.getElementById("id_addSubQ").style.display = 'block';
+            return false;
+        }
+        else {
+           // console.log("in");
+            document.getElementById("id_addSubQ").style.display = 'none';
+        }
+        var SurveyTypeID = $("#SubAssessmentID").data("kendoDropDownList").value();
+        var DisciplineId = $("#SubDisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#subComponentId").data("kendoDropDownList").value();
+        var AspectID = $("#SubAspectID").data("kendoDropDownList").value();
+        var QVerTxtBox = $("#SubQVerTxtBox").data("kendoTextBox").value();
+
+        var AnswerField = $("#SubExampleAnswer").val();
+        var dataSource = $("#SubDatasourceId").data("kendoDropDownList").value();
+        var ParentID = document.getElementById('ParentIDHidden').value;
+        var ParentQNO = $("#ParentQNumber").data("kendoTextBox").value();
+
+      //  console.log(SurveyTypeID + " " + DisciplineId + " " + ComponentId + " " + AspectID + " " + QVerTxtBox+" "+QuestionField+" "+AnswerField)
+
+          var mod ={
+              SurveyTypeID: SurveyTypeID,
+              DisciplineId: DisciplineId,
+              ComponentId: ComponentId,
+              AspectID: AspectID,
+              VersionID: QVerTxtBox,
+              Question: QuestionField,
+              ExampleAnswer: AnswerField,
+              DatasourceId: dataSource,
+              ParentID: ParentID,
+              QNo:ParentQNO
+        }
+
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/SaveQuestion")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+                   // console.log(response);
+                    var popup = $("#AddSubQuestionpopUp").data("kendoWindow");
+                    popup.close();
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess1').show();
+
+                    //var qNotxtbox1 = $("#SubQuestion").data("kendoTextBox");
+                    //qNotxtbox1.value("");
+                    //var qNotxtbox2 = $("#SubExampleAnswer").data("kendoTextBox");
+                    //qNotxtbox2.value("");
+
+                },
+                error: function (err, response) {
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#lblErr').show();
+                }
+            });
+
+    }
+
+
+    function onFinalizeClickEdit() {
+        var questionID = document.getElementById('questionIDHidden').value;
+           var mod ={
+               QuestionId: questionID
+        }
+
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/FinalizeSingleQuestion")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+                    var popup = $("#EditQuestionpopUp").data("kendoWindow");
+                    popup.close();
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#labelSuccess').text("Question has been finalized");
+                    $('#lblSuccess1').show();
+                },
+                error: function (err, response) {
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#labelError').text("Error while finalize the question");
+                    $('#lblErr').show();
+                }
+            });
+    }
+    function ExportBuildTemplate() {
+         var SurveyTypeID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        var QSetNo = $("#QuestionVerDrpdown").data("kendoDropDownList").text();
+        var isView = @Html.Raw(Json.Encode(Model.isView));
+        var baseurl = '@Url.Content("~/AssessmentManager/Assessment/ExportBuildDiscipline")' + "?SurveyTypeID=" + SurveyTypeID + "&QSetNo=" + QSetNo + "&isView=" + isView;
+          window.location.replace(baseurl);
+    }
+    function loadcomponent() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        // var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId
+        }
+    }
+    function loadAspect() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId,
+            ComponentId: ComponentId
+        }
+    }
+    function onChangeDscName() {
+        $("#AspectID").data("kendoDropDownList").select(0);
+        $("#ComponentId").data("kendoDropDownList").dataSource.read();
+        $("#ComponentId").data("kendoDropDownList").select(0);
+
+     //   $("#AspectID").data("kendoDropDownList").dataSource.read();
+    }
+    function onChangeCompName() {
+        $("#AspectID").data("kendoDropDownList").dataSource.read();
+        $("#AspectID").data("kendoDropDownList").select(0);
+
+    }
+</script>

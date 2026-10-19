@@ -1,0 +1,111 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<WebUI.Areas.IncidentNavigator.Models.KnownErrorDBModel>
+
+    @{ 
+        var searchcriteria = "";
+    }
+<div>
+    <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th scope="col" width="10%">KED ID</th>
+                <th scope="col" width="10%">Cause</th>
+                <th scope="col" width="10%">Resolution Steps</th>
+                <th scope="col" width="10%">Escalations</th>
+                <th scope="col" width="10%">Solution Approved</th>
+                <th scope="col" width="10%">Author/Download file</th>
+                <th scope="col" width="10%">CI Name</th>
+                <th scope="col" width="10%">Business Function</th>
+                <th scope="col" width="10%">Ticketid Clusters</th>
+               @*<th scope="col" width="10%">Download File</th>*@
+            </tr>
+            
+        </thead>
+          @foreach (var item in Model)
+          {
+              searchcriteria = item.Search;
+
+               <tr>
+                <td style='text-align:right;'>
+                    <a data-id="@item.Id" href="#" class="hrefKEDBClass">@item.KEDID</a>  
+               </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Cause)
+                </td>
+
+                <td>
+                    <div data-toggle="tooltip" data-placement="right" title="@item.ResolutionSteps" style="overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">
+                        @Html.DisplayFor(modelItem => item.ResolutionSteps)
+                    </div>
+                </td>
+                <td>
+                    <div data-toggle="tooltip" data-placement="right" title="@item.Escalations" style="overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">
+                        @Html.DisplayFor(modelItem => item.Escalations)
+                    </div>
+                </td>
+                <td>
+                      @Html.DisplayFor(modelItem => item.SolutionApproved)
+                </td>
+                <td>
+                       @Html.DisplayFor(modelItem => item.Author) 
+                    @if (!string.IsNullOrEmpty(item.KEDBFilename))
+                    {<br />
+                    @Html.ActionLink(item.KEDBFilename, "DownloadKEDBFile", "KnownErrorDB", new { kedbid = item.Id }, null)
+                    }
+                </td>
+                <td>
+                       @Html.DisplayFor(modelItem => item.CIName)
+                </td>
+                <td>
+                       @Html.DisplayFor(modelItem => item.BusinessFunction)
+                </td>
+                <td style='text-align:right;'>
+                       @Html.DisplayFor(modelItem => item.TicketidClusters)
+                </td>
+                  
+
+            </tr>
+          }
+        </table>
+    @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page=page, searchCriteria=searchcriteria }))
+    </div>
+
+
+    <script>
+        //on click of KEDB id
+        $(".hrefKEDBClass").click(function () {
+
+            var dataToPost = {
+                kedbid: $(this).attr("data-id")
+                //ClientId: $('#hidClientId').val()
+            };
+            //alert('here i am-' + $(this).attr("data-id"));
+            //alert($(this).attr("data-id"));
+            $.ajax(
+            {
+                url: '@Url.Content("~/IncidentNavigator/KnownErrorDB/EditKedb")',
+                type: 'POST',
+                async: false,
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //alert(JSON.stringify(data));
+                    $("#KEDBAddEditDiv").html(data);
+
+                },
+                error: function () {
+                    alert('error');
+                }
+
+
+            });
+        });
+        
+
+    </script>
+ 
+
+

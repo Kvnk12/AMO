@@ -1,0 +1,189 @@
+﻿
+@using WebUI.Areas.IncidentNavigator.Models;
+
+
+
+
+@model  KnownErrorDBModel
+
+@using (Html.BeginForm("AddKEDB", "KnownErrorDB", FormMethod.Post, new { enctype = "multipart/form-data", onSubmit = "return Upload()" }))
+{
+    @Html.AntiForgeryToken()
+                <table>
+                    <tr>
+                        <td valign="top">
+                            <table cellpadding="5" cellspacing="2">
+
+                                <tr>
+                                    <td colspan="4" style="width:75px;"><h4>@Html.Label("Add/Edit KEDB") </h4></td>
+
+                                </tr>
+                                <tr>
+
+                                    <td style="width:75px; align-self:auto">@Html.Label("KED ID") </td>
+                                    <td>
+
+                                        @Html.TextBoxFor(m => m.KEDID, new { @class = "form-control", @style = "width:150px;", @id = "KEDID" })
+                                        @Html.ValidationMessageFor(m => m.KEDID)
+
+                                    </td>
+                                    <td style="width:75px;">@Html.Label("Cause") </td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.Cause, new { @class = "form-control", @style = "width:150px;" })
+                                        @Html.ValidationMessageFor(m => m.Cause)
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="width:75px;">@Html.Label("Solution Approved") </td>
+                                    <td>
+                                        @Html.CheckBoxFor(m => m.SolutionApproved, new { @class = "form-control", @style = "width:50px;", tabindex = "", id = "chkSLA" })
+                                        @Html.ValidationMessageFor(m => m.SolutionApproved)
+                                    </td>
+
+                                    <td style="width:75px;">@Html.Label("Author") </td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.Author, new { @class = "form-control", @style = "width:150px;" })
+                                        @Html.ValidationMessageFor(m => m.Author)
+                                    </td>
+                                </tr>
+
+
+
+                                <tr>
+                                    <td style="width:75px;">@Html.Label("CI Name") </td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.CIName, new { @class = "form-control", @style = "width:150px;" })
+                                        @Html.ValidationMessageFor(m => m.CIName)
+                                    </td>
+
+                                    <td style="width:75px;">@Html.Label("Business Function") </td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.BusinessFunction, new { @class = "form-control", @style = "width:150px;" })
+                                        @Html.ValidationMessageFor(m => m.BusinessFunction)
+                                    </td>
+                                </tr>
+
+
+
+
+                                <tr>
+                                    <td style="width:75px;">@Html.Label("Ticketid Clusters") </td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.TicketidClusters, new { @class = "form-control", @style = "width:150px;" })
+                                        @Html.ValidationMessageFor(m => m.TicketidClusters)
+                                    </td>
+
+                                    <td>Attach File</td>
+                                    <td>
+
+                                        <div class="input-group" style="width:200px;">
+                                            <label class="input-group-btn" id="lblid">
+                                                <span class="btn btn-primary" id="btnbrowse">Browse&hellip;@Html.TextBoxFor(m => m.httpPostedTemplateFile, new { style = "display:none;", accept = ".xls,.xlsx,.txt,.csv", type = "file", id = "FileToUpload" })</span>
+                                            </label>
+                                            @Html.TextBoxFor(m => m.KEDBFilename, new { @class = "form-control", style = "readonly:true;", type = "text", id = "reaOnlyFileName", @readonly = "readonly" })
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="width:75px;">@Html.Label("Resolution Steps") </td>
+                                    <td>
+
+                                        @Html.TextAreaFor(m => m.ResolutionSteps, 3, 25, null)
+                                        @Html.ValidationMessageFor(m => m.ResolutionSteps)
+
+                                    </td>
+
+                                    <td style="width:75px;">@Html.Label("Escalations") </td>
+                                    <td>
+
+
+                                        @Html.TextAreaFor(m => m.Escalations, 3, 25, null)
+                                        @Html.ValidationMessageFor(m => m.Escalations)
+
+                                    </td>
+                                </tr>
+                                @Html.HiddenFor(m => m.ClientId, new { @id = "hidClientId" })
+                                @Html.HiddenFor(m => m.Id, new { @id = "hidId" })
+                                <tr>
+                                    <td colspan="4">
+                                        @*<div class="pageaction">*@
+                                        <div class="">
+                                            <input type="hidden" id="hidClientId" name="ClientId" />
+                                            <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Save</button>
+                                            @*<button type="reset" id="btnReset" class="btn btn-default" tabindex="31" >Cancel</button>*@
+                                            <button type="button" name="btnReset" class="btn btn-primary" tabindex="30" value="Cancel" onclick="addkedb()">Cancel</button>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+
+
+
+                        <td valign="top">
+
+                            <div id="IncidentDiv">
+                                @Html.Partial("_IncidentList", Model.incidentlist)
+                            </div>
+                        </td>
+                    </tr>
+                </table>}
+
+<script>
+
+    $(document).ready(function () {
+        $('input#FileToUpload').change(function () {
+
+            var filename = $('#FileToUpload').val();
+
+            var fNameParts = filename.split("\\");
+
+            if (fNameParts.length > 0) {
+
+                $('#reaOnlyFileName').val(fNameParts[fNameParts.length - 1]);
+
+            }
+
+            else {
+
+                $('#reaOnlyFileName').val(filename);
+
+            }
+
+        });
+
+        //$('input#FileToUpload').change(function () {
+
+        //  var selectedformat = ($('#drpFileFormat :selected').text());
+
+        //    var upload = $('input#FileToUpload').val().split('.').pop().toLowerCase().toString();
+
+        //});
+
+    });
+
+    function Upload() {
+        // alert('tfg');
+        var filectrl = document.getElementById("FileToUpload");
+        if (typeof (filectrl.files) == null) {
+            alert("Please select the file.");
+            return false;
+        }
+        else {
+            //alert('size');
+            var size = parseFloat(filectrl.files[0].size / 1024).toFixed(2);
+            // alert(size + " KB.");
+            if (size > 10240) {
+                alert("Please check the file size before uploading(Maximum file size is 10MB).");
+                return false;
+            }
+            else
+                return true;
+        }
+    }
+</script>
+
+

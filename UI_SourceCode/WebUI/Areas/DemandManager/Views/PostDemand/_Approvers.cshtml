@@ -1,0 +1,199 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@model  DemandViewModel
+
+<div class="im-postidea-approver">
+    <div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess1" hidden>
+            <ul>
+                <li>Demand submitted for Review.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess22" hidden>
+            <ul>
+                <li>Approver added Successfully.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger1" hidden>
+            <ul>
+                <li>Error while assigning.</li>
+            </ul>
+        </div>
+
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList1" hidden>
+            <ul>
+                <li>Please select the approver(s).</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="nodemand1" hidden>
+            <ul>
+                <li>Please select/submit Demand!.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="custom-grid" id="selectApproverGridDiv" malihu-scrollbar>
+        @(Html.Kendo().Grid<DemandApproverModel>()
+        .Name("DMuserGrid")
+        .Columns(columns =>
+        {
+            columns.Select().Width(60);
+            columns.Bound(e => e.Id).Hidden();
+            columns.Bound(e => e.Name).Title("Approver Name");
+            columns.Bound(e=>e.ApprovedOrNot).Title("Approver Action");
+        })
+        .Scrollable()
+        .PersistSelection()
+        //.Selectable()
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => { model.Id(f => f.Id);
+
+        })
+        .Read(read => read.Action("ListOfDMAdmins", "PostDemand", new { DemandId = Model.DemandId }))
+        )
+
+            )
+        <div class="im-post-approver-bottom right">
+            <button class="im-custom-button im-btn-submitforreview" type="button" onclick="onbtnClick(this)" id="SelectApprovers">Submit For Review</button>
+            @if (Model.DemandStatusID == (int)DMStatus.Created || Model.DemandStatusID == (int)DMStatus.Revised || Model.DemandStatusID == (int)DMStatus.SubmitForRevision)
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" onclick="saveApprovers()">Save</button>
+            }
+            else if (Model.IsSysAdmin == true)
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" onclick="saveApprovers()">Save</button>
+            }
+            else
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" disabled>Save</button>
+            }
+        </div>
+    </div>
+
+    </div>
+
+
+
+<script>
+
+            function saveApprovers() {
+                $("#SelectedRowList1").hide();
+                $("#nodemand1").hide();
+                $("#msgDanger1").hide();
+                $("#msgSuccess22").hide();
+                $("#msgSuccess1").hide();
+                        var grid = $("#DMuserGrid").getKendoGrid();
+                        var selValues = grid.selectedKeyNames().join(", ");
+                        if(selValues!=""||selValues!=","||@Model.DemandId!='0')
+                        {
+                            var mod = {
+                        DemandId: @Model.DemandId,
+                        ApproverIds: selValues
+
+                    };
+                        var data = JSON.stringify(mod);
+                        baseurl = '@Url.Content("~/DemandManager/PostDemand/SaveAdmins")';
+                    $.ajax(
+                    {
+                            url: baseurl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+
+                                if(data=="Success")
+                                {
+                                    $('#msgSuccess22').show();
+
+                                }
+                                else if(data.Message=="1")
+                                {
+                                $("#SelectedRowList1").show();
+                                }
+                                else if(data.Result=="ERROR")
+                                {
+                                    alert("Server Error");
+                                }
+                                else
+                                {
+                                    $("#nodemand1").show();
+                                }
+                            }
+                        })
+                }
+                else{
+                    $("#SelectedRowList1").show();
+                    return false;
+                }
+                return false;
+            }
+
+
+            function onbtnClick(arg) {
+                    var grid = $("#DMuserGrid").getKendoGrid();
+                    var selValues = grid.selectedKeyNames().join(", ");
+                    if(selValues!=""||selValues!=","||@Model.DemandId!='0')
+                    {
+                        var mod = {
+                        DemandId: @Model.DemandId,
+                        ApproverIds: selValues
+
+                    };
+                    var data = JSON.stringify(mod);
+                    baseurl = '@Url.Content("~/DemandManager/PostDemand/AddSelectedAdmins")';
+                    $.ajax(
+                    {
+                        url: baseurl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+
+                            if(data=="Success")
+                            {
+                                $('#msgSuccess1').show();
+                                setTimeout(
+                                    function () {
+                                    var urrll = '@Url.Content("~/DemandManager/PostDemand")';
+                                        window.location.href = urrll +'?DemandId='+'@Model.DemandId';
+                                }, 3000);
+                            }
+                            else if(data.Message=="1")
+                            {
+                                $("#SelectedRowList1").show();
+                            }
+                            else if(data.Result=="ERROR")
+                            {
+                                alert("Server Error");
+                            }
+                            else
+                            {
+                                $("#nodemand1").show();
+                            }
+                        }
+                    })
+                }
+                else{
+                    $("#SelectedRowList1").show();
+                    return false;
+                }
+                return false;
+            }
+
+
+
+</script>

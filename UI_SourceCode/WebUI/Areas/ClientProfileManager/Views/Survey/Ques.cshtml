@@ -1,0 +1,309 @@
+﻿@using WebUI.Areas.ClientProfileManager.Controllers;
+@using NTTData.AMOPortal.Domain.Entities
+@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@using WebUI.Dto;
+@model Survey_Model
+
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+@{
+    var sur_name = Model.Name;
+    var SurId = Model.Id;
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    var checktrue = Model.IsLinkSent;
+
+
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new SurveyController();
+    var survid = Model.Id;
+    //var perspectiveCateList = v.SurveyPerspective(client.Id, survid);
+}
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+<style>
+    .k-window {
+        width: 550px;
+        height: 450px;
+    }
+    .k-edit-form-container {
+        width: 530px !important;
+    }
+        .k-edit-form-container> div{
+        height:auto !important;
+    }
+</style>
+
+<div class="content-main dark-bg" >
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li>Client Administration</li>
+            <li class="active">Manage Survey</li>
+        </ol>
+    </div>
+
+    <div style="margin-top:1em;" >
+
+
+
+        <div class="right">
+            <button type="submit" tabindex="32" class="btn btn-primary" onclick="location.href='@Url.Action("ManageSurvey", "Survey", new { surrID = Model.Id, snma = Model.Name })';return false;">Manage Participants</button>
+            <button type="submit" tabindex="32" class="btn btn-primary" onclick="location.href='@Url.Action("Index", "Survey", new { Id = Model.Id })';return false;">Back</button>
+        </div>
+
+
+
+
+
+        <div class="form-group" style="color:white;">
+            <div class="well well-sm" ><strong>Survey</strong></div>
+
+            <div style="margin:0.5em 0;"><strong>Survey Name: @sur_name </strong></div>
+            <div class="custom-kendo-grid">
+
+                @(Html.Kendo().Grid<SurveyQuestionModel>()
+                             .Name("QuestionGrid")
+                             .Columns(columns =>
+                             {
+                                 columns.Bound(e => e.Question).Title("Question");
+                             //columns.ForeignKey(e => e.PerspectiveTypeId, Model.PerspectiveTypes, "Value", "Text").Hidden();
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(185);
+                             })
+                             .Events(eve => eve.DataBound("restrictEdit"))
+                             .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                             .Pageable()
+                             .ToolBar(toolbar => toolbar.Create().Text("Add New Question")
+                                    //.HtmlAttributes(new { @class = (bool)Model.IsLinkSent ? "k-state-disabled" : "k-state-default" })  .Window(w => w..HtmlAttributes(new { style = "width:700px;" }))) .Window(w => { w.Width(450); w.Height(400); w.Resizable(r=>r.Enabled(true)); })
+                                    //.HtmlAttributes(new { @disabled = (bool)Model.IsLinkSent ? "" : "enable" })
+                                    )
+                             .Scrollable()
+                            // .HtmlAttributes(new { style = "height:550px;" })
+                             .DataSource(dataSource => dataSource
+                              .Ajax()
+                              .PageSize(10)
+                              .Model(model => { model.Id(f => f.QId); model.Field(f => f.QId).Editable(false); })
+                              .Read(read => read.Action("getSurveyQues", "Survey", new { suryId = Model.Id }))
+                              .Create(create => create.Action("AddQuestion", "Survey", new { surId = Model.Id }))
+                              .Update(update => update.Action("UpdateQuestion", "Survey"))
+                              .Destroy(destroy => destroy.Action("DeleteQuesion", "Survey"))
+
+                              )
+                               .ClientDetailTemplateId("OptionsGrid")
+            )
+
+            </div>
+            @(Html.Kendo().Sortable()
+            .For("#QuestionGrid")
+            .Filter("table > tbody > tr")
+            .Cursor("move")
+            .HintHandler("noHint")
+            .PlaceholderHandler("placeholder")
+            .ContainerSelector("#QuestionGrid tbody")
+            .Events(events => events.Change("onChange"))
+            )
+
+        </div>
+
+    </div>
+
+
+
+</div>
+
+<script id="OptionsGrid" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<SurveyRatingFactorModel>()
+                            .Name("OptionGrid#=QId#")
+                            .Columns(columns =>
+                            {
+
+                                columns.Bound(e => e.RatingFactor).Title("Rating Factor");//.EditorTemplateName("ApplicationListTemplate").ClientTemplate("#:ApplicationName#");
+                                columns.Bound(e => e.RatingFactorValue).Width(100).Title("Rating Value").HtmlAttributes(new { @style = "text-align:right;" }); //to be worked
+                                columns.Bound(e => e.ROMEstimate).Title("ROM Estimate").Width(100);
+                                //columns.ForeignKey(e => e.EstimateTypeId, Model.EstimateTypes, "Value", "Text").Title("Estimate Type").Hidden();
+                                //columns.ForeignKey(e => e.EstimateCategoryId, Model.EstimateCategories, "Value", "Text").Title("Estimate Category").Hidden();
+                                columns.Bound(e => e.EstimateTypeId).Hidden();
+                                columns.Bound(e => e.RatingContext).Title("Rating Context");
+                                columns.Bound(e => e.EstimateCategoryId).Hidden();
+                                columns.Bound(e => e.EstimateAssumption).Hidden();
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(180);
+                            })
+                    .Sortable()
+                    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                    .Events(eve1 => eve1.DataBound("restrictEdit1"))
+                    .Pageable()
+                     .ToolBar(
+                   tools =>
+                   {
+                       tools.Create().Text("Add Rating");
+                   })
+                    .Scrollable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model =>
+                        {
+                            model.Id(o => o.Id);
+                        })
+                        .PageSize(5)
+                        .Read(read => read.Action("GetOptions", "Survey", new { surQuesId = "#=QId#" }))
+                        .Create(update => update.Action("AddOptions", "Survey", new { surQuesId = "#=QId#" }))
+                        .Update(update => update.Action("UpdateOptions", "Survey"))
+                        .Destroy(update => update.Action("DeleteOptions", "Survey"))
+                    )
+                    //.Events(events => events
+                    //.Save("ApplicationGrid_Save"))
+                    .ToClientTemplate()
+    )
+
+</script>
+
+
+
+<script>
+
+    @*$(window).load(function () {
+        var fredd = "@Model.IsLinkSent";
+        if(fredd=="True")
+        {
+            $(".k-grid-add").addClass("k-state-disabled");
+            $(".k-grid-add").prop("disabled", true)
+        }
+    });*@
+
+    function restrictEdit(e){
+        var grid = this;
+
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+            if ((model.IsSurveyLinkSent==true)) {
+                //$(this).find(".k-grid-edit").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                //var ec = $(this).find(".k-grid-edit");
+                var ec2 = $(this).find(".k-grid-delete");
+                //ec.prop("disabled", true);
+                ec2.prop("disabled", true);
+                $(".k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+                $(".k-grid-add").removeAttr("href");
+            }
+        });
+
+    }
+    function restrictEdit1(e){
+        var grid = this;
+
+        grid.tbody.find("tr[role='row']").each(function () {
+            var model = grid.dataItem(this);
+            if (model.IsSurveyLinkSent1==true) {
+
+                //$(this).find(".k-grid-edit").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+
+                //var ec = $(this).find(".k-grid-edit");
+                var ec2 = $(this).find(".k-grid-delete");
+
+                //ec.prop("disabled", true);
+                ec2.prop("disabled", true);
+                $(".k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+                $(".k-grid-add").removeAttr("href");
+            }
+        });
+
+    }
+
+
+    function validateidentifier(obj)
+    {
+        //alert("fdzgzdg");
+        var actionurl = '@Url.Content("~/ClientProfileManager/Survey/IsQuesIdExist")';
+        var x = obj.value;
+        var y =  @Model.Id;
+        //alert(x);
+        $.ajax({
+            url: actionurl,
+            type: "POST",
+            async: false,
+            data: {
+
+                QuestionIdentifier: x,
+                surveyId :y,
+
+                  },
+            error: function (response)
+            {
+                alert('error');
+            },
+            success: function (response) {
+                if (response == false)
+                {
+                    $('#QuestionIdentifier').val('');
+                    alert("Question Identifier already exist in database. Please select unique Question Identifier.");
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        });
+    }
+
+    //sortable rows
+    var noHint = $.noop;
+    function placeholder(element) {
+        return element.clone().addClass("k-state-hover").css("opacity", 0.65);
+    }
+
+    function onChange(e) {
+        var grid = $("#QuestionGrid").data("kendoGrid"),
+            skip = grid.dataSource.skip(),
+            oldIndex = e.oldIndex + skip,
+            newIndex = e.newIndex + skip,
+            data = grid.dataSource.data(),
+            dataItem = grid.dataSource.getByUid(e.item.data("uid"));
+
+        grid.dataSource.remove(dataItem);
+        grid.dataSource.insert(newIndex, dataItem);
+        fdata = grid.dataSource.data();
+         }
+</script>
+
+<style>
+    .k-grid tbody tr {
+        cursor: move;
+    }
+</style>
+
+
+
+
+
+
+
+

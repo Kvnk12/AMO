@@ -1,0 +1,198 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@model  OfflineApproverModel
+
+@{
+    ViewBag.Title = "PostIdea";
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    int usid = (int)Session["UserId"];
+
+
+}
+<style>
+    .k-widget.k-window.k-display-inline-flex {
+        width: 800px;
+    }
+
+    .k-edit-buttons.k-actions-end {
+        width: 750px;
+    }
+
+    #RefFiles {
+        float: none !important;
+    }
+
+    .offline-approverclass {
+        padding: 2em;
+        width: 750px;
+        display: flex;
+    }
+
+    .off-formcontrol {
+        display: flex;
+        padding: 5px;
+    }
+
+    .offline-left, .offline-right {
+        width: 50%
+    }
+
+    .off-label {
+        width: 40%;
+    }
+
+    .attach-button {
+        background-color: rgb(91, 121, 171);
+        color: white;
+        font-size: 12px;
+        width: 100px;
+        margin-left: 1em;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: none;
+        padding: 0.3em;
+        height: 20px;
+    }
+
+    .fileAttachment {
+        display: flex;
+        height: 20px;
+        font-size: 0.9vw;
+        padding: 2px 5px;
+        color: rgb(91,121,171);
+        background-color: white;
+        margin-right: 0.5vw;
+        border-radius: 5px;
+        border: 1px solid rgb(91,121,171);
+        margin-top: 9px;
+    }
+
+    .refMat .k-widget {
+        border-color: transparent;
+    }
+
+    .refMat .k-upload {
+        border-radius: unset;
+    }
+
+    .refMat .k-dropzone {
+        color: transparent;
+        background-color: transparent;
+        padding: unset;
+    }
+
+    .refMat .k-button-solid-base {
+        border-color: rgb(91,121,171);
+        color: white;
+        background-color: rgb(91,121,171);
+        padding: 2px;
+        margin-right: 4px;
+    }
+
+    .fileAtt-delbtn {
+        font-size: 1.5vw;
+        padding-left: 0.7vw;
+        cursor: pointer;
+        height: 1vw;
+        margin-top: -0.6vw;
+    }
+
+    .k-dropzone .k-upload-status, .k-dropzone .k-dropzone-hint, .k-upload .k-action-buttons, .k-upload-files.k-reset {
+        display: none;
+    }
+</style>
+
+<div class="offline-approverclass">
+    <div class="offline-left">
+        <div class="off-formcontrol">
+            <label class="off-label">Approver Name</label>
+            <div class="off-input">
+                @(Html.Kendo().TextBoxFor(m => m.ApproverName))
+            </div>
+        </div>
+        <div class="off-formcontrol">
+            <Label class="off-label">Approver On</Label>
+            <div class="off-input">
+                @(Html.Kendo().DatePickerFor(e => e.ApprovedOn)
+ .Name("ApprovedOn")
+ .Value(DateTime.Now)
+ .Format("MM/dd/yyyy")
+ .MonthTemplate(m => m
+ .Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+ .HtmlAttributes(new { style = "width: 96%;", title = "Select Approved On Date" })
+)
+            </div>
+        </div>
+        <div>
+            <label class="off-label">Comments</label>
+            <div class="off-input">
+                @Html.TextAreaFor(m => m.Comments, new { @class = "k-textbox scrollbar-rail", id = "Comments", rows = 5, cols = 10, @placeholder = "Enter Comments here", @style = " width:90%;resize: none;height: 4em;overflow: auto;box-shadow: none;" })
+
+            </div>
+        </div>
+    </div>
+
+    <div class="offline-right">
+        <label>Attach: </label>
+        <div class="textBoxScroll" style="margin-left:12px;display:flex" id="RefFiles_div">
+            <div>
+                <div id="browseButton">
+                    @(Html.Kendo().Upload()
+     .Name("RefFiles")
+     .Multiple(true)
+     .Async(a => a
+     .Save("Save_Reference", "PostIdea")
+     .AutoUpload(false)
+    )
+     .Events(e => e.Upload("onUpload")
+                    .Select("onSelect")
+                    .Success("onSuccess"))
+     .Validation(validation => validation
+     .AllowedExtensions(new string[] { ".txt", ".ppt",".pptx", ".xlsx",".docx",".pdf",".svg",".zip",".jpeg",".png",".msg",".eml" })
+     .MaxFileSize(double.MaxValue))
+     .Messages(m => m.Select("Attach"
+     )
+)
+     )
+                    <span style="color: #FC0606;display:block; font-size: 10px; align-content: center; width: 7vw; align-content: baseline;">*File size < 5MB</span>
+
+                </div>
+            </div>
+
+            @*<button id="browseSave" class="attach-button" onclick="SaveFiles()">Attach</button>*@
+        </div>
+        <div class="attach-files" id="fileAttach" style="display: inline-flex; width: 80%; flex-wrap: wrap; gap: 1px;margin:0 1em">
+            @{
+                if (Model.OffApprovalAttachment != null)
+                {
+                    foreach (var files in Model.OffApprovalAttachment)
+                    {
+
+                        <div class="fileAttachment" id="attach_@files.Id">
+                            @files.filename<span aria-hidden='true' class="fileAtt-delbtn" onclick='removeFile("@files.Id")'>&times;</span>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    </div>
+</div>
+@Html.HiddenFor(x => x.Id, new
+{
+id = "Id",
+Name = "Id"
+})
+

@@ -1,0 +1,224 @@
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+@using WebUI.Areas.TransformationAccelerator.Model;
+
+@model  IList<ResourceDetailsModel>
+
+
+    @{
+
+        string currentYear = DateTime.Now.Year.ToString();
+        int month = DateTime.Now.Month;
+        int currentYearQtr;
+        //currentYear = currentYear + month;
+        if (month > 0 && month < '4')
+        {
+            currentYear = currentYear + "1";
+        }
+        else if (month > 3 && month < 7)
+        {
+            currentYear = currentYear + "2";
+        }
+        else if (month > 6 && month < 10)
+        {
+            currentYear = currentYear + "3";
+        }
+        else if (month > 9 && month < 13)
+        {
+            currentYear = currentYear + "4";
+        }
+
+        currentYearQtr = Convert.ToInt32(currentYear); ;
+    }
+    
+    <div>
+        <span id="placehold"></span>       
+        <iframe id="txtArea1" style="display:none"></iframe>
+    
+        <div class="custom-html-grid table-col-fix">
+            <table id="tb1">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="fixed">Year / Quarter</th>
+
+                        @{
+                        //loop to display years
+                        foreach (var i in ViewBag.Year)
+                        {
+                                <th colspan="4" scope="colgroup">@i</th>
+                        }
+                        }
+
+                    </tr>
+
+                    <tr>
+                        @*loop to display quarters in each year years*@
+                        @foreach (var quater in ViewBag.Year) //
+                    {
+                            <th id="1" scope="col">Q1</th>
+                            <th id="2" scope="col">Q2</th>
+                            <th id="3" scope="col">Q3</th>
+                            <th id="4" scope="col">Q4</th>
+                    }
+                    </tr>
+
+                </thead>
+                <tbody>
+                        @{
+                        //loop for distinct location
+                        foreach (var loc in ViewBag.location)
+                        {
+                                <tr>
+                                    <td class="fixed">@loc</td>
+
+                                    @*loop for distinct years*@
+                                    @foreach (var year in ViewBag.Year)
+                                {
+                                    //loop for 4 quarters for each year in the above loop
+                                    for (var quarter = 1; quarter < 5; quarter++)
+                                    {
+                                        var resourcematch = (from x in Model
+                                                             where x.Location == loc && x.Year == year && x.Quarter == quarter.ToString()
+                                                             select x).FirstOrDefault();
+                                        var resourceID = (from x in Model
+                                                          where x.Location == loc && x.Year == year && x.Quarter == quarter.ToString()
+                                                          select x.Id).FirstOrDefault();
+
+                                        var yearInt = year;
+                                        yearInt = yearInt + quarter.ToString();
+                                        yearInt = Int16.Parse(yearInt);
+                                        if (resourcematch != null)
+                                        {
+                                            //year = year.concat(quarter);
+                                            //concat year nd quarter
+
+                                            if (yearInt < currentYearQtr)
+                                            {
+                                                //Making the cells non editable
+                                                <td class="table-input read-only ">
+                                                    <span id=@resourceID value=@resourcematch.FTE> @resourcematch.FTE </span>
+                                                </td>
+                                            }
+
+                                            else
+                                            {
+                                                //Making the cells editable
+                                                <td class="table-input editable">
+                                                    <input type="text" id=@resourceID value=@resourcematch.FTE /><span id=@resourceID style="display:none"> @resourcematch.FTE </span>
+                                                    @*<i class="comments-icon"></i>*@
+                                                </td>
+                                            }
+                                        }
+                                        else if (yearInt < currentYearQtr)
+                                        {
+                                                <td class="read-only"> - </td>
+                                        }
+
+                                        else
+                                        {
+                                                <td> - </td>
+                                        }
+                                    }
+                                }
+                                </tr>
+                        }
+                        }
+                    </tbody>
+            </table>
+        </div>
+        <div class="action-buttons">
+            <button type="button" onclick="cancelReload()" class="btn btn-secondary button">CANCEL</button>
+            <button type="button" id="onSave" onclick="getCount()" class="btn btn-primary button">SAVE</button>
+       </div>
+    </div>
+
+
+
+    <script>
+	var commentIDD = 0;
+        $('.table-input input').on('change keypress paste focus blur', function () {
+            var val = $(this).val();
+            if (val != '') {
+                $(this).parent('.table-input').removeClass('comment-disabled');
+            }
+            else {
+                $(this).parent('.table-input').addClass('comment-disabled');
+            }
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+      function getCount() {
+            var ele = document.getElementsByTagName('input');
+            var arg = '';
+            for (i = 0; i < ele.length; i++) {
+                if ((ele[i].id != 'IncMonth' || ele[i].id != 'EveMonth' || ele[i].id != 'SRMonth') && ele[i].type == 'text' ){
+                    arg = arg + ele[i].id + ',' + ele[i].value + '|';
+                    //console.log('Value: ' + ele[i].value);
+                    //console.log('ids: ' + ele[i].id);
+                }
+          }
+             var actionurl ='@Url.Content("~/EngagementTimeLine/UpdateClientFTE")';
+            $.ajax({
+                url: actionurl,
+                type: "POST",
+                //  async: true,
+                data: { uid:arg },
+                
+                        dataType: "json",
+                        error: function (msg) {
+                            console.log(msg);
+                            document.getElementById("placehold").innerHTML = "<span style='top:5px;' class='alert alert-danger'>Error while updating  </span>";
+                        },
+                        success: function (msg) {
+                            //$('#grid').data('kendoGrid').dataSource.read();
+                            //$('#grid').data('kendoGrid').refresh();
+                            if (updateResource()) {
+                                console.log('Updated');
+                                document.getElementById("placehold").innerHTML = "<span style='top:5px;' class='alert alert-success'>Resource Details updated successfully </span>";
+                            }
+                        }
+            });
+        }
+        function updateResource() {
+            var ele = document.querySelectorAll('#tb1 input');
+            var arg = '';
+            for (i = 0; i < ele.length; i++) {
+                arg = arg + ele[i].id + ',' + ele[i].value + '|';
+                var eledd = document.querySelectorAll('#tb1 span');
+                for (j = 0; j < eledd.length; j++)
+                {
+                    if (eledd[j].id == ele[i].id)
+                    {
+                        //console.log('Value: ' + ele[i].value);
+                        //console.log('ids: ' + ele[i].id);
+                        //console.log(eledd[j].innerHTML);
+                        eledd[j].innerHTML=ele[i].value;
+                        //console.log("after" + eledd[j].innerHTML);
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function cancelReload()
+        {
+            var eledd = document.querySelectorAll('#tb1 span');
+           // console.log(eledd);
+            for (i = 0; i < eledd.length; i++)
+            {
+                //console.log(eledd[i].id);
+                //console.log(eledd[i].innerHTML);
+                document.getElementById(eledd[i].id).value=eledd[i].innerHTML;
+            }          
+            console.log("Canceled");
+        }
+    </script>

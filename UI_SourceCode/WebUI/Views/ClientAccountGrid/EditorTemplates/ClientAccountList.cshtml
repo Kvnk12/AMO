@@ -1,0 +1,192 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Controllers;
+@using WebUI.Models;
+@using WebUI.App_Start;
+
+@model ClientAccountList
+<style>
+    .acct-check {
+        margin-right: 7.7em;
+        text-align: left;
+    }
+    .k-widget.k-datepicker {
+        border-radius: 0;
+        width: 16.4em;
+        border-bottom: 1px solid;
+    }
+        .k-widget.k-datepicker .k-picker-wrap.k-state-default {
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+            background: transparent;
+            height: 24px;
+        }
+            .k-widget.k-datepicker .k-picker-wrap.k-state-default .k-input {
+                box-shadow: none;
+                text-indent: 0;
+                padding-left: 9em;
+                margin-top: -5px;
+            }
+            .k-widget.k-datepicker .k-picker-wrap.k-state-default>.k-select input {
+                border: unset;
+            }
+    .k-widget .k-state-default .k-select {
+        border: none;
+        width: 1.2em;
+    }
+</style>
+<div class="acc-cont-edit-popup">
+    <div class="editleftarea">
+        <input hidden id="clientId" value="@Model.ClientId.ToString()" />
+        <input hidden id="AccountId" value="@Model.AccountId.ToString()" />
+        <input hidden id="Cancel" value="CancelClick" />
+        <div class="acc-cont-popup-item">
+            <label id="lblAccountName"><span class="mandate">*</span> Name</label>
+            @Html.TextBoxFor(m => m.AccountName, new {  placeholder = "Enter Account Name", tabindex = "1", id = "txtaccname" })
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblAccountStatus"><span class="mandate">*</span> Status</label>
+            @Html.DropDownListFor(m => m.AccountStatus, new SelectList(Model.AccountStatusList, "value", "text", Model.AccountStatus), new
+       {
+           @class = "selectpicker",
+           tabindex = "6",
+           autocomplete = "on",
+           id = "",
+           @style= "border: none;border-bottom: 1px solid black;width: 16.3em; "
+                  })
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblClientManager"><span class="mandate">*</span>NTT Data Client Manager</label>
+            @Html.TextBoxFor(m => m.GlobalClientManager, new { placeholder = "", tabindex = "3" })
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblDeliveryManager"><span class="mandate">*</span>NTT Data Delivery Manager</label>
+            @Html.TextBoxFor(m => m.GlobalDeliveryManager, new {  placeholder = "", tabindex = "4" })
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblClientAccountSponsor"><span class="mandate">*</span>Sponsor</label>
+            @Html.TextBoxFor(m => m.ClientAccountSponsor, new { placeholder = "", tabindex = "5" })
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblOpenDate"><span class="mandate">*</span>Open Date</label>
+            <div>
+                @(Html.Kendo().DatePickerFor(m => m.OpenDate).Value(Model.OpenDate).Name("OpenDate").Format("MM/dd/yyyy"))
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <label id="lblCloseDate"><span class="mandate">*</span>Close Date</label>
+            @(Html.Kendo().DatePickerFor(m => m.CloseDate).Value(Model.CloseDate).Name("CloseDate").Format("MM/dd/yyyy"))
+        </div>
+    </div>
+    <!--/.leftarea-->
+    <div class="editrightarea">
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblFiscalActiveContract">Fiscal Year Active Value</label>
+                @Html.TextBoxFor(m => m.FiscalYearActiveValue, new { @Value = Model.FiscalYearActiveValue.ToInteger(), placeholder = "", tabindex = "8", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.FiscalYearContractRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.FiscalYearContractRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblFiscalPlannedContract">Fiscal Year Planned Value</label>
+                @Html.TextBoxFor(m => m.FiscalYearPlannedValue, new { @Value = Model.FiscalYearPlannedValue.ToInteger(), placeholder = "", tabindex = "9", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.FiscalYearPlannedRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.FiscalYearPlannedRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblFiscalPipelineContract">Fiscal Year Pipeline Value</label>
+                @Html.TextBoxFor(m => m.FiscalYearPipelineValue, new { @Value = Model.FiscalYearPipelineValue.ToInteger(), placeholder = "", tabindex = "10", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.FiscalYearPipelineRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.FiscalYearPipelineRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblFiscalExecutedContract">Fiscal Year Revenue to Date</label>
+                @Html.TextBoxFor(m => m.FiscalYearExecutedValue, new { @Value = Model.FiscalYearExecutedValue.ToInteger(), placeholder = "", tabindex = "11", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.FiscalYearExecutedRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.FiscalYearExecutedRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblAverageAnnualRevenue">Annual Average Revenue</label>
+                @Html.TextBoxFor(m => m.AverageAnnualRevenue, new { @Value = Model.AverageAnnualRevenue.ToInteger(), placeholder = "", tabindex = "12", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.AverageAnnualRevenueCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.AverageAnnualRevenueCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblRevenueToDate">Revenue To Date</label>
+                @Html.TextBoxFor(m => m.RevenueToDate, new { @Value = Model.RevenueToDate.ToInteger(), placeholder = "", tabindex = "13", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.RevenueToDateCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.RevenueToDateCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblAverageAnnualFTE's'">Average Annual FTE's</label>
+                @Html.TextBoxFor(m => m.AverageAnnualFTEs, new { @Value = Model.AverageAnnualFTEs.ToInteger(), placeholder = "", tabindex = "14", id = "txtAvgFTE", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.SumOfFTEOnShoreOffShore, new { @class = "metricchk", id = "chkAvgFTE", tabindex = "110" })
+                @Html.LabelFor(m => m.SumOfFTEOnShoreOffShore, new { @class = "acct-check", id = "" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.AverageAnnualFTEsRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "115" })
+                @Html.LabelFor(m => m.AverageAnnualFTEsRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblAvgAnnualFTEOnshore">Average Annual FTE's (Onshore)</label>
+                @Html.TextBoxFor(m => m.AverageAnnualFTEsOnShore, new { @Value = Model.AverageAnnualFTEsOnShore.ToInteger(), placeholder = "", id = "txtAvgFTEOnShore", tabindex = "14", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.AverageAnnualFTEsOnShoreRollupCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.AverageAnnualFTEsOnShoreRollupCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+        <div class="acc-cont-popup-item">
+            <div class="acc-cont-inner">
+                <label id="lblAvgAnnualFTEOffshore">Average Annual FTE's (Offshore)</label>
+                @Html.TextBoxFor(m => m.AverageAnnualFTEsOffShore, new { @Value = Model.AverageAnnualFTEsOffShore.ToInteger(), id = "txtAvgFTEoffShore", placeholder = "", tabindex = "15", onkeypress = "return isNumberKey(event)" })
+            </div>
+            <div class="acc-cont-right-inner">
+                @Html.CheckBoxFor(m => m.AverageAnnualFTEsOffSchoreCheck, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                @Html.LabelFor(m => m.AverageAnnualFTEsOffSchoreCheck, new { @class = "acct-check", id = "" })
+            </div>
+        </div>
+    </div>
+    <!--/.rightarea-->
+</div>

@@ -1,0 +1,30 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model VariableInput
+
+@{
+    vwclientinfo clientInfo = Model.GetClientInfo;
+ }
+<div class="dAreaOpen"><a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
+<div class="otherInfoArea">
+    <div class="dAhead"><a class="rightNav rightNavtwoClose" title="" href="#"><span class="glyphicon glyphicon-chevron-right"></span>Other Information </a></div>
+    <!--.dAhead-->
+    @if(clientInfo != null)
+        {
+    <ul class="list-group">
+        <li class="list-group-item">Client Name:<b>@clientInfo.clientName</b></li>
+        <li class="list-group-item">Vertical:<b>@clientInfo.verticalname</b></li>
+        <li class="list-group-item">Sub Vertical:<b>@clientInfo.subverticalname</b></li>
+        @*<li class="list-group-item">PA Trends <b>Time to complete problem average</b></li>*@
+@*        @foreach (var item in Model.GetAllAppNames)
+        {
+            <li class="list-group-item">PA Trends <b>@item.ApplicationName</b></li>
+        }*@
+    </ul>
+        }
+</div>
+<!--.otherInfoArea-->
+<div class="oAreaOpen"><a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a></div>

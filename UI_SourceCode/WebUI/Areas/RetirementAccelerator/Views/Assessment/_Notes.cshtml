@@ -1,0 +1,134 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.RetirementAccelerator.Controllers
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  Application
+
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+<div class="right" style="margin:10px 5px">
+    <button class="btn btn-primary" id="SaveNotes" disabled onclick="saveNotes()">Save</button>
+    @*<button class="btn btn-primary" id="EditNotes" disabled onclick="editClick()">Edit</button>*@
+</div>
+
+
+
+<div class="demo-section wide k-content " id="NoteEditor">
+    @(Html.Kendo().EditorFor(e => e.GeneralNotes)
+              .Name("Noteeditor")
+              .HtmlAttributes(new { style = "width: 90%;height:440px" })
+                .Resizable(resizable => resizable.Content(true).Toolbar(true))
+    )
+</div>
+
+<style>
+    .k-loading-mask {
+        z-index: 3;
+    }
+    #NoteEditor
+    {
+        display:flex;
+        justify-content:center;
+        padding: 2em 0 2em 0;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+
+
+    function saveNotes() {
+        //$("#SaveNotes").click(function () {
+            displayLoading(document.body);
+        //});
+      var editor = $("#Noteeditor").data("kendoEditor");
+
+      var name = $("#ApplicationName").data("kendoDropDownList");
+        var content = editor.value();
+        if (content.trim() != '') {
+            var mod = {
+                Id:name.value(),
+                Notes: content
+            };
+            $(document).ajaxStart(function () {
+
+                $('#SaveNotes').attr('disabled', true);
+                //$("#ldr").show();
+
+            })
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/RetirementAccelerator/Assessment/UpdateNotes")';
+
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        displayLoadingf(document.body);
+                        $('#SaveNotes').attr('disabled', false);
+                    },
+
+                });
+
+
+        }
+        else {
+            alert('This should not be left Empty');
+        }
+    }
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 2000);
+        //alert("Loading");
+
+    }
+
+    function displayLoadingf(target) {
+        var element = $(target);
+        kendo.ui.progress(element, false);
+        alert("Notes Successfully Added");
+    }
+
+
+
+
+</script>
+
+
+
+
+
+

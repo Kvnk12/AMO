@@ -1,0 +1,34 @@
+﻿@*@model int?
+
+        @(Html.Kendo().DropDownListFor(m => m)
+                //.AutoBind(false)
+                //.OptionLabel("Select...")
+                .DataTextField("VendorName")
+                .DataValueField("Id")
+                .DataSource(dataSource =>
+                {
+                    dataSource.Read(read => read.Action("GetVendors", "TechnologyStack"))
+                            .ServerFiltering(true);
+                })
+        //.CascadeFrom("CustomerId")
+    )*@
+@*@Html.ValidationMessageFor(m => m)*@
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model int?
+@{
+    var v = new APRAjaxServiceController();
+    var GetVendorlist = v.GetVendorlist();
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+            .DataValueField("Value")
+            .DataTextField("Text")
+            .BindTo((GetVendorlist)
+    ))

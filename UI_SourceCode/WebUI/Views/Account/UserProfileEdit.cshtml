@@ -1,0 +1,115 @@
+﻿@using Kendo.Mvc.UI;
+@model NTTData.AMOPortal.WebUI.Dto.UserProfileModel
+
+<style>
+    .register-control {
+        border: none;
+        border-bottom: 1px solid #333;
+        border-radius: 0px;
+    }
+
+    .form-control[disabled].register-control {
+        background-color: transparent;
+    }
+</style>
+
+@(Html.Kendo().Window()
+                .Name("EditTemppopUp")
+                .Title("Edit User")
+                .Content(@<text>
+     <form action="UserProfileSave" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary()
+          <div class="register-main">
+              <div class="register-group">
+
+        <div class="custom-group">
+                    <label for="UserName" class="register-label" id=""><span class="mandate">*</span>User Name/Email</label>
+                    <div class="">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "register-control", id = "UserName" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+                    @*<label style="margin-left:7em"><span class="mandate">*</span>NTT Data Resource:&nbsp;&nbsp; @Html.CheckBoxFor(m => m.NTTDataResource, new { @style = "height:20px; width:30px; display:inline;" }) </label>*@
+                </div>
+        <div class="custom-group">
+            <label for="FirstName" class="register-label" id=""><span class="mandate">*</span>FirstName</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.FirstName, new { @class = " register-control", id = "FirstName" })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="LastName" class="register-label" id=""><span class="mandate">*</span>LastName</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.LastName, new { @class = "register-control", id = "LastName" })
+            </div>
+        </div>
+        <div class="custom-group">
+             <label for="Country" class="register-label" style="width:20em" id="">Country</label>
+            @*<strong>@Html.Label("Country", new { @class = "register-label" })</strong>*@
+            <div class="">
+                @Html.DropDownListFor(m => m.CountryCode, new SelectList(Model.CountryList, "Value", "Text", Model.CountryCode), "", new
+            {
+                @class = "register-control",
+                id = "CountryCode",
+                style = "border: none; width:100% !important;height: 34px;border-radius: 0px !important ;border-bottom:1px Solid #333"
+            })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="Phone" class="register-label" id="">Phone</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.Phone, new { @class = "register-control", id = "Phone" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="JobTitle" class="register-label" id="">JobTitle</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.JobTitle, new { @class = "register-control", id = "JobTitle" })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="ReportingManager" class="register-label" id="">Reporting Manager</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.ReportingManager, new { @class = "register-control", id = "ReportingManager" })
+            </div>
+        </div>
+
+    </div>
+              <div class="register-group">
+          <div class="custom-group">
+            <label for="NTTDataResource" class="register-label" style="margin-left:3em;" id=""><span class="mandate">*</span>NTT Data Resource :</label>
+            <div class="">
+              @Html.CheckBoxFor(m => m.NTTDataResource, new { type = "checkbox", id= "NTTDataResource",  @style = "height:15px; width:15px; display:inline;" })
+            </div>
+        </div>
+
+    </div>
+          </div>
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.Email)
+            @Html.HiddenFor(m => m.Active)
+            @Html.HiddenFor(m => m.IsPhoneVerified)
+
+         <div class="register-buttom">
+            <input type="button" onclick="onEditcancel()" class="custom-button" style="width:fit-content;padding:0.3em 0.4em;background-color:darkgrey;margin-right:1em" value="CANCEL" id="btnCancel" />
+            <input type="submit" class="custom-button" style="width:fit-content;padding:0.3em 0.4em;" value="SAVE" id="btnSave" />
+
+         </div>
+            @*<div class="form-group">
+                <input type="submit" class="custom-button" style="width:fit-content;padding:0.5em 1em;height:30px;margin-left:1em" value="Save" id="btnSave" />
+                <a href="@Url.Action("Users", "Account")" class="custom-button" style="width:fit-content;padding:0.5em 1em;border:1px solid;color:#333;background-color:transparent">Back</a>
+            </div>*@
+         </form>
+
+     </text>)
+                .Visible(false)
+                .Draggable()
+                .Resizable()
+                .Width(797)
+                .Height(473)
+                .AutoFocus(false)
+                .Modal(true)
+
+
+)

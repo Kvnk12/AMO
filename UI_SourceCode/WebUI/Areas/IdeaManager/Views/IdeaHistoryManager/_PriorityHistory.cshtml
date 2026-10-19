@@ -1,0 +1,78 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+<style>
+    #PriorityHistory td:nth-child(1), #PriorityHistory td:nth-child(2)
+    {
+        text-align:right;
+    }
+</style>
+
+<div id="PriorityHistory" style="width:100%"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+        if (ItemId != null) {
+            $('#PriorityHistory').jtable({
+                title: 'Priority History',
+                actions: {
+                    listAction: "@Url.Action("GetPriorityHistoryDetails")"+ "?ItemId="+ItemId
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                    OldPriorityId: {
+                        title: 'Old Priority',
+                        width: '20%'
+                    },
+                    NewPriorityId: {
+                        title: 'New Priority',
+                        width: '20%'
+                    },
+
+                    Comments: {
+                title: 'Comments',
+                width: '20%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%',
+                            key: true
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%',
+                key: true
+            }
+
+
+
+                }
+            });
+            $('#PriorityHistory').jtable('load');
+
+        }
+    });
+
+
+
+</script>

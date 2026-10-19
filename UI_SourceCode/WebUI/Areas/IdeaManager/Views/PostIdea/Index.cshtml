@@ -1,0 +1,1326 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+
+@model  IdeaViewModel
+@*PostIdea*@
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayout.cshtml";
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = 0;
+    if (client != null)
+    {
+        clientId = client.ClientId;
+    }
+
+    var sysadmin = Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput);
+    //var admin = Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput);
+    //var impmanager = Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.ImplementationManager, MenuItemsInput);
+    //var user = Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.User, MenuItemsInput);
+
+}
+
+<style>
+    /*----------------Tabs-------------------*/
+    .tab {
+        /*overflow: hidden;*/
+        width: 100%;
+        /*height:250px;*/
+        display: inline-flex;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+        /* Style the buttons inside the tab */
+        .tab button {
+            background-color: inherit;
+            /*float: left;*/
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            transition: 0.3s;
+            font-size: 17px;
+            width: auto;
+            /*display:inline-flex;*/
+            text-overflow: ellipsis;
+        }
+
+            /* Change background color of buttons on hover */
+            .tab button:hover {
+                background-color: #ddd;
+            }
+            /* Create an active/current tablink class */
+            .tab button.active {
+                background-color: #ccc;
+                text-decoration: underline;
+            }
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+        /*height: 200px;*/
+        padding-top: 1%;
+    }
+
+    .tablinks {
+        width: auto;
+        margin: auto;
+        /*text-overflow:ellipsis;*/
+    }
+
+
+    /*Tree View Disabling class*/
+    .treedivDisable {
+        pointer-events: none;
+        cursor: no-drop;
+        color: #c2c2c2 !important;
+        background-color: #f5f5f5;
+        border-radius: 3px;
+    }
+</style>
+
+<div class="content-main dark-bg idea-manager-postidea">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li>View Idea</li>
+            <li class="active">Post Idea</li>
+        </ol>
+    </div>
+
+    <div class="im-postidea-tabhead">
+        <div class="im-postidea-header">
+            <h5>Idea Name :<label class="custom-white-label">@Model.IdeaName</label> </h5>
+            @if (Model.IsDeleted == false)
+            {
+
+
+                if (Model.PostNewIdea == false && ((Model.IdeaStatusID != null) && (Model.IsIdeaMine == true || Model.IsSysAdmin == true)))
+                {
+
+                    //<div style="width:100%;height:3%">
+                    <button type="submit" onclick="DetailIdea()" class="im-custom-button im-btn-print">Print View</button>
+                    // </div>
+
+                }
+            }
+        </div>
+
+        <div class="im-postidea-header">
+            <h5>Idea Number:<label class="custom-white-label"> @Model.IdeaNumber</label></h5>
+            <h5>Idea Status:<label class="custom-white-label">@Model.IdeaStatus</label> </h5>
+            <div class="im-postidea-button">
+                @if (sysadmin ||MenuItemsInput.UserRole.ToLower()== "superuser")
+                {
+                    if (Model.PostNewIdea == false)
+                    {
+                        <button id="EditIdea" class="btn btn-primary im-button" onclick="SysAdminEditClick()">Edit</button>
+                    }
+
+                    if (Model.IdeaStatusID == (int)IMStatus.SubmitForRevision)
+                    {
+                        <button type="submit" class="btn btn-primary im-button" title="Click here If Idea has been Revised!" onclick="ReviseIdea()">Revised</button>
+                    }
+                    if ((Model.IdeaStatusID == (int)IMStatus.SubmitForReview || Model.IdeaStatusID == (int)IMStatus.SubmitForApproval) && Model.IsSysAdmin == true)
+                    {
+                        <button class="btn btn-primary im-button" onclick="location.href='@Url.Action("","IdeaApproval")';return false;" title="Go to Approval Page to perform action on the Ideas submitted for Review to you.">Next Steps</button>
+                    }
+                }
+                else
+                {
+                    if (Model.IsDeleted == false)
+                    {
+                        if (Model.PostNewIdea == false)
+                        {
+                            //if () { }
+                            <!--Read Only Mode :  Edit Button Visible only to [CreatedUser] and [Admin/SysAdmin]-->
+                            if ((Model.IdeaStatusID == (int)IMStatus.SubmitForReview || Model.IdeaStatusID == (int)IMStatus.SubmitForApproval || Model.IdeaStatusID == (int)IMStatus.Declined || Model.IdeaStatusID == (int)IMStatus.Cancelled || Model.ImpIdeaStatusID == (int)IMStatus.Implemented) && (Model.IsIdeaMine == true || Model.IsSysAdmin == true))
+                            {
+                                <!--Button will be visible but not Enabled [Id Admin or CreatedUser] -->
+
+                                @*@(Html.Kendo().Button()
+                                    .Name("EditIdea")
+                                    .Content("Edit")
+                                    .HtmlAttributes(new { @class = "btn btn-primary", style = "width:150px;" })
+                                    .Enable(false)
+                                    )*@
+
+                                <button id="EditIdea" class="btn btn-default im-custom-btndisabled" title="Idea cannot be edited in this Status.">Edit</button>
+
+                                if ((Model.IdeaStatusID == (int)IMStatus.SubmitForReview || Model.IdeaStatusID == (int)IMStatus.SubmitForApproval) && Model.IsSysAdmin == true)
+                                {
+                                    <button class="btn btn-primary im-button" onclick="location.href='@Url.Action("Index","IdeaApproval")';return false;" title="Go to Approval Page to perform action on the Ideas submitted for Review to you.">Next Steps</button>
+                                }
+
+                            }
+
+                            else
+                            { <!--If idea is not in the Statuses above mentioned.-->
+                                <!--   -->
+                                if ((Model.IdeaStatusID != (int)IMStatus.SubmitForReview || Model.IdeaStatusID != (int)IMStatus.SubmitForApproval || Model.IdeaStatusID != (int)IMStatus.Declined || Model.IdeaStatusID != (int)IMStatus.Cancelled || Model.ImpIdeaStatusID != (int)IMStatus.Implemented) && (Model.IsIdeaMine == true || Model.IsSysAdmin == true || Model.IsImplementationManager == true))
+                                {
+                                    //If Status is Approved--- [Pre-Approval details cannot be edited]
+                                    if ((Model.IdeaStatusID == (int)IMStatus.Approved || Model.ImpIdeaStatusID == (int)IMStatus.SubmitForPlanning || Model.ImpIdeaStatusID == (int)IMStatus.Planned || Model.ImpIdeaStatusID == (int)IMStatus.Initiated))
+                                    {
+                                        if ((Model.IsImplementationManager == true || Model.IsSysAdmin == true) && (Model.IdeaStatusID != (int)IMStatus.Cancelled || Model.ImpIdeaStatusID != (int)IMStatus.Implemented))
+                                        {
+                                            //Editing Details Post Approval -- [Only for Admins/Sysadmin, Implementation Manager]
+
+
+                                            @*@(Html.Kendo().Button()
+                                                .Name("EditIdea")
+                                                .Content("Edit")
+                                                .Events(eve => eve.Click("AdminEditClick"))
+                                                .HtmlAttributes(new { @class = "btn btn-primary", style = "width:150px;" })
+                                                .Enable(true))*@
+
+
+                                            <button id="EditIdea" class="btn btn-primary im-button" onclick="AdminEditClick()">Edit</button>
+
+
+                                        }
+                                    }
+                                    //Edit Idea Completely
+                                    if ((Model.IdeaStatusID == (int)IMStatus.Created || Model.IdeaStatusID == (int)IMStatus.SubmitForRevision || Model.IdeaStatusID == (int)IMStatus.Revised) && Model.IsIdeaMine == true)
+                                    {
+
+                                        @*@(Html.Kendo().Button()
+                                            .Name("EditIdea")
+                                            .Content("Edit")
+                                            .Events(eve => eve.Click("UserEditClick"))
+                                            .HtmlAttributes(new { @class = "btn btn-primary", style = "width:150px;" })
+                                            .Enable(true))*@
+
+
+                                        <button id="EditIdea" class="btn btn-primary im-button" onclick="UserEditClick()">Edit</button>
+                                        if (Model.IdeaStatusID == (int)IMStatus.SubmitForRevision)
+                                        {
+                                            <button type="submit" class="btn btn-primary im-button" title="Click here If Idea has been Revised!" onclick="ReviseIdea()">Revised</button>
+                                        }
+                                    }
+                                }
+                                else if (Model.IsIdeaMine == false || Model.IsSysAdmin == false)
+                                {
+                                    //Do not display..
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <!--If it is PostNewIdea-->
+                            <!--Do Not display any Button-->
+                        }
+                    }
+                }
+                <button type="submit" class="btn btn-primary im-button" onclick="location.href='@Url.Action("Index","ViewIdea")';return false;">Return to View Idea</button>
+            </div>
+
+        </div>
+    </div>
+    <div class="tab-container im-postidea-tab custom-kendo-tabstrip">
+        <!--Kendo Tab-->
+        @(Html.Kendo().TabStrip()
+                                         .Name("tabstrip")
+                                         .Items(tabstrip =>
+                                         {
+                                             tabstrip.Add().Text("Home")
+                                                 .Selected(true)
+
+                                                 .Content(m => Html.Partial("_Home", Model));
+                                             //tabstrip.Add().Text("Approver(s)")
+                                             tabstrip.Add().Text("Submit For Review")
+                                                            .Enabled(false)
+                                                             .Content(m => Html.Partial("_Approvers", Model));
+
+                                             tabstrip.Add().Text("Classification")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_ClassificationAndCategory", Model));
+
+                                             tabstrip.Add().Text("Business Benefits")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_BusinessBenefits", Model));
+
+                                             tabstrip.Add().Text("IT Savings")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_ITSavings", Model));
+
+                                             tabstrip.Add().Text("Config Items")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_ConfigItems", Model));
+
+                                             tabstrip.Add().Text("Analysis/ Root Cause")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_Analysis", Model));
+
+                                             tabstrip.Add().Text("Solution")
+                                               .Enabled(false)
+                                               .Content(m => Html.Partial("_Solution", Model));
+
+                                             tabstrip.Add().Text("Risk Mitigation")
+                                                 .Enabled(false)
+
+                                                 .Content(m => Html.Partial("_RiskMitigation", Model));
+
+                                             tabstrip.Add().Text("Metrics")
+                                                 .Enabled(false)
+
+                                                 .Content(m => Html.Partial("_Metrics", Model));
+
+
+
+                                             tabstrip.Add().Text("Comments")
+                                                 .Enabled(false)
+
+                                                 .Content(m => Html.Partial("_Comments", Model));
+
+
+
+                                             tabstrip.Add().Text("Implementation").HtmlAttributes(new { @title = "Only Implementation Managers can edit this section after Ideas gets Approved/Submitted for Planning." })
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_Implementation", Model));
+
+                                             //tabstrip.Add().Text("Offline Approval")
+                                             //    .Enabled(false)
+                                             //    .Content(m => Html.Partial("_OfflineApprover", Model));
+
+                                             tabstrip.Add().Text("Log")
+                                                 .Enabled(false)
+
+                                                 .Content(m => Html.Partial("_Log", Model));
+                                         })
+
+    )
+    </div>
+
+    @Html.HiddenFor(m => m.IdeaId)
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.ViewIdea)
+    @Html.HiddenFor(m => m.PostNewIdea)
+    @Html.HiddenFor(m => m.IsSysAdmin)
+    @Html.HiddenFor(m => m.IsImplementationManager)
+    @Html.HiddenFor(m => m.IsIdeaMine)
+    @Html.HiddenFor(m => m.IsCusUser)
+    @Html.HiddenFor(m => m.EditIdea)
+    @Html.HiddenFor(m => m.TabName)
+    @Html.HiddenFor(m => m.IdeaStatusID)
+    @Html.HiddenFor(m => m.ImpIdeaStatusID)
+    @Html.HiddenFor(m => m.IMAutoApprovalSelection)
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+    var grid = $('#userGrid').data('kendoGrid');
+    grid.bind('dataBound', function (e) {
+        $.each(grid.tbody.find('tr'), function ()
+        {
+            var model = grid.dataItem(this);
+            //var cells = this;
+             if (model.IdeaApproverId != '' && model.IdeaApproverId!=null) {
+                 $('[data-uid=' + model.uid + ']').addClass('k-state-selected')
+                .find('[type=checkbox]')
+                .attr("checked", "checked");
+                 grid.select("tr[data-uid='" + model.uid + "']");
+                 //cells.find('[type=checkbox]').attr('aria-checked', 'true');
+                 //cells.find('[type=checkbox]').attr('aria-label', 'Select row');
+                 //cells.toggleClass("k-state-selected");
+                 ////var view = this.dataSource.view();
+                 ////for (var i = 0; i < view.length; i++) {
+                 ////        this.tbody.find("tr[data-uid='" + view[i].uid + "']")
+                 ////        .addClass("k-state-selected")
+                 ////        .find(".checkbox")
+                 ////        .attr("checked", "checked");
+
+                 ////}
+
+            }
+        });
+    });
+    });
+    $(window).on('load', function () {
+        if ('@Model.IMAutoApprovalSelection'.toLowerCase() == 'true') {
+            var tabStrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+            $(tabStrip.items()[1]).hide();
+        }
+        //Document load --> Disable
+        //$("#IdeaName").data("kendoTextBox").enable(false);
+        if ('@Model.PostNewIdea'.toLowerCase() == 'true') {
+            //alert('Inside');
+
+        }
+        else {
+
+            $("#im_home_tab").addClass("k-state-disabled");
+            $("#im-bb-grid").addClass("k-state-disabled");
+            $("#im-cmt-grid").addClass("k-state-disabled");
+            $("#im-it-grid").addClass("k-state-disabled");
+            $("#im-metric-grid").addClass("k-state-disabled");
+            $("#im-rm-grid").addClass("k-state-disabled");
+            $("#IdeaName").addClass("k-no-click");
+            //$("#IdeaName").data("kendoTextBox").enable(false);
+            $("#QtyFication").attr("disabled", "disabled");
+            $("#ActualProgress").attr("disabled", "disabled");
+            $("#IdeaTypeId").attr("disabled", "disabled");
+            $("#IdeaSourceId").attr("disabled", "disabled");
+            $("#Complexity").attr("disabled", "disabled");
+            $("#TeamId").attr("disabled", "disabled");
+            $("#LOBId").attr("disabled", "disabled");
+            $("#InternalInit").attr("disabled", "disabled");
+            //$("#Description").data("").enable();
+            $('#btnSave').attr('disabled', true);
+            $('#cancelidea').attr('disabled', true);
+            //console.log("HomeTab Disabling");
+            $('#AnalysisSave').attr('disabled', true);
+            $('#SolutionSave').attr('disabled', true);
+            $('#ImplementationSave').attr('disabled', true);
+            $('#ImplementationSave').hide();
+            $('#SelectApprovers').attr('disabled', true);
+            $('#ApproverSave').attr('disabled', true);
+
+            $("#desc_div").addClass("k-state-disabled");
+            $("#ImprovementTheme_div").addClass("k-state-disabled");
+
+            $(".k-grid-edit").addClass("k-state-disabled");
+            $(".k-grid-delete").addClass("k-state-disabled");
+
+            var ec = $(".k-grid-edit");
+            var ec2 = $(".k-grid-delete");
+
+            ec.prop("disabled", true);
+            ec2.prop("disabled", true);
+            $(".k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+            $(".k-grid-add").removeAttr("href");
+
+            $("#Analysis_div").addClass("k-state-disabled");
+            $("#Solution_div").addClass("k-state-disabled");
+            //enabling all kendo tabs
+
+            var tabStrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+            //tabStrip.enable(tabStrip.tabGroup.children().eq(0), false);
+            tabStrip.enable(tabStrip.tabGroup.children(), true);
+
+
+            //treeview disabling
+            //Classification and Category
+            $('#classandcatDiv').addClass("treedivDisable");
+            $('#classandcatDiv > .k-treeview .k-item .k-in').addClass("treedivDisable");
+            $('#saveClassification').attr('disabled', true);
+
+            //ConfigItem
+            $('#configitemDiv').addClass("treedivDisable");
+            $('#configitemDiv > .k-treeview .k-item .k-in').addClass("treedivDisable");
+            $('#saveConfigItems').attr('disabled', true);
+
+            $('#resetbuttoncancel').attr('disabled', true);
+            $('#resetbuttoncancel1').attr('disabled', true);
+
+            //Approver tab Disable
+            $("#selectApproverGridDiv > .k-grid > .k-grid-content > table").addClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").addClass("treedivDisable");
+
+            //-->@*if ('@Model.IdeaId') {
+            var appExistIds = @Html.Raw(Json.Encode(Model.ExistingApproversIds));
+            if (appExistIds) {
+                var gridObj = $("#userGrid").data("kendoGrid");
+                if (gridObj) {
+                    $.each(appExistIds, function (index, valText) {
+                        $.each(gridObj.tbody.find('tr'), function () {
+                            var model = gridObj.dataItem(this);
+                            if (model.Id == valText) {
+                                $('[data-uid=' + model.uid + ']').addClass('k-state-selected');
+                            }
+
+                        });
+                    });
+                }
+
+            }
+        }*@
+        }
+
+  });
+
+    function ReviseIdea() {
+        var mod = {
+            IdeaId: '@Model.IdeaId'
+        };
+        var data = JSON.stringify(mod);
+        var indexurl = '@Url.Content("~/IdeaManager/PostIdea")';
+        var ReviseIdeaURl = '@Url.Content("~/IdeaManager/PostIdea/ReviseIdea")';
+        $.ajax(
+            {
+                url: ReviseIdeaURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    window.location.href = indexurl +'?IdeaId='+@Model.IdeaId;
+                }
+            })
+    }
+
+
+    function DetailIdea() {
+
+        var indexurl = '@Url.Content("~/IdeaManager/DetailIdea")';
+        if(@Model.IdeaId==0){
+            alert("No idea is selected");
+        }else
+        window.location.href = indexurl +'?ideaId='+@Model.IdeaId;
+
+    }
+
+
+
+
+
+
+
+    //check Metric is there for an Idea or Not
+    function CheckOneMetric() {
+        var result;
+        var mod = {
+            IdeaId: '@Model.IdeaId'
+        };
+        var data = JSON.stringify(mod);
+        var ChkMetricURl = '@Url.Content("~/IdeaManager/PostIdea/CheckMetric")';
+        $.ajax(
+            {
+                url: ChkMetricURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                       // $('#MetricRequired_alert').hide();
+
+                        if (data == false) {
+                            //$('#MetricRequired_alert').show();
+                            result = false;
+                        }
+                        else {
+                            result = true;
+                        }
+                }
+            })
+        return result;
+    }
+
+
+    //check Comment is there for an Idea or Not
+    function CheckOneComment() {
+        var result;
+        var mod = {
+            IdeaId: '@Model.IdeaId'
+        };
+        var data = JSON.stringify(mod);
+        var ChkCommentURl = '@Url.Content("~/IdeaManager/PostIdea/CheckComment")';
+        $.ajax(
+            {
+                url: ChkCommentURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                       // $('#MetricRequired_alert').hide();
+
+                        if (data == false) {
+                            //$('#MetricRequired_alert').show();
+                            result = false;
+                        }
+                        else {
+                            result = true;
+                        }
+                }
+            })
+        return result;
+    }
+
+
+
+    //Implementation Tab Validations
+
+    $('input[type=radio][name=ImpIdeaStatusID]').change(function (e) {
+        if ('@Model.ImpIdeaStatusID' == '@((int)IMStatus.SubmitForPlanning)'||'@Model.ImpIdeaStatusID' == '@((int)IMStatus.Planned)'||'@Model.ImpIdeaStatusID' == '@((int)IMStatus.Initiated)'||'@Model.IdeaStatusID' == '@((int)IMStatus.Approved)')
+        {
+            $('#ImplementationSave').removeAttr('disabled');
+        }
+        var IdeaStat = $('input[name=ImpIdeaStatusID]:checked').val();
+
+        document.getElementById("id-impPriority").style.display = "none";
+        document.getElementById("id-impManager").style.display = "none";
+        document.getElementById("id-startplandate").style.display = "none";
+        document.getElementById("id-endplandate").style.display = "none";
+        document.getElementById("id-actualstartdate").style.display = "none";
+        document.getElementById("id-actualenddate").style.display = "none";
+        document.getElementById("id-actualProgress").style.display = "none";
+        if (IdeaStat == '@((int)IMStatus.Planned)') {
+
+            document.getElementById("id-impPriority").style.display = "inline-block";
+            document.getElementById("id-impManager").style.display = "inline-block";
+            document.getElementById("id-startplandate").style.display = "inline-block";
+            document.getElementById("id-endplandate").style.display = "inline-block";
+        }
+        else if (IdeaStat == '@((int)IMStatus.Initiated)') {
+            document.getElementById("id-impPriority").style.display = "inline-block";
+            document.getElementById("id-impManager").style.display = "inline-block";
+            document.getElementById("id-startplandate").style.display = "inline-block";
+            document.getElementById("id-endplandate").style.display = "inline-block";
+            document.getElementById("id-actualstartdate").style.display = "inline-block";
+            document.getElementById("id-actualProgress").style.display = "inline-block";
+        }
+        else if (IdeaStat == '@((int)IMStatus.Implemented)') {
+            document.getElementById("id-impPriority").style.display = "inline-block";
+            document.getElementById("id-impManager").style.display = "inline-block";
+            document.getElementById("id-startplandate").style.display = "inline-block";
+            document.getElementById("id-endplandate").style.display = "inline-block";
+            document.getElementById("id-actualstartdate").style.display = "inline-block";
+            document.getElementById("id-actualenddate").style.display = "inline-block";
+        }
+    });
+
+
+
+    //function ReqValidation(e){
+    //    var IdeaStat = $('input[name=ImpIdeaStatusID]:checked').val();
+
+    //}
+
+
+    $('#ImplementationSave').click(function (e) {
+        //Radio Button -- Status Check
+        var IdeaStat = $('input[name=ImpIdeaStatusID]:checked').val();
+
+        if (IdeaStat) {
+
+            //alert('inside');
+            var psdt = $("#PlannedStartDt").data("kendoDatePicker");
+            var pedt = $("#PlannedEndDt").data("kendoDatePicker");
+            var asdt = $("#ActualStartDt").data("kendoDatePicker");
+            var aedt = $("#ActualEndDt").data("kendoDatePicker");
+            var actualProg = $("#ActualProgress").val();//--When Initiated
+            var impPriority = $("#ImpPriority").data("kendoDropDownList");
+            var impManager = $("#ImpManager").data("kendoDropDownList");
+            $('#PlannedStartDt_alert').hide();
+            $('#PlannedEndDt_alert').hide();
+            $('#ActualStartDt_alert').hide();
+            $('#ActualEndDt_alert').hide();
+            $('#MetricRequired_alert').hide();
+            $('#CommentRequired_alert').hide();
+            $('#MetricAndCommentRequired_alert').hide();
+            $("#P_EndDate_Alert").hide();
+            $("#A_EndDate_Alert").hide();
+            $("#ImpPriority_alert").hide();
+            $("#ActualProgress_alert").hide();
+            $('#ImpManager_alert').hide();
+            //check metric is there or not..
+            var oneMetric = CheckOneMetric();
+            var oneComment = CheckOneComment();
+            // alert(oneMetric);
+            if (IdeaStat == '@((int)IMStatus.Planned)') {
+                var dat_psdt = new Date(psdt.value());
+                var dat_pedt = new Date(pedt.value());
+                if (impPriority.value() == '' || psdt.value() == null || pedt.value() == null || oneMetric === false || oneComment === false || dat_pedt < dat_psdt || impManager.value()=='') {
+                    if (psdt.value() == null) {
+                        document.getElementById("PlannedStartDt_alert").style.display = "inline-block";
+                       // $('#PlannedStartDt_alert').show();
+                    }
+                    if (impManager.value() == '') {
+                        document.getElementById("ImpManager_alert").style.display = "inline-block";
+                       // $('#ImpManager_alert').show();
+                    }
+                    if (pedt.value() == null) {
+                        document.getElementById("PlannedEndDt_alert").style.display = "inline-block";
+                       // $('#PlannedEndDt_alert').show();
+                    }
+                    if (oneMetric === false && oneComment === false) {
+                        document.getElementById("MetricAndCommentRequired_alert").style.display = "inline-block";
+
+                    }
+                    else {
+                        if (oneMetric === false) {
+                            //$('#MetricRequired_alert').show();
+                            document.getElementById("MetricRequired_alert").style.display = "inline-block";
+                        }
+                        if (oneComment === false) {
+                           // $('#CommentRequired_alert').show();
+                            document.getElementById("CommentRequired_alert").style.display = "inline-block";
+                        }
+                    }
+                    if (dat_pedt < dat_psdt && psdt.value() != null && pedt.value() != null) {
+                       // $("#P_EndDate_Alert").show();
+                        document.getElementById("P_EndDate_Alert").style.display = "inline-block";
+                    }
+                    if (impPriority.value() == '') {
+                        //$("#ImpPriority_alert").show();
+                        document.getElementById("ImpPriority_alert").style.display = "inline-block";
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            if (IdeaStat == '@((int)IMStatus.Initiated)') {
+                var dat_psdt = new Date(psdt.value());
+                var dat_pedt = new Date(pedt.value());
+                if (actualProg == 0 || impManager.value() == '' || psdt.value() == null || pedt.value() == null || asdt.value() == null || oneMetric === false || oneComment === false || dat_pedt < dat_psdt || impPriority.value() == '') {
+                    if (psdt.value() == null) {
+                       // $('#PlannedStartDt_alert').show();
+                        document.getElementById("PlannedStartDt_alert").style.display = "inline-block";
+                    }
+                    if (impManager.value() == '') {
+                        //$('#ImpManager_alert').show();
+                        document.getElementById("ImpManager_alert").style.display = "inline-block";
+                    }
+                    if (impPriority.value() == '') {
+                       // $("#ImpPriority_alert").show();
+                        document.getElementById("ImpPriority_alert").style.display = "inline-block";
+                    }
+                    if (pedt.value() == null) {
+                      //  $('#PlannedEndDt_alert').show();
+                        document.getElementById("PlannedEndDt_alert").style.display = "inline-block";
+                    }
+                    if (asdt.value() == null) {
+                        //$('#ActualStartDt_alert').show();
+                        document.getElementById("ActualStartDt_alert").style.display = "inline-block";
+                    }
+                    if (oneMetric === false && oneComment === false) {
+                       // $('#MetricAndCommentRequired_alert').show();
+                        document.getElementById("MetricAndCommentRequired_alert").style.display = "inline-block";
+                    }
+                    else {
+                        if (oneMetric === false) {
+                           // $('#MetricRequired_alert').show();
+                            document.getElementById("MetricRequired_alert").style.display = "inline-block";
+                        }
+                        if (oneComment === false) {
+                           // $('#CommentRequired_alert').show();
+                            document.getElementById("CommentRequired_alert").style.display = "inline-block";
+                        }
+                    }
+                    if (actualProg == 0) {
+                       // $('#ActualProgress_alert').show();
+                        document.getElementById("ActualProgress_alert").style.display = "inline-block";
+                    }
+                    if (dat_pedt < dat_psdt && psdt.value() != null && pedt.value() != null) {
+                       // $("#P_EndDate_Alert").show();
+                        document.getElementById("P_EndDate_Alert").style.display = "inline-block";
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            if (IdeaStat == '@((int)IMStatus.Implemented)') {
+                var dat_asdt = new Date(asdt.value());
+                var dat_aedt = new Date(aedt.value());
+                var dat_psdt = new Date(psdt.value());
+                var dat_pedt = new Date(pedt.value());
+                if (psdt.value() == null || impManager.value() == '' || pedt.value() == null || asdt.value() == null || aedt.value() == null || oneMetric === false || oneComment === false || dat_aedt < dat_asdt || dat_pedt < dat_psdt || impPriority.value() == '') {
+                    if (psdt.value() == null) {
+                      //  $('#PlannedStartDt_alert').show();
+                        document.getElementById("PlannedStartDt_alert").style.display = "inline-block";
+                    }
+                    if (impPriority.value() == '') {
+                       // $("#ImpPriority_alert").show();
+                        document.getElementById("ImpPriority_alert").style.display = "inline-block";
+                    }
+                    if (impManager.value() == '') {
+                      //  $('#ImpManager_alert').show();
+                        document.getElementById("ImpManager_alert").style.display = "inline-block";
+                    }
+                    if (pedt.value() == null) {
+                       // $('#PlannedEndDt_alert').show();
+                        document.getElementById("PlannedEndDt_alert").style.display = "inline-block";
+                    }
+                    if (asdt.value() == null) {
+                       // $('#ActualStartDt_alert').show();
+                        document.getElementById("ActualStartDt_alert").style.display = "inline-block";
+                    }
+                    if (aedt.value() == null) {
+                       // $('#ActualEndDt_alert').show();
+                        document.getElementById("ActualEndDt_alert").style.display = "inline-block";
+                    }
+                    if (oneMetric === false && oneComment === false) {
+                      //  $('#MetricAndCommentRequired_alert').show();
+                        document.getElementById("MetricAndCommentRequired_alert").style.display = "inline-block";
+                    }
+                    else {
+                        if (oneMetric === false) {
+                           // $('#MetricRequired_alert').show();
+                            document.getElementById("MetricRequired_alert").style.display = "inline-block";
+                        }
+                        if (oneComment === false) {
+                           // $('#CommentRequired_alert').show();
+                            document.getElementById("CommentRequired_alert").style.display = "inline-block";
+                        }
+                    }
+                    if (dat_pedt < dat_psdt && psdt.value() != null && pedt.value() != null) {
+                       // $("#P_EndDate_Alert").show();
+                        document.getElementById("P_EndDate_Alert").style.display = "inline-block";
+                    }
+                    if (dat_aedt < dat_asdt && asdt.value() != null && aedt.value() != null) {
+                       // $("#A_EndDate_Alert").show();
+                        document.getElementById("A_EndDate_Alert").style.display = "inline-block";
+                    }
+                    return false;
+                }
+                return true;
+            }
+            if (IdeaStat == '@((int)IMStatus.Hold)' || IdeaStat == '@((int)IMStatus.Cancelled)') {
+                return true;
+            }
+            return true;
+
+        }
+        else {
+            alert('Please select one of the Status above before saving.');
+            return false;
+            //e.preventDefault();
+        }
+
+
+    });
+
+
+    //Checking Required Fields
+    $('#btnSave').click(function (e) {
+        document.getElementById("Complexity_alert").style.display = "none";
+        document.getElementById("IdeaName_alert").style.display = "none";
+        document.getElementById("IdeaSourceId_alert").style.display = "none";
+        document.getElementById("Description_alert").style.display = "none";
+        document.getElementById("Team_alert").style.display = "none";
+        document.getElementById("IdeaNameExists_alert").style.display = "none";
+        var ideaName  = $('#IdeaName').val();
+        var ideaSource = $('#IdeaSourceId').data("kendoDropDownList");
+        var desc = $('#Description').val();
+        var team = $('#TeamId').data("kendoDropDownList");
+        var Complex = $('#Complexity').data("kendoDropDownList");
+        console.log(Complex.value())
+        var Ideaexists = ItemNameExists(ideaName);
+
+        if (ideaName.trim() == '' || ideaSource.value() == '' || desc.trim() == '' || team.value() == '' || Complex.value()== '' || Ideaexists === true) {
+            console.log("in")
+            if (Complex.value() == '') {
+                console.log(Complex.value())
+                console.log("in")
+              document.getElementById("Complexity_alert").style.display = "inline-block";
+            }
+            if (ideaName.trim() == '') {
+              //  $('#IdeaName_alert').show();
+                document.getElementById("IdeaName_alert").style.display = "inline-block";
+
+            }
+            if (ideaSource.value() == '') {
+               // $('#IdeaSourceId_alert').show();
+                document.getElementById("IdeaSourceId_alert").style.display = "inline-block";
+            }
+            if (desc.trim() == '') {
+             //   $('#Description_alert').show();
+                document.getElementById("Description_alert").style.display = "inline-block";
+            }
+            if (team.value() == '') {
+               // $('#Team_alert').show();
+                document.getElementById("Team_alert").style.display = "inline-block";
+            }
+            if (Ideaexists === true) {
+              //  $("#IdeaNameExists_alert").show();
+                document.getElementById("IdeaNameExists_alert").style.display = "inline-block";
+            }
+            e.preventDefault();
+            //return false;
+        }
+        //return true;
+    })
+
+    function GetIdeaId() {
+        console.log("in");
+         return {
+            IdeaId: '@Model.IdeaId'
+        }
+    }
+    function GetIdeaIdnew() {
+        console.log("in");
+        var CurrentIdeaId = '@Model.IdeaId'
+        console.log("IdeaId =" + CurrentIdeaId);
+        return CurrentIdeaId;
+        
+    }
+
+    //Analysis and Solutions
+    function saveAnalysis() {
+        var editor = $("#AnalysisEditor").data("kendoEditor");
+        var content = editor.value();
+        if (content.trim() != '') {
+            var mod = {
+                IdeaId: '@Model.IdeaId',
+                analysis:content
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/IdeaManager/PostIdea/UpdateAnalysis")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+        }
+        else {
+            alert('This should not be left Empty');
+        }
+    }
+
+    function saveSolution() {
+        var editor = $("#SolutionEditor").data("kendoEditor");
+        var content = editor.value();
+        if (content.trim() != '') {
+             var mod = {
+                IdeaId: '@Model.IdeaId',
+                solution:content
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/IdeaManager/PostIdea/UpdateSolution")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+        }
+        else {
+            alert('This should not be left Empty');
+        }
+    }
+
+    function AdminEditClick() {
+        //console.log("1");
+        //Changing button content and Background
+        var bto = document.getElementById("EditIdea");
+        bto.innerText = "Editing...";
+        bto.style.backgroundColor = '#rgb(91,121,171);';
+        bto.style.color= "white";
+        //bto.style.fontWeight = "700";
+        //console.log("2");
+        $("#tabstrip-tab-1").removeClass("k-state-disabled");
+        $("#tabstrip-tab-2").removeClass("k-state-disabled");
+        $("#tabstrip-tab-3").removeClass("k-state-disabled");
+        $("#tabstrip-tab-4").removeClass("k-state-disabled");
+        $("#tabstrip-tab-5").removeClass("k-state-disabled");
+        $("#tabstrip-tab-6").removeClass("k-state-disabled");
+        $("#tabstrip-tab-7").removeClass("k-state-disabled");
+        $("#tabstrip-tab-8").removeClass("k-state-disabled");
+        $("#tabstrip-tab-9").removeClass("k-state-disabled");
+        $("#tabstrip-tab-10").removeClass("k-state-disabled");
+        $("#tabstrip-tab-11").removeClass("k-state-disabled");
+        $("#tabstrip-tab-12").removeClass("k-state-disabled");
+        $("#tabstrip-tab-13").removeClass("k-state-disabled");
+        $("#tabstrip-tab-1").addClass("k-state-default");
+        $("#tabstrip-tab-2").addClass("k-state-default");
+        $("#tabstrip-tab-3").addClass("k-state-default");
+        $("#tabstrip-tab-4").addClass("k-state-default");
+        $("#tabstrip-tab-5").addClass("k-state-default");
+        $("#tabstrip-tab-6").addClass("k-state-default");
+        $("#tabstrip-tab-7").addClass("k-state-default");
+        $("#tabstrip-tab-8").addClass("k-state-default");
+        $("#tabstrip-tab-9").addClass("k-state-default");
+        $("#tabstrip-tab-10").addClass("k-state-default");
+        $("#tabstrip-tab-11").addClass("k-state-default");
+        $("#tabstrip-tab-12").addClass("k-state-default");
+        $("#tabstrip-tab-13").addClass("k-state-default");
+        $("#im-bb-grid").removeClass("k-state-disabled");
+        $("#im-cmt-grid").removeClass("k-state-disabled");
+        $("#im-it-grid").removeClass("k-state-disabled");
+        $("#im-metric-grid").removeClass("k-state-disabled");
+        $("#im-rm-grid").removeClass("k-state-disabled");
+        $("#Analysis_div").removeClass("k-state-disabled");
+        $("#Solution_div").removeClass("k-state-disabled");
+        //Controls
+        $("#PlannedStartDt").data("kendoDatePicker").enable();
+        $("#PlannedEndDt").data("kendoDatePicker").enable();
+        $("#ActualStartDt").data("kendoDatePicker").enable();
+        $("#ActualProgress").data("kendoNumericTextBox").enable();
+        $("#ActualEndDt").data("kendoDatePicker").enable();
+        $("#LastReviewDt").data("kendoDatePicker").enable();
+        $("#ImpPriority").data("kendoDropDownList").enable();
+        $("#ImpManager").data("kendoDropDownList").enable();
+        $('#ImplementationSave').show();
+        $('#ImplementationSave').removeAttr('disabled');
+
+        $('input[type=radio][name=ImpIdeaStatusID]').removeAttr('disabled');
+        $(".im-postidea-impoverallstatus").removeClass("k-state-disabled");
+        $($('#StatusComment').data().kendoEditor.body).attr('contenteditable', true);
+        $($('#AnalysisEditor').data().kendoEditor.body).attr('contenteditable', true);
+        $($('#SolutionEditor').data().kendoEditor.body).attr('contenteditable', true);
+
+        // Rich Text Editors
+        $('#AnalysisSave').removeAttr('disabled');
+        $('#SolutionSave').removeAttr('disabled');
+        $('#cancelidea').removeAttr('disabled');
+
+        //.removeClass()
+        $(".k-grid-edit").removeClass("k-state-disabled");
+        $(".k-grid-delete").removeClass("k-state-disabled");
+        $(".k-grid-add").removeClass("k-state-disabled");
+        $(".k-grid-edit").addClass("k-state-enabled");
+        $(".k-grid-delete").addClass("k-state-enabled");
+        var ec = $(".k-grid-edit");
+        var ec2 = $(".k-grid-delete");
+        ec.prop("disabled", false);
+        ec2.prop("disabled", false);
+        $(".k-grid-add").addClass("k-state-enabled").prop("disabled", false);
+        $(".k-grid-add").attr("href");//Need to Check
+
+        //treeview enabling
+        //Classification
+        $('#classandcatDiv').removeClass("treedivDisable");
+        $('#classandcatDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveClassification').removeAttr('disabled');
+        //Configitem,Type------ Id = [ "#configitemDiv" ]
+        $('#configitemDiv').removeClass("treedivDisable");
+        $('#configitemDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveConfigItems').removeAttr('disabled');
+        //Common
+        $('#resetbuttoncancel').removeAttr('disabled');
+        $('#resetbuttoncancel1').removeAttr('disabled');
+
+        //Approver tab Disable
+        //$("#selectApproverGridDiv").removeClass("treedivDisable");
+        @*if ('@Model.IdeaStatusID' == '@((int)IMStatus.Created)' || '@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForRevision)' || '@Model.IdeaStatusID' == '@((int)IMStatus.Revised)') {
+            $("#selectApproverGridDiv").removeClass("treedivDisable");
+        }*@
+
+
+       // alert('Inside');
+
+        if ('@Model.IdeaStatusID' == '@((int)IMStatus.Created)'||'@Model.IdeaStatusID' == '@((int)IMStatus.Revised)'||'@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForReview)' ||'@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForRevision)' ||'@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForApproval)')
+        {
+            //alert('Inside');
+            $("#IMCompletedAndNextStepsGrid .k-grid-content .k-grid-edit").addClass("k-state-disabled");
+            $("#IMCompletedAndNextStepsGrid .k-grid-content .k-grid-delete").addClass("k-state-disabled");
+
+            var ec1 = $("#IMCompletedAndNextStepsGrid .k-grid-content .k-grid-edit");
+            var ec12 = $("#IMCompletedAndNextStepsGrid .k-grid-content .k-grid-delete");
+
+            ec1.prop("disabled", true);
+            ec12.prop("disabled", true);
+            $("#IMCompletedAndNextStepsGrid > .k-header .k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+            $("#IMCompletedAndNextStepsGrid > .k-header .k-grid-add").removeAttr("href");
+        }
+        //console.log("2end");
+
+    }
+
+    function UserEditClick() {
+
+        //console.log("userInside");
+
+        //Changing button content and Background
+        var bto = document.getElementById("EditIdea");
+        bto.innerText = "Editing...";
+        bto.style.backgroundColor = '#rgb(91,121,171);';
+        bto.style.color = "white";
+        //bto.style.fontWeight = "500";
+        $("#tabstrip-tab-1").removeClass("k-state-disabled");
+        $("#tabstrip-tab-2").removeClass("k-state-disabled");
+        $("#tabstrip-tab-3").removeClass("k-state-disabled");
+        $("#tabstrip-tab-4").removeClass("k-state-disabled");
+        $("#tabstrip-tab-5").removeClass("k-state-disabled");
+        $("#tabstrip-tab-6").removeClass("k-state-disabled");
+        $("#tabstrip-tab-7").removeClass("k-state-disabled");
+        $("#tabstrip-tab-8").removeClass("k-state-disabled");
+        $("#tabstrip-tab-9").removeClass("k-state-disabled");
+        $("#tabstrip-tab-10").removeClass("k-state-disabled");
+        $("#tabstrip-tab-11").removeClass("k-state-disabled");
+        $("#tabstrip-tab-12").removeClass("k-state-disabled");
+        $("#tabstrip-tab-13").removeClass("k-state-disabled");
+        $("#tabstrip-tab-1").addClass("k-state-default");
+        $("#tabstrip-tab-2").addClass("k-state-default");
+        $("#tabstrip-tab-3").addClass("k-state-default");
+        $("#tabstrip-tab-4").addClass("k-state-default");
+        $("#tabstrip-tab-5").addClass("k-state-default");
+        $("#tabstrip-tab-6").addClass("k-state-default");
+        $("#tabstrip-tab-7").addClass("k-state-default");
+        $("#tabstrip-tab-8").addClass("k-state-default");
+        $("#tabstrip-tab-9").addClass("k-state-default");
+        $("#tabstrip-tab-10").addClass("k-state-default");
+        $("#tabstrip-tab-11").addClass("k-state-default");
+        $("#tabstrip-tab-12").addClass("k-state-default");
+        $("#tabstrip-tab-13").addClass("k-state-default");
+        ////Controls
+        $("#im_home_tab").removeClass("k-state-disabled");
+        $("#im-bb-grid").removeClass("k-state-disabled");
+        $("#im-cmt-grid").removeClass("k-state-disabled");
+        $("#im-it-grid").removeClass("k-state-disabled");
+        $("#im-metric-grid").removeClass("k-state-disabled");
+        $("#im-rm-grid").removeClass("k-state-disabled");
+        $("#IdeaName").removeClass("k-no-click");
+        $("#IdeaName").attr("readonly", false);
+        $("#QtyFication").data("kendoNumericTextBox").enable();
+        $("#IdeaTypeId").data("kendoDropDownList").enable();
+        $("#IdeaSourceId").data("kendoDropDownList").enable();
+        $("#Complexity").data("kendoDropDownList").enable();
+        $("#TeamId").data("kendoDropDownList").enable();
+        $("#LOBId").data("kendoDropDownList").enable();
+        $("#desc_div").removeClass("k-state-disabled");
+        $("#ImprovementTheme_div").removeClass("k-state-disabled");
+        $("#InternalInit").removeAttr("disabled");
+        $('#btnSave').removeAttr('disabled');
+        //comment for jquery error
+        //$($('#AnalysisEditor').data().kendoEditor.body).attr('contenteditable', true);
+        //$($('#SolutionEditor').data().kendoEditor.body).attr('contenteditable', true);
+        $("#Analysis_div").removeClass("k-state-disabled");
+        $("#Solution_div").removeClass("k-state-disabled");
+        $('#AnalysisSave').removeAttr('disabled');
+        $('#SolutionSave').removeAttr('disabled');
+        $('#cancelidea').removeAttr('disabled');
+
+        $('#SelectApprovers').removeAttr('disabled');
+        $('#ApproverSave').removeAttr('disabled');
+
+        $(".k-grid-edit").removeClass("k-state-disabled");
+        $(".k-grid-delete").removeClass("k-state-disabled");
+        $(".k-grid-add").removeClass("k-state-disabled")
+        $(".k-grid-edit").addClass("k-state-enabled");
+        $(".k-grid-delete").addClass("k-state-enabled");
+        var ec = $(".k-grid-edit");
+        var ec2 = $(".k-grid-delete");
+        ec.prop("disabled", false);
+        ec2.prop("disabled", false);
+        $(".k-grid-add").addClass("k-state-enabled").prop("disabled", false);
+        //$(".k-grid-add").attr("href");//Need to Check
+
+        //disabling--[IMCompletedAndNextStepsGrid]
+        $("#IMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit").addClass("k-state-disabled");
+        $("#IMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete").addClass("k-state-disabled");
+
+        var ec1 = $("#IMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit");
+        var ec12 = $("#IMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete");
+
+        ec1.prop("disabled", true);
+        ec12.prop("disabled", true);
+        $("#IMCompletedAndNextStepsGrid > .k-header .k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+        $("#IMCompletedAndNextStepsGrid > .k-header .k-grid-add").removeAttr("href");
+
+
+        //treeview enabling
+        //Classification
+        $('#classandcatDiv').removeClass("treedivDisable");
+        $('#classandcatDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveClassification').removeAttr('disabled');
+        //Configitem,Type------ Id = [ "#configitemDiv" ]
+        $('#configitemDiv').removeClass("treedivDisable");
+        $('#configitemDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveConfigItems').removeAttr('disabled');
+        //Common
+        $('#resetbuttoncancel').removeAttr('disabled');
+        $('#resetbuttoncancel1').removeAttr('disabled');
+
+        //Approver tab Disable
+        if ('@Model.IdeaStatusID' == '@((int)IMStatus.Created)' || '@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForRevision)' || '@Model.IdeaStatusID' == '@((int)IMStatus.Revised)') {
+            $("#selectApproverGridDiv  > .k-grid > .k-grid-content > table").removeClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").removeClass("treedivDisable");
+        }
+
+
+
+
+
+    }
+
+
+
+
+    // function that gathers IDs of checked nodes
+    function checkedNodeIds(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked) {
+                checkedNodes.push(nodes[i].id);
+            }
+
+            if (nodes[i].hasChildren) {
+                checkedNodeIds(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+    // show checked node IDs on datasource change
+    function saveClassCategory(e) {
+        var checkedNodes = [],
+            treeView = $("#ClassAndCatView").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+        var CatgIds = '';
+        if (checkedNodes.length > 0) {
+            CatgIds = checkedNodes.join(",");
+        }
+
+            var mod = {
+                IdeaId: '@Model.IdeaId',
+                CatIds: CatgIds
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/IdeaManager/PostIdea/SaveClassificationCategory")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+
+    }
+
+    function saveConfigItems(e) {
+        var checkedNodes = [],
+            treeView = $("#ConfigItemsView").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+        var ConfIds = '';
+        if (checkedNodes.length > 0) {
+            ConfIds = checkedNodes.join(",");
+        }
+            var mod = {
+                IdeaId: '@Model.IdeaId',
+                ConfigIds: ConfIds
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/IdeaManager/PostIdea/SaveConfigItems")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+
+    }
+
+    function ItemNameExists(ItemName) {
+
+    var res;
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3].toLowerCase() == 'ideamanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/PostIdea/CheckItemName';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/PostIdea/CheckItemName';
+        }
+
+        {
+            $.ajax({
+                url: baseurl,
+                type: 'POST',
+                async: false,
+                data: { ItemName: ItemName, ItemId: '@Model.IdeaId'},
+                success: function (data) {
+                    document.getElementById("IdeaNameExists_alert").style.display = "none";
+                   // $("#IdeaNameExists_alert").hide();
+                    if (data == true) {
+                        document.getElementById("IdeaNameExists_alert").style.display = "inline-block";
+                       // $("#IdeaNameExists_alert").show();
+                        res= true;
+                    }
+                    else{
+                        res= false;
+                    }
+                }
+
+            })
+        }
+        return res;
+
+    }
+
+
+
+    $("#IdeaName").change(function () {
+        var item = $("#IdeaName").val();
+        //alert(item);
+        ItemNameExists(item);
+    });
+
+    function SysAdminEditClick() {
+         //Approver tab Disable
+            $("#selectApproverGridDiv  > .k-grid > .k-grid-content > table").removeClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").removeClass("treedivDisable");
+
+          @*if ('@Model.IdeaStatusID' == '@((int)IMStatus.Created)' || '@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForReview)'|| '@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForApproval)'|| '@Model.IdeaStatusID' == '@((int)IMStatus.SubmitForRevision)' || '@Model.IdeaStatusID' == '@((int)IMStatus.Revised)') {
+            $("#selectApproverGridDiv  > .k-grid > .k-grid-content > table").removeClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").removeClass("treedivDisable");
+        }*@
+        UserEditClick();
+        AdminEditClick();
+    }
+
+
+
+
+</script>
+
+
+
+
+
+

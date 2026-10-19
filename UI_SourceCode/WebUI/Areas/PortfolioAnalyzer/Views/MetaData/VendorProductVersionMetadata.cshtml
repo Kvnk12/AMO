@@ -1,0 +1,146 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@*@model APRHostlistModel
+    @{
+        var v = new APRAjaxServiceController();
+        var Vendorlist = v.Vendorlist();
+        var client = (Client)Session["Client"];
+    }*@
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+
+<div class="content-main dark-bg">
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Configure</li>
+            <li class="active">Vendor Product Version</li>
+        </ol>
+    </div>
+
+    <div class="custom-kendo-grid apr-grid-toolbar">
+
+            @*<div class="well well-sm"><strong>Vendor</strong></div>*@
+            @(Html.Kendo().Grid<VendorMetadataModel>()
+             .Name("gridVendor")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.VendorName).Title("Vendor Name");
+                 columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine))
+             .Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add new Vendor"))
+             .Scrollable()
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(20)
+              .Model(model => { model.Id(f => f.VId); model.Field(f => f.VId).Editable(false); })
+              .Read(read => read.Action("GetVendorlist", "MetaData"))
+               .Create(create => create.Action("CreateVendor", "MetaData"))
+               .Update(update => update.Action("UpdateVendor", "MetaData"))
+               .Destroy(destroy => destroy.Action("DestroyVendor", "MetaData"))
+               )
+            .ClientDetailTemplateId("ProductGridTemplate")
+            )
+        </div>
+</div>
+
+<script id="ProductGridTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<VendorProductModel>()
+            .Name("ProductGrid#=VId#")
+            .Columns(columns =>
+            {
+                //columns.Bound(e => e.VendorId).Hidden();//.ClientTemplate("#:ApplicationName#");
+                columns.Bound(e => e.ProductName).Title("Product Name"); //to be worked
+
+                columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine))
+    //.HtmlAttributes(new { style = "height:350px;" })
+    .Pageable()
+
+     .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add Product");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.ProductId); model.Field(f => f.ProductId).Editable(false);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetProductsByVendor", "MetaData", new { Id = "#=VId#" }))
+    .Create(create => create.Action("CreateProduct", "MetaData", new { id = "#=VId#" }))
+    .Update(update => update.Action("UpdateProduct", "MetaData"))
+    .Destroy(delete => delete.Action("DeleteProduct", "MetaData"))
+    )
+    //.Events(events => events
+    //.Save("ApplicationGrid_Save"))
+    .ClientDetailTemplateId("VendorproductversionTemplate")
+    .ToClientTemplate())
+
+</script>
+
+<script id="VendorproductversionTemplate" type="text/kendo">
+
+    @(Html.Kendo().Grid<VendorProductVersionModel>()
+            .Name("VersionGrid#=ProductId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.ProductId).ClientTemplate("#=ProductId#").Hidden(); 
+                columns.Bound(e => e.ProductVersionName).Title("Product Version"); 
+                columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine))
+    .Pageable()
+     .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add Version");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.VersionId); model.Field(f => f.VersionId).Editable(false);
+        })
+        .PageSize(5)
+        .Read(read => read.Action("GetVersionsByProduct", "MetaData", new { productid = "#=ProductId#" }))
+        .Update(update => update.Action("UpdateProductVersion", "MetaData"))
+        .Create(create => create.Action("CreateProductVersion", "MetaData", new { id = "#=ProductId#" }))
+        .Destroy(delete => delete.Action("DeleteProductVersion", "MetaData"))
+    )
+    .ToClientTemplate()
+    )
+
+</script>

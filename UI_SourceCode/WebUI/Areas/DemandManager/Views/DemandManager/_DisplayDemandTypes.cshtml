@@ -1,0 +1,61 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+
+<div id="DemandTypes" style="width:100%"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+        if (ItemId != null) {
+            $('#DemandTypes').jtable({
+                title: 'Demand Types',
+                actions: {
+                    listAction: "@Url.Action("GetDemandTypeDetails")",
+                    createAction: "@Url.Action("AddDemandTypeDetails")",
+                    updateAction: "@Url.Action("UpdateDemandTypeDetails")"
+
+
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                    DemandType: {
+                        title: 'Demand Type:',
+                        width: '50%'
+                    }
+                },
+                formCreated: function (event, data) {
+                    data.form.find('input[name="DemandType"]').addClass(
+                      'validate[required]');
+
+                    data.form.validationEngine();
+                },
+                formSubmitting: function (event, data) {
+                    return data.form.validationEngine('validate');
+                },
+                formClosed: function (event, data) {
+                    data.form.validationEngine('hide');
+                    data.form.validationEngine('detach');
+                }
+
+
+            });
+            $('#DemandTypes').jtable('load');
+
+
+        }
+    });
+
+</script>

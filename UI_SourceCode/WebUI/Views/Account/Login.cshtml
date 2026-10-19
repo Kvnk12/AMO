@@ -1,0 +1,297 @@
+﻿@using Kendo.Mvc.UI;
+@model NTTData.AMOPortal.WebUI.Dto.LoginModel
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title - NTT Data | Optimization Tool | Login</title>
+    <!-- Bootstrap core CSS -->
+    <link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    <style type="text/css">
+        .navbar {
+            margin-bottom: 0;
+        }
+        .alert-danger.login-alert {
+            padding: 0px;
+            width: fit-content;
+            color: #ae0502;
+            background-color: #fff;
+            border-color: transparent;
+        }
+
+        .alert-danger.login-alert ul{
+                margin: 0px;
+                padding: 0.5em 1em;
+            }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+        }
+
+
+
+        @@media only screen and (min-width: 1440px) {
+            .motto {
+                font-size: 33px;
+                margin-top: -0.5em;
+                margin-left: -1em;
+            }
+
+            #login-wrap .loginDetails {
+                height: 60%;
+                width: 30%;
+                padding: 4em 0em 4em 0em;
+                margin-top: 12.5em;
+                margin-left: 4em;
+            }
+
+            #login-wrap .graphic-image {
+                width: 77.5%;
+                margin-left: 7.5em;
+                margin-top: 1.5em;
+            }
+
+            #login-wrap .loginPageContent {
+                top: 8em;
+                left: 8em;
+            }
+
+            .loginDetails .loginForm {
+                text-align: center;
+                margin-top: 3em;
+            }
+
+                .loginDetails .loginForm .signInContent {
+                    font-size: 24px;
+                }
+
+                .loginDetails .loginForm .signIn {
+                    font-family: 'HelveticaNeue-Light';
+                    color: #05A2CC;
+                    font-size: 19px;
+                    padding-right: 14.5em;
+                }
+
+                .loginDetails .loginForm .userDetails {
+                    font-size: 17px;
+                    padding-right: 15.5em;
+                }
+
+                .loginDetails .loginForm .loginIcons {
+                    display: flex;
+                    justify-content: flex-start;
+                    margin-left: 5.5em;
+                }
+
+                .loginDetails .loginForm .login-textbox input {
+                    width: 350px;
+                    height: 36px;
+                    font-size: 16px;
+                }
+
+                .loginDetails .loginForm .loginIcons .userIcon {
+                    background-size: 26px;
+                    margin-left: 0;
+                }
+
+                .loginDetails .loginForm .loginIcons .passwordIcon {
+                    background-size: 24px;
+                    margin-left: 0;
+                }
+
+                .loginDetails .loginForm .login-button .forgotPassword{
+                    margin-left:4em;
+                }
+
+                .loginDetails .loginForm .login-button .custom-button {
+                    width: 345px;
+                    font-size: 17px;
+                    height: 36px;
+                    margin-left: 3.5em;
+                }
+
+                .loginDetails .loginForm .forgotPassword a {
+                    font-size: 14px;
+                    margin-right: 2em;
+                }
+
+            #footer .credit {
+                font-size: 15px;
+                right: 4em;
+            }
+        }
+
+        @@media only screen and (min-width:1441px) and (max-width:1600px) {
+
+            #login-wrap .loginPageContent {
+                top: 6.5em;
+                left: 6.5em;
+            }
+
+            .motto {
+                font-size: 32px;
+            }
+
+            #login-wrap .graphic-image {
+                width: 66%;
+                margin-left: 10em;
+            }
+
+            #login-wrap .loginDetails {
+                height: 62%;
+                width: 30%;
+                margin-top: 13em;
+            }
+
+            .loginDetails .loginForm {
+                margin-top: 0em;
+            }
+
+            .loginDetails .loginForm .loginIcons {
+                    margin-left: 3em;
+                }
+
+            .loginDetails .loginForm .login-button .custom-button {
+                    margin-left: 1.5em;
+                }
+
+                .loginDetails .loginForm .forgotPassword a {
+                    margin-right: 3.9em;
+                }
+        }
+
+        @@media only screen and (min-width: 1601px) and (max-width: 1720px) {
+            .loginDetails .loginForm .login-button .custom-button {
+                margin-left: 3.5em;
+            }
+
+            .loginDetails .loginForm .forgotPassword a {
+                margin-right: 1.9em;
+            }
+        }
+
+        @@media only screen and (min-width: 1721px) and (max-width: 1920px) {
+            .loginDetails .loginForm .login-button .custom-button {
+                margin-left: 0em;
+            }
+
+            .loginDetails .loginForm .forgotPassword a {
+                margin-right: 6em;
+            }
+
+            #login-wrap{
+                height:90%;
+            }
+
+        }
+
+    
+    </style>
+
+</head>
+<body>
+
+    <div class="navbar navbar-fixed-top custom-header" role="navigation">
+        <div class="navbar-main">
+            <div class="header-left">
+                <a class="header-logo" href="#" style="border-right:unset">
+                    <img alt="ntt logo" src='@Url.Content("~/Content/images/nttdata_logo.png")'>
+                </a>
+            </div>
+        </div> <!--/.container -->
+    </div>
+    <div id="login-wrap">
+        <div style="width: 60%; float:left;height:100%;">
+            <div class="loginPageContent">
+                <h4 class="motto">Consolidate and quantify key benefits from <br /> NTT DATA Optimization Tools solution</h4>
+            </div>
+            <div style="position: relative;top: 4em;left:4em;">
+                <img class="graphic-image" src='@Url.Content("~/Content/images/graphic_withtext.svg")'>
+            </div>
+        </div>
+        <div style="width: 40%; float:right;height:100%;">
+            <div class="loginDetails">
+                <div class="loginForm">
+                    <span align="center" class="signInContent">
+                        Welcome to NTT DATA Optimization Tools
+                    </span>
+                    <span align="center" class="signIn">
+                        <i>Sign in to Continue</i>
+                    </span>
+                    <br />
+                    <br />
+                    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login", @autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        if (!ViewData.ModelState.IsValid)
+                        {
+                            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger login-alert container" })
+                        }
+                        <div>
+                            <span class="userDetails">User Name</span>
+                            <br />
+                            <div class="loginIcons">
+                                <div class="userIcon"></div>
+                                <div class="login-textbox">
+                                    @Html.TextBoxFor(m => m.UserName, new { @id = "exampleInputEmail1", @placeholder = "Enter Email Id" })
+                                </div>&nbsp;&nbsp;
+
+                            </div>
+                            <br />
+                        </div>
+                       
+                        <div>
+                            <span class="userDetails">Password</span>
+                            <br />
+                            <div class="loginIcons">
+                                <div class="passwordIcon"></div>
+                                <div class="login-textbox">
+                                    @Html.PasswordFor(m => m.Password, new { @id = "exampleInputPassword1", @placeholder = "Password", @autocomplete = "off" })
+                                </div>&nbsp;&nbsp;
+
+                            </div>
+                        </div>
+                        <br />
+                        <br/>
+                        <div class="login-button">
+                            <button class="custom-button" type="submit" id="btnAdd1" onsubmit="onSumbitForm()">SIGN IN</button>
+                            <br />
+                            <br />
+                            <div class="forgotPassword">
+                                @Html.ActionLink("Forgot Password", "ForgotPassword", "Account", new { area = "" }, null)
+                            </div>
+                            <div style="color: white; margin-left: 6vw; width: 21vw; font-size: 11px; padding-top: 1vw;">For more information on how your personal data is used, refer to our <a target="_blank" href="https://us.nttdata.com/en/privacy-policy"> Privacy Policy </a>.</div>
+
+                        </div>
+                        <br>
+                        
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="container">
+            @*<a target="_blank" href="https://us.nttdata.com/en/privacy-policy" style="color: #FFF; font-size: 11px; float: none; position: absolute; margin: 0; top: 50%; right: 18%; transform: translateY(-50%);">Terms of Use</a>*@
+            <p class="credit">&copy;@DateTime.Now.Year NTT DATA, Inc. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    function password_alert() {
+        window.alert("Please contact the AMO Portal Administrator to reset your password")
+    }
+</script>
+

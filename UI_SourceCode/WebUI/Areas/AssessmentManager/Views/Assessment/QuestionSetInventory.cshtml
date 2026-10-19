@@ -1,0 +1,645 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.AssessmentManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model A3MMModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+    td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .custom-kendo-grid .k-widget.k-grid .k-toolbar.k-grid-toolbar .k-button.k-grid-excel {
+        padding-right: 2.3em;
+    }
+
+    #saveAlertModal .alert {
+        width: 30em;
+        height: 2.5em !important;
+        padding: unset;
+        display: flex;
+    }
+    #deleteDraftModal.modal {
+        overflow-y: unset;
+        transform: translateX(0%) translateY(17%);
+    }
+    #deleteDraftModal .modal-dialog {
+        width: 79%;
+        transition: none;
+    }
+    #deleteDraftModal .modal-header {
+        background-color: rgb(91,121,171);
+        color: #fff;
+        padding: 10px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #deleteDraftModal .modal-header .modal-title {
+            font-family: 'HelveticaNeue-Light';
+        }
+    #deleteDraftModal .modal-header .close {
+            opacity: 1;
+            border: none;
+            box-shadow: none;
+            color: #fff;
+            background-image: url('../../Content/images/close.svg');
+            background-size: 12px;
+            width: 12px;
+            height: 12px;
+            background-repeat: no-repeat;
+            background-color: transparent;
+        }
+    #deleteDraftModal .modal-header .close span {
+                text-shadow: none;
+                display: none;
+            }
+    #deleteDraftModal .modal-body {
+        padding: 16px 25px 5px;
+        background-color: #fcfcfc;
+    }
+    #deleteDraftModal .modal-content {
+        border: none;
+        border-radius: 0;
+        width: 34em
+    }
+    #deleteDraftModal .modal-footer {
+        border: none;
+        padding: 10px 25px 16px;
+        background-color: #fcfcfc;
+        margin: 0;
+    }
+    #deleteDraftModal .modal-footer .btn {
+            background-color: rgb(91,121,171);
+            color: #fff;
+            padding: 2px 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    .custom-blue-label {
+        font-size: 1vw !important;
+    }
+    #CreateQuestionnairepopUp_wnd_title.k-window-title {
+        font-size: 1vw !important;
+    }
+    #QuestionSetInventoryScreen .k-grid .k-grid-header .k-grid-header-wrap .k-header.k-filterable .k-grid-filter .k-icon.k-i-filter:before {
+        content: "\e031";
+    }
+    #QuestionSetInventoryScreen #QuestionSetGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+    }
+
+    #QuestionSetInventoryScreen #QuestionSetGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track {
+        background-repeat: repeat-y;
+    }
+
+    #QuestionSetInventoryScreen #QuestionSetGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track-piece {
+        border-radius: 3px;
+        background-color: #C4C4C4;
+        border: 3px solid #eee;
+    }
+
+    #QuestionSetInventoryScreen #QuestionSetGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: rgb(91,121,171);
+        border-radius: 6px;
+    }
+</style>
+
+
+
+<div class="content-main dark-bg A3MM">
+
+    <ol class="breadcrumb" style="margin-bottom:8px">
+        <li> Assessment Manager</li>
+        <li class="active"> Question Set Inventory</li>
+    </ol>
+
+    <h5 style="color: white;  left: 4em; ">Question Set Inventory </h5>
+
+    <div class="actionButtons" id="actionButtons" style="margin-top: 1.5em;">
+        <div style="margin: 0 1.5em 0 0;">
+            <button style="float: right; width: 12em;margin-top:-3em; margin-right: -1.5em; margin-left: -7px;" class="custom-button" type="button" id="btnCreate" onclick="onCreateClick()">Create Questionnaire</button>
+        </div>
+    </div>
+    <div class="custom-kendo-grid" id="QuestionSetInventoryScreen" style="margin-top: 2em;">
+
+        @(Html.Kendo().Grid<A3MMQuestionSet>
+            ()
+            .Name("QuestionSetGrid")
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.ID).Hidden();
+                columns.Bound(p => p.surveyTypeID).Hidden();
+                //columns.Bound(p => p.ClientId).Hidden();
+                columns.Bound(p => p.versionID).Title("Question Set #").Width(120).Filterable(ftb => ftb.Multi(true));
+                columns.Bound(p => p.surveyType).Title("Assessment Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                columns.Bound(p => p.LastUpdatedByName).Title("Last Updated By").Width(120).Filterable(ftb => ftb.Multi(true));
+                columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                columns.Bound(p => p.status).Title("Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                columns.Bound(p => p.clientID).Title("Action").Width(120).Filterable(false).Sortable(false)
+                .ClientTemplate("#if(data.status!='Draft'){#<div> <div style='display:flex;margin-left:-5px'><button class='bg-image' title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 6px;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.45em;display: inline-grid;padding-right: 20px;' onclick='viewQuestionSet(#:ID#);'></button></div></div>#}if(data.status=='Draft'){#<div><div style='display:flex;'><button class='bg-image' title='View Question Set' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 6px;margin-left:-4px;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.45em;display: inline-grid;padding-right: 20px;' onclick='viewQuestionSet(#:ID#);'></button><button class='bg-image' title='Edit Question Set' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 3px;margin-left: -8em;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.38em;display: inline-grid;padding-right: 20px;' onclick='editQuestionSet(#:ID#);'></button><button class='bg-image' title='Delete Question Set' style='background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 3px;margin-left:-8em;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.1em;display: inline-grid;padding-right: 20px;' onclick='deleteDraftQuest(#:ID#);'></button></div>#}#");
+            })
+
+     .Pageable(p =>
+     {
+         p.PageSizes(new[] { 5, 10, 15, 30 });
+     })
+    .Filterable()
+    .Sortable()
+    .Scrollable()
+    .Groupable()
+    //.Excel(excel => excel.FileName("Assessment List.xlsx")
+    //.Filterable(true)
+    //.AllPages(true)
+    //.ProxyURL(Url.Action("Export_Assessment_Save", "Assessment"))
+    //  )
+    .Reorderable(r => r.Columns(true))
+    .Resizable(r => r.Columns(true))
+     .ColumnMenu(columnMenu => columnMenu.Enabled(false))
+    .DataSource(dataSource => dataSource.Ajax()
+    .PageSize(10)
+    .Read(read => read.Action("ReadAllQuestionSet", "Assessment"))
+    )
+    )
+
+    </div>
+
+    @Html.Partial("_CreateQuestionnaire", Model)
+
+
+
+
+    <div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body">
+                <div class="alert alert-danger" id="lblErr1" style="display:none">
+                    <div style="display:flex">
+                        <label style="width: 18em; margin-top: 4px; margin-left: 1em; ">Error while saving.</label>
+                        <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess1" style="display: none; width: 29em; height: 3.5em !important;">
+                    <div style="display:flex">
+                        <label style="width: 18em; margin-top: 4px; margin-left: 1em;">New Questionnaire has been created Successfully.</label>
+                        <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess2" style="display: none; width: 29em; height: 3.5em !important;">
+                    <div style="display:flex">
+                        <label style="width: 18em; margin-top: 4px; margin-left: 1em;">Question set has been deleted.</label>
+                        <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <span hidden id="questSetID"></span>
+                    <span>Do you want to delete the Question Version</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="deleteQuestionSet()">OK</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+
+<script>
+    var gridObj;
+
+    $(window).resize(function () {
+        gridAutoHeight(gridObj);
+    });
+
+    function gridAutoHeight(gridObj, bottomMargin) {
+        try {
+            if (gridObj) {
+                gridObj.element.height($(window).height() - gridObj.element[0].offsetTop - (bottomMargin || 150));
+                gridObj.resize();
+            }
+        } catch (e) {
+            console.log('Error resizing grid: ' + e.toString());
+        }
+    }
+    $(document).ready(function () {
+        gridObj = $('#QuestionSetGrid').getKendoGrid();
+        gridAutoHeight(gridObj);
+    });
+    function onCreateClick() {
+        $('#versionID_alert').hide();
+        $("#AssessmentID").data("kendoDropDownList").value(1);
+
+        var val = 1;
+
+        var mod = {
+            surveyTypeID: val,
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/getLatestVersionID")';
+
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl1,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+
+                $("#QVerTxtBox").data("kendoTextBox").value(response);
+                //$("#QVerTxtBox").data("kendoTextBox").value("");
+
+
+            },
+            error: function (err, response) {
+
+                }
+        });
+
+
+
+        document.getElementById("cloneQset").style.display = "none";
+        var popup = $("#CreateQuestionnairepopUp").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function onSelectAssessmentType(e) {
+        $("#draftExistsAlert").css('display', 'none');
+        var surveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+        console.log(surveyTypeID);
+
+				var mod = {
+                    surveyTypeID: surveyTypeID,
+
+				};
+
+				var data1 = JSON.stringify(mod);
+				baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/getLatestVersionID")';
+
+				$.ajax(
+					{
+						url: baseurl1,
+						type: 'post',
+						data: data1,
+						async: false,
+						contentType: 'application/json; charset=utf-8',
+						success: function (data) {
+							console.log(data);
+                            $("#QVerTxtBox").data("kendoTextBox").value(data);
+						}
+					})
+
+	}
+
+    function onWinClose() {
+        $("#AssessmentID").data("kendoDropDownList").value(1);
+        $("#QVerTxtBox").data("kendoTextBox").value("");
+        document.getElementById("cloneQset").style.display = "none";
+        document.getElementById('AssessmentID').disabled = false;
+        document.getElementById('QVerTxtBox').disabled = false;
+        document.getElementById("btnAdd").disabled = false;
+    }
+
+    function onCancelClick() {
+
+        $("#AssessmentID").data("kendoDropDownList").value(1);
+        //$("#QVerTxtBox").data("kendoTextBox").value("");
+        document.getElementById("cloneQset").style.display = "none";
+        document.getElementById('AssessmentID').disabled = false;
+        document.getElementById('QVerTxtBox').disabled = false;
+        document.getElementById("btnAdd").disabled = false;
+        var popup = $("#CreateQuestionnairepopUp").data("kendoWindow");
+        popup.close();
+    }
+
+    function onSaveClick() {
+        var surveyTypeID =  $("#AssessmentID").data("kendoDropDownList").value();
+        var VersionID = $("#QVerTxtBox").data("kendoTextBox").value();
+        var Status = $("#Status").data("kendoTextBox").value();
+
+        if (VersionID == '') {
+            $('#versionID_alert').show();
+
+            setTimeout(function () {
+                $('#versionID_alert').hide();
+            }, 4000);
+            return false;
+        }
+
+
+        var mod = {
+            surveyTypeID: surveyTypeID
+         };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/CheckForFinalizedVersion")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl1,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+                if (response == "Finalized") {
+                    document.getElementById("cloneQset").style.display = "block";
+                    document.getElementById('AssessmentID').disabled = true;
+                    document.getElementById('QVerTxtBox').disabled = true;
+
+                    document.getElementById("btnAdd").disabled = true;
+
+                }
+                else if (response == "not finalized") {
+                    saveNewQsetVersion();
+                }
+                else if (response == "Draft") {
+                    $("#draftExistsAlert").css('display', 'block');
+                    setTimeout(function () {
+                        $("#draftExistsAlert").css('display', 'none');
+                    }, 7000);
+                   // alert("Draft version already exists for the selected Assessment Type");
+                }
+                //$('#saveAlertModal').modal('show');
+                //$('#lblErr').hide();
+                //$('#lblSuccess1').show();
+                //$('#lblSuccess2').hide();
+
+            },
+            error: function (err, response) {
+                //$('#saveAlertModal').modal('show');
+                //$('#lblSuccess1').hide();
+                //$('#lblErr').show();
+               // $('#lblSuccess2').hide();
+
+                // alert(err.responseText);
+            }
+        });
+    }
+
+    function saveNewQsetVersion() {
+
+
+         var surveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+         var VersionID = $("#QVerTxtBox").data("kendoTextBox").value();
+         var Status = $("#Status").data("kendoTextBox").value();
+
+
+        var mod = {
+            surveyTypeID: surveyTypeID,
+            VersionID: VersionID,
+            Status: Status
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/SaveNewQuestionnaire")';
+
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl1,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+
+
+
+                var popup = $("#CreateQuestionnairepopUp").data("kendoWindow");
+                popup.close();
+
+                $("#QuestionSetGrid").data("kendoGrid").dataSource.read();
+
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#lblSuccess2').hide();
+                $('#lblSuccess1').show();
+
+
+                 },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#lblSuccess2').hide();
+                $('#lblErr').show();
+                }
+        });
+
+     }
+
+    function onConfirmCloneNo() {
+        saveNewQsetVersion();
+    }
+
+    function onConfirmCloneYes() {
+
+        var surveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+        var VersionID = $("#QVerTxtBox").data("kendoTextBox").value();
+        var Status = $("#Status").data("kendoTextBox").value();
+
+        var mod = {
+            surveyTypeID: surveyTypeID,
+            VersionID: VersionID,
+            Status: Status
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/SaveandCloneNewQuestionnaire")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl1,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+
+
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#lblSuccess2').hide();
+                $('#lblSuccess1').show();
+
+                var popup = $("#CreateQuestionnairepopUp").data("kendoWindow");
+                popup.close();
+
+                $("#QuestionSetGrid").data("kendoGrid").dataSource.read();
+
+
+            },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#lblSuccess2').hide();
+                $('#lblErr').show();
+            }
+        });
+
+    }
+
+    function editQuestionSet(ID) {
+        console.log(ID);
+
+        var mod = {
+            QSetID: ID,
+            isView: 'No'
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/RedirectToBuildDisciplineEdit")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+
+                }
+            })
+
+
+    }
+
+    function viewQuestionSet(ID) {
+        console.log(ID);
+
+        var mod = {
+            QSetID: ID,
+            isView : 'Yes'
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/RedirectToBuildDisciplineEdit")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+
+                }
+            })
+
+
+    }
+
+    function deleteDraftQuest(ID) {
+        $("#questSetID").text(ID);
+        $('#deleteDraftModal').modal('show');
+    }
+    function deleteQuestionSet() {
+       // console.log(ID);
+        var ID = $("#questSetID").text();
+        $('#deleteDraftModal').modal('hide');
+        var mod = {
+            ID: ID
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/Deletedraftversion")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    $("#QuestionSetGrid").data("kendoGrid").dataSource.read();
+
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess1').hide();
+                    $('#lblSuccess2').show();
+                   // alert("Question set has been deleted");
+
+                }
+            })
+
+    }
+
+
+
+
+
+
+</script>

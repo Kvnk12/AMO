@@ -1,0 +1,121 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model DemandViewModel
+<div class="im-postidea-benefitsgrid">
+    <!---->
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Priority History</label>
+        @(Html.Kendo().Grid<DemandPriorityHistoryModel>()
+                         .Name("DMPriorityHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.OldPriorityId).Title("Old Priority");
+                             columns.Bound(e => e.NewPriorityId).Title("New Priority");
+                             columns.Bound(e => e.Comments).Title("Comments");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.LastUpdatedDate).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(5)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadPriorityHistory", "PostDemand").Data("GetDemandId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Implementation Priority History</label>
+        @(Html.Kendo().Grid<DMImpPriorityHistoryModel>()
+                         .Name("DMImpPriorityHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.OldImpPriority).Title("Old Priority");
+                             columns.Bound(e => e.NewImpPriority).Title("New Priority");
+                             columns.Bound(e => e.Comments).Title("Comments");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.UpdatedDt).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(5)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadImpPriorityHistory", "PostDemand").Data("GetDemandId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Status History</label>
+        @(Html.Kendo().Grid<DemandStatusHistoryModel>()
+                         .Name("DMStatusHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(e => e.OldStatus).Title("Old Status");
+                             columns.Bound(e => e.NewStatus).Title("Approver Action");
+                             columns.Bound(e => e.Comments).Title("Comments/ Updates");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.LastUpdatedDate).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(5)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadStatusHistory", "PostDemand").Data("GetDemandId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Task Stage History</label>
+        @(Html.Kendo().Grid<DMTaskActivitiesHistoryModel>()
+                         .Name("DMTaskActivitiesHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(e => e.OldStatus).Title("Old Status");
+                             columns.Bound(e => e.Task).Title("Task");
+                             columns.Bound(e => e.Stage).Title("Stage");
+                             columns.Bound(e => e.AssignedTo).Title("Assigned To");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.PostedOn).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                             columns.Bound(e => e.Comments).Title("Comments");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(5)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadTaskActivitiesHistory", "PostDemand").Data("GetDemandId"))
+                         )
+
+            )
+    </div>
+</div>
+
+
+
+
+
+
+
+

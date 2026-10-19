@@ -1,0 +1,136 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+@{
+    // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new APRAjaxServiceController();
+    var APRAppEnvironmentList = v.APRAppEnvironmentList(client.ClientId);
+
+}
+
+
+<div class="apr-cost-basicinfo">
+
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="metownder" id="">Avarage Concurrent Users:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.AvgConcurrentUsers)
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                        .HtmlAttributes(new { @style = "text-align:right" })
+
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="metownder" id="">User Range:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.UserRange)
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                        .HtmlAttributes(new { @style = "text-align:right" })
+
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Outage Frequency:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.OutageFrequency)
+                        .HtmlAttributes(new { @style = "text-align:right" })
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                )
+            </div>
+        </div>
+        @*<div class="form-group">
+                <label class="col-sm-4 control-label" for="" id="">Avg. Incident Numbers:</label>
+                <div class="col-sm-4 control-label">
+                    @(Html.Kendo().TextBoxFor(m => m.AvgIncidentTickets)
+                    //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                    )
+                </div>
+            </div>*@
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Revenue Impact if Down:</label>
+            <div class="custom-checkbox">
+                @(Html.Kendo().CheckBoxFor(m => m.RevenueImpactIfDown)
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Monthly Avg. Ticket:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.AvgIncidentTickets)
+                        .HtmlAttributes(new { @style = "text-align:right" })
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                )
+            </div>
+        </div>
+    </div>
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Max. Concurrent Users:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.MaxConcurrentUsers)
+                        .HtmlAttributes(new { @style = "text-align:right" })
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                )
+            </div>
+        </div>
+
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Outage Duration:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.OutageDuration)
+        //.HtmlAttributes(new { @style = "text-align:right" })
+                //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Environment:</label>
+            <div class="custom-dropdown">
+                @(Html.Kendo().DropDownListFor(m => m.AppEnvironmentId)
+                    .Name("AppEnvironmentId")
+                    .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRAppEnvironmentList)
+                    .AutoBind(true)                        )
+            </div>
+        </div>
+
+    </div>
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="metownder" id="">Impact If Down /Performance Notes:</label>
+
+            @Html.TextAreaFor(m => m.PerformanceNotes, new { @class = "", rows = "10", placeholder = "Description", tabindex = "15" })
+
+        </div>
+    </div>
+
+</div>
+<div>
+    <footer class="apr-footer">
+        <div class="apr-footer-button">
+            @(Html.Kendo().Button()
+                .Name("Previous3")
+                .Content("Previous")
+                .Events(ev => ev.Click("onPreviousClick")))
+            @(Html.Kendo().Button()
+                .Name("Next3")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+        </div>
+    </footer>
+</div>
+

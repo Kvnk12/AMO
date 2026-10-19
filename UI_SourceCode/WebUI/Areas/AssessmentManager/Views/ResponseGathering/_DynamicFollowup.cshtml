@@ -1,0 +1,121 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+
+
+@if (Model.MultipleResponses.Count != 0)
+{
+    int i = 0;
+    int j = 0;
+    <div class="ques-eng-detail" id="idfollowuptxt">
+
+
+        @foreach (var Ritem in Model.MultipleResponses)
+        {
+            if (Ritem.SubResponse != null)
+            {
+                <div class="ques-eng-txt">
+
+                    <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                        @if (i == 0)
+                        {
+                            <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Engagement Response</label>
+                        }
+                        else
+                        {
+                            <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Follow up Question @i-Response</label>
+                        }
+                    </div>
+
+                    <div class="ques-follow-detailcontext">
+                        @if (i == 0)
+                        {
+                            <div class="ques-display-main-followtextarea main-response">
+                                <label>@Ritem.SubResponse</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="ques-display-followtextarea">
+                                <label>@Ritem.SubResponse</label>
+                            </div>
+
+                        }
+
+                    </div>
+                </div>
+
+
+
+                if (Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id).Count() != 0)
+                {
+                    foreach (var Fitem in Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id))
+                    {
+                        if (Fitem.SubFollowUpQuestion != null)
+                        {
+                            <div class="ques-follow-editor">
+
+                                <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                                    <div>
+                                        <label class="ques-label-1"><span class="circle-fp">AT</span>Follow up Question @Ritem.SubResponseOrder</label>
+                                        <label class="hide" id="followuplabel_@Fitem.Id" style="color:red;font-size:10px">* Please enter follow up question</label>
+
+                                    </div>
+
+                                    <button class="btn-eng-save  hide" id="btn-edi-save-@Fitem.Id" onclick="updateFollowup(@Fitem.Id)"></button>
+                                   @if ((Model.MultipleFollowUpQuestions.Count() - 1) == j)
+                                    {
+                                        <button class="btn-eng-edit editdisablebtn" id="btn-edi-edit-@Fitem.Id" onclick="editFollowup(@Fitem.Id)"></button>
+
+                                    }</div>
+
+                                <div id="Id-Editor-@Fitem.Id" class="ques-followup-editor editor-disabled">
+                                    @(Html.Kendo().Editor()
+                                        .Name("FollowupEditor" + Fitem.Id)
+                                        .HtmlAttributes(new { @class = "eng-res-texteditor", style = "width: 99%;color:#ffffff", aria_label = "editor", })
+                                        .Value(@<text>@Fitem.SubFollowUpQuestion
+                                        </text>)
+                                        .Resizable(resizable => resizable.Content(false).Toolbar(true))
+                                        .Tools(tools => tools
+                                        .Clear()
+                                        .Bold().Italic().Underline()
+                                        .InsertUnorderedList().InsertOrderedList()
+                                        //.Outdent().Indent()
+                                        //.FontColor().BackColor()
+                                        )
+                                        )
+                                </div>
+                            </div>
+                        }
+
+                    }
+                }
+                else
+                {
+                    <div id="idNewfollowup" class="">
+                        <button class="btn-add-followup" id="btn-followup-add" onclick="OpenPartialfollowup(@Ritem.SubResponseOrder,@Ritem.ResponseID,@Ritem.Id,@Ritem.AssessmentId)">Follow-up Question</button>
+                    </div>
+
+                }
+            }
+            i++;
+            j++;
+        }
+
+    </div>
+
+}
+else
+{
+    <div class="ques-eng-txt">
+        <div style = "display: flex; justify-content: space-between; align-items:flex-end" >
+        <label id = "Idquesno" class="ques-label-1"><span class="circle-er">ER</span> Engagement Response</label>
+    </div>
+    <div class="ques-follow-detailcontext">
+        <div class="ques-display-followtextarea">
+            <label></label>
+        </div>
+    </div>
+        </div>
+}
+

@@ -1,0 +1,115 @@
+﻿@using Kendo.Mvc.UI;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model ServiceCalendarModel
+@*@model NTTData.AMOPortal.WebUI.Dto.ServiceCalendarInput*@
+
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+}
+@Html.HiddenFor(m => m.AccountId, new { id = "Tab2AccountId" })
+@Html.HiddenFor(m => m.ContractId, new { id = "Tab2ContractId" })
+@*@Html.HiddenFor(m => m.IsExisting, new { id = "IsExisting" })*@
+@*@Html.HiddenFor(m => m.tabs, new { id = "Tabid" })*@
+@*<input hidden id="tabs" value="Tab2" />
+    @Html.HiddenFor(m => m.tabs, new { @Value = "Tab2" })*@
+
+<div class="sla-holiday-content">
+
+    <div class="holiday-hr-setup">
+        <div class="hr-setup-section">
+            <div class="custom-group">
+                <label>Description</label>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(m => m.Holidayname).Name("Holidayname"))
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>Date</label>
+                <div class="sla-holiday-datepicker">
+                    @(Html.Kendo().DatePickerFor(e => e.Calendardate)
+                                         .Name("Calendardate")
+                                           )
+                </div>
+            </div>
+        </div>
+        <div class="hr-setup-section">
+            <div class="custom-group">
+                <label>Start Time</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+                                                .Name("StartTime")
+                                                .Value("1:00")
+                                                .ComponentType("modern")
+                                                //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+                                                .DateInput()
+                                            )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label>End Time</label>
+                <div class="sla-time">
+                    @(Html.Kendo().TimePicker()
+                                                .Name("EndTime")
+                                                .Value("23:59")
+                                                .ComponentType("modern")
+                                                //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+                                                .DateInput()
+                                            )
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sla-holiday-button">
+        <button class="btn btn-primary im-button" tabindex="30" type="button" id="btnSaveHoliday" onclick="holidaysave()">Save</button>
+        @*<button class="btn btn-default" tabindex="31" type="button" name="btncancelHoliday" id="btncancelHoliday">Cancel</button>*@
+        <button type="reset" class="btn btn-primary im-button" tabindex="31" id="btnReset">Cancel</button>
+        @*<button type="reset" name="btnReset" class="btn btn-primary" tabindex="30" value="Cancel">Cancel</button>*@
+    </div>
+    <div class="custom-kendo-grid">
+
+        @(Html.Kendo().Grid<ServiceCalendarHolidayModel>()
+                                 .Name("HolidayCalenderGrid")
+                                 .Columns(columns =>
+                                 {
+                                     columns.Bound(e => e.Id).Title("Id").Hidden();
+                                     columns.Bound(p => p.Holidayname).Title("Description");
+                                     columns.Bound(p => p.Calendardate).Title("Date").Format("{0:MM/dd/yyyy}");
+                                     columns.Bound(p => p.Servicestarttime).Title("Start Time").Format("{0:hh:mm:ss}").ClientTemplate("#= kendo.format('{0:00}:{1:00}', Servicestarttime.Hours, Servicestarttime.Minutes) #");
+                                     columns.Bound(p => p.Serviceendtime).Title("End Time").Format("{0:hh:mm:ss}").ClientTemplate("#= kendo.format('{0:00}:{1:00}', Serviceendtime.Hours, Serviceendtime.Minutes) #");
+                                     columns.Bound(p => p.Clientid).Title("Action").Width(150)
+                                       .ClientTemplate("#if(data.Clientid!=null){# <div style = 'background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + ");background-repeat: no-repeat; width:1em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='deleteCalender(#:Id#);' ></ div >#}#");
+
+                                    // columns.Command(command => { command.Destroy().Text(" "); }).Title("Action").Width(130);
+                                 })
+                                 .AutoBind(true)
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .Model(model =>
+                                  {
+                                      model.Id(f => f.Id);
+                                  })
+                                      .Read(read => read.Action("ReadHolidayCalender", "ServiceCalendar").Data("getServicecalParam"))
+                                     // .Destroy(destroy => destroy.Action("DeleteHolidayCalender", "ServiceCalendar"))
+                              )
+
+                         )
+    </div>
+
+</div>
+
+<script>
+    function deleteid(e) {
+        alert("in delete");
+    }
+   
+</script>

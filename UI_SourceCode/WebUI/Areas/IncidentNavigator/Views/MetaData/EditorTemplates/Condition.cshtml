@@ -1,0 +1,49 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+
+@model string
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                    .Name("Condition")
+                                    //.OptionLabel("Select Condition.")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .ValuePrimitive(true)
+                                    .BindTo(new List<SelectListItem>() {
+new SelectListItem() {
+  Text = "=",
+  Value = "="
+},
+new SelectListItem() {
+  Text = "<>",
+  Value = "<>"
+},
+new SelectListItem() {
+  Text = "CONTAINS",
+  Value = "CONTAINS"
+},
+new SelectListItem() {
+  Text = "NOT CONTAINS",
+  Value = "NOT CONTAINS"
+},
+new SelectListItem() {
+  Text = "IN",
+  Value = "IN"
+},
+new SelectListItem() {
+  Text = "NOT IN",
+  Value = "NOT IN"
+},
+new SelectListItem() {
+  Text = "IS NULL",
+  Value = "IS NULL"
+},
+new SelectListItem() {
+  Text = "IS NOT NULL",
+  Value = "IS NOT NULL"
+}
+                  })
+
+                      .AutoBind(true)
+)

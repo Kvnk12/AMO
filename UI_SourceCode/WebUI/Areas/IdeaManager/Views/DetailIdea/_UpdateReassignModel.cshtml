@@ -1,0 +1,97 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using WebUI.Areas.IdeaManager.Models
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model  IMIdeaReassignModel
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+@{
+    
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostIdeaController();
+    var servList = cont.GetAllIMUser(client.ClientId);
+
+}
+<style>
+    .im-feild{
+        background-color:transparent;
+        border:0;
+        box-shadow:none;
+    }
+</style>
+<div class="createQuestionnairepopUpDiv">
+    @(Html.Kendo().Window()
+ .Name("OpenReassignView")
+ .Title("Reassign the Idea")
+ .Content(@<text>
+    <div style="display: flex;margin-top:0.5em">
+        <input type="hidden" id="Ideaid" value="" />
+        <input type="hidden" id="ItemName" value="" />
+        <div style="width:150px">Idea Number/Name</div>
+        <label id="IdeaNumber" class="im-feild"></label>
+        <div> @*@Html.TextBoxFor(m => m.IdeaNumber, new { @class = "im-feild", placeholder = "", id = "IdeaNumber", disabled = "disabled" })*@
+</div>
+    </div>
+
+    <div style="display:flex;margin-top:1em">
+        <div style="width:150px">Status</div>
+                <div>@Html.TextBoxFor(m => m.Status, new { @class = "im-feild", placeholder = "", id = "Status", disabled = "disabled" })
+</div>
+    </div>
+    <div style="display: flex; margin-top: 1em">
+        <div style="width:150px">Creator/Proposed By</div>
+                <div>@Html.TextBoxFor(m => m.CreatedByName, new { @class = "im-feild", placeholder = "", id = "CreatedByName", disabled = "disabled" })
+</div>
+    </div>
+
+    <div style="display: flex; margin-top: 1em">
+        <div style="width:150px">New Owner :</div>
+        <div>  @(Html.Kendo().DropDownListFor(m => m.ImpManagers)
+                              .Name("ImpManagers")
+                              .OptionLabel("Select User")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(servList)
+                              .HtmlAttributes(new { style = "width: 200px" })
+                              .Filter("contains")
+                              //.AutoBind(true)
+                              )</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:2em">
+         <button class="custom-button" style="margin-right:1em;background-color:darkgrey" type="reset" onclick="onclosepopupassign()" >CANCEL</button>
+         <button class="custom-button" style="margin-right:2em" type="button" onclick="onConfirmCloneYes()" id="btnConfirmYes">ASSIGNS</button>
+
+    </div>
+
+     </text>)
+ .Visible(false)
+ .Draggable()
+ .Resizable()
+ .Width(500)
+ .Height(300)
+ .AutoFocus(false)
+ .Modal(true)
+
+ .Actions(actions => actions.Close())
+
+ )
+</div>

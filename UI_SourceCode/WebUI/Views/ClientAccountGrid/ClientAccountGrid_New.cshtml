@@ -1,0 +1,231 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Controllers;
+@using WebUI.Dto;
+@using WebUI.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity
+
+@model NTTData.AMOPortal.WebUI.Dto.ClientAndAccountsInput
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<style>
+    .k-popup-edit-form.k-window-content{
+        height:42em;
+    }
+    .k-edit-form-container{
+        width:84em;
+        overflow-wrap:inherit
+    }
+</style>
+<div class="content-main dark-bg ">
+    <div>
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li class="active">Account Demographics</li>
+        </ol>
+    </div>
+
+    <div class="acct-cont">
+        <div class="acct-cont-eye">
+            <div style="display: flex; margin-bottom: 0.5em;">
+                <span class="acc-eye-icon"></span>
+                <label class="custom-white-label">Account & Contract Management</label>
+                <div style="margin-left:2em;">
+                    <span class="info-icon"></span>
+                    <label class="custom-white-label" style="color: rgb(252, 214, 86); ">Select "Account" from the first table to view related "Contracts" in second table </label>
+                </div>
+            </div>
+        </div>
+        <div class="acct-cont-mapping">
+            <div class="acct-cont-mapping-grid">
+                <div class="acct-cont-mapping-head ">
+                    <div class="acct-cont-mapping-label">
+                        <label class="custom-white-label" style="font-size:13px">Account</label>
+                    </div>
+                </div>
+                <div class="acct-cont-grid">
+                    <div class="custom-kendo-grid accGrid scrollbar-rail">
+                        @(Html.Kendo().Grid<ClientAccountList>
+    ()
+    .Name("AccountGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.AccountId).Hidden();
+        columns.Bound(p => p.AccountName).Width(180)
+        .ClientTemplate("#if(data.AccountName!=null){#<div style='display:flex;'><input onclick='onAccountselect();' id='AccountId#=AccountId#' value='#=AccountId#' name='actradiobtn' type='radio' />&nbsp; #=AccountName# </div>#}#");
+        columns.Bound(p => p.AccountStatus).Width(150);
+        columns.Command(command => { command.Edit().Text(" "); command.Destroy().Text(" "); }).Width(130);
+    })
+    .AutoBind(true)
+    .Scrollable()
+    .ToolBar(tools =>
+    {
+                tools.Search().Text("Search Account...");
+        tools.Create().Text("Add");
+    })
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom).DisplayDeleteConfirmation(" Are you sure to delete the selected Account? Please note that respective contracts also would get deleted"))
+    .Search(search => { search.Field(f => f.AccountName);
+    })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Model(model =>
+    {
+        model.Id(f => f.AccountId);
+    })
+    .Read(read => read.Action("GetAccountList", "ClientAccountGrid"))
+    .Create(create => create.Action("CreateClientAccount", "ClientAccountGrid"))
+    .Update(update => update.Action("EditClientAccount", "ClientAccountGrid"))
+    .Destroy(destroy => destroy.Action("DeleteClientAccount", "ClientAccountGrid"))
+    .Events(e=>e.RequestEnd("requestEnd"))
+    )
+    .Events(e=>e.Edit("onAccEdit"))
+    )
+</div>
+                </div>
+            </div>
+            <div class="acct-cont-mapping-grid">
+                <div class="acct-cont-mapping-head">
+                    <div class="acct-cont-mapping-label">
+                        <label class="custom-white-label" style="font-size:13px">Contract- <span id="accountName"> </span></label>
+                    </div>
+                </div>
+                <div class="acct-cont-grid ">
+                    <div class="custom-kendo-grid accGrid scrollbar-rail">
+                        @(Html.Kendo().Grid<ClientAccContract>()
+                                 .Name("ContractGrid")
+                                 .Columns(columns =>
+                                 {
+                                     columns.Bound(p => p.ContractId).Hidden();
+                                     columns.Bound(p => p.AccountId).Hidden();
+                                     columns.Bound(p => p.ContractName).Width(180);
+                                     // .ClientTemplate("#if(data.ContractName!=null){#<div style='display:flex;'><input onclick='onAccountselect();' id='ContractId#=ContractId#' value='#=ContractId#' name='contradiobtn' type='radio'/>&nbsp; #=ContractName# </div>#}#");
+                                     columns.Bound(p => p.ContractStatus).Width(150);
+                                     columns.Command(command => { command.Edit().Text(" "); command.Destroy().Text(" "); }).Width(130);
+                                 })
+                                 .AutoBind(true)
+                                 .Scrollable()
+                                 .ToolBar(tools => { tools.Search().Text("Search Contract...");
+                                     tools.Create().Text("Add");
+                                 })
+                                 .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom))
+                                 .Search(search => { search.Field(f => f.ContractName);
+                                 })
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+
+                                  .Model(model =>
+                                  {
+                                      model.Id(f => f.ContractId);
+                                  })
+                                      .Read(read => read.Action("GetAccContractList", "ClientAccountGrid").Data("getAccountId"))
+                                      .Create(create => create.Action("CreateAccContract", "ClientAccountGrid").Data("getnewAccountId"))
+                                      .Update(update => update.Action("EditAccContractList", "ClientAccountGrid"))
+                                      .Destroy(destroy => destroy.Action("DeleteAccContractList", "ClientAccountGrid"))
+                              )
+                                      .Events(e => e.Edit("onContEdit"))
+
+                         )
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+<script>
+    function getAccountId() {
+        var str = '';
+        var gridList = $("#AccountGrid").data("kendoGrid");
+        var dataItems = gridList.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#AccountId' + item.AccountId;
+            if ($(CheckBoxctrl).is(":checked")) {
+                str = item.AccountId;
+                console.log(str);
+            }
+        });
+        return {
+            AccountId: str
+        };
+    }
+    function getnewAccountId(e) {
+        var str = '';
+        var gridList = $("#AccountGrid").data("kendoGrid");
+        var dataItems = gridList.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#AccountId' + item.AccountId;
+            if ($(CheckBoxctrl).is(":checked")) {
+                str = item.AccountId;
+                e.AccountId = str;
+                console.log(str);
+            }
+        });
+        return {
+            AccountId: str
+        };
+    }
+    function onAccountselect() {
+        var str = '';
+        var gridList = $("#AccountGrid").data("kendoGrid");
+        var dataItems = gridList.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#AccountId' + item.AccountId;
+            if ($(CheckBoxctrl).is(":checked")) {
+                str = item.AccountName;
+            }
+        });
+        $("#ContractGrid").data("kendoGrid").dataSource.read();
+        $("#accountName").text(str);
+
+    }
+    
+    function onAccEdit(e) {
+        var window = e.container.data('kendoWindow')
+        if (e.model.isNew()) {
+            window.title('Add Client Account Details');
+        } else {
+            window.title('Edit Client Account Details');
+        }
+    }
+    function onContEdit(e) {
+        var window = e.container.data('kendoWindow')
+        if (e.model.isNew()) {
+            window.title('Add Account Contract Details');
+        } else {
+            window.title('Edit Account Contract Details');
+        }
+    }
+    function requestEnd(e) {
+        $("#ContractGrid").data("kendoGrid").dataSource.read();
+    }
+</script>

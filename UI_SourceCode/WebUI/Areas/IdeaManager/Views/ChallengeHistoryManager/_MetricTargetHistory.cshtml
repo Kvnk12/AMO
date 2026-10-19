@@ -1,0 +1,41 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IdeaManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Dto
+@using System.Data
+
+@model IMPostChallengeInput
+
+
+<div id="MetricTarget" style="width:100%"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+        if (ItemId != null) {
+            $('#MetricTarget').jtable({
+                title: 'MetricTarget',
+                actions: {
+                    listAction: "@Url.Action("GetMetricTarget")" + "?ChallengeId=" + ItemId
+                },
+                fields: {
+                   
+                    MetricTarget: {
+                        title: 'Metric/Target',
+                        width: '100%'
+                          }
+                }
+
+            });
+            $('#MetricTarget').jtable('load');
+
+        }
+    });
+
+</script>

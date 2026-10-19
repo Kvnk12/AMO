@@ -1,0 +1,1184 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="AnalysisMasterPage.master.cs" Inherits="WebUI.AnalysisMasterPage" %>
+
+<!DOCTYPE html>
+
+<html>
+<%
+    var client = "";
+    string userName = "";
+    int cid=0;
+    if (Session["SessionClient"] != null)
+    {
+        WebUI.Dto.ClientDetail objclient = ( WebUI.Dto.ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        cid = objclient.ClientId;
+    }
+
+    NTTData.AMOPortal.WebUI.Dto.HomeInput MenuItemsInput = (NTTData.AMOPortal.WebUI.Dto.HomeInput)Session["MenuItemsInput"];
+
+    userName = MenuItemsInput.UserDisplayName;
+    string imageDataURL = null;
+    var Img = WebUI.Areas.ClientProfileManager.ClientProfileManagerHelper.getProfileClientDetail(cid);
+    if (Img.CPMFile != null)
+    {
+        string imageBase64Data = Convert.ToBase64String(Img.CPMFile);
+        imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
+
+    }
+    var UserId = (int)Session["UserId"];
+    var username = WebUI.Areas.ClientProfileManager.ClientProfileManagerHelper.getFullName(UserId);
+    var area = HttpContext.Current.Request.Url.AbsoluteUri;
+    bool IN=area.Contains("IncidentNavigator");
+    bool IM = area.Contains("IdeaManager");
+    var ECOpassword = System.Configuration.ConfigurationManager.AppSettings["ECOpassword"];
+    var ECOapiEndpoint = System.Configuration.ConfigurationManager.AppSettings["ECOapiEndpoint"];
+    var ECOINemailId = System.Configuration.ConfigurationManager.AppSettings["ECOINemailId"];
+    var ECOIMemailId = System.Configuration.ConfigurationManager.AppSettings["ECOIMemailId"];
+%>
+    
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title></title>
+    <!-- Bootstrap core CSS -->
+    <link href="<%=ResolveClientUrl("~/Content/css/bootstrap.css")%>" rel="stylesheet">
+
+    <%--<link href="<%=ResolveClientUrl("~/Content/css/style.css")%>" rel="stylesheet">--%>
+    <link href="<%=ResolveClientUrl("~/Content/css/custom-styles.css")%>" rel="stylesheet">
+
+    <link href="<%=ResolveClientUrl("~/Content/css/datepicker.css")%>" rel="stylesheet">
+    <link href="<%=ResolveClientUrl("~/Content/css/bootstrap-select.css")%>" rel="stylesheet">
+
+       <%-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/css/imgareaselect-default.css">
+        <link rel="stylesheet" href="https://ecolib.s3.us-west-2.amazonaws.com/css/eco-feedback-v1.2.min.css">
+
+        <script  type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script  type="text/javascript" src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-alpha.12/dist/html2canvas.js"></script>
+        <script  type="text/javascript" src="https://ecolib.appliediphub.com/js/jquery.imgareaselect.js"></script>
+        <script  type="text/javascript" src="https://ecolib.s3.us-west-2.amazonaws.com/js/eco-feedback-v1.2.min.js"></script>--%>
+
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery-3.6.0.min.js")%>"></script>
+  
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/bootstrap.min.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/menu.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/script.js")%>"></script>
+    <script type="text/javascript" src='<%=ResolveClientUrl("~/Scripts/jquery-3.6.0.js")%>'></script>
+
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/bootstrap-select.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/bootstrap-datepicker.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery.treeview.js")%>"></script>
+   
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery.fixedheadertable.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery.number.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery.number.min.js")%>"></script>
+  
+
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery-ui-1.12.1.min.js")%>"></script>
+   
+
+    <!-- Validation engine style file -->
+    <link href="<%=ResolveClientUrl("~/Scripts/validationEngine/validationEngine.jquery.css")%>" rel="stylesheet" type="text/css" />
+
+    <!-- Validation engine script file and english localization -->
+    <script type="text/javascript"
+            src="<%=ResolveClientUrl("~/Scripts/validationEngine/jquery.validationEngine.js")%>">
+    </script>
+    <script type="text/javascript"
+            src="<%=ResolveClientUrl("~/Scripts/validationEngine/jquery.validationEngine-en.js")%>">
+    </script>
+    <script src="<%=ResolveClientUrl("~/Scripts/multiselect/jquery.multiple.select.js")%>"></script>
+
+    <link href="<%=ResolveClientUrl("~/Scripts/multiselect/multiple-select.css")%>" rel="stylesheet">
+
+
+    <style type="text/css">
+    .PivotGridWindow {
+        width: 700px !important;
+        height: 440px !important;
+    }
+
+    div.RadPivotGrid .rpgDataCell {
+        text-align: right;
+    }
+
+    .reportlbl {
+        font-size: small;
+        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+        font-weight: bold;
+    }
+
+    div.RadPivotGrid .rpgFieldItem.aggregateCustom1, div.RadPivotGrid .rpgColumnHeader.aggregateCustom1 {
+        color: #006699;
+    }
+
+    div.RadPivotGrid .rpgFieldItem.aggregateCustom2, div.RadPivotGrid .rpgColumnHeader.aggregateCustom2 {
+        color: #006666;
+    }
+
+
+    #form1 .RadDropDownList .rddlEmptyMessage, #form1 .RadDropDownList .rddlDefaultMessage {
+        opacity: 1;
+        font-style: normal;
+        z-index:9999;
+        font-family: HelveticaNeue;
+    }
+
+
+    html body .RadInput_Default .riTextBox, html body .RadInputMgr_Default {
+        border-color: rgb(204, 204, 204);
+        color: #333;
+        background-color: #FFF;
+        font: 12px "segoe ui",arial,sans-serif;
+        border-style: solid;
+        border-radius: 5px;
+        height: 2.5em;
+        z-index:9999 !important;
+    }
+
+    .progressIndicatorStyle {
+        width: 200px;
+        height: 200px;
+        top: 25%;
+        left: 40%;
+        z-index: 99999;
+        position: absolute;
+        display: block;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #exportSectionID, #exportSectionID * {
+            visibility: visible;
+        }
+
+        #exportSectionID {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    }
+    .disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .Box-bundle-tag {
+        border: 1px solid;
+        color: #ee8151;
+        padding: 0 3px;
+        font-size: xx-small;
+        align-self: center;
+    }
+
+    .Box-bundle-tagred {
+        border: 1px solid;
+        color: red;
+        padding: 0 2px;
+        font-size: xx-small;
+        align-self: center;
+    }
+    .sidebarHeader {
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .sidebarHeader h3 {
+            width: 100%;
+        }
+
+    .sidebarHeader .close {
+        border: none;
+        background-color: #5876AA;
+        width: 3em;
+        height: 3.7em;
+    }
+
+    .sidebarHeader span {
+        color: white;
+        font-size: 30px;
+        position: absolute;
+        top: -0.1em;
+        right: 0.3em;
+    }
+
+    .sidebar-submenu > ul {
+        list-style-type: none;
+    }
+
+    .sidebar-wrapper .sidebar-menu > ul > li > a.show + .sidebar-main-submenu.show > ul {
+        list-style-type: none;
+    }
+</style>
+</head>
+
+<body class="analysisnew-body-container backlog-analysis-body-container">
+    
+         <div id="wrap">
+             <div class="navbar navbar-default navbar-fixed-top custom-header" role="navigation">
+                <div class="left-menu-btn left">
+                    <button type="button" class="header-menu-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+                <div class="navbar-main">
+                    <div class="header-left">
+                        <a class="header-logo" href="#">
+                            <img alt="ntt logo" src="<%=ResolveClientUrl("~/Content/images/nttdata_logo.png")%>">
+                        </a>
+                        <%if(imageDataURL != null)
+                            {%>
+                            <img src="<%=imageDataURL%>">
+                           <% } 
+                               else{%>
+                                    <a class="header-logo-client" href="#">
+                                        <%=client%> -
+                                    </a>
+                                
+                            <% }%>
+                       <asp:ContentPlaceHolder ID="headertitle" runat ="server"></asp:ContentPlaceHolder>
+                    </div>
+
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav">
+
+                                <li style="margin-bottom: -0.23em;"><a href="<%=ResolveClientUrl("~/Home/AppStore")%>">Home</a></li>
+                                <li style="text-align:right;display: flex;flex-direction: column;"><span style="font-size: 12px;color: #fff;">Welcome </span><a href="<%=ResolveClientUrl("~/Home/Dashboard")%>"><%=userName %></a></li>
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                     <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu" style="position: absolute; min-width: 8em;padding:5px;">
+                                        <li><a href="<%=ResolveClientUrl("~/Account/Manage")%>" style="text-decoration:none;">Change Password</a></li>
+                                   </ul>
+                                </li>
+                                <li style="margin-bottom:1.3em;"><a href="<%=ResolveClientUrl("~/Account/Logoff")%>" title="logout" class="logout-icon"></a></li>
+                            </ul>
+                        </div> <!--/.nav-collapse -->
+
+                </div>
+             </div>
+
+             
+<% if (MenuItemsInput != null)
+    {%>
+        <nav class="sidebar-wrapper">
+          <div class="sidebarHeader">  <h3>Applications</h3>
+                <button type="button" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button></div>  
+            
+            <div class="sidebar-menu">
+                <ul id="menuAccordion">
+
+                    <% if (MenuItemsInput.ClientProfileManager && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon client-profile-manager-icon"></i>
+                                <span>Client Profile Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="clientProfileSubmenu">
+                                <ul>
+
+                                    <li>
+                                        <a href="#cprDataCollection" data-parent="#subMenuAccordion">Data Collection</a>
+                                        <div class="sidebar-submenu" id="cprDataCollection">
+                                            <ul>
+                                                <li>
+                                                    <a href="#cprDemographicsSubmenu" data-parent="#subMenuAccordion">Demographics</a>
+                                                    <div class="sidebar-submenu" id="cprDemographicsSubmenu">
+                                                        <ul>
+                                                          <%  if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                                            { %>
+                                                                <li class="single-item">
+                                                                    <a href="<%=ResolveClientUrl("~/Client/Create")%>">Client</a>
+                                                                   
+                                                                </li>
+                                                                <li class="single-item"><a href="#" class="disabled">Client Details</a></li>
+                                                            <% }%>
+
+                                                        </ul>
+                                                    </div>
+                                                </li>
+
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientAccountGrid/DisplayClientAccountContracts")%>">Account</a>
+                                                   </li>
+
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a href="#cprdashboardSubmenu" data-parent="#subMenuAccordion">Dashboard</a>
+                                        <div class="sidebar-submenu" id="cprdashboardSubmenu">
+                                            <ul>
+                                                <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                                {%>
+                                                    <li class="single-item">
+                                                        <a href="<%=ResolveClientUrl("~/Reports/ReportViewerCPF.aspx?ReportName=Clients Info")%>">Clients List</a>
+                                                    </li>
+                                                    <li class="single-item">
+                                                        <a href="<%=ResolveClientUrl("~/Reports/ReportViewerCPF.aspx?ReportName=clientEngagements")%>">Engagement List</a>
+                                                       </li>
+                                                    <li class="single-item">
+                                                        <a href="<%=ResolveClientUrl("~/Reports/ReportViewerCPF.aspx?ReportName=clientsByRegionAndVertical")%>">Clients & Accounts List</a>
+                                                      </li>
+                                                    <li class="single-item">
+                                                        <a href="<%=ResolveClientUrl("~/ClientProfileManager/Dashboard")%>">Performance Dashboard</a>
+                                                      </li>
+                                                    <li class="single-item">
+                                                        <a href="<%=ResolveClientUrl("~/ClientProfileManager/PerformanceCompliance")%>">Performance Dashboard</a>
+                                                       </li>
+                                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/ClientProfileManager/AspxReport/ClientProfileAnalysis.aspx")%>">Custom Analysis</a></div></li>
+
+                                                    
+                                              <%  } %>
+                                            </ul>
+                                        </div>
+                                    </li>
+
+                                   <% if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    { %>
+                                        <li>
+                                            <a href="#cprcladmin" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="cprcladmin">
+                                                <ul>
+                                                    <li class="single-item">
+                                                         <a href="<%=ResolveClientUrl("~/ClientProfileManager/Dashboard/authLog")%>">Audit Log</a>
+                                                      </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/MetaData/ContractIndex")%>">Contract Management</a>
+                                                        </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                  <%  } %>
+
+                                </ul>
+                            </div>
+                        </li>
+
+                  <%  }  %>
+
+
+                    <%if (MenuItemsInput.IdeaManager)
+                    { %>
+                        <li class="panel sidebar-dropdown" id="subMenuAccordion">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon idea-manager-icon"></i>
+                                <span>Idea Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="ideaManagerSubmenu">
+                                <ul>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/ViewIdea")%>">Idea Management</a></li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/Dashboard")%>">Dashboard </a></li>
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IdeaManager/Dashboard/New_Index")%>">Dashboard </a><span class="Box-bundle-tag">New</span></div></li>
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IdeaManager/ViewIdea/IdeaReport")%>">All Idea Report</a>
+                                        <span class="Box-bundle-tag">New</span></div></li>
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IdeaManager/Dashboard/ConsolidatedAnalysis")%>">Consolidated Analysis</a>
+                                      <span class="Box-bundle-tag">New</span></div></li>
+                                    <%--<li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IdeaManager/Dashboard/ColumnChartPOC")%>">Column Chart POC</a>
+                                        <span class="Box-bundle-tag">New</span></div></li>--%>
+
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/IdeaManager/AspxReport/WebForm2.aspx")%>">Custom Analysis</a></div></li>
+
+
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/Dashboard/AllIdeas")%>">Idea Inventory</a>
+
+                                   <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#ideaadmin" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="ideaadmin">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/IdeaApproval")%>">Approve Ideas</a>
+                                                       </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/ViewIdea/DeleteIdea")%>">Delete Ideas</a>
+                                                       </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IdeaManager/Config/Complexity1")%>">Meta data Management</a>
+                                                       </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                   <%}%>
+                                </ul>
+                            </div>
+                        </li>
+                   <%}%>
+
+                    <%if (MenuItemsInput.DemandManager)
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon demand-manager-icon"></i>
+                                <span>Demand Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="demandManagerSubmenu">
+                                <ul>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/ViewDemand")%>">Demand Management</a>
+                                       </li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/DemandDashboard")%>">Dashboard</a>
+                                       </li>
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/DemandManager/Dashboard/New_Index")%>">Dashboard </a><span class="Box-bundle-tag">New</span></div></li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/ViewDemand/DemandReport")%>">All Demand Report</a>
+                                      </li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/DemandDashboard/ConsolidatedAnalysis")%>">Consolidated Analysis</a>
+                                        </li>
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/DemandManager/AspxReport/WebForm2.aspx")%>">Custom Analysis</a></div></li>
+
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/DemandDashboard/AllDemands")%>">Demand Inventory</a>
+                                       </li>
+
+                                   <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#demandadmin" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="demandadmin">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/DemandApproval")%>">Approve Demand</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/ViewDemand/DeleteDemand")%>">Delete Demand</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/DemandManager/ConfigDemand/Complexity1")%>">Meta data Management</a>
+                                                        </li>
+
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    <%}%>
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+                    <%if (MenuItemsInput.IncidentNavigator)
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon incident-navigator-icon"></i>
+                                <span>Incident Navigator</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="incidentNavigatorSubmenu">
+                                <ul>
+                                    <li>
+
+                                        <a href="#incidentSubmenu" data-parent="#subMenuAccordion">Ticket Analysis</a>
+
+                                        <div class="sidebar-submenu" id="incidentSubmenu">
+                                            <ul>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IncidentNavigator/DashboardNew")%>">Dashboard</a>
+                                                 </div></li>          
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IncidentNavigator/Integration_Report")%>">Integration Report</a> <span class="Box-bundle-tag">New</span></div></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/IncidentNavigator/AspxReport/AnalysisNew.aspx")%>">Custom Analysis</a></div></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/IncidentNavigator/AspxReport/BackLogAnalysis.aspx")%>">Inflow Outflow Analysis</a></div></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Volume")%>">Volumetric</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Trend")%>">Trend</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Problem")%>">Problem</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/CustomerSatisfaction")%>">Customer Satisfaction</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Maintenance")%>">Maintenance</a></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/AnalysisReport")%>">Additional Analysis </a><span class="Box-bundle-tag">New</span></div></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                     <li>
+
+                                        <div class="updated-tag">
+                                            <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Service Level Reports</a>
+                                        </div>
+                                        <div class="sidebar-submenu" id="incidentSubmenu1">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/SLA_Reports")%>">SLA</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/KPI_Reports")%>">KPI</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                       <li>
+                                        <a href="#kedbmenu" data-parent="#subMenuAccordion">Known Error DB</a>
+                                        <div class="sidebar-submenu" id="kedbmenu">
+                                            <ul>
+                                                 <% if (MenuItemsInput.ClientProfileManager && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                                                     {%>
+                                                <li>
+                                                    <a href="#kedbSubmenu" data-parent="#subMenuAccordion">KEDB Administration</a>
+                                                    <div class="sidebar-submenu" id="kedbSubmenu">
+                                                        <ul>
+                                                             <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB/KedbMetaData")%>">Meta Data Management</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                                <%}%>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB")%>">Search KEDB</a></li>
+                                                    <li>
+                                        <a href="#kedbSubmenu1" data-parent="#subMenuAccordion">KEDB Analysis</a>
+                                        <div class="sidebar-submenu" id="kedbSubmenu1">
+                                            <ul>                                                
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB/KedbSolStatusReport")%>">KEDB Solution Status</a></li>                                               
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB/Kedb_Summary")%>">KEDB Summary</a></li>                                               
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB/Kedb_ResolutionFormat")%>">KEDB Resolution Format</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KEDB/Kedb_AuditLog")%>">KEDB AuditLog</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                     <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Datarepository")%>">Ticket Inventory</a>
+                                        <span class="Box-bundle-tag">New</span></div></li>
+
+                                    <%--<li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KnownerrorDB")%>">Known Error DB</a>
+                                        </li>--%>
+                                   
+                                      <li>
+                                        <a href="#incidentSubmenu2" data-parent="#subMenuAccordion">Cluster Analysis</a>
+                                        <div class="sidebar-submenu" id="incidentSubmenu2">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/Clustering")%>">Cluster (Top 5)</a></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/IncidentNavigator/AspxReport/ClusterAnalysis.aspx")%>">Cluster Analysis</a></div></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ClusterReport")%>">Cluster Report</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/Cluster")%>">Cluster Wordcloud</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ClusterManagement")%>">Cluster Management</a></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/IncidentNavigator/KeywordSearch/KeyWordSearch_new")%>">Keyword Search</a>
+                                                     <span class="Box-bundle-tag">New</span></div></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    
+                                    <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#incidentAdmin" data-parent="#subMenuAccordion">Admin </a>
+                                            <div class="sidebar-submenu" id="incidentAdmin">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ClusterAudit")%>">Cluster Audit</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/INIncidentServicehours")%>">Service Level Cost Hours</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/MetaData/TowerIndex")%>">Track Management</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/MetaData/ContractIndex")%>">Contract Management</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/ClientTicketInfo")%>">Ticket Details</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/Configuration/Index")%>">Cluster Configuration</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/MetaData/LogicalIndex")%>">Logical Configuration Management</a>
+                                                        </li> 
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/CSATReport")%>">CSAT</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/CompliReport")%>">Unresolved Tickets</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureAgingReport/ConfigureAging")%>">Configuration of Aging Report</a>
+                                                        </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    <%}%>
+                              
+
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+                    <%if (MenuItemsInput.SLAManager)
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link"  data-parent="#menuAccordion">
+                                <i class="menu-icon sla-manager-icon"></i>
+                                <span>SLA Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="slaSubmenu">
+                                <ul>
+
+
+                                    <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+
+                                           <a href="#slaSubmenu1" data-parent="#subMenuAccordion">Service Level Management Report</a>
+                                         <div class="sidebar-submenu" id="slaSubmenu1">
+                                           <ul>
+                                               <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/SLA_Reports")%>">SLA</a>
+                                                        </li>
+                                               <li class="single-item"><a href="<%=ResolveClientUrl("~/IncidentNavigator/ConfigureReport/KPI_Reports")%>">KPI</a>
+                                                        </li>
+                                           </ul>
+                                         </div>
+                                        </li>
+                                        <li>
+                                            <a href="#SLAadmin" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="SLAadmin">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/SLAManager/MetricLibraryView")%>">Metric Library</a>
+                                                        </li>
+                                                    <li>
+                                                        <a href="#SLAmetricSubmenu" data-parent="#subMenuAccordion">Metric Management</a>
+                                                        <div class="sidebar-submenu" id="SLAmetricSubmenu">
+                                                            <ul>
+                                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/SLASetup/GetAppList")%>">SLA Setup</a>
+                                                                   </li>
+                                                              <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/SlaSetupNew/Index")%>">Ticket Inventory</a>
+                                                              <span class="Box-bundle-tag">New</span></div></li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ServiceCalendar/GenerateServiceCalendar")%>">Service Hours</a>
+                                                         </li>
+                                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Tickets/SLATicket")%>">Ticket Data Maintenance</a>
+                                                       <span class="Box-bundle-tag">New</span></div></li>
+
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    <%}%>
+
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+                    <%if (MenuItemsInput.ClientProfileManager && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon survey-builder-icon"></i>
+                                <span>Survey Builder</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="surveybuilderSubmenu">
+                                <ul>
+                                    <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#surveyadmin" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="surveyadmin">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/PerspectiveConfiguration/Index")%>">Survey Perspectives</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/Survey")%>">Survey Setup</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/Survey/SetSDFSDFSDQues")%>">Audit Log</a>
+                                                       </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+
+                                    <%}%>
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+                    <%if (MenuItemsInput.PortfolioAnalyzer)
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon portfolio-analyzer-icon"></i>
+                                <span>Portfolio Analyzer</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="portfolioSubmenu">
+                                <ul>
+                                    <li>
+                                        <a href="#aprdataSubmenu" data-parent="#subMenuAccordion">Data Collection </a>
+                                        <div class="sidebar-submenu" id="aprdataSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/DataCollection")%>">Demographics/Cost</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/TechnologyStack")%>">Technology Stack</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Interface")%>">Interface</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/DispositionDetails")%>">Disposition/Recommendation</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Rating")%>">Ratings</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a href="#aprDashboard" data-parent="#subMenuAccordion">Dashboard </a>
+                                        <div class="sidebar-submenu" id="aprDashboard">
+                                            <ul>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/AppDashboard/NewAppDashboardIndex")%>">Application/Service Dashboard</a><span class="Box-bundle-tag">New</span></div>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Dashboard/Landing")%>">Overview Dashboard</a>
+                                                   </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Dashboard/RatingBySubPerspectiveReport")%>">Rating Analysis</a>
+                                        </li>
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Dashboard/DispositionRoadMapReport")%>">Disposition Road Map</a>
+                                        </li>
+                                    
+                                    <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/Areas/PortfolioAnalyzer/AspxReport/APRAnalysisReport.aspx")%>">Custom Analysis</a></div></li>
+
+
+                                    <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#aprSubmenu" data-parent="#subMenuAccordion">Admin </a>
+                                            <div class="sidebar-submenu" id="aprSubmenu">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/ApplicationInformation")%>">Application/Service</a>
+                                                        </li>
+                                                    <%if (MenuItemsInput.SupportEcosystem == true)
+                                                    {%>
+                                                        <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/PortfolioEco")%>">Portfolio-Eco</a>
+                                                            </li>
+                                                    <%}%>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Portfolio")%>">Portfolio</a>
+                                                       </li>
+                                                   <%-- <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Configure/EcoSystem")%>">EcoSystem</a>
+                                                        </li>--%>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MetaData")%>">Meta Data Maintenance</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MetaData/TechnologyStackMetadata")%>">Host</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MetaData/VendorProductVersionMetadata")%>">Vendor Product</a>
+                                                       </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MetaData/SolutionIndex")%>">Disposition Mapping</a>
+                                                        </li>
+                                                    <li>
+                                                        <a href="#DispositionAutomation" data-parent="#subMenuAccordion">Disposition Automation</a>
+                                                        <div class="sidebar-submenu" id="DispositionAutomation">
+                                                            <ul>
+                                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/DispositionAutomation")%>">Disposition Automation</a>
+                                                                    </li>
+                                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/AlternativeDashboard")%>">Alternative Dashboard</a>
+                                                                    </li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Dashboard/ExAppIndex")%>">Application Inventory</a>
+                                                        </li>
+                                                    <li>
+                                                        <a href="#crosscompany" data-parent="#subMenuAccordion">Cross Company</a>
+                                                        <div class="sidebar-submenu" id="crosscompany">
+                                                            <ul>
+                                                                <li class="single-item">
+                                                                    Ecosystem Setup
+                                                                </li>
+                                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MultiTenantReporting/ClientHeatmap")%>">X-Client Heatmap</a>
+                                                                 </li>
+
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    <%}%>
+
+
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+                    <%if (MenuItemsInput.BusinessAlignment && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon business-alignment-icon"></i>
+                                <span>Business Alignment</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="businessAlignmentSubmenu">
+                                <ul>
+                                    <li class="single-item"><a href="#">Dashboard</a></li>
+
+                                    <li>
+                                        <a href="#businessalignadmin" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="businessalignadmin">
+                                            <ul>
+                                                <li class="single-item"><div class="updated-tag"><a href="<%=ResolveClientUrl("~/BusinessCapabilities/ClientCapabilities")%>">Business Capability</a>
+                                                    <span class="Box-bundle-tag">Updated</span></div></li>
+
+                                            </ul>
+                                        </div>
+                                    </li>
+
+
+                                    
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+
+                    <%if (MenuItemsInput.RetirementAccelerator)
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon framework-builder-icon"></i>
+                                <span>Framework Builder</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="retirementSubmenu">
+                                <ul>
+
+                                    <li>
+                                        <a href="#radataSubmenu" data-parent="#subMenuAccordion">Data Collection</a>
+                                        <div class="sidebar-submenu" id="radataSubmenu">
+                                            <ul>
+
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/Assessment/Assess")%>">Assessment(Rating)</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/Assessment/ROMEstimator")%>">ROM Estimator</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/TaskProgress")%>">Plan/Track</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+
+
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/Dashboard")%>">Dashboard</a>
+                                        </li>
+
+                                    <%if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                    {%>
+                                        <li>
+                                            <a href="#rametadataSubmenu" data-parent="#subMenuAccordion">Admin</a>
+                                            <div class="sidebar-submenu" id="rametadataSubmenu">
+                                                <ul>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/MetaData/RetirementCandidate")%>">Retirement Candidate</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/MetaData")%>">Meta Data Maintenance</a>
+                                                        </li>
+                                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/RetirementAccelerator/MetaData/WBS")%>">WBS Template</a>
+                                                        </li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    <%}%>
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+
+                    <%if (MenuItemsInput.TransformationAccelerator && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon transformation-accelerator-icon"></i>
+                                <span>Transformation Accelerator</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="TransformationAcceleratorSubmenu">
+                                <ul>
+                                    <li>
+
+                                        <div class="updated-tag">
+                                            <a href="#EngagementPlanSubmenu" data-parent="#subMenuAccordion">Engagement Plan</a>
+                                        </div>
+                                        <div class="sidebar-submenu" id="EngagementPlanSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/EngagementTimeLine/Index")%>">Engagement TimeLine</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="updated-tag">
+                                            <a href="#ServicePlanSubmenu" data-parent="#subMenuAccordion">Service Plan</a>
+                                        </div>
+                                        <div class="sidebar-submenu" id="ServicePlanSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ServicePlan/SIAgreement")%>">Service Improvement Agreement</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ServicePlan/Index")%>">Implementation Plan</a>
+                                                   </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ServicePlan/ImprovementProgressView")%>">Improvement Progress</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+
+
+
+                                        <div class="updated-tag">
+                                            <a href="#ReportsSubmenu" data-parent="#subMenuAccordion">Reports</a>
+                                        </div>
+                                        <div class="sidebar-submenu" id="ReportsSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ConfigureTAReport/TAReports_ProgressAgainstPlan")%>">Progress against plan</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ConfigureTAReport/TAReports_DetailedProgress")%>">Detailed progress</a>
+                                                   </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/TransformationAccelerator/ConfigureTAReport/TAReports_summary")%>">Summary</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                            </div>
+
+                        </li>
+
+
+
+
+
+                    <%}%>
+
+
+
+
+
+                    <%if (MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser" || MenuItemsInput.UserRole.ToLower() == "admin")
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon configuration-manager-icon"></i>
+                                <span>Configuration Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="ConfigurationManagerSubmenu">
+                                <ul>
+
+                                    <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/ExportTicketInfo")%>">Client Analysis</a>
+                                    </li>
+                                    <li>
+                                        <a class="sidebar-link" href="#cmumSubmenu" data-parent="#subMenuAccordion">User Management</a>
+                                        <div class="sidebar-submenu" id="cmumSubmenu">
+                                            <ul>
+                                               <%-- <li class="single-item"><a href="<%=ResolveClientUrl("~/Account/Register")%>">User Setup</a>
+                                                   </li>--%>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/Account/Users/authLog")%>">User Access Management</a>
+                                                   </li>
+                                                <li><a href="<%=ResolveClientUrl("~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx")%>">User List Report</a>
+                                                   </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a class="sidebar-link" href="#cminterfaceSubmenu" data-parent="#subMenuAccordion">Data Interface</a>
+                                        <div class="sidebar-submenu" id="cminterfaceSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/DataMapping")%>">Data Mapping</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/PIDataMask")%>">Data Masking</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/DataUpload/DataFileUpload")%>">Data Upload</a>
+                                                    </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/DataUpload/JobScheduling")%>">Job Scheduler</a>
+                                                    </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+
+                                    <li>
+                                        <a class="sidebar-link" href="#mdManagementSubmenu" data-parent="#subMenuAccordion">Meta Data Management</a>
+                                        <div class="sidebar-submenu" id="mdManagementSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/VerticalSubVerticalsGrid/VerticalAndSubVertical_New")%>">Industry Vertical Management</a>
+                                                   </li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/VerticalSubVerticalsGrid/DisplayVerticalSubVerticals")%>">Business Capability Catalog</a>
+                                                   </li>
+
+                                            </ul>
+                                        </div>
+                                    </li>
+
+
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+ <%if (MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser" || MenuItemsInput.UserRole.ToLower() == "admin")
+                    {%>
+                        <li class="panel sidebar-dropdown">
+                            <a class="sidebar-link" data-parent="#menuAccordion">
+                                <i class="menu-icon configuration-manager-icon"></i>
+                                <span>Utility Manager</span>
+                            </a>
+                            <div class="sidebar-submenu sidebar-main-submenu" id="UtilityManagerSubmenu">
+                                <ul>
+                                      <li>
+                                        <a href="#umdtSubmenu" data-parent="#subMenuAccordion">Data Utility</a>
+                                        <div class="sidebar-submenu" id="umdtSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/PIDataMask/Download")%>">Data Masking Download</a></li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <a href="#umdeSubmenu" data-parent="#subMenuAccordion">Data Exports</a>
+                                        <div class="sidebar-submenu" id="umdeSubmenu">
+                                            <ul>
+                                                
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/Dashboard/ExAppIndex")%>">Application Inventory</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/Survey/SetSDFSDFSDQues")%>">Application Survey</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/ExportTicketInfo")%>">Ticket Data</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/DataUpload")%>">Job Detail</a></li>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx")%>">All User Data</a></li>
+                                                
+                                            </ul>
+                                        </div>
+                                    </li>
+                                 <li>
+                                        <div class="updated-tag">
+                                            <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Multi-Tenant Reporting</a>
+                                        </div>
+                                        <div class="sidebar-submenu" id="utilityManagerSubmenu">
+                                            <ul>
+                                                <li class="single-item"><a href="<%=ResolveClientUrl("~/PortfolioAnalyzer/MultiTenantReporting/ClientHeatmap")%>">X-Client Heatmap</a></li>
+                                            </ul>
+                                        </div>
+                                 </li>
+                                <li class="single-item"><a href="<%=ResolveClientUrl("~/ClientProfileManager/ReportSubscription/RptSubscriptionList")%>">Report Subscriptions (Trial)</a></li>
+
+                                </ul>
+                            </div>
+                        </li>
+                    <%}%>
+
+                </ul>
+                            </div>
+                            <!-- sidebar-menu  -->
+
+</nav>
+        <div id="sidenav-overlay"></div>
+ <%   }
+%>
+  <% if(IN || IM )
+          {%>
+              <link rel="stylesheet" href="<%=ResolveClientUrl("https://cdnjs.cloudflare.com/ajax/libs/imgareaselect/0.9.10/css/imgareaselect-default.css")%>">
+            <link rel="stylesheet" href="<%=ResolveClientUrl("https://ecolib.s3.us-west-2.amazonaws.com/css/eco-feedback-v1.2.min.css")%>">
+
+
+            <script src="<%=ResolveClientUrl("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js")%>"></script>
+            <script src="<%=ResolveClientUrl("https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-alpha.12/dist/html2canvas.js")%>"></script>
+            <script src="<%=ResolveClientUrl("https://ecolib.appliediphub.com/js/jquery.imgareaselect.js")%>"></script>
+            <script src="<%=ResolveClientUrl("https://ecolib.s3.us-west-2.amazonaws.com/js/eco-feedback-v1.2.min.js")%>"></script>
+
+          <%  }
+      %>
+ 
+            
+
+
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+       
+         <div id="footer" style="width:100%">
+           <div class="container">
+              <p class="credit">&copy;<%= DateTime.Now.Year %> NTT DATA, Inc. All rights reserved.</p>
+           </div>
+         </div>    
+      </div>
+    
+   <script>
+       //var url = window.location.href;
+        $(document).ready(function () {
+            var userNameAMO = '<%:username%>';
+            console.log(userNameAMO);
+           <%-- console.log('<%:area%>');
+            console.log('<%:IN%>');
+            console.log('<%:IM%>');--%>
+            if ('<%:IN%>' == 'True' || '<%:IM%>' == 'True') {
+                if ('<%:IN%>' == 'True') {
+                    var options = {
+                        enterpriseCode: 'nttdata',
+                        applicationName: 'Incident Navigator',
+                        emailId: '<%:ECOINemailId%>',
+                        ecoapiEndpoint: '<%:ECOapiEndpoint%>',
+                        userId: userNameAMO,
+                        password: '<%:ECOpassword%>'
+                    };
+                    console.log(options);
+                }
+                else {
+                    var options = {
+                        enterpriseCode: 'nttdata',
+                        applicationName: 'Idea Manager',
+                        emailId: '<%:ECOIMemailId%>',
+                        ecoapiEndpoint: '<%:ECOapiEndpoint%>',
+                        userId: userNameAMO,
+                        password: '<%:ECOpassword%>'
+                    };
+                    console.log(options);
+                }
+                /*var feedback = initializeFeedback(options);*/
+                var ideaManagerUserJourney = {};
+                ideaManagerUserJourney = new ECO.Component.UserJourneyMap({ numberOfEntries: 50 });
+                //track the pages where user visited by tracking all a href clicks
+                var $triggerButton = $('a');
+                $triggerButton.on('click', function (e) {
+                    ideaManagerUserJourney.setHistory(this);
+                });
+
+                var feedback = initializeFeedback(options);
+                var udf = $('#ecoFeedbackBtn').data() || {};
+                //add any additional information
+                udf.Location = window.location.href;
+                //store the user navigation folow
+                udf.UserJourneyMap = ideaManagerUserJourney.getHistory();
+                //get feedback Channel by looking at user agent
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    udf.Channel = 'Mobile';
+                } else {
+                    udf.Channel = 'Desktop';
+                }
+                udf.UserAgent = navigator.userAgent;
+                //get the OS platform from where the feedback was given
+                udf.Platform = navigator.platform;
+                //add the application's user. Could be Portal ID or name
+                if ($("#anonymousSubmission").is(":checked")) {
+                    setECOUser("Anonymous");
+                    udf.userId = "Anonymous";
+                }
+                feedback.setUdf(udf);
+                feedback.resetUdf('view');
+            }
+        });
+
+       <%--function getarea() {
+           if (url.includes("IncidentNavigator")) {
+               <%=area%>= "IN";
+           }
+           else if (url.includes("IdeaManager")) {
+               <%=area%>= "IM";
+           }
+       }--%>
+   </script>
+
+    <script>
+
+    
+
+
+        $('.header-menu-icon').click(function () {
+            $(this).toggleClass('open');
+            $('.sidebar-wrapper').toggleClass('show');
+            $('#sidenav-overlay').toggleClass('open');
+        });
+
+        $('#sidenav-overlay').click(function () {
+            $('.header-menu-icon').toggleClass('open');
+            $('.sidebar-wrapper').toggleClass('show');
+            $('#sidenav-overlay').toggleClass('open');
+        });
+        $('.sidebar-wrapper').on('click', '.close', function () {
+            $('.header-menu-icon').toggleClass('open');
+            $('.sidebar-wrapper').toggleClass('show');
+            $('#sidenav-overlay').toggleClass('open');
+            $('.sidebar-link').removeClass('show');
+            $('.sidebar-main-submenu').removeClass('show');
+        });
+
+        $(".sidebar-link")
+          .mouseenter(function () {
+              console.log('enter');
+              $(this).addClass('show');
+              $(this).siblings(".sidebar-main-submenu").addClass('show');
+              $(this).parent('li').siblings().find('a').removeClass('show');
+              $(this).parent('li').siblings().find('.sidebar-main-submenu').removeClass('show');
+          });
+    </script>
+</body>
+</html>

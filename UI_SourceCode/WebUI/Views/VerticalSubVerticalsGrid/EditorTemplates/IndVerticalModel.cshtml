@@ -1,0 +1,16 @@
+﻿@using WebUI.Models
+@model IndVerticalModel
+
+<div class="vert-subvert-edit-popup">
+    <input hidden id="VerticalId" value="@Model.VerticalId.ToString()" />
+    <input hidden id="Cancel" value="CancelClick" />
+    <div class="vert-subvert-popup-item">
+        <label id="lblVerticalName"><span class="mandate">*</span>Vertical Name</label>
+        @Html.TextBoxFor(m => m.VerticalName, new { placeholder = "Enter Vertical Name", tabindex = "1", id = "txtverticalname" })
+    </div>
+    <div class="vert-subvert-popup-item">
+        <label id="lblDescription">Description</label>
+        @Html.TextAreaFor(m => m.Description, new { placeholder = "Enter Description", rows = "4", cols = "49", @style = "resize: none;" })
+    </div>
+
+</div>

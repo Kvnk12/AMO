@@ -1,0 +1,53 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+@*<input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Application Name <br>
+                        <span>Line of Business: 
+                            @Model.LOBName
+                        
+                        </span> </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLOBApp">Add</button>
+                      </div>
+                    </div>
+                       <form>
+    <input hidden id="LOBClientBCId" value="@Model.LOBClientBCId.ToString()"  />
+
+     <input hidden id="LOBName" value="@Model.LOBName.ToString()"   />
+  <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   />  
+     <input hidden id="level1Name" value="@Model.CLevel1Name.ToString()"   />
+       <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+                            <input hidden id="level2Id" value="@Model.CLevel2Id.ToString()"  />
+                            <input hidden id="level3Id" value="@Model.CLevel3Id.ToString()"  />
+                            <input hidden id="level2Name" value="@Model.CLevel2Name.ToString()"   />
+                            <input hidden id="level3Name" value="@Model.CLevel3Name.ToString()"   />
+
+@*        <input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+        
+     </form>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Application Name</th>
+                             
+
+                        </tr>
+                        @{
+                            if (Model.JunctionAppLOBClientBCList.Count() > 0 && Model.JunctionAppLOBClientBCList.Count() != null)
+                            {
+                                foreach (var item in Model.JunctionAppLOBClientBCList)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.application.ApplicationName,"DisplayClientBClevels","ClientBClevels", new {ClientID=@Model.ClientId,CLevel1Id=@Model.CLevel1Id,CLevel1Name = @Model.CLevel1Name,CLevel2Id = @Model.CLevel2Id,CLevel2Name=@Model.CLevel2Name,CLevel3Id = @Model.CLevel3Id,CLevel3Name = @Model.CLevel3Name,InExValue = @Model.InExValue,LOBClientBCId=@Model.LOBClientBCId,LOBName = @Model.LOBName, AppLOBClientBCId=@item.Id}, null)</td>
+                                  
+
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

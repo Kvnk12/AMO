@@ -1,0 +1,28 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+   // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+<div class="treemenu">
+    <div class="dsh">
+        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> &nbsp;Data Maintenance</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <ul class="treeMenuUl">
+        <li>@Html.ActionLink("Incident", "ViewIncident", "Incident", new { area = "", ClientId = client.ClientId }, null)</li>
+        <li>@Html.ActionLink("Service Request", "ViewSRbyClient", "ServiceRequest", new { area = "", ClientId = client.ClientId }, null)</li>
+        <li>@Html.ActionLink("Problems", "ViewProblem", "Problem", new { area = "", ClientId = client.ClientId }, null)</li>
+        <li>@Html.ActionLink("MaintenanceRequest", "ViewMaintenanceRequest", "MaintenanceRequest", new { area = "", ClientId = client.ClientId }, null)</li>
+        <li>@Html.ActionLink("Idea", "ViewIdeabyClient", "Idea", new { area = "", ClientId = client.ClientId }, null)</li>
+        <li><a href="#">Defects</a></li>
+        <li><a href="#">Change</a></li>
+        <li><a href="#">Configuration</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="#">Capacity</a></li>
+        <li><a href="#">Security</a></li>
+        <li><a href="#">Service Desk</a></li>
+        <li><a href="#">Working Hours</a></li>
+    </ul>
+</div>

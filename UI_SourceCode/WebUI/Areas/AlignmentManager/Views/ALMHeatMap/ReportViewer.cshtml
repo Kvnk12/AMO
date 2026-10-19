@@ -1,0 +1,512 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model heatMapInput
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //ViewBag.ImageURL = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+@section PPMenu {
+
+    @Html.Partial("_PPTopMenu")
+
+}
+
+
+<style type="text/css">
+    .mymodal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color: grey;
+        z-index: 99;
+        opacity: 0.8;
+        filter: alpha(opacity=80);
+        -moz-opacity: 0.8;
+        min-height: 100%;
+        width: 100%;
+    }
+
+    .loading {
+        font-family: Arial;
+        font-size: 10pt;
+        border: 5px solid #67CFF5;
+        width: 200px;
+        height: 100px;
+        display: none;
+        position: fixed;
+        background-color: White;
+        z-index: 999;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+
+
+    function ShowProgress() {
+        setTimeout(function () {
+            var modal = $('<div />');
+            modal.addClass("mymodal");
+            $('body').append(modal);
+            var loading = $(".loading");
+            loading.show();
+            var top = Math.max($(window).height() / 2 - loading[0].offsetHeight / 2, 0);
+            var left = Math.max($(window).width() / 2 - loading[0].offsetWidth / 2, 0);
+            loading.css({ top: top, left: left });
+        }, 250);
+    }
+
+
+
+    window.onbeforeunload = function (e) {
+        ShowProgress();
+    }
+
+
+</script>
+
+
+
+<div class="loading">
+    Loading. Please wait.<br />
+    <br />
+    <img src="~/Areas/AlignmentManager/Content/DataTables/Images/loader.gif" alt="" style="margin-left:45px;margin-top:-15px" />
+</div>
+
+
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required" })
+                    }
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-7 control-label" id=""><span class="mandate">*</span>Heat Map Reports</label>
+                <div class="col-sm-5">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.DropDownListFor(m => m.HeatMapReportId, new SelectList(Model.HeatMapReportNames, "value", "text", Model.HeatMapReportNames), "", new { @class = "selectpicker", id = "HeatMapReportId", name = "HeatMapReportId", required = "required" })
+                    }
+                </div>
+            </div>
+
+
+        </div>
+        <!--/.selectApp-->
+        <!--/.selectyearArea-->
+    </div>
+    <!--/.container-->
+</div>
+<!--/.selectappArea-->
+<div class="clear"></div>
+<div>
+    <!--start of breadcrumb-->
+    @*   <ol class="breadcrumb container">
+          <li class="active">SLA Manager</li>
+          <li class="active">Dashboard</li>
+        </ol>*@
+</div>
+<!--end of breadcrumb container-->
+<!-- <ul class="nav nav-tabs">
+      <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+      <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+      <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+      <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+</ul>-->
+<div class="container">
+
+    @*        <div class="treemenu" style="height:691px">
+            @if (Model.ClientId > 0)
+                {
+
+                <div class="hdr">
+
+                    <h3>Performance Predictor</h3>
+                </div>
+                <span  class="" style="margin-left:10px;width:91%;margin-top:-5px"></span>
+                }
+
+        </div>*@
+
+
+
+    <div class="treeMenuContent">
+        <div class="container" style="padding:0;">
+            <div class="well well-sm">Heat Map Report: <b>@Model.HeatMapReportName</b></div>
+
+            <div class="colrow" style="width:100%">
+
+
+                <div>
+                    @if (Model.ClientId > 0 && Model.HeatMapReportId > 0)
+                    {
+                        @Html.Partial("heatMapReportDetails", Model);
+                    }
+                    @*<a  href="#" target="_blank" class="" id="ReportData" style="font-size:20px">Report Data: <b>@(Model.HeatMapReportName+  " Details")</b></a>*@
+                </div>
+
+
+
+
+
+            </div>
+            <div style="">
+            </div>
+
+
+            <!--END OF LEFTAREA-->
+            @*<div class="slarightpane">
+                              <div style="display: none;" class="selectFiltersOpen">
+                                  <a href="#">
+                                  <span class="glyphicon glyphicon-chevron-left"></span>
+                                  </a>
+                              </div>
+
+                              <div class="selectFiltersClose">
+
+                @{
+                    if (Model.ClientId > 0 && Model.HeatMapReportId > 0)
+                        {
+                          @Html.Partial("_heatMapRightPane", Model)
+                        }
+                    }
+                                  </div>
+
+                          </div>*@<!--/.selectFiltersClose-->
+        </div>
+        <!--/.slarightpane -->
+    </div><!--/.treeMenuContent container-->
+</div><!--/.treeMenuContent-->
+@*<div id="loading" style="position:absolute; width:100%; text-align:center;
+     top:300px;">
+    <img src="~/Areas/AlignmentManager/Content/DataTables/Images/loadingimage.gif" border=0></div>*@
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Data</h4>
+            </div>
+            <div class="modal-body" id="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Button trigger modal -->
+@*<script>
+        $('select#drpClientId').change(function () {
+            var SelectedclientId = $('#drpClientId :selected').val();
+            var reportname = $('#reportname').val();
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'IncidentDashboard') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+            baseurl = baseurl.replace("{reportid}", reportname);
+
+            window.location = baseurl;
+
+        });
+        $('select#sladmonth').change(function () {
+            var SelectedClient = $('#drpClientId :selected').val();
+            var Selecteddataset = $('#sladmonth :selected').val();
+            var reportname = $('#reportname').val();
+            var href = window.location.href.split('/');
+
+            if (SelectedClient == "0") {
+                return false;
+            }
+
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'IncidentDashboard') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedClient);
+            baseurl = baseurl.replace("{reportid}", reportname);
+            baseurl = baseurl.replace("{datasetid}", Selecteddataset);
+
+            window.location = baseurl;
+
+        });
+    </script>*@
+
+
+
+
+@section scripts
+{
+
+    @*<script>
+
+                 var ld = (document.all);
+                 //var ns4 = document.layers;
+                 //var ns6 = document.getElementById && !document.all;
+                 //var ie4 = document.all;
+                 //if (ns4)
+                 //    ld = document.loading;
+                 //else if (ns6)
+                     ld = document.getElementById("loading").style;
+                 //else if (ie4)
+                 //    ld = document.all.loading.style;
+
+
+                     function init() {
+                         ld.visibility = "hidden";
+                     //if (ns4) { ld.visibility = "hidden"; }
+                     //else if (ns6 || ie4) ld.display = "none";
+                 }
+        </script>*@
+    <script>
+            $('.selectpicker').selectpicker();
+    </script>
+
+    <script>
+
+
+
+
+        $(document).ready(function () {
+
+            //ld.visibility = "hidden";
+            $("#ReportData").click(function (e) {
+                var mywindow;
+                //var urlName = window.location.href + "&ssrsReport=HeatMapReport&ReportDisplay=ReportDisplay&ReportId=@(Model.HeatMapReportId)&variableName=@(Model.heatMapVariableName)";
+                var urlName = window.location.href + "&ReportId=@(Model.HeatMapReportId)&ReportToDisplay=ReportData";
+                urlName = urlName.replace("#", "");
+
+                var windowName = $(this).attr('id');
+                if (mywindow != null) {
+                    mywindow.close();
+                }
+                mywindow = window.open(urlName, windowName, "toolbar=no,scrollbars=no,location=no,height=750,width=750,resizable=yes,scrollbars=yes");
+                mywindow.focus();
+                return false;
+            });
+
+
+
+            $("#detailReport").click(function (e) {
+                var mywindow;
+                //alert($("#detailReport").text());
+                var variableName = $("#detailReport").text().replace("Variable Data:", "");
+                var urlName = window.location.href + "&heatmapvariableName=" + variableName + "&ReportToDisplay=FilterData";
+                urlName = urlName.replace("#", "");
+
+                //alert(urlName);
+                var windowName = $(this).attr('id');
+                if (mywindow != null) {
+                    mywindow.close();
+                }
+                mywindow = window.open(urlName, windowName, "toolbar=no,scrollbars=no,location=no,height=750,width=750,resizable=yes,scrollbars=yes");
+                mywindow.focus();
+                return false;
+            });
+
+
+            //if(true)
+            //{
+            //    $('.SelectFiltersOpen').click();
+            //}
+
+
+
+            //if ($('.treemenuOpen').visible== "visible")
+            //{
+            //    $("#navigation").treeview({
+            //        persist: "location",
+            //        collapsed: false,
+            //        unique: true
+            //    });
+
+            //}
+            //$('.treemenuOpen').click();
+        });
+    </script>
+}
+
+
+<script>
+
+
+            @*var jsonHeatMap =  @Model.JsonHeatMapItems.ToString();*@
+
+    function heatmapdataShow(e) {
+        $("#modal-body").children().remove();
+        $("#modal-body").append($("#" + e).attr("data-heatMapData"));
+        //alert($("#" + e).text());
+        $("#detailReport").text("Variable Data:" + $("#" + e).text());
+        $("#detailReport").attr("visible", "true");
+        $("#myModal").modal();
+    }
+    function htmapclick(e) {
+        alert(jsonHeatMap);
+        //alert(e);
+
+    }
+
+    function refreshtreemenu() {
+
+
+
+        $("#navigation").treeview({
+            collapsed: false
+        });
+
+    }
+
+
+    $(document).ready(function () {
+
+        //$('.treemenuOpen').click(function () { });
+        $(document).ready(function () {
+            $('.treemenuOpen').click();
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: false,
+                unique: true
+            });
+        });
+
+
+
+        $('select#VariableCategoryId').change(function () {
+            var clientId = $("select#VariableCategoryId").val().toString();
+            alert(clientId);
+
+        });
+
+
+        $('#btnAddNewChain').click(function () {
+            var clientId = $("select#ClientId").val().toString();
+            if (clientId == "0" || clientId == "") {
+                alert('Please select Client to create new value chain details');
+                return false;
+            }
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            var baseurl = '';
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AddVariable/?ClientId=' + SelectedclientId
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/?ClientId=' + SelectedclientId
+            }
+
+            window.location = baseurl;
+
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + "/" + window.location.pathname.split("/")[1] + "/AlignmentManager/AlignmentManager/AddVariable/?ClientId=" + SelectedclientId);
+            //window.location = strUrl;
+
+        });
+
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode != 44 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+
+    $('select#ClientId').change(function () {
+        var SelectedclientId = $('#ClientId :selected').val();
+
+        if (SelectedclientId != 0) {
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/ALMHeatMap/ReportViewer/?ClientId={clientid}&cid={Client}'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/ALMHeatMap/ReportViewer/?ClientId={clientid}&cid={Client}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+            baseurl = baseurl.replace("{Client}", SelectedclientId);
+
+            window.location = baseurl;
+        }
+
+    });
+
+
+    $('select#HeatMapReportId').change(function () {
+        var SelectedHeatMapReportId = $('#HeatMapReportId :selected').val();
+        var SelectedclientId = $('#ClientId :selected').val();
+        if (SelectedclientId != 0 && SelectedHeatMapReportId != 0) {
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/ALMHeatMap/ReportViewer/?ClientId={clientid}&ReportId={reportid}&cid={Client}'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/ALMHeatMap/ReportViewer/?ClientId={clientid}&ReportId={reportid}&cid={Client}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+            baseurl = baseurl.replace("{reportid}", SelectedHeatMapReportId);
+            baseurl = baseurl.replace("{Client}", SelectedclientId);
+
+            window.location = baseurl;
+
+        }
+
+    });
+
+</script>
+

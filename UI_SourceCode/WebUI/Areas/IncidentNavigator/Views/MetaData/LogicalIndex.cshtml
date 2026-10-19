@@ -1,0 +1,271 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+@{
+    <script src="~/Content/js/bootstrap.js"></script>
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    //  Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    //  var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new MetaDataController();
+    var LogList = cont.GetListOfLogicalColumn(client.ClientId);
+
+    var INColumn = cont.GetColumnListLogical(client.ClientId);
+    // var INColumnValue = cont.GetColumnValueList(null);
+
+    var ClientId = client.ClientId;
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+</style>
+
+
+<div class="content-main dark-bg logical-configuration-container">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li>MetaData</li>
+
+            <li class="active">Logical Configuration</li>
+        </ol>
+    </div>
+
+    <div class="logical-configuration-content">
+        <h4>Logical Configuration</h4>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess22" hidden>
+            <ul>
+                <li>Incident records got updated with respective Logical Configuration.</li>
+            </ul>
+        </div>
+        @*<div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess33" hidden>
+                <label class="control-label" id="updatestring"></label>&nbsp;
+            </div>*@
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<INColumnValueModel>()
+                                                                            .Name("LogicalGrid")
+                                                                            .Columns(columns =>
+                                                                            {
+                                                                                columns.Bound(e => e.Id).Hidden();
+
+                                                                                columns.ForeignKey(e => e.ColumnName, LogList, "Value", "Text").Width(300).EditorTemplateName("LogicalColumnDropDown").Title("Logical Column").ClientTemplate("#:ColumnName#");
+                                                                                columns.Bound(e => e.Value).Width(300).ClientTemplate("#:Value#");
+
+                                                                                columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(100).Title("Action ");
+                                                                                // columns.Command(command => { command.Edit(); command.Destroy(); });
+                                                                            })
+                                                                            //.HtmlAttributes(new { style = "height:400px;" })
+                                                                            .ToolBar(toolbar => toolbar.Create().Text("Add Column Configuration"))
+                                                                            .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                                            .Scrollable()
+
+                                                                            .DataSource(dataSource => dataSource
+                                                                             .Ajax()
+                                                                             .PageSize(100)
+                                                                             .Model(model => { model.Id(f => f.Id); })
+                                                                             .Read(read => read.Action("ReadTrackConfiguration", "MetaData"))
+                                                                             .Create(create => create.Action("CreateTrackConfiguration", "MetaData"))
+                                                                              .Update(update => update.Action("UpdateTrackConfiguration", "MetaData"))
+                                                                              .Destroy(destroy => destroy.Action("RemoveTrackConfiguration", "MetaData", new { Id = "#=Id#" }))
+                                                                             )
+                                                                             .ClientDetailTemplateId("AppsGridTemplates")
+            )
+        </div>
+        <div class="action-buttons">
+
+            <button class="btn btn-primary" id="SaveNotes" onclick="applyConfiguration()">Submit Rules</button>
+            <button class="btn btn-primary" id="SaveNotes" onclick="validateRules()">Validate Rules</button>
+
+        </div>
+    </div>
+
+    <div class="modal fade validate-rules-modal" id="validateRulesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="validateModalLabel">Validate Label</h5>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="updatestring">
+                    Data Here
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary  save-comment-modal">SAVE</button>*@
+            </div>
+        </div>
+    </div>
+    <div id="alertModalSubmitRule" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body" style="left:100%;transform:translateX(-30%);position:absolute;width:100%">
+
+                <div id="lblErrdel" style="display:none;">
+                    <label class="alert alert-danger" id="lblErr1">
+                        Error in Updating the Incident records!!!
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+                <div id="lblSuccessdel" style="display:none;">
+                    <label class="alert alert-success" id="lblSuccess1">
+                        Incident records got updated with respective Logical Configuration.
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script id="AppsGridTemplates" type="text/kendo-tmpl">
+    <div class="custom-kendo-grid logical-inner-grid">
+
+        @(Html.Kendo().Grid<INColumnValueRuleModel>()
+                                                    .Name("LogicalRules#=Id#")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(e => e.Id).Hidden();
+                                                        columns.Bound(e => e.GroupStartOperator).Title("Start Grouping").EditorTemplateName("GroupStartOperator").Width(160);
+                                                        columns.ForeignKey(e => e.INFieldName, LogList, "Value", "Text").Title("Column Name").EditorTemplateName("ColumnDrpdown").Width(200);
+                                                        columns.Bound(e => e.Condition).Title("Condition").EditorTemplateName("Condition").Width(160);
+
+                                                        columns.Bound(e => e.FieldValue).EditorTemplateName("ColumnValueDrpdown").Title("Column Value").Width(200);
+                                                        columns.Bound(e => e.ConstantValue).Title("Other Value").EditorTemplateName("OtherValue").Width(300);
+                                                        columns.Bound(e => e.GroupEndOperator).Title("End Grouping").EditorTemplateName("GroupEndOperator").Width(160).HeaderHtmlAttributes(new { style = "overflow: visible; white-space: normal" });
+                                                        columns.Bound(e => e.Operator).Title("Operator").EditorTemplateName("RuleOperator").Width(100);
+
+                                                        //columns.Command(command => { command.Edit().UpdateText("").CancelText(""); command.Destroy(""); });
+                                                        columns.Command(command => { command.Edit().UpdateText("").CancelText("").Text(" "); command.Destroy().Text(" "); }).Width(100).Title("Action ");
+                                                    })
+                                                   .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                   .HtmlAttributes(new { style = "height:250px;" })
+                                             // .Pageable()
+                                             .ToolBar(
+                                                   tools =>
+                                                   {
+                                                       tools.Create().Text("Add Logical Rules");
+                                                   })
+                                            .Scrollable()
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model =>
+                                                {
+                                                    model.Id(o => o.Id);
+                                                    model.Field(f => f.GroupStartOperator);
+                                                })
+                                                .PageSize(100)
+                                                .Read(read => read.Action("ReadAssignGroupLogical", "MetaData", new { Id = "#=Id#" }))
+                                                .Create(create => create.Action("CreateAssignGroupLogical", "MetaData", new { CId = "#=Id#" }))
+                                                .Update(update => update.Action("UpdateAssignGroupLogical", "MetaData"))
+                                                .Destroy(delete => delete.Action("DeleteAssignGroupLogical", "MetaData"))
+                                            //.Events(events => events.Error("errorFunct"))
+                                            )
+                                            //.Events(e => e.Edit("onEdit"))
+                                            .ToClientTemplate())
+
+
+    </div>
+</script>
+@*<button class="btn btn-primary" id="SaveNotes" disabled>Save</button>*@
+
+
+<script>
+
+    function applyConfiguration() {
+        baseurl = '@Url.Content("~/IncidentNavigator/MetaData/GenerateRuleConfiguration")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+            success: function (data) {
+                $('#alertModalSubmitRule').modal('show');
+                $('#lblErrdel').hide();
+                $('#lblSuccessdel').show();
+            },
+            error: function () {
+                $('#alertModalSubmitRule').modal('show');
+                $('#lblErrdel').show();
+                $('#lblSuccessdel').hide();
+            }
+        });
+        //$("#msgSuccess22").hide();
+    }
+
+    function validateRules() {
+
+
+        baseurl = '@Url.Content("~/IncidentNavigator/MetaData/ValidateRuleConfiguration")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+            success: function (data) {
+               // console.log(data);
+                $('#validateRulesModal').modal('show');
+                document.getElementById('updatestring').innerHTML = data;
+            },
+            error: function () {
+
+            }
+        });
+
+    }
+
+    function onSelectColumn(e) {
+        var app = $("#FieldValue").data("kendoComboBox");
+        app.dataSource.read();
+    }
+
+    function GetColId() {
+
+        var app = $("#INFieldName").data("kendoDropDownList");
+        var app1=app.value();
+        var appval = $("#FieldValue").data("kendoComboBox");
+
+        //console.writeline(appval.text());
+
+
+        if (app1 != "") {
+            return {
+                Columnid: app1,
+                ColValue: appval.input.val()
+            }
+        }
+
+       // console.writeline(appval.input.val());
+
+        return false;
+    }
+
+</script>

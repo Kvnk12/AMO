@@ -1,0 +1,170 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Dto
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.DMPostDemandModel>
+    @{
+        ViewBag.Title = "Demand Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+        Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+       // var Client = (Client)Session["Client"];
+        var Client = (ClientDetail)Session["SessionClient"]; 
+        var ClientID = Client.ClientId;
+    }
+
+    @section DMTOPMenu {
+        @Html.Partial("_DMTopMenu")
+    }
+
+    <div>
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">View Demands</li>
+        </ol>
+    </div>
+    <div style="padding:0;height:1000px">
+
+        @{
+
+            <div>
+                <div>
+                    <div>
+                        <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0" style="width: 100%">
+                            <thead>
+                                <tr>
+                                    <th colspan="6"><u>@Html.ActionLink("Last Modified Date", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Demands", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Demands }, new { @style = "color:white;" }) </u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Posted by", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Status", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Status Comments", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Created Date", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                </tr>
+                            </thead>
+                            @{
+                                //if (Model.ClientId > 0)
+                                //    {
+                                var uid = (int)Session["UserId"];
+                                //IList<DMPostDemand> postItems = Model.GetPostItems;
+                                foreach (var vwItem in Model)
+                                {
+                                    var name = (DMStatus)vwItem.StatusId;
+                                    <tr>
+                                        <td colspan="6">@vwItem.LastUpdatedDate</td>
+                                        <td colspan="6">@Html.ActionLink(vwItem.ItemName, "DislayDemandHistory", "DemandHistoryManager", new { ClientId = vwItem.ClientId, ItemId = vwItem.Id }, null)</td>
+                                        <td colspan="6">@vwItem.CreatedByUser</td>
+                                        <td colspan="6">
+                                            @if (vwItem.StatusId == 3 && (vwItem.CreatedBy == uid))
+                                            {
+                                                <div data-toggle="tooltip" data-placement="right" title="Click here if Demand is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                    @name
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @name
+                                            }
+                                        </td>
+                                        <td colspan="6">@vwItem.StatusComments</td>
+                                        <td colspan="6">@vwItem.CreatedDate</td>
+                                    </tr>
+
+                                }
+
+                                //}
+
+
+                            }
+
+                        </table>
+                        <div class="pagination">
+                            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            @Html.PagedListPager(Model, page => Url.Action("DisplayDemands", new { page = page, sortOrder = Request["sortOrder"] }))
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+                                // }
+        }
+        <!--.valchainContent-->
+        <!--/.treeMenuContent container-->
+        @*</div>
+                    <!--/.treeMenuContent-->
+                </div>
+                <!--/.treeMenuArea-->
+
+            </div>*@
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('select#ClientId').change(function () {
+                //var SelectedclientId = $('#ClientId :selected').val();
+                var SelectedclientId = @ClientID;
+                //if (SelectedclientId != 0)
+                {
+
+                    var href = window.location.href.split('/');
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                    var baseurl = '';
+
+
+
+                    if (href[3].toLowerCase() == 'demandmanager') {
+                        var baseurl = href[0] + '//' + href[2] + '/' + 'demandmanager/DemandHistoryManager/DisplayDemands/?clientId={clientId}';
+                    }
+                    else {
+                        var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'demandmanager/DemandHistoryManager/DisplayDemands/?clientId={clientId}';
+                    }
+                    baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                    window.location = baseurl;
+                 
+                }
+
+            });
+            y
+            $('#btnAdd').click(function () {
+
+
+                //var SelectedclientId = $('#ClientId :selected').val();
+                var SelectedclientId = @ClientID;
+                if (SelectedclientId == "" || SelectedclientId == "0") {
+                    alert('Please Select Client name from the list');
+                    return false;
+                }
+
+
+
+                var href = window.location.href.split('/');
+                var baseurl = '';
+
+                if (href[3].toLowerCase() == 'demandmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/demandmanager/ChallengeHistoryManager/DisplayHomePage/?ClientId={clientid}&ReportType=Add'
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'demandmanager/ChallengeHistoryManager/DisplayHomePage/?ClientId={clientid}&ReportType=Add'
+                }
+
+                baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                window.location = baseurl;
+
+
+                return false;
+
+            });
+
+        });
+
+    </script>
+
+
+
+    <style>
+        .table caption + thead tr:first-child th, .table colgroup + thead tr:first-child th, .table thead:first-child tr:first-child th, .table caption + thead tr:first-child td, .table colgroup + thead tr:first-child td, .table thead:first-child tr:first-child td {
+            border-top: 1px solid #DDD;
+            padding: 10px;
+        }
+    </style>

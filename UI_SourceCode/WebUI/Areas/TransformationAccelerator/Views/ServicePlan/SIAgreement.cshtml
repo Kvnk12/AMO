@@ -1,0 +1,126 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+@using WebUI.Areas.TransformationAccelerator.Model;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+@using System.Collections;
+
+
+
+
+
+
+
+@{
+    ViewBag.Title = "Transformation Accelerator";
+    <script src="~/Content/js/bootstrap.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/transformation_accelerator_white.svg");
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    //ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var cont = new ServicePlanController();
+    var servList = (IEnumerable<SelectListItem>)ViewData["ServiceImpList"];
+
+}
+
+
+
+
+<div class="content-main dark-bg service-agreement-container">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Transformation Accelerator</li>
+        <li class="active">Service Improvement Agreement</li>
+    </ol>
+    <div>
+        <h4>
+            Service Improvement Agreement  <span id="errorlabel" style='position:center;color:red'></span>
+        </h4>
+        @*<div class="export-wrapper">
+                <span class="export-label">Export - </span>
+                <button type="submit" class="export-improvement-progress"></button>
+            </div>*@
+
+    </div>
+
+
+    @*<button class="disableb">Disable improvement</button>
+    <button class="enableb">Enable improvement</button>*@
+
+
+
+
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<ServiceAgreementModel>()
+               .Name("ServImpGrid")
+               .Columns(columns =>
+               {
+                   columns.Bound(e => e.Id).Hidden();
+                   //columns.ForeignKey(e => e.ImprovementTypeId, servList, "Value", "Text").Width(300).EditorTemplateName("ServiceImprovementTDropDown");
+                   columns.ForeignKey(e => e.ImprovementTypeId, servList, "Value", "Text").Width(300).EditorTemplateName("ServiceImprovementTDropDown").Title("Service Improvement");
+
+                   //columns.Bound(e => e.ImprovementType).Editable(false);
+                   columns.Bound(e => e.Goal).Width(140);
+                   columns.Bound(e => e.impNotes).Title("Improvement Notes");
+                   columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(185).Title("Action ");
+               })
+            .Sortable()
+            .Scrollable()
+            //.Pageable()
+            .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+            .ToolBar(toolbar => toolbar.Create().Text("Add New Service Improvement"))
+            .ToolBar(tools => tools.Excel().Text("Export- "))
+            .HtmlAttributes(new { @style = "height:350px;" })
+            .Excel(excel => excel
+            .FileName("Service_Agreement_Excel.xlsx")
+            .Filterable(true)
+            .ProxyURL(Url.Action("Excel_Export_Save", "Grid"))
+            )
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            //.PageSize(10)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+                model.Field(r => r.ImprovementTypeId);
+                model.Field(r => r.Goal);
+                model.Field(r => r.impNotes);
+            })
+            .Read(read => read.Action("GetServImp","ServicePlan"))
+            .Create(create => create.Action("AddServImp", "ServicePlan"))
+            .Update(update => update.Action("EditServImp", "ServicePlan"))
+            .Destroy(destroy => destroy.Action("DeleteServImp", "ServicePlan"))
+            .Events(events => events.Error("errorFunct"))
+           )
+        )
+    </div>
+</div>
+
+
+<script>
+
+
+    function errorFunct(e) {
+        console.log(e.errors["Id"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["Id"].errors + " </span>";
+
+        var grid = $('#ServImpGrid').data('kendoGrid');
+        grid.dataSource.read();
+
+    }
+</script>

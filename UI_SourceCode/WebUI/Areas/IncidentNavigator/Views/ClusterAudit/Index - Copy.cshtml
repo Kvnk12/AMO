@@ -1,0 +1,187 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model ClusterAuditModel
+@{
+    ViewBag.Title = "Incident Navigator";
+    var clientlist = GetDropDownListItems.ClientList;
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+}
+
+
+<div id="wrap">
+    @*<div class="selectappArea">
+
+            <div class="container" style="padding: 0;">
+
+                <div class="selectApp form-horizontal">
+                    <div class="form-group">
+                        <label for="clientName" class="col-sm-4 control-label" id=""> Client Name </label>
+                        <div class="col-sm-5">
+                            @(Html.Kendo().ComboBox()
+              .Name("fabric")
+              .Filter("contains")
+              .Placeholder("Select Client")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .BindTo(clientlist)
+             //.SelectedIndex(Model.ClientId.HasValue ? Model.ClientId.Value:-1)
+             .Events(e => e
+
+                .Change("combobox_change")
+            )
+              .Suggest(true)
+              .HtmlAttributes(new { style = "width:250px;" })
+                            )
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+        </div>
+        <div class="clear"></div>*@
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Cluster Audit</li>
+        </ol>
+    </div>
+
+    <div class="container" style="padding:0;">
+        @*<div class="well well-sm">SLA Dashboard : Production Support Summary</div>*@
+
+        <div class="clearfix"></div><!--This is to clear the floats-->
+        @*<form action="@Url.Action("ClusterAuditExportServer", "AjaxService")" method="POST">
+            <input type="hidden" id="export-data" name="data" />
+            <input type="hidden" id="export-model" name="model" />
+            <input type="hidden" id="export-clientid" name="clientid" />
+            <div style="padding-bottom:3em;">
+                <table style="width:20%;margin-right:0px;float:right ">
+                    <tr>
+                        <td>
+                            <input type="submit" class="k-button download" data-format="xlsx" data-title="Title1" value="Export to XLSX" />
+
+                        </td>
+                        <td>
+                            <input type="submit" class="k-button download" data-format="csv" data-title="Title2" value="Export to CSV" />
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+        </form>*@
+        <div>
+            @(Html.Kendo().Grid<ClusterAuditModel>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+
+        columns.Bound(p => p.IncidentId).Title("Incident Id");
+        columns.Bound(p => p.ColumnName).Title("Data Element");
+        columns.Bound(p => p.OldValue).Title("Old Value");
+        columns.Bound(p => p.NewValue).Title("New Value");
+        columns.Bound(p => p.Action).Title("Action");
+        columns.Bound(p => p.UserName).Title("User Name");
+        columns.Bound(p => p.IPAddress).Title("IP Address");
+        columns.Bound(p => p.Timestamp).Title("Time Stamp").Format("{0:dd/MM/yyyy HH:mm:ss}");
+    })
+    .HtmlAttributes(new { style = "height: 500px;width:100%" })
+    .Pageable(pageable => pageable
+       .Input(true)
+       .Numeric(false)
+     )
+    .Sortable()
+    .Pageable()
+     .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("ClusterAudit.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+.Scrollable(scr => scr.Height(430))
+.Filterable()
+.AutoBind(true)
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+      //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+      .Read(read => read.Action("GetINClusterAudit", "AjaxService"))
+ )
+            )
+        </div>
+
+
+        <!--END OF LEFTAREA-->
+        <!--/.slarightpane -->
+    </div><!--/.treeMenuContent container-->
+    <!--/.container-->
+    @*<div class="container" style="padding:0;">*@
+
+
+
+</div>
+
+<script type="text/javascript">
+
+
+    function combobox_change() {
+
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+
+    }
+
+    function additionalData(e) {
+        var ddlItem = $("#fabric").data("kendoComboBox").value();
+        //alert(ddlItem);
+        return { ClientID: ddlItem }
+    }
+</script>
+<script>
+    $(".download").click(function () {
+        var grid = $("#Grid").data("kendoGrid");
+        var ClientId =$("#fabric").data("kendoComboBox").value();
+        var options = {
+            format: $(this).data("format"),
+            title: "ClusterAuditExport"
+        }
+        $("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+        $("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+        $("#export-clientid").val(encodeURIComponent(JSON.stringify(ClientId)));
+
+    });
+</script>

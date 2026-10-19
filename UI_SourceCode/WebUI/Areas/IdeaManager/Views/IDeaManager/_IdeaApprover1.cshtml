@@ -1,0 +1,162 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+
+
+<style>
+    .headdd{
+        
+        font-family: "Segoe UI Semilight","Open Sans","Verdana","Arial","Helvetica","sans-serif";
+    font-weight: 300;
+    font-size: 20px;
+    line-height: 34px;
+    color: #FFF;
+    background-color:#0B67CD;
+
+    }
+    /*th>content[role="row"]{*/
+    .k-widget>.k-grid-header-wrap .k-auto-scrollable{
+          font-family: "Segoe UI Semilight","Open Sans","Verdana,Arial","Helvetica","sans-serif";
+    font-weight: 300;
+    font-size: 15px;
+    color: #FFF;
+    background-color:#2D89EF;
+
+     }
+</style>
+
+
+<div class="form-group">
+    @*<div class="text-center"><h5><strong>Add New Users to Survey</strong></h5></div>*@
+    <div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess1" hidden>
+            <ul>
+                <li>Idea submitted for Approval.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger1" hidden>
+            <ul>
+                <li>Error while assigning.</li>
+            </ul>
+        </div>
+
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList1" hidden>
+            <ul>
+                <li>Please select the Admin for Approval.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="noidea1" hidden>
+            <ul>
+                <li>Please select/Submit Idea!.</li>
+            </ul>
+        </div>
+    </div>
+    <br />
+    <div class="headdd"><div style="margin-left:15px">Idea Approvers</div></div>
+   
+    @(Html.Kendo().Grid<SelectListItem>()
+.Name("userGrid")
+
+
+.Columns(columns =>
+{ 
+    columns.Select().Width(60);
+                columns.Bound(e => e.Value).Hidden();
+                columns.Bound(e => e.Text).Title("Name");
+})
+//.Pageable()
+.Scrollable()
+.PersistSelection()
+//.HtmlAttributes(new { style = "height:450px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+//.PageSize(10)
+.Model(model => model.Id(f => f.Value))
+.Read(read => read.Action("ListOfAdmins", "IdeaManager"))
+)
+
+
+    )
+    <br />
+    <div>
+    <div style="padding-left:15px; text-align:left"><p style="font-size:14px; color:red">** Idea cannot be edited once posted.</p></div>
+    <div class="right"><button class="btn btn-primary" type="button" onclick="onChange(this)" id="UserSubmit">Post Idea for Approval</button></div>
+    </div>
+</div>
+
+
+<script>
+
+    function onChange(arg) {
+        var grid = $("#userGrid").getKendoGrid();
+        var selValues = grid.selectedKeyNames().join(", ");
+        //alert(String(selValues));
+        if(selValues!=""||selValues!=",")
+        {
+            var mod = {
+                ItemId: @Model.Id,
+                IdeaIds: selValues
+
+            };
+            var data = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/IdeaManager/IdeaManager/AddSelectedAdmins")';
+            //baseurl = baseurl + '?ApplicationID=' + appid
+            //alert('post' + baseurl + $("ApplicationList").data("kendoComboBox").Value());
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //$('#userGrid1').data('kendoGrid').dataSource.read();
+                    //$('#userGrid1').data('kendoGrid').refresh();
+                    
+                    if(data=="Success")
+                    {
+                        $('#msgSuccess1').show();
+                    }
+                    else if(data.Message=="1")
+                    {
+                        $("#SelectedRowList1").show();
+                    }
+                    else if(data.Result=="ERROR")
+                    {
+                        alert("Server Error");
+                    }
+                    else
+                    {
+                        $("#noidea1").show();
+                    }
+                    //alert("Participants Successfully Added");
+                }
+                //,
+                //error: function(data){
+                //    if(data.Message=="1")
+                //    {
+                //        $("#SelectedRowList1").show();
+                //    }
+                //    else
+                //    {
+                //        $("#noidea1").show();
+                //    }
+                //}
+            })
+        }
+        else{
+            $("#SelectedRowList1").show();
+            return false;
+        }
+
+        return false;
+        // var exp = grid.this.selectedKeyNames().join(", ")
+        /// alert("The selected product ids are: " +grid.selectedKeyNames().join(", ") + "]");  this.selectedKeyNames().join(", ")
+        //alert(selValues);
+       
+        
+    }
+
+</script>

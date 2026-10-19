@@ -1,0 +1,112 @@
+﻿@model  IList<NTTData.AMOPortal.WebUI.Dto.UserApplicationsDto>
+    <div class="left-gridHeader">
+        <div style=" padding-left: 1.2em; width:13em;padding-top: 5px">Role</div>
+        <div style=" padding-left: 1.2em;width:20em; padding-top: 5px">AM-Optimization Tool</div>
+        <div style="padding-left: 1.2em; padding-top: 5px">Action</div>
+    </div>
+    <div class="role-grid-content scrollbar-rail">
+
+        @{
+
+            var PrevRole = "";
+        }
+        @foreach (var selApps in Model)
+        {
+            var cld = selApps.ClientName.ToString();
+            var rld = selApps.RoleName.ToString();
+            if (PrevRole == "" || PrevRole != rld)
+            {
+                PrevRole = rld;
+                int count = (from row in Model
+                             where row.RoleName == selApps.RoleName
+                             select row).Count();
+                var applist = (from row in Model
+                               where row.RoleName == selApps.RoleName
+                               select row);
+                <div style="display: flex; height: 2.5em; font-weight: bold; padding-top: 8px;padding-left:30px;">
+                    <div style="display:flex;color:#5876AA;width:13em">
+                        <div class="arrowBG" onclick="switchRoleVisible('@rld','show');" id="@rld'_arrow-bg'" style="display:none;"></div>
+                        <div class="arrowdownBG" onclick="switchRoleVisible('@rld','hide');" id="@rld'_arrowdown-bg'"></div>
+                        @rld
+                    </div>
+                    <div>@count Items</div>
+                </div>
+                var tablename = rld + "_table";
+                <div id="@tablename">
+                    <table>
+                        @foreach (var selAppslist in applist)
+                        {
+                            <tr>
+                                <td style="width:16em"></td>
+                                <td style="width:18em;">@selAppslist.AppName</td>
+                                <td>
+                                    <a data-id="@selAppslist.Id" href="#" class="hrefClass">
+                                        <img src="~/Content/images/delete_icon_blue.svg" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:18px" />
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            }
+        }
+
+    </div>
+    <div class="modal fade kedb-dialog-popup" id="cancelAssign" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Delete Task</h5>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/cancel_cross.svg" />
+                    <h4>Are you sure?</h4>
+                    <h6 style="font-size:11px">
+                        Do you really want to cancel the assignment to this appliction?
+                    </h6>
+                    <h6 style="font-size:11px">
+                        Once Cancel, This application cannot be accessable to this user
+                    </h6>
+                    <h6 style="font-size:11px">
+                        This Action cannot be undone.
+                    </h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-button" style="background-color: darkgrey;" data-bs-dismiss="modal">NO</button>
+                    <button type="button" data-bs-dismiss="modal" class="custom-button" onclick="DeleteSelection()">YES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var userApplication;
+        function DeleteSelection() {
+             var dataToPost = {
+                 userApplicationId: userApplication
+        };
+        $.ajax(
+        {
+            url: '@Url.Content("~/Account/RemoveUserApplication") ',
+            type: 'POST',
+            //data: $(this).attr("data-id"),
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#partialDiv").html(data);
+            },
+            error: function () {
+             //   $("#divLoading").hide();
+            }
+        });
+
+        }
+         $(".hrefClass").click(function () {
+             userApplication = $(this).attr("data-id")
+             $('#cancelAssign').modal('show');
+
+         });
+    </script>

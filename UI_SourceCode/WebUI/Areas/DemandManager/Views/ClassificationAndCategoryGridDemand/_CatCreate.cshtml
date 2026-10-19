@@ -1,0 +1,72 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.DemandClassAndCategoryInput
+
+@using (Html.BeginForm("SaveCatType", "ClassificationAndCategoryGrid", new { ClassId=Model.ClassifiationId, CatId = Model.CategoryId, CatCreate = Model.CatCreate}, FormMethod.Post))
+    {       
+    <div class="accdetailArea">
+        <div class="accdetailhdr">
+            <div class="accdetailhd">
+                <h4>Classification Type Details</h4>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+        </div>
+
+        <input hidden id="ClassId" value="@Model.ClassifiationId.ToString()"  />
+
+        <div class="leftarea form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-5 control-label">
+                    Classification Name: 
+                </label>
+                <div class="col-sm-5">
+                    <input class="form-control" type="text" name="country" value= "@Model.DMClassificationInput.Classification" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label id="lblAccountName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Category Type</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.DMCategoryInput.Category,  new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtaccname" })
+                </div>
+            </div>
+
+@*            <div class="form-group">
+                <label class="col-sm-5 control-label" for="grpdesc">Inactive</label>
+                <div class="col-sm-5">
+                    @Html.CheckBoxFor(m => m.mdmVariableTypeInput.IsDeleted, new { @class = "metricchk", id = "chkAvgFTE", tabindex = "110" })
+                </div>
+            </div>*@
+
+
+        </div>
+        <!--/.leftarea-->
+        <div class="rightarea">
+        </div>
+        <!--/.rightarea-->
+        <div class="accdetailacction">
+            <button type="Submit" tabindex="30" class="btn btn-primary" name="command" value="save">Save</button>
+@*            @{if(@Model.VarTypeId > 0)
+                  {
+                <button type="Submit" tabindex="" class="btn btn-primary" id="btnVarDelete" name="command" value="delete">Delete</button>
+                }
+            }*@
+
+            <button type="reset" tabindex="31" class="btn btn-default" id="typecancel">Cancel</button>
+        </div>
+
+    </div>
+    <!--./accdetailArea-->                        
+    }
+
+

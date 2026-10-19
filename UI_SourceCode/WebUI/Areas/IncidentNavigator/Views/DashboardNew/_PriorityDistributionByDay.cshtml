@@ -1,0 +1,210 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+<div>
+    <div class="top-content-heading">
+        <h6>Distribution by Day</h6>
+        <div class="chart-type">
+            @(Html.Kendo().DropDownListFor(m => m)
+                        .Name("D2_DrpValChart5")
+                        .OptionLabel("")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .Value("Priority")
+                        .Events(e => e
+                            .Change("D2_DrpValChart5Change")
+                            )
+                        //.BindTo(Model.INMappedColumn)
+                        .BindTo(new List<SelectListItem>() {
+                    //new SelectListItem() {
+                    //Text = "Assigned Group",
+                    //Value = "Assignedbygroup"
+                    //},
+                    //new SelectListItem() {
+                    //Text = "Config Item Name",
+                    //Value = "Configitemname"
+                    //},
+                    //new SelectListItem() {
+                    //Text = "Category",
+
+                    //Value = "Servicecategory"
+                    //},
+                    //new SelectListItem() {
+                    //Text = "Sub Category",
+                    //Value = "Servicesubcategory"
+                    //},
+                    new SelectListItem() {
+                    Text = "Priority",
+                    Value = "Priority"
+                    },
+                    new SelectListItem() {
+                    Text = "Status",
+                    Value = "Status"
+                    },
+                    new SelectListItem() {
+                    Text = "Assigned Group",
+                    Value = "Assignedtosupportgroup"
+                    },
+                    new SelectListItem() {
+                    Text = "Config Item Name",
+                    Value = "Configitemname"
+                    },
+                    new SelectListItem() {
+                    Text = "Category",
+
+                    Value = "Servicecategory"
+                    },
+                    new SelectListItem() {
+                    Text = "Sub Category",
+                    Value = "Servicesubcategory"
+                    },
+                    new SelectListItem() {
+                    Text = "Data Source",
+                    Value = "Datasource"
+                    },
+                    new SelectListItem() {
+                    Text = "Ticket Type",
+                    Value = "Type"
+                    },
+                    new SelectListItem() {
+                    Text = "Resolved Group",
+                    Value = "Resolvedbygroup"
+                    },
+                    new SelectListItem() {
+                    Text = "Tower/Track",
+                    Value = "Tower"
+                    }
+                        })
+                    .AutoBind(true)
+            )
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d2c5">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartPriorityDistributionbyDay()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>()
+                                                .Name("PriorityDistributionbyDayChart")
+                                                   //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                                   .Legend(legend => legend
+                                        .Visible(true)
+                                        .Align(ChartLegendAlign.Start)
+                                        .Position(ChartLegendPosition.Bottom)
+                                          //.Item(item => item.Visual("createLegendItem"))
+                                          .Labels(labels => labels
+                                             .Template("#=text#")
+                                            )
+                                        )
+
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                .Height(280)
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetPriorityDistributionbyDayChartParameter")).Group(group => group.Add(model => model.DrpCategory)))
+                                                 .AutoBind(false)
+                                                .SeriesColors(new string[] {"#4BD161",   "#3BA3F8", "#9F66BC","#EAD900", "#18C6BD","#FFA100", "#3BA3F8", "#D15D5D","#FF64A3", "#9B67FF", "#18C6BD",
+                                                                        "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                        })
+                                                  .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                            .Column().Visual("columnVisual")
+                                                            .Stack(false)
+                                                            .Highlight(highlight => highlight.Toggle("toggleHandler"))
+                                                        )
+
+                                                .Series(series =>
+                                                {
+                                                    series.Column(model => model.IncidentCount).Spacing(0).Name("").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Rotation(-90).Background("transparent").Visible(true)).Color("#19BDFF");
+                                                }​​​​​​​)
+                                                .CategoryAxis(axis => axis
+                                                 .Min(0)
+                                                 .Max(7)
+                                                //.Categories(model =>model.)
+                                                .MajorGridLines(lines => lines.Visible(false))
+                                                .Labels(labels => labels.Rotation("auto"))
+                                                //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                                )
+                                                .ValueAxis(axis => axis
+                                                .Numeric()
+                                                //.Max(10)
+                                                .Line(line => line.Visible(false))
+                                                //.Labels(labels => labels.Rotation(-90))
+                                                .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                                //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                                )
+                                                .Tooltip(tooltip => tooltip
+                                                //.Background("transparent")
+                                                .Visible(true)
+                                                .Color("#000000")
+                                               .Template("#= series.name #: #= value #")
+
+                                                )
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+
+                                            )
+                                        .Events(events => events
+                                        .SeriesClick("onPriorityDistributionByDaySeriesClick")
+                                        .DataBound("Dispriminmax_onDataBound")
+                                        )
+
+        )
+        </div>     
+    </div>
+    <div class="table-content fix-grid-head hide" style="color: #000;padding: 0 18px 12px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:149px" onclick="kendoGridHeaderSort('PriorityDistributionbyDayChartGrid', 'DrpCategory')">Priority</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('PriorityDistributionbyDayChartGrid', 'IncidentCount')">Ticket Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('PriorityDistributionbyDayChartGrid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<INChartDashboardModel>
+                                                ()
+                                                .Name("PriorityDistributionbyDayChartGrid")
+                                                .Columns(columns =>
+                                                {
+                                                    columns.Bound(e => e.LongCategory).Title("Dim").Hidden();
+                                                    columns.Bound(e => e.DrpCategory).Title("Priority").ClientFooterTemplate("Total").Width(149);
+                                                    // columns.Bound(e => e.Dim).Title("Day").ClientFooterTemplate("Total");
+                                                    columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(109);
+                                                    columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                                                })
+                                                   .Sortable()
+                                                // .Scrollable()
+                                                .AutoBind(false)
+                                                .HtmlAttributes(new { style = "height:235px;" })
+                                                .DataSource(dataSource => dataSource.Ajax()
+                                                 .Aggregates(agg =>
+                                                 {
+                                                     agg.Add(p => p.IncidentCount).Sum();
+                                                     agg.Add(p => p.Percent).Sum();
+                                                 })
+                                                           .Group(grouping =>
+                                                           {
+                                                               grouping.Add(e => e.Dim);
+                                                           })
+                                                           .Sort(sort => sort.Add(e => e.Dim).Ascending())
+                                                // .PageSize(25)
+                                                .Read(read => read.Action("GetDashboard2TrendGrid", "Dashboard").Data("GetPriorityDistributionbyDayChartParameter")))
+                                                .Events(events => events
+                                                    .DataBound("PriorityDistributionbyDayChartGrid_onDataBound")
+                                                 )
+        )
+    </div>
+</div>
+

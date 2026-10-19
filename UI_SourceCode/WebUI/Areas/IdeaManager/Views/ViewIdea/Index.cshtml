@@ -1,0 +1,700 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Models
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model  IdeaViewModel
+@*ViewIdea*@
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+    //Styles
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    //Scripts
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+}
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-state-selected a {
+        color: #ffffff;
+    }
+
+    /*Status Change Buttons Inside Tabs*/
+    .StatusChangeButton {
+        text-overflow: ellipsis;
+        width: 150px;
+        line-height: 1.75em;
+        border-radius: 5px;
+        background-color: #2196F3;
+        border: solid;
+        border-color: #357ebd;
+        color: white;
+        padding: 0px 0px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: auto;
+        margin-right: 17px;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        cursor: pointer;
+        background-color: #2196F3;
+    }
+
+    /* Kendo Modifications*/
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+    /*Column Header- FullName*/
+    .k-filter-row th, .k-grid-header th.k-header {
+        white-space: normal;
+        border: thin 1px #ccc;
+    }
+</style>
+
+<div id="wrap">
+    <div class="content-main dark-bg idea-manager">
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">View/Post Idea</li>
+        </ol>
+        <div id="MainDivforA" class="idea-manager-content">
+            <!--Contains Radio buttons, Search Bar-->
+            <div class="main-heading-section">
+                <div class="view-ideas-toggle">
+                    <span class="active" id="myIdeas"> MY IDEAS </span>
+                    <span id="allIdeas"> ALL IDEAS </span>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="IdeaSearchBox" placeholder="Search Ideas" name="search">
+                    <button type="submit" class="search-submit" onclick="IdeaSearchClick()"></button>
+                </div>
+            </div>
+
+            <!-- Tab links -->
+            <div class="tab-container">
+                <div class="tab-main">
+                    <span id="CreatedOpen" class="tab-link" onclick="openTab(event, 'Created')">Pre-Approval</span>
+                    <span id="ReviewOpen" class="tab-link" onclick="openTab(event, 'Review')">Submitted for Review/ Approval</span>
+                    <span id="ApprovedOpen" class="tab-link" onclick="openTab(event, 'Approved')">Approved/ Declined/ Cancelled</span>
+                    <span id="ImplementationOpen" class="tab-link" onclick="openTab(event, 'Implementation')">Implementation</span>
+                    <span id="CompleteOpen" class="tab-link" onclick="openTab(event, 'Complete')">Complete</span>
+                    <span id="HeadIdeaSearch" class="tab-link hide">Search Results...</span>
+                </div>
+                @if (Model.IsSysAdmin == true)
+                {
+                    <div class="export-button">
+                        <form action="@Url.Action("ExportServer", "ViewIdea")" method="POST">
+                            @*<input type="hidden" id="export-data" name="data" />
+                                <input type="hidden" id="export-model" name="model" />*@
+                            <input type="hidden" id="export-AllIdeas" name="AllIdeas" />
+                            <button type="submit" id="ExportToExcel">Export -       </button>
+                        </form>
+                    </div>
+                }
+            </div>
+            <div id="IdeaSearch" class="tab-content" style="display:none">
+                <!--Search Grid-->
+                <div style="display:flex">
+                    <button type="submit" style="margin:0 0 1em auto;width:fit-content" class="custom-button" onclick="location.href='@Url.Action("Index","ViewIdea")';return false;">Return to View Ideas</button>
+                </div>
+                
+               
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<IdeaSearchModel>()
+                                        .Name("IdeaSearchGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.IdeaId).Hidden();
+                                            columns.Bound(e => e.IdeaNumber).Title("Idea No.");
+                                            columns.Template(@<text></text>).Title("Name")
+            .ClientTemplate("<a target='_blank' rel='noopener noreferrer' href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+
+                                            columns.Bound(e => e.Status).Title("Status");
+
+                                        })
+.PersistSelection()
+.Filterable()
+.Sortable()
+
+.Scrollable()
+.HtmlAttributes(new { @style = "height:320px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+.Model(model =>
+{
+model.Id(f => f.IdeaId);
+})
+.Read(read => read.Action("IdeaSearch", "ViewIdea").Data("SearchString")) //Data--
+)
+                    )
+                </div>
+            </div>
+            <div id="Created" class="tab-content">
+                <!--Status Change Buttons-->
+                <div class="tab-action-buttons">
+                    <button id="PostNewIdeaButton" onclick="NewIdeaClick()" class="post-new-idea">Post New Idea</button>
+                    <button id="DeleteButton" onclick="DeleteClick()" class="delete-idea">Delete</button>
+                    <button id="SubmitForReviewButton" onclick="SubmitForReviewClick()" class="submit-idea">Submit for Review</button>
+                </div>
+                <!--Grid          "<input type='checkbox' #= Discontinued ? checked='checked' :'' # />"             -->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<PreApprovalModel>()
+                                        .Name("PreApprovalGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Select().Width(50);
+                                            columns.Bound(e => e.IdeaId).Hidden();
+                                            columns.Bound(e => e.IdeaName).Hidden();
+                                            columns.Bound(e => e.IdeaNumber).Title("Idea No.").Width(80);
+                                            columns.Bound(e => e.IdeaName).Title("Name").Width(80)
+                                            .ClientTemplate("<a href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+                                            columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                                                .ClientTemplate(
+                                                        "#if(InternalInitiative === true) {# "
+                                                            + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                                                        + " #} else{#"
+                                                                + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                                                        + "#}#");
+                                            columns.Bound(e => e.Team).Title("Team").Width(80).Filterable(ftb => ftb.Multi(true));
+                                            columns.Bound(e => e.Status).Title("Status").Width(80).Filterable(ftb => ftb.Multi(true));
+                                            columns.Bound(e => e.CreatedBy).Title("Created By/ Proposed By").Width(150).Filterable(ftb => ftb.Multi(true))/*.Filterable(filterable => filterable.UI("CreaterFilter"))*/;
+                                            columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+                                            columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                            columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(120);
+
+                                        })
+                                //.Events(eve=>eve.ExcelExport("exporting"))
+                                .PersistSelection()
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+                                .Scrollable()
+                                .Filterable()
+                                .Sortable()
+                                .HtmlAttributes(new { @style = "height:320px;" })
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Model(model =>
+                                {
+                                    model.Id(f => f.IdeaId);
+                                    model.Field(f => f.InternalInitiative).Editable(false);
+                                })
+                                .Read(read => read.Action("PreApproval", "ViewIdea").Data("MyIdeasOrAllIdeas"))
+                                )
+                    )
+                </div>
+            </div>
+            <div id="Review" class="tab-content">
+                <!--Status Change Buttons-->
+                <div class="tab-action-buttons">
+                    @*@if (Model.IsSysAdmin)*@
+                    @* <button id="SubmitForApproveButton" onclick="SubmitForApprovalClick" class="StatusChangeButton" style = "text-overflow:ellipsis; width:200px;">Submit for Approval, Approve/Decline/Revise</button>
+                    *@
+                    @if (Model.IsSysAdmin)
+                    {
+                        <button id="SubmitForApproveButton" onclick="SubmitForApprovalClick()" class="next-steps">Next Steps</button>
+                    }
+
+
+                    @*@(Html.Kendo().Button()
+                                                .Name("SubmitForApproveButton")
+                                                .Enable(true)
+                                                .HtmlAttributes(new { @style = "text-overflow:ellipsis; width:200px;" })
+                                                .Content("Submit for Approval")
+                                                .Events(eve => eve.Click("SubmitForApprovalClick"))
+                        )*@
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<SubmitForReviewModel>()
+.Name("SubmitForReviewGrid")
+.Columns(columns =>
+{
+//columns.Select().Width(50);
+columns.Bound(e => e.IdeaId).Hidden();
+columns.Bound(e => e.IdeaNumber).Title("Idea No.").Width(60);
+columns.Bound(e => e.IdeaName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+columns.Bound(e => e.IdeaSource).Title("Idea Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                        .ClientTemplate(
+                                "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                                + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                                + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Team).Title("Team").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LOB).Title("LOB").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Complexity).Title("Size/ Complexity").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Value).Title("Value").Width(100);
+columns.Bound(e => e.CreatedBy).Title("Created By/ Proposed By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.AssignedApprover).Title("Assigned Approver(s)").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(140);
+columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(140);
+
+})
+
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Filterable()
+.Sortable()
+.HtmlAttributes(new { @style = "height:320px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.IdeaId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("SubmittedForReview", "ViewIdea").Data("MyIdeasOrAllIdeas"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Approved" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<ApprovedModel>()
+.Name("ApprovedGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.IdeaId).Hidden();
+columns.Bound(e => e.IdeaNumber).Title("Idea No.").Width(100);
+columns.Bound(e => e.IdeaName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+columns.Bound(e => e.IdeaSource).Title("Idea Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Team).Title("Team").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LOB).Title("LOB").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Status).Title("Approved/ Declined/ Cancelled").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImpStatus).Title("Imp Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Complexity).Title("Size/ Complexity").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Value).Title("Value").Width(100);
+
+columns.Bound(e => e.CreatedBy).Title("Created By/ Proposed By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ApproverBy).Title("Approved By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Implementation Manager").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Sortable()
+.Filterable()
+.HtmlAttributes(new { @style = "height:320px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.IdeaId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Approval", "ViewIdea").Data("MyIdeasOrAllIdeas"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Implementation" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<ImplementationModel>()
+.Name("ImplementationGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.IdeaId).Hidden();
+columns.Bound(e => e.IdeaNumber).Title("Idea No.").Width(100);
+columns.Bound(e => e.IdeaName).Title("Name").Width(100)
+                    .ClientTemplate("<a href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Team).Title("Team").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImpStatus).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImpPriority).Title("Imp Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.PrevImpPriority).Title("Previous Imp Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Implementation Manager").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Complexity).Title("Size/ Complexity").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LastReviewDt).Title("Last Review Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.SubmitForPlanningDt).Title("Submitted For Planning Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedStartDt).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedEndDt).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualStartDt).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualEndDt).Title("Est. End Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+columns.Bound(e => e.ImplementationHealth).Title("Implementation Health").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.TargetProgress).Title("Target Progress").Width(100);
+columns.Bound(e => e.ActualProgress).Title("Actual Progress").Width(100);
+columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Sortable()
+.Filterable()
+.HtmlAttributes(new { @style = "height:320px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.IdeaId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Implementation", "ViewIdea").Data("MyIdeasOrAllIdeas"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Complete" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<CompletionModel>()
+.Name("CompletionGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.IdeaId).Hidden();
+columns.Bound(e => e.IdeaNumber).Title("Idea No.").Width(100);
+columns.Bound(e => e.IdeaName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=IdeaName#</a>");
+columns.Bound(e => e.IdeaSource).Title("Idea Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Team).Title("Team").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Complexity).Title("Size/ Complexity").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Value).Title("Value").Width(100);
+columns.Bound(e => e.CreatedBy).Title("Created By/ Proposed By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ApprovedBy).Title("Approved By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Implement Manager").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.PlannedStartDt).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedEndDt).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualStartDt).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualEndDt).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ImplementationHealth).Title("Completed On Schedule").Filterable(ftb => ftb.Multi(true)).Width(100);
+columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Filterable()
+.Sortable()
+.HtmlAttributes(new { @style = "height:320px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.IdeaId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Completion", "ViewIdea").Data("MyIdeasOrAllIdeas"))
+                                            )
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //Data for Kendo Grid..
+    function MyIdeasOrAllIdeas() {
+        //Still Values are Hard Coded..
+        ////var val = $('.view-ideas-toggle span.active').attr('id');
+        ////return {
+        ////    AllIdeas: val
+        ////}
+        var val = $('.view-ideas-toggle span.active').attr('id');
+        if (val == 'myIdeas') {
+            return {
+                AllIdeas: 1
+            }
+        } else {
+            return {
+                AllIdeas: 2
+            }
+        }
+
+    }
+
+    //Button Functions
+    //---Tab -1------
+    function NewIdeaClick() {
+        //var dat = {
+        //    ViewIdea: false,
+        //    IdeaId: '0',
+        //    tab:''
+        //}
+        //var datas = JSON.stringify(dat);
+        //var burl = '@Url.Content("~/IdeaManager/PostIdea/Index")';
+        var indexurl = '@Url.Content("~/IdeaManager/PostIdea/Index")';
+        window.location.href = indexurl
+
+
+    }
+
+    function DeleteClick() {
+        var grid = $("#PreApprovalGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            IdeaIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PostIdea/DeleteIdeas")';
+        $.ajax(
+        {
+        url: baseurl,
+        type: 'post',
+        data: data,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#PreApprovalGrid').data('kendoGrid').dataSource.read();
+            $('#SubmitForReviewGrid').data('kendoGrid').dataSource.read();
+            //alert("Participants Successfully Added");
+            }
+        })
+
+    }
+
+    function SubmitForReviewClick() {
+        var grid = $("#PreApprovalGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            IdeaIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PostIdea/SubmitforReview")';
+        $.ajax(
+        {
+        url: baseurl,
+        type: 'post',
+        data: data,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#PreApprovalGrid').data('kendoGrid').dataSource.read();
+            $('#SubmitForReviewGrid').data('kendoGrid').dataSource.read();
+            //alert("Participants Successfully Added");
+            }
+        })
+
+    }
+
+    //---Tab - 2 --------
+    function SubmitForApprovalClick() {
+
+        var grid = $("#SubmitForReviewGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            IdeaIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+
+        var approvalurl = '@Url.Content("~/IdeaManager/IdeaApproval/Index")';
+        window.location.href = approvalurl;
+
+
+    }
+
+
+    //---------Search Tab-------------//
+    function IdeaSearchClick() {
+        $(".tab-link").hide();
+
+        $("#Created").hide();
+        $("#Review").hide();
+        $("#Approved").hide();
+        $("#Implementation").hide();
+        $("#Complete").hide();
+
+        $("#HeadIdeaSearch").show();
+        $("#IdeaSearch").show();
+
+        $('#IdeaSearchGrid').data('kendoGrid').dataSource.read();
+        $('#IdeaSearchGrid').data('kendoGrid').refresh();
+    }
+
+
+    function SearchString() {
+        var obj = $("#IdeaSearchBox").val();
+
+        return {
+            stringLike: obj.trim()
+        }
+    }
+
+
+
+    //On change of Radio Button
+    $('.view-ideas-toggle').on('click', 'span', function () {
+        $(this).addClass('active');
+        $(this).siblings().removeClass('active');
+
+        var IdeaVar = $(this).attr('id');
+        console.log(IdeaVar);
+        if (IdeaVar == 'allIdeas')
+        {
+        //alert('2');
+            //var SFRB = $("#SubmitForReviewButton").data("kendoButton");
+            //SFRB.enable(false);
+            //var DB = $("#DeleteButton").data("kendoButton");
+            //DB.enable(false);
+            //var SFAB = $("#SubmitForApproveButton").data("kendoButton");
+            //SFAB.enable(false);
+
+            $('#SubmitForReviewButton').prop('disabled', true);
+            $('#DeleteButton').prop('disabled', true);
+            //$('#SubmitForApproveButton').prop('disabled', true);
+
+        }
+        if (IdeaVar == 'myIdeas')
+        {
+
+
+            $('#SubmitForReviewButton').prop('disabled', false);
+            $('#DeleteButton').prop('disabled', false);
+            //$('#SubmitForApproveButton').prop('disabled', false);
+
+        }
+        //Refreshing Grids.
+        var preApproval = $('#PreApprovalGrid').data('kendoGrid');
+        preApproval.dataSource.read();
+
+        var submitForReview = $('#SubmitForReviewGrid').data('kendoGrid');
+        submitForReview.dataSource.read();
+
+        var approved = $('#ApprovedGrid').data('kendoGrid');
+        approved.dataSource.read();
+
+        var implementation = $('#ImplementationGrid').data('kendoGrid');
+        implementation.dataSource.read();
+
+        var completion = $('#CompletionGrid').data('kendoGrid');
+        completion.dataSource.read();
+
+
+
+
+    });
+
+    //Functions for Tab Click..
+    function openTab(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+        //Using sessionStorage to save tab information
+        sessionStorage.setItem("ViewIdeaTab", cityName);
+    }
+
+    // Get the element with id="CreatedOpen" and click on it
+    $(window).on('load', function () {
+        var ViewIdeaTabName = sessionStorage.getItem("ViewIdeaTab");
+        if (ViewIdeaTabName == null) {
+            document.getElementById("CreatedOpen").click();
+        }
+        else {
+            var newString = ViewIdeaTabName + 'Open';
+            document.getElementById(newString).click();
+        }
+    })
+
+    $("#ExportToExcel").click(function () {
+        var val = $('.view-ideas-toggle span.active').attr('id');
+        //alert(val);
+        if (val == 'myIdeas') {
+            val = 1;
+        } else {
+            val = 2;
+        }
+        //$("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+        //$("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+        $("#export-AllIdeas").val(encodeURIComponent(JSON.stringify(val)));
+    });
+      function CreaterFilter(element) {
+          element.kendoMultiSelect({
+            dataSource: {
+                transport: {
+                    read: "@Url.Action("getCreaterFilter")"
+                }
+            },
+            optionLabel: "--Select Value--"
+        });
+    }
+
+
+     
+
+
+</script>

@@ -1,0 +1,133 @@
+﻿@using WebUI.Areas.FDBKManager.Models;
+@using System.Web.UI.WebControls;
+@using System.Web.UI.HtmlControls;
+
+@model IEnumerable<searchKeyFeedback>
+<style>
+    .tooltip.show {
+        opacity: 1;
+    }
+
+    .tooltip-arrow,
+    .red-tooltip + .tooltip > .tooltip-inner {
+        background-color: red;
+    }
+
+    .vote-count-post {
+        margin: 0em 0 0 1.6em;
+        width: fit-content;
+        padding: 0px 5px;
+        color: black;
+        font-weight: 600;
+        background-color: #eda73e;
+        border-radius: 4px;
+        text-align: center;
+    }
+
+    div.SearchDesc img {
+        height: 4em;
+        width: 4em;
+    }
+</style>
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+}
+<div id="dvProductDetails"></div>
+
+<div class="search-content scrollbar-inner">
+    @foreach (var item in Model)
+    {
+    <div class="searchDiv">
+        <div class="Searchtitle" onclick="viewSelFdbk(@item.UniqueId)">@item.shortDesc</div>
+        <div style="display: flex; padding-top: 0.5em; border-bottom: 1.5px solid #3f3e3ecc; ">
+            <div class="SearchDesc">
+                @{string strTest = item.breif;
+                    @Html.Raw(strTest);
+                }
+            </div>
+            <div class="SearchActions">
+
+                @if (@item.Votestatus == true)
+                    {
+                <div class="vote"><div id="vote-@item.UniqueId" class="voteIdea votedIdea"><div class="vote-count-post" id="countvote-@item.UniqueId">@item.voteCount</div><div id="sumvote-@item.UniqueId">2</div></div><div class="vote-tooltip">voted this Feedback</div></div>
+                    }
+                    else
+                    {
+                <div class="vote"><div id="vote-@item.UniqueId" class="voteIdea"><div class="vote-count-post" id="countvote-@item.UniqueId">@item.voteCount</div><div id="sumvote-@item.UniqueId">1</div></div><div class="vote-tooltip">Upvote this Feedback</div></div>
+                    }
+
+                <div class="notifyIdea" style="cursor: text; pointer-events: none">
+
+                    @Html.DropDownList("notifiyDrp" + item.UniqueId, new SelectList(new List<SelectListItem>
+                    {
+                        new SelectListItem{ Text="Be notified on Status change", Value = "1" },
+                        new SelectListItem{ Text="Receive notification for all changes", Value = "2" },
+                    }, "Value", "Text", 2), new { onchange = "OnNotifyTypeSeltnChange(" + item.UniqueId + ")" })
+
+                </div>
+                <div class="comment" style="cursor:text;pointer-events:none"><div class="commentIdea"></div><div class="comment-tooltip">Comments for the feedback @item.Cmtcount</div></div>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+            <div class="SearchIdeaSubmited">Submitted by: <span class="searchValue">@item.creatorName</span></div>
+            <div class="SearchIdeaLastAct">Last Activity: <span class="searchValue">@item.LastActivity</span></div>
+        </div>
+    </div>
+
+    }
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('.scrollbar-inner').scrollbar();
+    });
+    $(".voteIdea").click(function () {
+        $(this).toggleClass("votedIdea");
+        var voteid = this.id;
+        const vcount = $("#count" + voteid).text();
+        var check = $("#sum" + voteid).text();
+        console.log(this)
+        console.log(check)
+        if (check == 1) {
+            LogFdbkActivity("VoteFeedback", "Voted the Feedback");
+            const vsum = parseInt(vcount) + parseInt(1);
+            $("#count" + voteid).text(vsum);
+            $("#sum" + voteid).text("2");
+        } else {
+            LogFdbkActivity("UnVoteFeedback", "UnVoted the Feedback");
+            const vminus = parseInt(vcount) - parseInt(1);
+            $("#count" + voteid).text(vminus);
+            $("#sum" + voteid).text("1");
+        }
+
+        var baseurl = 'ViewFeedback/SaveVoteofUser';
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully")
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    $('[data-toggle="tooltip"]').tooltip();
+    function viewSelFdbk(fdbkid) {
+        var href = window.location.href.split('/');
+        console.log(fdbkid);
+        var baseurl = window.location.href + '/Index/?viewtyp=' + fdbkid;;
+        console.log(baseurl);
+        //window.location = baseurl;
+        window.open(baseurl, '_blank');
+    }
+
+</script>

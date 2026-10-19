@@ -1,0 +1,31 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using WebUI.Areas.AlignmentManager.Dto
+@model WebUI.Areas.AlignmentManager.Dto.PPTreeView
+
+@foreach(PPTreeView ppitem in Model.TreeViewItems)
+    {
+    if(ppitem != null)
+    {
+        <ul class="treeview" >        
+        <li >@*<a href="@ppitem.variableId">@ppitem.VariableName</a>*@
+            @if(ppitem.IsDeleted == 0 && ppitem.VariableName != "")
+                {
+            @Html.ActionLink(ppitem.VariableName, "DisplayHomePage", "AlignmentManager", new {ClientId=ppitem.ClientId, variableId=ppitem.variableId, variableTypeId=ppitem.varTypeId},null)
+                }
+            else
+            {
+                 @ppitem.VariableName
+            }
+                
+
+        @*<li>@Html.ActionLink(Model.VariableName, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableId=Model.variableId},null) *@
+            @if (ppitem.TreeViewItems.Count > 0)
+            {
+                @Html.Partial("_TreeViewItems", ppitem)
+            } 
+            
+        </li> 
+     </ul>   
+    }
+    }

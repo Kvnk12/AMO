@@ -1,0 +1,31 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="SubscriptionMasterPage.master.cs" Inherits="WebUI.SubscriptionMasterPage" %>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title></title>
+    <%--<link href="<%=ResolveClientUrl("~/Content/css/custom-styles.css")%>" rel="stylesheet">
+
+     <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery-3.6.0.min.js")%>"></script>
+     <script type="text/javascript" src='<%=ResolveClientUrl("~/Scripts/jquery-3.6.0.js")%>'></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/bootstrap.min.js")%>"></script>
+    <script type="text/javascript" src="<%=ResolveClientUrl("~/Scripts/jquery-ui-1.12.1.min.js")%>"></script>--%>
+
+    <asp:ContentPlaceHolder ID="headertitle" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body class="analysisnew-body-container backlog-analysis-body-container">
+   
+        <div>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+   
+</body>
+</html>

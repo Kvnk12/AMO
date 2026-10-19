@@ -1,0 +1,153 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    var Client = (Client)Session["Client"];
+    var ClientID = Client.Id;
+}
+
+@section IMTOPMenu {
+
+    @Html.Partial("_IMTopMenu")
+    
+    }
+
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="#">Idea Manager</a></li>
+            <li class="active"><a href="#">Post Challenges</a></li>
+        </ol>
+    </div>
+@*</div>*@
+@*<div class="clear">
+</div>*@
+
+        <div style="padding:0;"> 
+         
+           
+          
+              <div class="well well-sm"><strong>Challenge</strong></div>
+               <div>
+                    @Html.Partial("_PostChallenge", Model)
+            </div>
+            
+                 
+       
+           
+                   <!--end of grid-->             
+              </div>
+              <!--.valchainContent--> 
+              
+              <!--/.treeMenuContent container--> 
+        @*    </div>*@
+            <!--/.treeMenuContent--> 
+          @*</div>*@
+          <!--/.treeMenuArea--> 
+          
+        
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        
+        $('select#ClientId').change(function () {
+            //var SelectedclientId = $('#ClientId :selected').val();
+            
+            var SelectedclientId = @ClientID;
+
+            if (SelectedclientId != 0) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+
+
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/ChallengeManager/DisplayHomePage/?clientId={clientId}';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/ChallengeManager/DisplayHomePage/?clientId={clientId}';
+                }
+
+                baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                window.location = baseurl;
+                return false;
+
+            }
+
+        });
+
+    });
+
+
+    $('#cancelidea').click(function () {
+
+
+        var confirm = window.confirm('Do you want cancel the changes?');
+        if (confirm) {
+
+
+            var href = window.location.href.split('/');
+            
+            var baseurl = '';
+
+
+
+            if (href[3].toLowerCase() == 'ideamanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ChallengeManager/DisplayChallenges/?clientId={clientId}';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ChallengeManager/DisplayChallenges/?clientId={clientId}';
+            }
+
+            baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+            window.location = baseurl;
+            return false;
+            }
+            else { return false; }
+
+            });
+
+    $('#homepage').click(function () {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'ideamanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ChallengeManager/DisplayChallenges/?clientId={clientId}';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ChallengeManager/DisplayChallenges/?clientId={clientId}';
+        }
+        baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+        window.location = baseurl;
+        return false;
+
+
+    });
+
+</script>
+
+
+
+
+
+

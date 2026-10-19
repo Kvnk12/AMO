@@ -1,0 +1,45 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+
+@model PIDataMaskListModel
+
+
+<div class="container" style="padding:0;">
+    <div class="treeMenuContent">
+        <div class="selectappArea" style="align-content:center">
+            <h3><strong>Add/Edit PI Data Masking Details </strong></h3>
+        </div>
+        <div class="form-group">
+            <label>PI Field Name : </label>
+            @(Html.Kendo().TextBoxFor(e => e.DataFieldName))
+        </div>
+        <div class="form-group">
+            <label>PI Field Description : </label>
+            @Html.TextAreaFor(e => e.DataFieldDescription, new { @class = "form-control", rows = "5", style = "width:250px; height:30px" })
+        </div>
+        <br />
+        <div class="form-group">
+            <label>Masking Pattern(RegEx) :</label>
+            <br />
+            @Html.TextAreaFor(e => e.DataMaskPattern, new { @class = "form-control", rows = "5", style = "width:250px; height:30px" })
+        </div>
+        <br />
+        <div class="form-group">
+            <label>Test Data (for validation):  </label>
+            <br />
+            @Html.TextAreaFor(e => e.DataMaskExample, new { @class = "form-control", rows = "5", style = "width:250px; height:30px" })
+        </div>
+        <div class="form-group">
+            <label>Replacement Text(for PI data) :</label>
+            @(Html.Kendo().TextBoxFor(e => e.ReplacementValue))
+        </div>
+        <div class="form-group">
+            <label>Created By Name:</label>
+            @(Html.Kendo().TextBoxFor(m => m.createdbyName)
+                            .Name("createdbyName")
+                            .Enable(false)
+            )
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,160 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@model ApplicationInfo
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ////var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+  //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+<style>
+    .well{
+        color:#fff;
+        background-color:transparent;
+        border:none;
+        box-shadow:none;
+        margin-bottom:1em;
+    }
+    .custom-pager .pagination-container {
+        display: inline-block;
+    }
+    .custom-pager .pagination-container .pagination {
+        margin: 0;
+    }
+    .custom-pager .pagination-container .pagination li {
+        border: 1px solid #0a58ca;
+        background-color: #fff;
+        padding: 4px;
+      
+    }
+
+    .custom-pager .pagination-container .pagination li.active {
+        background-color: rgb(91,121,171);
+        color: #fff;
+    }
+   
+</style>
+
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Configure</li>
+            <li class="active">Application/Service</li>
+        </ol>
+    </div>
+    @using (Html.BeginForm("ViewApplication", "ApplicationInformation", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div>
+            <div class="form-horizontal">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                }
+                @if (TempData[""] != null)
+                {
+                    <p class="alert alert-success" style="width:100%">
+                        <strong>Success:&nbsp;</strong><label>@TempData[""].ToString()</label>
+                    </p>
+                }
+            </div>
+            
+                    <div class="well well-sm"><strong>Application/Service Detail</strong></div>
+                    <div>
+                        <div>
+                            <table style="width:100%;" cellspacing="0" cellpadding="5">
+                                <tr>
+                                    <td style="text-align:left; width:150px;">
+                                        <button class="btn btn-primary" onclick="location.href='@Url.Action("AddApplication", "ApplicationInformation", new { clientid = Model.ClientId })';return false;">Add New Application/Service</button>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="grid_4 height500" style="color:#fff;">
+                                <table class="table table-striped" style="color:#333;" id="pp38Home" cellpadding="0" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Client Number</th>
+                                            <th scope="col">Application/Service Name</th>
+                                            <th scope="col">Alias Name</th>
+                                            <th scope="col">Technical Owner Name</th>
+                                            <th scope="col">In Scope</th>
+                                            <th scope="col"></th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            //IList<ApplicationInformationModel> AppItem = Model.AppInfo;                                           
+                                            foreach (var item in Model.AppInfo)
+                                            {
+                                                <tr>
+                                                    <td>@item.ClientApplicationNumber</td>
+                                                    <td>@item.ApplicationName</td>
+                                                    <td>@item.AliasName</td>
+                                                    <td>@item.TechnicalOwner</td>
+                                                    <td>@Html.DisplayFor(m=> item.InScope)</td>
+                                                    <td> <a href='@Url.Action("AppEdit", "ApplicationInformation", new { ApplicationID = item.Id, clientid = Model.ClientId })'><img src="~/Content/images/edit.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:18px" /></a></td>                                                   
+                                                    <td> <a href='@Url.Action("DeleteApplication", "ApplicationInformation", new { ApplicationID = item.Id })'><img src="~/Content/images/delete.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:20px" /></a></td>                                                    
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                <div class="custom-pager">
+                                    @(Model.AppInfo.PageCount < Model.AppInfo.PageNumber ? 0 : Model.AppInfo.PageNumber) of @Model.AppInfo.PageCount
+
+                                    @Html.PagedListPager(Model.AppInfo, page => Url.Action("Index", new { page = page }))
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+           
+                                            }
+
+    <script>
+
+    $(".hrefClass").click(function () {       
+        var dataToPost = {
+            tickinfoid: $(this).attr("data-id"),
+            ClientId: $('#hidClientId').val()
+        };
+
+        var path = '@Url.Content("~/ApplicationInformation/AppEdit")' + "?ApplicationID=" + $(this).attr("data-id")
+        window.location = path;
+        // $("#divLoading").show();
+        //alert()
+        $.ajax(
+        {
+            url: '@Url.Content("~/ApplicationInformation/AppEdit")',
+            type: 'POST',
+            async: false,
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#partialDiv").html(data);
+            },
+            error: function () {
+             //   $("#divLoading").hide();
+            }
+        });
+    });
+    </script>
+
+    <iframe id="frameTrendig" border="0" frameborder="0" height="10px"  width="1100px"></iframe>   
+
+</div>
+<!--/.container-->

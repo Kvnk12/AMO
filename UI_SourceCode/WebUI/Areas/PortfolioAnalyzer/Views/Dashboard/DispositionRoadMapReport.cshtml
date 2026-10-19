@@ -1,0 +1,240 @@
+﻿@*@{
+        ViewBag.Title = "DispositionRoadMapReport";
+    }
+
+    <h2>DispositionRoadMapReport</h2>*@
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto
+@model DispositionRoadMapModel
+@{
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new DashboardController();
+    var LOBlist = v.GetPortfoliolistbyClient(client.ClientId);
+    var surveyList = v.surveyList(client.ClientId);
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Portfolio Analyzer";
+    //var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    //var client = (Client)Session["Client"];
+    //var v = new DashboardController();
+    //var PortfolioNameList = v.portfolioNameList(client.Id);
+    //var PerspectiveTypeList = v.perspectiveTypeList(client.Id);
+    //var surveyList = v.surveyList(client.Id);
+    ////var HintList = v.hintList(client.Id);
+
+}
+<style>
+    #circle {
+        /*background: #f00;*/
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+    }
+</style>
+@*<style>
+    /* Page Template for the exported PDF */
+    .page-template {
+        font-family: "DejaVu Sans", "Arial", sans-serif;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
+        .page-template .header {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            border-bottom: 1px solid #888;
+            color: #888;
+        }
+
+        .page-template .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            right: 30px;
+            border-top: 1px solid #888;
+            text-align: center;
+            color: #888;
+        }
+
+        .page-template .watermark {
+            font-weight: bold;
+            font-size: 400%;
+            text-align: center;
+            margin-top: 30%;
+            color: #aaaaaa;
+            opacity: 0.1;
+            transform: rotate(-35deg) scale(1.7, 1.5);
+        }
+</style>*@
+
+<div class="content-main dark-bg">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb ">
+            <li >Portfolio Analyzer</li>
+            <li >Disposition Road Map</li>
+        </ol>
+
+    </div>
+
+    @*<div id ="circle" style="background-color:red;border-color:black;" ></div >*@
+
+
+        @*<div class="clearfix"></div>*@<!--This is to clear the floats-->
+
+        <div class="custom-kendo-grid apr-disposition-roadmap-report">
+
+            @(Html.Kendo().Grid<DispositionRoadMapModel>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+.Name("Grid")
+
+.Columns(columns =>
+{
+    columns.Bound(p => p.ClientApplicationNumber).Title("Application Number").Width(250);
+    columns.Bound(p => p.ApplicationName).Title("Application Name").Width(250).ClientFooterTemplate("Total Count: #=count#")
+            .ClientGroupFooterTemplate("Count: #=count#");
+    columns.Bound(p => p.DispositionName).Title("Planned Disposition").Filterable(ftb => ftb.Multi(true)).Width(150).ClientGroupFooterTemplate("Count: #=count#");
+    //columns.Bound(d => d.Color).Title("color").Width(150);
+    columns.Bound(p => p.DispositionActionType).Title("Disposition Action Immediacy").Filterable(ftb => ftb.Multi(true)).Width(100).HeaderHtmlAttributes(new { style = "white-space: normal" }).HtmlAttributes(new { style = "text-align:center;" }).ClientTemplate(
+"# if (Color != null) { #" +
+
+//"<div id='" + "circle'></div>" +
+"<center><div id='" + "circle' align='center' style='background-color: #= Color # !important'></div></center>" +
+//"<img src='" + Url.Content("~/Content/icons/") + "#= Color #.png' alt='#= Color # icon' />" +
+"# } else { #" +
+"#: DispositionActionType #" +
+"# } #"
+)
+            //.ClientFooterTemplate("Total Disposition: #=count#")
+            ;
+
+    // columns.Bound(p => p.DispositionActionType).Title("Disposition Action Type").HeaderHtmlAttributes(new { style = "white-space: normal" }).Filterable(ftb => ftb.Multi(true)).Width(150);
+    columns.Bound(p => p.DispositionRationaleType).Title("Disposition Rationale").HeaderHtmlAttributes(new { style = "white-space: normal" }).Filterable(ftb => ftb.Multi(true)).Width(150);
+    columns.Bound(p => p.OriginalRetirementDate).ClientTemplate("#if(OriginalRetirementDate === null){# N/A #}else{# #= kendo.toString(kendo.parseDate(OriginalRetirementDate), 'dd/MM/yyyy') # #}#").HeaderHtmlAttributes(new { style = "white-space: normal" }).Title("Original Retirement Date").Width(120);
+    columns.Bound(p => p.PlannedDispositionDate).ClientTemplate("#if(PlannedDispositionDate === null){# N/A #}else{# #= kendo.toString(kendo.parseDate(PlannedDispositionDate), 'dd/MM/yyyy') # #}#").HeaderHtmlAttributes(new { style = "white-space: normal" }).Title("Planned Disposition Date").Width(120);
+    columns.Bound(p => p.ApplicationClassificationName).HeaderHtmlAttributes(new { style = "white-space: normal" }).Title("Classification Name").Width(120);
+    columns.Bound(p => p.Year).Title("Cost Year").Width(150);
+    columns.Bound(p => p.Totalcost).Title("Total Cost").Width(250);
+    //columns.Bound(p => p.AvgResolutionTime).Title("Avg.Resolution Time in hours").Width(230).HtmlAttributes(new { style = "text-align:right;" });
+    //columns.Bound(p => p.AvgCostPerTicket).Title("Avg. Cost of Resolving Tickets").Width(230).HtmlAttributes(new { style = "text-align:right;" });
+
+})
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+.Sortable()
+// .Pageable()
+.Groupable()
+.Scrollable(scr => scr.Height(430))
+.Resizable(resize => resize.Columns(true))
+.Filterable()
+.ColumnMenu()
+.AutoBind(true)
+.ToolBar(
+        tools =>
+        {
+            tools.Excel();
+            tools.Pdf();
+
+        })
+ .Excel(excel => excel
+        .FileName("DispositionRoadmap.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+    .Pdf(pdf => pdf
+            .AllPages()
+            .AvoidLinks()
+            .PaperSize("A4")
+            .Scale(0.8)
+            .Margin("2cm", "1cm", "1cm", "1cm")
+            .Landscape()
+            .RepeatHeaders()
+            .TemplateId("page-template")
+            .FileName("DispositionRoadmap.pdf")
+            .ProxyURL(Url.Action("Pdf_Export_Save", "APRAjaxService"))
+        )
+
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .Aggregates(aggregates =>
+    {
+        aggregates.Add(p => p.ApplicationName).Count();
+        aggregates.Add(p => p.DispositionName).Count();
+
+    })
+      // .PageSize(20)
+      //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+      .Read(read => read.Action("GetAppDispositionRoadmap", "APRAjaxService"))
+ )
+            )
+        </div>
+
+        <!--END OF LEFTAREA-->
+        <!--/.slarightpane -->
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function GetFileExtType(value) {
+
+        if (value == "Red" ) {
+            return "<img src='~/Content/images/home/portfolio_analyzer_white.svg/>";
+        }
+        else
+        {
+            "<b>value</b>";
+        }
+        //else if (value == ".doc" || value == ".docx" || value == ".DOC" || value == ".DOCX") {
+        //    return "<img src='../Images/word.png' alt='' /> ";
+        //}
+        //else if (value == ".xls" || value == ".xlsx" || value == ".XLS" || value == ".XLSX") {
+        //    return "<img src='../Images/excel.png' alt='' /> ";
+        //}
+        //else if (value == ".ppt" || value == ".pptx" || value == ".PPT" || value == ".PPTX") {
+        //    return "<img src='../Images/powerpoint.png' alt='' /> ";
+        //}
+        //else if (value == ".msg" || value == ".MSG") {
+        //    return "<img src='../Images/outlook.png' alt='' /> ";
+        //}
+        //else if (value == ".txt") {
+        //    return "<img src='../Images/textfile.png' alt='' /> ";
+        //}
+        //else if (value == ".jpg" || value == ".JPG" || value == ".jpeg" || value == ".JPEG" || value == ".png" || value == ".PNG" || value == ".tif" || value == ".TIF" || value == ".tiff" || value == ".TIFF" || value == ".bmp" || value == ".BMP" || value == ".gif" || value == ".GIF") {
+        //    return "<img src='../Images/photo.png' alt='' /> ";
+        //}
+    }
+</script>

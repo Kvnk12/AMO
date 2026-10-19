@@ -1,0 +1,320 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model DispositionDetailsModel
+    @{
+        //var client = (Client)Session["Client"];
+        ClientDetail client = (ClientDetail)Session["SessionClient"];
+        var v = new APRAjaxServiceController();
+
+
+        var DispositionImmediacyList = v.APRDispositionActionList(client.ClientId);
+        var DispositionRationaleList = v.APRDispositionRationaleList(client.ClientId);
+        var DispositionSolutionlist = v.APRDispositionSolutionlist(client.ClientId);
+        var AppInventoryList = v.APRAppInventoryList(client.ClientId);
+        //  var RoadMapTargetApp = v.ApplicationList(client.Id);
+        var DispositiontypeList = v.APRDispositionList(client.ClientId);
+        var AppRedundancyList = v.APRAppRedundancyList(client.ClientId);
+    }
+<style>
+    .k-chip-solid-base {
+        font-size: 10px;
+    }
+</style>
+<div class="wrap" style="padding:1em">
+    <div  style="padding:0;">
+       
+        <table cellpadding="3"><tr>
+            <td width="13%">Original Disposition</td>
+            <td width="20%">
+                @Html.HiddenFor(m => m.Id)
+                @Html.HiddenFor(m => m.AppId)
+                @(Html.Kendo().DropDownListFor(m => m.OriginalDispositionId)
+                             .Name("OriginalDispositionId")
+                             .OptionLabel("Select")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(DispositiontypeList)
+                             .AutoBind(true)
+                )
+            </td>
+            <td width="14%">Orig Retirement or Replacement Date</td>
+            <td width="20%">
+                @(Html.Kendo().DatePickerFor(m => m.OriginalRetirementDate)
+                             .Name("OriginalRetirementDate")
+                             //.Value("12/12/2015")
+                             .HtmlAttributes(new { style = "text-align:right", title = "datepicker" })
+                )
+            </td>
+                   <td width="13%">Disposition Immediacy</td>
+                   <td width="20%">
+                       @(Html.Kendo().DropDownListFor(m => m.DispositionActionId)
+                            .Name("DispositionActionId")
+                             .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(DispositionImmediacyList)
+                    .AutoBind(true)
+                       )
+                   </td>
+            </tr>
+        <tr>
+            <td>Planned Disposition</td>
+            <td>
+                @(Html.Kendo().DropDownListFor(m => m.PlannedDispositionId)
+                                .Name("PlannedDispositionId")
+                             .OptionLabel("Select")
+
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(DispositiontypeList)
+                             .Events(e =>
+                             {
+                                 e.Change("onSelectDisposition");
+                             })
+                             .AutoBind(true))
+            </td>
+            <td>Roadmap Target Year</td>
+            <td>@(Html.Kendo().TextBoxFor(m => m.RoadmapTargetYear)
+                    .HtmlAttributes(new { @style = "text-align:right" })
+            )</td>
+            <td>Disposition Rationale</td>
+            <td>@(Html.Kendo().DropDownListFor(m => m.DispositionRationaleId)
+                            .Name("DispositionRationaleId")
+                             .OptionLabel("Select")
+
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(DispositionRationaleList)
+                    .AutoBind(true)
+            )</td>
+
+        </tr>
+            <tr>
+                <td>Disposition Details</td>
+                <td>
+                    <div>
+                        @(Html.CheckBox("value1", new { @name = "value1", @id = "value1" })) <label>Value</label>
+                        @(Html.CheckBox("tco1", new { @name = "tco1", @id = "tco1" })) <label>TCO</label>
+                        @(Html.CheckBox("risk1", new { @name = "risk1", @id = "risk1" }))<label>Risk</label>
+                        @Html.HiddenFor(m => m.TCO)
+                        @Html.HiddenFor(m => m.Risk)
+                        @Html.HiddenFor(m => m.Value)
+
+
+                    </div>
+                </td>
+              
+                <td>Redundancy</td>
+                <td>@(Html.Kendo().DropDownListFor(m => m.RedundancyId)
+                            .Name("RedundancyId")
+                            .OptionLabel("Select")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                    .BindTo(AppRedundancyList)
+
+
+                    .AutoBind(true)
+                )</td>
+                <td>Targeted Platform Capability</td>
+                <td>@(Html.Kendo().DropDownListFor(m => m.TargetedPlatformCapability)
+                            .Name("TargetedPlatformCapability")
+                            .OptionLabel("Select")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            //.BindTo()
+                            .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Partial",
+                  Value = "Partial"
+              },
+              new SelectListItem() {
+                  Text = "NA",
+                  Value = "NA"
+              },
+              new SelectListItem() {
+                  Text = "TBD",
+                  Value = "TBD"
+              },
+              new SelectListItem() {
+                  Text = "Yes",
+                  Value = "Yes"
+              },
+              new SelectListItem() {
+                  Text = "No",
+                  Value = "No"
+              }
+          })
+
+                            .AutoBind(true)
+                )</td>
+            </tr>
+
+
+        <tr>
+            
+            <td>Roadmap Target App</td>
+            <td rowspan="2">
+                @Html.HiddenFor(m => m.MultipleRoadmap)
+
+                @(Html.Kendo().MultiSelectFor(m => m.RoadmapTargetApp)
+    .Name("RoadmapTargetApp")
+    .Placeholder("Select")
+     .DataTextField("Text")
+    .DataValueField("Value")
+    .BindTo(AppInventoryList)
+   .HtmlAttributes(new { @style = "width: 16em;height: auto; " })
+
+    //.Events(e =>
+    //{
+    //    e.Change("onSelectCountry");
+    //})
+    .AutoBind(true)
+                )
+            </td>
+            <td colspan="2">Replacement Alternative<br />
+     @Html.TextAreaFor(m => m.ReplacementAlternatives, new { @class = "k-textbox", rows = 2, cols = 10, style = "width:90%; height:30%; " })
+             </td>
+            <td>Automated Disposition</td>
+            <td>@(Html.Kendo().TextBox()
+            .Name("AutomatedDisp").Enable(false)
+                    .HtmlAttributes(new { @style = "text-align:right" })
+            )</td>
+
+
+            </tr>
+            <tr>
+                <td colspan="4"></td>
+                <td>Automated Disposition solution</td>
+                <td>@(Html.Kendo().TextBox()
+           .Name("AutomatedDispSolution").Enable(false)
+                    .HtmlAttributes(new { @style = "text-align:right" })
+                )</td>
+            </tr>
+            <tr>
+                <td colspan="4"></td>
+                <td>Planned Disposition solution</td>
+                <td>
+                    @(Html.Kendo().DropDownListFor(m => m.PlannedDispSolutionId)
+                     .Name("PlannedDispSolutionId")
+                     .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+
+       .DataSource(d => d
+                         .Read(read => read.Action("APRSelectedDispositionSolutionlist1", "APRAjaxService").Data("GetDispId"))
+                     )
+
+                    .AutoBind(true)
+                )
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <td align="left" colspan="6"><div><h4>Analysis</h4></div></td>
+        </tr>
+            <tr>
+                <td colspan="6"><div>
+    @(Html.Kendo().EditorFor(m => m.Analysis)
+.Name("Analysis")
+.HtmlAttributes(new { style = "height:200px; width:97%;", aria_label = "editor" })
+      .Resizable(resizable => resizable.Content(true).Toolbar(true))
+      .ImageBrowser(imageBrowser => imageBrowser
+          .Image("~/Content/UserFiles/Images/{0}")
+          .Read("Read", "ImageBrowser")
+          .Create("Create", "ImageBrowser")
+          .Destroy("Destroy", "ImageBrowser")
+          .Upload("Upload", "ImageBrowser")
+          .Thumbnail("Thumbnail", "ImageBrowser")
+      ).Value(@<text></text>))
+
+</div></td>
+
+            </tr>
+            <tr>
+                <td colspan="6">Recommendation</td>
+
+            </tr>
+            <tr>
+                <td colspan="6">
+                    @(Html.Kendo().EditorFor(m => m.Recommendation)
+.Name("Recommendation")
+.HtmlAttributes(new { style = "height:200px; width:97%;", aria_label = "editor1" })
+      .Resizable(resizable => resizable.Content(true).Toolbar(true))
+      .ImageBrowser(imageBrowser => imageBrowser
+          .Image("~/Content/UserFiles/Images/{0}")
+          .Read("Read", "ImageBrowser")
+          .Create("Create", "ImageBrowser")
+          .Destroy("Destroy", "ImageBrowser")
+          .Upload("Upload", "ImageBrowser")
+          .Thumbnail("Thumbnail", "ImageBrowser")
+      ).Value(@<text></text>))</td>
+
+            </tr>
+        
+        </table>
+
+
+</div>
+
+        
+
+        <div>
+            <footer class="col-xs-12 form-group text-right">
+                @(Html.Kendo().Button()
+                .Name("btnNext")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+                @*<input type="button" class="btn-primary" onclick="onNextClick(this);" id="btnNext" value="Next" />*@
+            </footer>
+        </div>
+    </div>
+<script>
+    function onSelectDisposition(e) {
+        @*var app = $("#PlannedDispositionId").data("kendoDropDownList");
+        var dispid = app.value();
+        var mod = {
+            PlannedDisposition: dispid
+        }
+        var baseUrl = '@Url.Content("~/PortfolioAnalyzer/APRAjaxService/APRSelectedDispositionSolutionlist")';
+        var data = JSON.stringify(mod);
+        $.ajax({
+            type: 'post',
+            url: baseUrl,
+            async: false,
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                alert(response.PlannedDispSolution);
+               
+             
+            },
+            error: function (err, response) {
+                //alert(err.responseText);
+            }
+        });*@
+        var name = $("#PlannedDispSolutionId").data("kendoDropDownList");
+        name.dataSource.read();
+        }
+    function GetDispId() {
+
+        var app = $("#PlannedDispositionId").data("kendoDropDownList");
+        return {
+            PlannedDisposition: app.value()
+        }
+    }
+</script>
+
+
+
+
+

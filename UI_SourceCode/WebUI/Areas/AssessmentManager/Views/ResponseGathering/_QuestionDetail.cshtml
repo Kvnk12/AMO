@@ -1,0 +1,121 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+
+<div id="Id-dynamicpartial">
+    <div class="custom-scrollbar" style="height:26em;overflow-x:hidden;overflow-y:auto;padding-right:5px">
+        <div class="ques-detail-main">
+            <label id="Idquesno" class="ques-label-2">Question @Model.SQNo:</label>
+            <div class="ques-display">
+                <div class="ques-display-textarea">
+                    <label id="Idquestext">@Model.Question</label>
+                   @Html.HiddenFor(m => m.SQNo)
+                </div>
+            </div>
+        </div>
+        <div style="display:flex">
+            <div style="margin: 4px 4px 4px auto;display:flex">
+                @*<button class="btn-selfassessment" onclick="openSelfAssessment()"></button>*@
+                <input type="hidden" id="Id-Discipline" value=@Model.DisciplineId />
+                <input type="hidden" id="Id-Component" value=@Model.ComponentId />
+                <input type="hidden" id="Id-Aspect" value=@Model.AspectID />
+                <label id="responseIDOnQuesClick" hidden>@Model.QuestionResponseID</label>
+                <label id="responseStatusOnQuestionClick" hidden>@Model.responseStatus</label>
+                <label id="boolFollowResponseCount" hidden>@Model.boolFollowResponseCount</label>
+                <input type="hidden" id="ActiveSQNo" value=@Model.SQNo>
+                <button title="self assessment" id="selfAssessmentbtn" onclick="buttonEngagementSelfAssessment()" class="btn-selfassessment"></button>
+                <div id="tooltips-exans" style="display:flex">
+                    <span id="tooltips-exans" href="#">
+                        <label>Example Answer</label>
+                        <img src="@Url.Content("~/Content/images/ex_answer.svg")" width="20" height="20" />
+                    </span>
+                </div>
+            </div>
+        </div>
+ @(Html.Kendo().Tooltip()
+  .For("#tooltips-exans")
+  .Filter("span")
+  .Content(@Model.ExampleAnswer)
+  .Position(TooltipPosition.Top)
+  .Width(250)
+ // .Height(50)
+  .AutoHide(true)
+)
+        <div class="ques-eng-res">
+            <div>
+                @Html.Partial("_DynamicResponses")
+            </div>
+        </div>
+        <div Id="id-eng-ques-edit">
+            <div class="ques-refmaterial refMat">
+                <label class="ques-label-1" style="color: #707070">Reference Material:</label>
+                <div class="textBoxScroll" style="margin-left:12px;display:flex" id="RefFiles_div">
+                    <div>
+                        <div id="browseButton">
+                            @(Html.Kendo().Upload()
+     .Name("RefFiles")
+     .Multiple(true)
+     .Async(a => a
+     .Save("Save_Reference", "ResponseGathering")
+     .AutoUpload(false)
+    )
+     .Events(e => e.Upload("onUpload")
+                    .Select("onSelect")
+                    //.Complete("onComplete")
+                    .Success("onSuccess"))
+     .Validation(validation => validation
+     .AllowedExtensions(new string[] { ".txt", ".ppt",".pptx", ".xlsx",".docx",".pdf",".svg",".zip",".jpeg",".png" })
+     .MaxFileSize(double.MaxValue))
+     .Messages(m => m.Select("Browse")
+     )
+)
+                            <span style="color: #FC0606;display:block; font-size: 10px; align-content: center; width: 7vw; align-content: baseline;">*File size < 5MB</span>
+
+                        </div>
+                        @*<span style="color: #FC0606; display: block; font-size: 10px; align-content: center; width: 7vw; align-content: baseline;">Only txt, ppt, pptx, xlsx, docx, pdf allowed</span>*@
+                    </div>
+                    <div class="attach-files" id="fileAttach" style="display: inline-flex; width: 80%; flex-wrap: wrap; gap: 1px;margin:0 1em">
+                        @{
+                            if (Model.RespAttachment != null)
+                            {
+                                foreach (var files in Model.RespAttachment)
+                                {
+
+                                    <div class="fileAttachment" id="attach_@files.Id">
+                                        @files.filename<span aria-hidden='true' class="fileAtt-delbtn" onclick='removeFile("@files.Id")'>&times;</span>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                    <button id="browseSave" class="ques-upload" onclick="SaveFiles()">Upload</button>
+                </div>
+
+
+            </div>
+            <div class="eng-rating-display">
+                <label class="ques-label-1">Engagement Team Self Assessment</label>
+                <div style="margin-left:12px" title="@Model.engagementComments">
+                    @*Rating : @Model.EngagementRating*@
+
+                    Rating :<label id="eng-rating-display">@Model.EngagementRating</label>
+
+                </div>
+            </div>
+
+
+
+            <div class="ques-deatil-footer">
+                <button class="custom-button" type="button" id="btnCancel" onclick="onCancelClick(SQNo.value,AssessmentID.value)">CANCEL</button>
+                <button class="custom-button" title="Engagement Rating" type="button" id="btnrating" onclick="buttonEngagementSelfAssessment()">Rating</button>
+
+
+            </div>
+
+        </div>
+
+        @Html.Partial("_SelfAssessmentEngagement", Model)
+
+    </div>
+   
+</div>

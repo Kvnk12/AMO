@@ -1,0 +1,231 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClassAndCategoryInput
+@{ ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    //Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml"; }
+
+
+
+<div>
+    <ol class="breadcrumb">
+        <li>Idea Manager</li>
+        <li class="active">Master Configurations</li>
+    </ol>
+</div>
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div>
+        <div class="selectApp bamSubhdArea form-horizontal">
+            <div class="left">
+                <h4>Configurations</h4>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+
+
+<div style="padding: 0; min-height: 900px;">
+
+    <div>
+        <div>
+            @Html.Partial("_Classifications")
+            @Html.Partial("_Categories")
+            <!-- Optional: clear the XS cols if their content doesn't match in height -->
+            <div class="clearfix visible-xs"></div>
+
+        </div>
+        <!--/.end of row-->
+
+        <div>
+            @{ if (Model.CatCreate == "catcreate" || (Model.CategoryId > 0 && Model.ClassifiationId > 0))
+                            {
+                @Html.Partial("_CatCreate") } }
+        </div>
+
+
+
+        <div>
+            @{ if (Model.ClassCreate == "classcreate" || (Model.ClassifiationId > 0 && Model.Classification.Length > 0))
+                            {
+                @Html.Partial("_ClassCreate") } }
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+
+    $(document).ready(function () {
+
+        $('.selectpicker').selectpicker();
+        //$('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (SelectedclientId != 0) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+
+
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?clientId={clientId}';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?clientId={clientId}';
+                }
+                baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                window.location = baseurl;
+                return false;
+
+
+                //var localToServer = "/";
+                //var sPageURL = window.location.search.substring(1);
+                //var sURLVariables = sPageURL.split('&');
+
+                //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                //}
+
+                //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?clientId={clientId}");
+
+                ////window.location = strUrl;
+
+                //strUrl = strUrl.replace("{clientId}", SelectedclientId);
+                //window.location = strUrl;
+                //return false;
+            }
+
+        });
+
+
+
+    })
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode != 44 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        var classssid = @Model.ClassifiationId;
+        $('#btnAddCategory').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            if(classssid != null && classssid != 0)
+            {
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?CatCreate=catcreate&ClassId=@Model.ClassifiationId';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?CatCreate=catcreate&ClassId=@Model.ClassifiationId';
+                }
+                window.location = baseurl;
+                return false;
+            }
+            else {
+                alert("Select the Classification to add the Categories!");
+            }
+@*            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?CatCreate=catcreate&ClassId=@Model.ClassifiationId");
+
+            window.location = strUrl;*@
+
+        });
+
+        $('#btnAddClassification').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+
+
+            if (href[3].toLowerCase() == 'ideamanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?ClassCreate=classcreate';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?ClassCreate=classcreate';
+            }
+            window.location = baseurl;
+            return false;
+
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ClassificationAndCategoryGrid/DisplayClassAndCategory/?ClassCreate=classcreate");
+
+            //window.location = strUrl;
+        });
+    });
+
+</script>
+
+<script>
+
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+</script>

@@ -1,0 +1,78 @@
+﻿@model IList<WebUI.Areas.ClientProfileManager.ViewModel.ScheduleJobsViewModel>
+
+<div class="form-horizontal">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+    }
+    @if (TempData["SuccessFileUploadMsg"] != null)
+    {
+        <p class="alert alert-success">
+            <strong>Success:</strong><label>@TempData["JobCreationSuccess"].ToString()</label>
+        </p>
+    }
+</div>
+<div class="form-horizontal" id="scheduleData">
+    <div class="form-group">
+        <table id="example" class="table table-striped" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Job Name </th>
+                    <th>Job Description</th>
+                    <th>Schedule Type</th>
+                    <th>Next Run Date</th>
+                    <th>Job Enabled</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model!=null)
+               {
+                foreach (var job in Model)
+                {
+                <tr>
+                    <td>@job.Name</td>
+                    <td>@job.Description</td>
+                    <td>@job.FrequencyType</td>
+                    <td>@job.NextRrunDate</td>
+                    <td>@job.JobEnabled</td>
+                    <td><a href="#" data-id="@job.Name" class="hrefJobClass"><img src="~/Content/images/delete.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:20px" /></a></td>
+                 </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+    $(".hrefJobClass").click(function () {
+        //alert('in partial');
+        //var jobName = $(this).attr("data-id");
+        var templateidentifier = $('#drpTemplateIdentifier :selected').val();
+        if (templateidentifier == '')
+            templateidentifier = $('#hidClientName').val().replace(' ', '');
+        var dataToPost = {
+            JobName: $(this).attr("data-id"),
+            ApplicationId: $('#drpAppId :selected').val(),
+            TemplateIdentifier: templateidentifier
+        };
+        var deljoburl = '@Url.Content("~/clientprofilemanager/DataUpload/DeleteJob")';
+       // alert(baseurl+'del');
+        $("#divLoading").show();
+        $.ajax(
+        {
+            url: deljoburl,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#partialJobsDiv").html(data);
+                $("#divLoading").hide();
+            },
+            error: function () {
+                $("#divLoading").hide();
+            }
+        });
+    });
+</script>

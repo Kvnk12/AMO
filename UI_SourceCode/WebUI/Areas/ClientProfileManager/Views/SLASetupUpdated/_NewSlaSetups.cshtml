@@ -1,0 +1,664 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@model MetricSpecificationsModel
+
+@Html.AntiForgeryToken()
+@(Html.Kendo().Window()
+                    .Name("chartSLACreateWindow")
+                    .Title("SLA Setup")
+                    .Content(@<text>
+    <input type="hidden" id="Id" name="Id" value=@Model.Id>
+<div class="slasetup-create">
+    <div class="slasetup-section">
+        <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> <span class="mandate">*</span> Account</label>
+            </div>
+            <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.AccountId)
+                                .Name("AccountId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.AccountNamesList)
+                                .Events(e =>
+                                {
+                                    e.Change("onSelectAccount");
+                                })
+                                .AutoBind(true)
+                    )
+                <label id="Account_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> <span class="mandate">*</span> Account Contract</label>
+            </div>
+                       <div class="custom-dropdown">
+ @*@(Html.Kendo().DropDownList()
+                            .Name("ContractId")
+                            .DataTextField("Text")
+                            .OptionLabel("Select")
+                            .DataValueField("Value")
+                            //.DataSource(d => d.Read(r => r.Action("", "")))
+                            .AutoBind(true)
+                    )*@
+           @(Html.Kendo().DropDownListFor(e => e.ContractId)
+              .Name("ContractId")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .AutoBind(false)
+              .OptionLabel("Select")
+              .DataSource(d => d
+              .Read(read => read.Action("getContractId", "SLASetupUpdated").Data("GetAccId")))
+              )
+             <label id="Contract_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> <span class="mandate">*</span> Tool Priority</label>
+            </div>
+                       <div class="custom-dropdown">
+   @(Html.Kendo().DropDownListFor(e => e.Priority)
+                                    .Name("Priority")
+                                    .DataTextField("Text")
+                                    .OptionLabel("Select")
+                                    .DataValueField("Value")
+                                       .BindTo(new List<SelectListItem>() {
+                                    new SelectListItem() {
+                                        Text = "1",
+                                        Value = "1"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "2",
+                                        Value = "2"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "3",
+                                        Value = "3"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "4",
+                                        Value = "4"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "5",
+                                        Value = "5"
+                                    }
+                                })
+                                    .AutoBind(true)
+                    )
+                            <label id="Priority_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+
+
+         <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Client Priority</label>
+            </div>
+                          <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.ClientPriority)
+                     .Name("ClientPriority")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "15" })
+                    )
+                </div>
+        </div>
+
+         <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Weightage</label>
+            </div>
+            <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.Weightage)
+.Name("Weightage")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"><span class="mandate">*</span>Metric Status</label>
+            </div>
+                        <div class="custom-dropdown">
+    @(Html.Kendo().DropDownListFor(e => e.MetricStatusId)
+                                    .Name("MetricStatusId")
+                                    .DataTextField("Text")
+                                    .OptionLabel("Select")
+                                        .SelectedIndex(0)
+                                    .DataValueField("Value")
+                                     .BindTo(Model.MetricStatusList)
+                                    //.DataSource(d => d.Read(r => r.Action("", "")))
+                                    .AutoBind(true)
+                    )
+                             <label id="MetricStatus_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"><span class="mandate">*</span>Has SLA</label>
+            </div>
+              <div class="custom-checkbox">
+                    @(Html.Kendo().CheckBoxFor(e => e.HasSLA)
+.Name("HasSLA")
+                    )
+
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric Start Date</label>
+            </div>
+             <div class="custom-datepicker">
+                            @(Html.Kendo().DatePickerFor(e => e.StartDate)
+.Name("StartDate")
+                            )
+                    </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                 <label class="custom-blue-label">Metric End Date</label>
+            </div>
+             <div class="custom-datepicker">
+                            @(Html.Kendo().DatePickerFor(e => e.EndDate)
+.Name("EndDate")
+                            )
+                    </div>
+        </div>
+
+    </div>
+    <div class="slasetup-section">
+               <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Metric Baseline</label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.MetricBaseline)
+.Name("MetricBaseline")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+                 </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric Target</label>
+            </div>
+            <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.MetricTarget)
+.Name("MetricTarget")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric Unit</label>
+            </div>
+            <div class="custom-dropdown">
+                    @*@(Html.Kendo().DropDownListFor(e => e.MetricUnit)
+                                    .Name("MetricUnit")
+                                    .DataTextField("Text")
+                                    .OptionLabel("Select")
+                                    .SelectedIndex(0)
+                                    .DataValueField("Value")
+                                    .BindTo(Model.MetricUnitList)
+                                    .AutoBind(true)
+                    )*@
+
+                  @(Html.Kendo().TextBoxFor(e => e.MetricUnit)
+                  .Name("MetricUnit")
+                  .Enable(false)
+                  .HtmlAttributes(new { @maxlength = "100" })
+                  )
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"><span class="mandate">*</span> Metric Owner :</label>
+            </div>
+            <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.MetricOwner)
+.Name("MetricOwner")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                    )
+                <label id="MetricOwner_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                </div>
+        </div>
+               <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">SLA Compliance Calculation</label>
+                    </div>
+                    <div class="">
+                          @Html.TextAreaFor(m => m.CalculationData, new { @class = "", rows = "10", placeholder = "Description", tabindex = "15" })
+                        </div>
+               </div>
+    </div>
+    <div class="slasetup-section">
+           <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Clock Type:</label>
+                    </div>
+                    <div class="element1"> 
+                        @(Html.Kendo().RadioButtonFor(e => e.Clocksetup).Label("Clock Hours").Name("Clocksetup").Value((int)SLAClock.ClockHours)
+                                   .HtmlAttributes(new { @class = "firstRadio" })
+                        )
+                        </div>
+               <div class="element2">
+                          @(Html.Kendo().RadioButtonFor(e => e.Clocksetup).Label("Business Hours").Name("Clocksetup").Value((int)SLAClock.BusinessHours)
+                         .HtmlAttributes(new { @class = "secondRadio" })
+                        )
+                        </div>
+           </div>
+        <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">SLA Compliance Units:</label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.ComplianceUnits)
+.Name("ComplianceUnits")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+           </div>
+        <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">SLA Compliance Baseline: >=</label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.ComplianceBaseline)
+.Name("ComplianceBaseline")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+           </div>
+        <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">SLA Compliance Target: >=</label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.ComplianceTarget)
+.Name("ComplianceTarget")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+           </div>
+        <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Exceeds SLA Expectations: ></label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.ExceedsExpectation)
+.Name("ExceedsExpectation")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+            <div id="green" class="circle"></div>
+           </div>
+                <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Met SLA Expectations: btw</label>
+                    </div>
+                    <div class="custom-textbox sla-setup-txt">
+                            @(Html.Kendo().TextBoxFor(e => e.MetExpectationlowerlimit)
+.Name("MetExpectationlowerlimit")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+            <label class="custom-blue-label">and</label>
+             <div class="custom-textbox sla-setup-txt">
+                            @(Html.Kendo().TextBoxFor(e => e.MetExpectationhigherlimit)
+.Name("MetExpectationhigherlimit")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+                        </div>
+                    <div id="blue" class="circle"></div>
+           </div>
+                <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Below SLA Expectations: ></label>
+                    </div>
+                    <div class="custom-textbox">
+                            @(Html.Kendo().TextBoxFor(e => e.BelowExpectation)
+.Name("BelowExpectation")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "100" })
+                            )
+
+                        </div>
+                    <div id="red" class="circle"></div>
+           </div>
+    </div>
+</div>
+<div class="sla-setup-bottom">
+                    <div style="margin: 0 1em 0 0;">
+                        <button class="custom-button btn-cancel"  onclick="onCancelforms()" type="reset" id="btnCancel">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button class="custom-button"  onclick="onsubmitforms()"  id="btnAdd">SAVE</button>
+                        <button class="custom-button"  onclick="onsubmitforms_EDIT()"  id="btnEdit">SAVE</button>
+                      @*  <button class="custom-button" onclick="onSave()" type="button" id="btnAdd">SAVE</button>*@
+                          @*<input id = "Submit" type = "submit" value = "submit" />*@
+                    </div>
+</div>
+
+                </text>)
+                                                    .Visible(false)
+                                                    .Draggable()
+                                                    .Resizable()
+                                                    .Width(1000)
+                                                    .Height(500)
+                                                    .AutoFocus(false)
+                                                    .Modal(true)
+                                                    .Actions(actions => actions.Close())
+
+)
+
+
+
+<script>
+
+
+    /*CREATE*/
+    function onsubmitforms() {
+        console.log("Create");
+
+        $('#MetricStatus_alert').hide();
+        $('#MetricOwner_alert').hide();
+        $('#Account_alert').hide();
+        $('#Contract_alert').hide();
+        $('#Priority_alert').hide();
+        var AccountId = $("#AccountId").data("kendoDropDownList").value();
+        var AccountName = $("#AccountId").data("kendoDropDownList").text();
+        if (AccountId == '') {
+            $('#Account_alert').show();
+            return false;
+        }
+        var ContractId = $("#ContractId").data("kendoDropDownList").value();
+        var ContractName = $("#ContractId").data("kendoDropDownList").text();
+        if (ContractId == '') {
+            $('#Contract_alert').show();
+            return false;
+        }
+        var Priority = $("#Priority").data("kendoDropDownList").value();
+        if (Priority == '') {
+            $('#Priority_alert').show();
+            return false;
+        }
+        var ClientPriority = $("#ClientPriority").data("kendoTextBox").value();
+        var MetricUnit = $("#MetricUnit").data("kendoTextBox").value();
+        var MetricStatusId = $("#MetricStatusId").data("kendoDropDownList").value();
+        if (MetricStatusId == '') {
+            $('#MetricStatus_alert').show();
+            return false;
+        }
+
+        var Weightage = $("#Weightage").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var MetricBaseline = $("#MetricBaseline").data("kendoTextBox").value();
+        var MetricOwner = $("#MetricOwner").data("kendoTextBox").value();
+        var MetricTarget = $("#MetricTarget").data("kendoTextBox").value();
+        var ExceedsExpectation = $("#ExceedsExpectation").data("kendoTextBox").value();
+        var MetExpectationlowerlimit = $("#MetExpectationlowerlimit").data("kendoTextBox").value();
+        var MetExpectationhigherlimit = $("#MetExpectationhigherlimit").data("kendoTextBox").value();
+        var BelowExpectation = $("#BelowExpectation").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var CalculationData = $("#CalculationData").val();
+        var StartDate = $("#StartDate").data("kendoDatePicker").value();
+        var EndDate = $("#EndDate").data("kendoDatePicker").value();
+        var Clocksetup = $('input[name=Clocksetup]:checked').val();
+        var HasSLA = $('#HasSLA:checked').val() ? true : false;
+        if (MetricOwner == '') {
+            $('#MetricOwner_alert').show();
+            return false;
+        }
+        var Id = document.getElementById("Id").value;
+        var MetricId =  document.getElementById("tempID").innerHTML;
+        console.log(HasSLA)
+
+
+
+         var grid = $('#SLAGrid1').data('kendoGrid').dataSource;
+        /* console.log(grid._data.length);*/
+        var recLength = grid._data.length;
+        for (var i = 0; i < recLength; i++) {
+            /* console.log(grid._data[i]);*/
+            if (AccountId == grid._data[i].AccountId && ContractId == grid._data[i].ContractId && Priority == grid._data[i].Priority ) {
+
+                alert("You can have Single metric specification detail for given 'Account', 'Contract' and 'Priority' values. (" + AccountId + "/" + ContractId + "/" + Priority+")");
+                return false;
+            }
+        }
+
+        var mod = {
+            Id: Id,
+            AccountId: AccountId,
+            MetricId: MetricId,
+            ContractId: ContractId,
+            Priority: Priority,
+            ClientPriority: ClientPriority,
+            Weightage: Weightage,
+            MetricStatusId: MetricStatusId,
+            StartDate: StartDate,
+            EndDate: EndDate,
+            MetricBaseline: MetricBaseline,
+            MetricTarget: MetricTarget,
+            MetricOwner: MetricOwner,
+            ComplianceUnits: ComplianceUnits,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceTarget: ComplianceTarget,
+            ExceedsExpectation: ExceedsExpectation,
+            MetExpectationlowerlimit: MetExpectationlowerlimit,
+            MetExpectationhigherlimit: MetExpectationhigherlimit,
+            BelowExpectation: BelowExpectation,
+            ComplianceTarget: ComplianceTarget,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceUnits: ComplianceUnits,
+            CalculationData: CalculationData,
+            Clocksetup: Clocksetup,
+            MetricUnit: MetricUnit,
+            HasSLA: HasSLA,
+            booleanNewOrEdit:"New"
+
+        }
+
+        console.log("Before Ajax Call");
+
+        var data1 = JSON.stringify(mod);
+
+        baseurl = '@Url.Content("~/ClientProfileManager/SLASetupUpdated/SaveSlaSetupDetails")';
+
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                var popup = $("#chartSLACreateWindow").data("kendoWindow");
+                popup.close();
+                onCancelforms();
+                /* $("#Id").val("");*/
+                var grid = $("#SLAGrid1").data("kendoGrid");
+                grid.dataSource.read();
+
+            },
+            error: function (err, response) {
+                 alert(err.responseText);
+            }
+        });
+    }
+
+
+    //EDIT - function not in use need to discuss validation
+    function onsubmitforms_EDIT() {
+        console.log("Edit");
+        document.getElementById("btnAdd").style.display = "none";
+        document.getElementById("btnEdit").style.display = "block";
+        $('#MetricStatus_alert').hide();
+        $('#MetricOwner_alert').hide();
+        $('#Account_alert').hide();
+        $('#Contract_alert').hide();
+        $('#Priority_alert').hide();
+        var AccountId = $("#AccountId").data("kendoDropDownList").value();
+        var AccountName = $("#AccountId").data("kendoDropDownList").text();
+        if (AccountId == '') {
+            $('#Account_alert').show();
+            return false;
+        }
+        var ContractId = $("#ContractId").data("kendoDropDownList").value();
+        var ContractName = $("#ContractId").data("kendoDropDownList").text();
+        if (ContractId == '') {
+            $('#Contract_alert').show();
+            return false;
+        }
+        var Priority = $("#Priority").data("kendoDropDownList").value();
+        if (Priority == '') {
+            $('#Priority_alert').show();
+            return false;
+        }
+        var ClientPriority = $("#ClientPriority").data("kendoTextBox").value();
+        var MetricUnit = $("#MetricUnit").data("kendoTextBox").value();
+        var MetricStatusId = $("#MetricStatusId").data("kendoDropDownList").value();
+        if (MetricStatusId == '') {
+            $('#MetricStatus_alert').show();
+            return false;
+        }
+
+        var Weightage = $("#Weightage").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var MetricBaseline = $("#MetricBaseline").data("kendoTextBox").value();
+        var MetricOwner = $("#MetricOwner").data("kendoTextBox").value();
+        var MetricTarget = $("#MetricTarget").data("kendoTextBox").value();
+        var ExceedsExpectation = $("#ExceedsExpectation").data("kendoTextBox").value();
+        var MetExpectationlowerlimit = $("#MetExpectationlowerlimit").data("kendoTextBox").value();
+        var MetExpectationhigherlimit = $("#MetExpectationhigherlimit").data("kendoTextBox").value();
+        var BelowExpectation = $("#BelowExpectation").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var CalculationData = $("#CalculationData").val();
+        var StartDate = $("#StartDate").data("kendoDatePicker").value();
+        var EndDate = $("#EndDate").data("kendoDatePicker").value();
+        var Clocksetup = $('input[name=Clocksetup]:checked').val();
+        var HasSLA = $('#HasSLA:checked').val() ? true : false;
+        if (MetricOwner == '') {
+            $('#MetricOwner_alert').show();
+            return false;
+        }
+        var Id = document.getElementById("Id").value;
+        var MetricId =  document.getElementById("tempID").innerHTML;
+        console.log(HasSLA)
+
+
+
+
+
+        var grid = $('#SLAGrid1').data('kendoGrid').dataSource;
+        /* console.log(grid._data.length);*/
+        var recLength = grid._data.length;
+        for (var i = 0; i < recLength; i++) {
+            /* console.log(grid._data[i]);*/
+            if (AccountId == grid._data[i].AccountId && ContractId == grid._data[i].ContractId && Priority == grid._data[i].Priority) {
+
+                if (Id != grid._data[i].Id) {
+                    alert("You can have Single metric specification detail for given 'Account', 'Contract' and 'Priority' values. (" + AccountName + " / " + ContractName + " / " + Priority + ")");
+                    return false;
+                }
+            }
+        }
+
+
+        var mod = {
+            Id: Id,
+            AccountId: AccountId,
+            MetricId: MetricId,
+            ContractId: ContractId,
+            Priority: Priority,
+            ClientPriority: ClientPriority,
+            Weightage: Weightage,
+            MetricStatusId: MetricStatusId,
+            StartDate: StartDate,
+            EndDate: EndDate,
+            MetricBaseline: MetricBaseline,
+            MetricTarget: MetricTarget,
+            MetricOwner: MetricOwner,
+            ComplianceUnits: ComplianceUnits,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceTarget: ComplianceTarget,
+            ExceedsExpectation: ExceedsExpectation,
+            MetExpectationlowerlimit: MetExpectationlowerlimit,
+            MetExpectationhigherlimit: MetExpectationhigherlimit,
+            BelowExpectation: BelowExpectation,
+            ComplianceTarget: ComplianceTarget,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceUnits: ComplianceUnits,
+            CalculationData: CalculationData,
+            Clocksetup: Clocksetup,
+            MetricUnit: MetricUnit,
+            HasSLA: HasSLA,
+            booleanNewOrEdit:"Edit"
+
+        }
+
+        console.log("Before Ajax Call");
+
+        var data1 = JSON.stringify(mod);
+
+        baseurl = '@Url.Content("~/ClientProfileManager/SLASetupUpdated/SaveSlaSetupDetails")';
+
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                var popup = $("#chartSLACreateWindow").data("kendoWindow");
+                popup.close();
+                onCancelforms();
+                /* $("#Id").val("");*/
+                var grid = $("#SLAGrid1").data("kendoGrid");
+                grid.dataSource.read();
+
+            },
+            error: function (err, response) {
+                 alert(err.responseText);
+            }
+        });
+    }
+</script>

@@ -1,0 +1,205 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using System.Web.Mvc;
+@using System.Linq;
+
+@model WebUI.Areas.ClientProfileManager.Dto.UserINSurvey
+
+@{
+    ViewBag.Title = "Optimization Tool-Incident Navigator Survey";
+    // var clientlist = GetDropDownListItems.ClientList;
+    Layout = "~/Views/Shared/_Anonymouslayout.cshtml";
+    // var client = (Client)Session["Client"];
+    var v = new INUserSurveyController();
+
+    var cname = v.getCltName(Model.SurveyId);
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/Content/css/INstyles.css" />
+
+    string imageDataURL = null;
+    var Img = WebUI.Areas.ClientProfileManager.ClientProfileManagerHelper.getProfileClientFile(Model.ClientId);
+    if (Img != null)
+    {
+        string imageBase64Data = Convert.ToBase64String(Img);
+        imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
+
+    }
+}
+
+@using (Html.BeginForm("SubmitUserSurvey", "INUserSurvey", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+
+    <div class="container-fluid survey-header">
+        <figure class="brand-logo">
+            <span class="logo">
+                @*<img src="Content/images/incident_navigator_icon.png" alt="incident navigator icon">*@
+                <img src="~/Content/images/incident_navigator_icon.png" alt="incident navigator icon">
+                @if (imageDataURL != null)
+                {
+                    <img src="@imageDataURL">
+                }
+                else
+                {
+                    <a class="header-logo-client" href="#">
+                        @Model.ClientName
+                    </a>
+                }
+            </span>
+            <span class="ntt-logo">
+                <img src="~/Content/images/nttdata_logo.png" alt="NTT Data logo">
+            </span>
+        </figure>
+    </div>
+    <div class="survey-page-content">
+        <div class="survey-page-content-main">
+            <div class="left-content">
+                <h1>
+                    Optimization Tool-
+                    <span>Incident Navigator Survey</span>
+                </h1>
+                <img src="~/Content/images/incident_navigator_survey_blue.svg" alt="incident survey picture" />
+            </div>
+            <div class="center-content">
+                &nbsp;
+            </div>
+            <div class="right-content scrollbar-rail">
+
+
+                @Html.HiddenFor(model => Model.SurveyId)
+                @Html.HiddenFor(model => Model.UserSurveyToken)
+                <p>
+                    Dear <span class="survey-user">@Model.SurveyUserName</span>,<br /> Please note that you had a case opened supported by our team.
+                    Your Participation in survey is highly appreciated.
+                    <i>
+                        Thank you<br /> Application support and maintanance team at @cname
+                    </i>
+                </p>
+                <div class="survey-info">
+                    <div class="survey-info-details">
+                        <div class="form-group">
+                            <label>Case No : </label>
+                            <span> @Model.TicketId</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Description : </label>
+                            <span> @Model.Description</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="survey-feedback">
+                    <h4>Survey Questions</h4>
+                    <div class="form-group">
+
+                        <table class="table" cellpadding="0">
+
+                            <tbody>
+
+                                @{
+                                    for (int i = 0; i < Model.surveyCollection.Count; i++)
+                                    {
+                                        <tr>
+                                            <td style="word-break: break-word;" hidden>
+                                                <div> @Html.HiddenFor(model => Model.surveyCollection[i].Question)</div>
+                                                <div>
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].Hint)
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].SurveyUserId)
+                                                    @Html.HiddenFor(model => Model.surveyCollection[i].SurveyModelId)
+                                                </div>
+                                            </td>
+                                            <td>@Model.surveyCollection[i].Question</td>
+                                        </tr>
+                                        <tr class="select-section">
+                                            @*<td>@Model.surveyCollection[i].Hint</td>*@
+                                            <td>@Html.DropDownListFor(m => Model.surveyCollection[i].FinalRating, new SelectList(Model.surveyCollection[i].SurveyModelAnswers, "Value", "Text", Model.surveyCollection[i].FinalRating), "Nothing Selected", new { @class = "mycombo" })</td>
+                                            @*<td>@Html.TextAreaFor(m => Model.surveyCollection[i].Comments, new { @class = "form-control", placeholder = "Comments" })</td>*@
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td>Comments: </td>
+                                    </tr>
+                                    <tr class="comments-section">
+                                        <td>
+                                            @Html.TextAreaFor(m => Model.SurveyComments, new { @class = "form-control", placeholder = "" })
+                                        </td>
+                                    </tr>
+
+                                }
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                    <div class="form-buttons">
+                        <button type="button" name="btnSubmit" id="btnCancel" value="Cancel" class="btn btn-primary" tabindex="1">Cancel</button>
+                        @*<button type="button" name="btnSubmit" id="btnSave" value="Save" class="btn btn-primary" tabindex="1">Save</button>*@
+                        <button type="submit" name="btnSubmit" id="btnSubmit1" value="Submit" class="btn btn-primary" tabindex="3">Submit</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}
+<div id="mySurveyAlertModal" class="modal fade feedback-survey-alert" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                }
+                @if (TempData["ValidationSuccessMsgACK"] != null)
+                {
+                    var str = new HtmlString(@TempData["ValidationSuccessMsgACK"].ToString());
+                    <p>
+                        <label>@Html.Raw(str)</label>
+                    </p>
+                }
+                @if (TempData["ValidationSuccessMsg"] != null)
+                {
+                    <p>@Html.Raw(@TempData["ValidationSuccessMsg"].ToString())</p>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<footer class="page-footer">
+    <div class="container-fluid survey-footer">
+        <div id="copyrights">©2020 NTT DATA, Inc. All rights reserved. </div>
+    </div>
+</footer>
+<script src="~/Scripts/jquery-3.6.0.js"></script>
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.scrollbar-rail').scrollbar();
+        var InvDate = '@TempData["ValidationSuccessMsg"]';
+           if (InvDate == "") {
+            }
+            else {
+                $('#mySurveyAlertModal').modal('show');
+            }
+    });
+</script>
+
+

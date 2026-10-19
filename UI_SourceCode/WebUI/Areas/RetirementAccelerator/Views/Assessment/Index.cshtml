@@ -1,0 +1,535 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model ViewPageWbs
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Framework Builder";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/retirement-accelerator.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+
+}
+<div class="content-main dark-bg">
+    <div style="margin:8px 8px 8px 8px; min-height:800px;">
+
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li><a href="#" style="color:#fff;">Framework Builder</a></li>
+                <li class="active">Assess</li>
+            </ol>
+        </div>
+
+        <div>
+            <h5 style="text-align:center; color:white;">Assess</h5>
+            <div>
+                &nbsp; &nbsp;
+                <div style="display:flex">
+                    
+                    <label style="margin-left:10px; color:white;">Application:</label>
+                    <div class="custom-dropdown-type2" style="margin-left:10px; ">
+            @(Html.Kendo().DropDownList().Name("ApplicationName").DataTextField("Text").DataValueField("Value").OptionLabel("Select Application...")
+                        .Events(e => e.Change("OnAppDropDownChange"))
+                        .AutoBind(true)
+                        .DataSource(d => d
+                            .Read(read => read.Action("GetApplications", "Assessment"))
+                        )      )
+                    </div>
+                </div>
+                
+
+
+                <div style="margin:10px; margin-top:5px;">
+                    <div class="custom-kendo-tabstrip ">
+
+                        @(Html.Kendo().TabStrip()
+                                 .Name("tabstrip")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Assessment")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_Assess"));
+
+                                     tabstrip.Add().Text("Notes")
+                                         .Content(m => Html.Partial("_Notes"));
+
+
+                                     tabstrip.Add().Text("Disposition Recommendation")
+                                         .Content(m => Html.Partial("_Disposition"));
+
+
+                                 })
+
+
+                )
+
+                    </div>
+
+
+
+
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    @section Scripts{
+
+        <script type="text/javascript">
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function() {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    function GetAppId() {
+        var name = $("#ApplicationName").data("kendoDropDownList");
+        return {
+            ApplicationId:name.value()
+        }
+
+    }
+    $(window).on('load', function () {
+        $($('#Noteeditor').data().kendoEditor.body).attr('contenteditable', false);
+        $('#SaveDisposition').attr('disabled', true);
+        $('#CancelDisposition').attr('disabled', true);
+        $('#SaveAssess').attr('disabled', true);
+    });
+
+
+    function OnAppDropDownChange() {
+        var tre = $("#AssessGrid").data("kendoGrid");
+        tre.dataSource.read();
+        $('#SaveAssess').attr('disabled', false);
+        $('#SaveNotes').attr('disabled', false);
+        $('#SaveDisposition').removeAttr('disabled');
+        $('#CancelDisposition').removeAttr('disabled');
+        $($('#Noteeditor').data().kendoEditor.body).attr('contenteditable', true)
+        $('#ReplaceEditor').attr('disabled', false);
+        $('#ArchivalEditor').attr('disabled', false);
+        $('#DecommEditor').attr('disabled', false);
+        $("#DecommEstimate").data("kendoNumericTextBox").enable(true);
+        $("#ArchivalEstimate").data("kendoNumericTextBox").enable(true);
+        $("#ReplaceEstimate").data("kendoNumericTextBox").enable(true);
+
+        $("#check").attr('disabled', false);
+        OnApplicationChangeNote();
+        OnApplicationChangeDisp();
+    }
+
+
+
+    function OriginalRatingTemplate(data) {
+        var template = "<div class='ParentDiv'><div class='rate'>";
+        for (var i = 0; i < data.QuestionOptions.length; i++) {
+            var option = data.QuestionOptions[i];
+            var uniqId = 'Original' + String(data.Id) + String(data.QuestionOptions[i].Id);
+            var OrgUniqName = 'OriginalRating' + String(data.Id);
+            var rowUid = data.uid;
+            if (data.OriginalRating == option.Id) {
+                template += kendo.format("<input  data-rowuid='{4}' type='radio' checked  id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, OrgUniqName, rowUid);
+            }
+            else {
+                template += kendo.format("<input  data-rowuid='{4}' type='radio' id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, OrgUniqName, rowUid);
+            }
+        }
+        template += "</div></div>";
+        return template;
+    }
+
+    function FinalRatingTemplate(data) {
+        var template = "<div class='ParentDiv'><div class='rate'>";
+        for (var i = 0; i < data.QuestionOptions.length; i++) {
+            var option = data.QuestionOptions[i];
+            var uniqId = 'Final' + String(data.Id) + String(data.QuestionOptions[i].Id);
+            var FinUniqName = 'FinalRating' + String(data.Id);
+            if (data.FinalRating == option.Id) {
+                template += kendo.format("<input  type='radio' id='{0}' checked name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, FinUniqName);
+            }
+            else {
+                template += kendo.format("<input type='radio' id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, FinUniqName);
+            }
+        }
+        template += "</div></div>";
+        return template;
+    }
+
+    function setOriginalDataItem(item) {
+        var grid = $("#AssessGrid").data("kendoGrid");
+        var row = $(item).closest("tr");
+        var dataItem = grid.dataItem(row);
+        dataItem.set("OriginalRating", item.value);
+        console.log(dataItem);
+
+    }
+    function setFinalDataItem(item) {
+        var grid = $("#AssessGrid").data("kendoGrid");
+        var row = $(item).closest("tr");
+        var dataItem = grid.dataItem(row);
+        dataItem.set("FinalRating", item.value);
+        console.log(dataItem);
+    }
+
+
+    function setFinalAndOriginalRating() {
+        $('#AssessSaveFailure').hide();
+        $('#AssessSaveSuccess').hide();
+            // item.PreventDefault();
+            var RatingsList = [];
+            var grid = $("#AssessGrid").data("kendoGrid");
+            var dataSource = grid.dataSource;
+            //console.log(dataSource);
+            var allData = dataSource.data();
+            //console.log(allData.length);
+            for (i = 0; i < allData.length; i++) {
+                var uid = allData[i].uid;
+                var row = grid.tbody.find("tr[data-uid='" + uid + "']");
+                //var dataItem = grid.dataItem(row);
+
+                var FinUniqName = 'FinalRating' + String(allData[i].Id);
+                var finalRatingVal = $('input[name=' + FinUniqName + ']:checked', '.rate').val();
+                var originalUniqName = 'OriginalRating' + String(allData[i].Id);
+                var originalRatingVal = $('input[name=' + originalUniqName + ']:checked', '.rate').val();
+
+                console.log('OR: {0},   FR: {1}', originalRatingVal, finalRatingVal);
+
+
+                var AnswersCollection = {};
+                AnswersCollection.RowId = allData[i].Id;
+                AnswersCollection.OriginalRating = originalRatingVal;
+                AnswersCollection.FinalRating = finalRatingVal;
+                AnswersCollection.Comments = allData[i].Comments;
+
+                RatingsList.push(AnswersCollection);
+
+               // dataItem.set("FinalRating", finalRatingVal);
+               // dataItem.set("OriginalRating", originalRatingVal);
+                //dataItem.set("OR", 1);
+            }
+
+
+            //ajax call to controller
+            sendDataToController(RatingsList);
+        }
+
+
+
+        function sendDataToController(data) {
+            var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/AssessAjaxSave")';
+            var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+            var AppId = ApplicationDD.value();
+            var mod = {};
+            mod.ApplicationId = AppId;
+            mod.RatingsList = data;
+            mod.url = ReadURl;
+            mod.type = "POST";
+            mod.dataType = "json";
+            mod.data = JSON.stringify(mod);
+            mod.contentType = "application/json";
+            mod.success = function (response) {
+                //alert("success");
+                $('#AssessSaveSuccess').show();
+                var tre = $("#AssessGrid").data("kendoGrid");
+                tre.dataSource.read();
+            };
+            mod.error = function (response) {
+                $('#AssessSaveFailure').show();
+            };
+            $.ajax(mod);
+
+        }
+
+        function OnApplicationChangeNote() {
+            var editor = $("#Noteeditor").data("kendoEditor");
+            editor.value("");
+            var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+            var AppId = ApplicationDD.value();
+            var mod = {
+                AppId: AppId
+            };
+
+            var data = JSON.stringify(mod);
+            var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/getNotes")';
+
+            $.ajax(
+                {
+                    url: ReadURl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        var editor = $("#Noteeditor").data("kendoEditor");
+
+                        editor.value(data);
+
+                    }
+                })
+        }
+
+
+    function OnApplicationChangeDisp() {
+        var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+        //var Notedata = $('#Noteeditor').data('kendoGrid');
+        //Notedata.dataSource.read();
+
+        $('[name="ArchiveData"]').removeAttr('checked');
+        $('[name="IsDeCommissioned"]').removeAttr('checked');
+        $('[name="ReplaceAction"]').removeAttr('checked');
+        $('[name="ArchivalAction"]').removeAttr('checked');
+        $('[name="DecommAction"]').removeAttr('checked');
+        $('[name="ReplacementScope"]').removeAttr('checked');
+            var AppId = ApplicationDD.value();
+            var mod = {
+                AppId: AppId
+            };
+            var data = JSON.stringify(mod);
+            var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/getDispositionDetails")';
+            $.ajax(
+                {
+                    url: ReadURl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        $("#DecommEditor").val(data.DecommRecommendation);
+                        $("#ArchivalEditor").val(data.ArchivalRecommendation);
+                        $("#ReplaceEditor").val(data.ReplaceRecommendation);
+                        $("input[name=ReplaceAction][value=" + data.ReplaceAction + "]").prop('checked', 'checked');
+                        $("input[name=ArchivalAction][value=" + data.ArchivalAction + "]").prop('checked', 'checked');
+                        $("input[name=DecommAction][value=" + data.DecommAction + "]").prop('checked', 'checked');
+
+                        var numerictextbox = $("#DecommEstimate").data("kendoNumericTextBox");
+                        numerictextbox.value(data.DecommEstimate);
+                        var numerictextbox = $("#ArchivalEstimate").data("kendoNumericTextBox");
+                        numerictextbox.value(data.ArchivalEstimate);
+                        var numerictextbox = $("#ReplaceEstimate").data("kendoNumericTextBox");
+                        numerictextbox.value(data.ReplaceEstimate);
+                        //$($('#Noteeditor').data().kendoEditor.body).attr('contenteditable', false);
+
+
+
+                        $("input[name=ReplacementScope][value=" + data.ReplacementScopeId + "]").prop('checked', 'checked');
+
+                        if (data.ArchiveData == true) {
+                            $('#ArchiveData').prop('checked', true);
+                        }
+                        if (data.IsDeCommissioned == true) {
+                            $('#IsDeCommissioned').prop('checked', true);
+                        }
+                    }
+                })
+        }
+
+    function SaveDetails() {
+        var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+        var AppId = ApplicationDD.value();
+        //var decommeditor = $("#DecommEditor").data("kendoEditor");
+        var DecommContent = $("#DecommEditor").val();
+        //var archivaleditor = $("#ArchivalEditor").data("kendoEditor");
+        var ArchivalContent = $("#ArchivalEditor").val();
+        //var replaceeditor = $("#ReplaceEditor").data("kendoEditor");
+        var ReplaceContent = $("#ReplaceEditor").val();
+        var DecommEstimate = $('#DecommEstimate').val();
+        var ArchivalEstimate = $('#ArchivalEstimate').val();
+        var ReplaceEstimate = $('#ReplaceEstimate').val();
+        var ReplaceAction = $('input[name=ReplaceAction]:checked').val();
+        var ArchivalAction = $('input[name=ArchivalAction]:checked').val();
+        var DecommAction = $('input[name=DecommAction]:checked').val();
+        var ReplacementScope = $('input[name=ReplacementScope]:checked').val();
+        var ArchiveData = $('#ArchiveData').prop('checked');
+        var IsDeCommissioned = $('#IsDeCommissioned').prop('checked');
+
+        var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/saveDispositionDetails")';
+
+        var mod = {};
+
+        mod.Id = '';
+        mod.RAApplicationId = AppId;
+        mod.ReplacementScopeId = ReplacementScope;
+        mod.ArchiveData = ArchiveData;
+        mod.IsDeCommissioned = IsDeCommissioned;
+        mod.ReplaceRecommendation = ReplaceContent;
+        mod.ArchivalRecommendation = ArchivalContent;
+        mod.DecommRecommendation = DecommContent;
+        mod.ReplaceAction = ReplaceAction;
+        mod.ArchivalAction = ArchivalAction;
+        mod.DecommAction = DecommAction;
+        mod.ReplaceEstimate = ReplaceEstimate;
+        mod.ArchivalEstimate = ArchivalEstimate;
+        mod.DecommEstimate = DecommEstimate;
+
+        mod.url = ReadURl;
+        mod.type = "POST";
+        mod.dataType = "json";
+        mod.data = JSON.stringify(mod);
+        mod.contentType = "application/json";
+        mod.success = function (data) {
+            alert("success")
+        };
+        mod.error = function (data) {
+
+        };
+        $.ajax(mod);
+    }
+
+
+
+        function SaveDetails22() {
+            var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+            var AppId = ApplicationDD.value();
+            //var decommeditor = $("#DecommEditor").data("kendoEditor");
+            var DecommContent = $("#DecommEditor").val();
+            //var archivaleditor = $("#ArchivalEditor").data("kendoEditor");
+            var ArchivalContent = $("#ArchivalEditor").val();
+            //var replaceeditor = $("#ReplaceEditor").data("kendoEditor");
+            var ReplaceContent = $("#ReplaceEditor").val();
+            var DecommEstimate = $('#DecommEstimate').val();
+            var ArchivalEstimate = $('#ArchivalEstimate').val();
+            var ReplaceEstimate = $('#ReplaceEstimate').val();
+            var ReplaceAction = $('input[name=ReplaceAction]:checked').val();
+            var ArchivalAction = $('input[name=ArchivalAction]:checked').val();
+            var DecommAction = $('input[name=DecommAction]:checked').val();
+            var ReplacementScope = $('input[name=ReplacementScope]:checked').val();
+            var ArchiveData = $('#ArchiveData').prop('checked');
+            var IsDeCommissioned = $('#IsDeCommissioned').prop('checked');
+
+
+            var mod = {
+                Id:'',
+                RAApplicationId: AppId,
+                ReplacementScopeId: ReplacementScope,
+                ArchiveData: ArchiveData,
+                IsDeCommissioned: IsDeCommissioned,
+                ReplaceRecommendation: ReplaceContent,
+                ArchivalRecommendation: ArchivalContent,
+                DecommRecommendation: DecommContent,
+                ReplaceAction: ReplaceAction,
+                ArchivalAction: ArchivalAction,
+                DecommAction: DecommAction,
+                ReplaceEstimate: ReplaceEstimate,
+                ArchivalEstimate: ArchivalEstimate,
+                DecommEstimate: DecommEstimate
+            };
+            var data = JSON.stringify(mod);
+            var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/saveDispositionDetails")';
+            $.ajax(
+                {
+                    url: ReadURl,
+                    type: 'post',
+
+                    data: { model: data },
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+
+
+
+                    }
+
+                })
+        }
+
+
+
+        </script>
+
+    }
+
+    <style>
+        /*.k-edit-cell>.k-textbox, .k-edit-cell>.k-widget, .k-grid-edit-row>td>.k-textbox, .k-grid-edit-row>td>.k-widget, .k-grid-edit-row>td>.text-box {
+            width: 100%;
+            height:100%;
+            margin-left: 3px;
+            border-radius: 5px;
+        }*/
+
+        .k-grid-header th.k-header {
+            font-weight: bold;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            border: thin 1px #ccc;
+        }
+
+
+
+        .ParentDiv {
+            margin: 0;
+            padding: 0;
+        }
+
+        .rate {
+            float: left;
+            height: 26px;
+            padding: 0 10px;
+        }
+
+            .rate:not(:checked) > input {
+                position: absolute;
+                /*top: -9999px;*/
+                display: none;
+            }
+
+            .rate:not(:checked) > label {
+                float: right;
+                width: 1em;
+                overflow: hidden;
+                white-space: nowrap;
+                cursor: pointer;
+                font-size: 20px;
+                color: #ccc;
+            }
+
+                .rate:not(:checked) > label:before {
+                    content: ' ★ ';
+                }
+
+            .rate > input:checked ~ label {
+                color: #ffc700;
+            }
+
+            .rate:not(:checked) > label:hover,
+            .rate:not(:checked) > label:hover ~ label {
+                color: #deb217;
+            }
+
+            .rate > input:checked + label:hover,
+            .rate > input:checked + label:hover ~ label,
+            .rate > input:checked ~ label:hover,
+            .rate > input:checked ~ label:hover ~ label,
+            .rate > label:hover ~ input:checked ~ label {
+                color: #c59b08;
+            }
+    </style>
+</div>

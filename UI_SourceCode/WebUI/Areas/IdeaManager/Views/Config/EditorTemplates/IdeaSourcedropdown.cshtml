@@ -1,0 +1,25 @@
+﻿@using WebUI.Areas.IdeaManager.Controllers
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model string
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostIdeaController();
+    var sourcelist = cont.GetIdeaSource(client.ClientId);
+
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                .Name("IdeaSourceVal")
+                                .OptionLabel("Select Idea source")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(sourcelist)
+                                //.AutoBind(true)
+                                )

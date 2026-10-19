@@ -1,0 +1,74 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<WebUI.Areas.IncidentNavigator.Models.IncidentPopUpList>
+@*@model IList<WebUI.Areas.IncidentNavigator.Models.IncidentPopUpList>*@
+@{
+    ViewBag.Title = "_IncidentPopUp";
+    var searchcriteriaM = "";
+}
+
+
+<table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+
+    <thead>
+        <tr>
+            <th scope="col" width="10%">Incident ID</th>
+            <th scope="col" width="10%">Title</th>
+            <th scope="col" width="10%">Description</th>
+            <th scope="col" width="10%"></th>
+        </tr>
+    </thead>
+
+    @foreach (var item in Model)
+    {
+        searchcriteriaM = item.searchcriteria;
+        <tr>
+
+            <td style='text-align:right;'>
+                @Html.DisplayFor(modelItem => item.IncidentID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            
+
+            <td>
+                <div data-toggle="tooltip" data-placement="right" title="@item.Description" style = "overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">
+                    @Html.DisplayFor(modelItem => item.Description)
+               </div>
+            </td>
+
+            <td>
+                @Html.CheckBoxFor(modelItem => item.Checked, new { @class = "childchkboxAll", @value = item.IncidentID })
+            </td>
+          
+        </tr>
+       
+    }
+    
+   
+</table>
+<div id="incPopupPager" class="pagerclass">
+@(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("GetIncidentPopUp", new { searchCriteria= searchcriteriaM, page= page }))
+</div>
+<div class="">
+
+    <button type="button" id="btnSelect" onclick="SelectIncidents()" align="center" data-dismiss="modal" class="btn btn-primary" tabindex="30">Link Selected Incidents to KEDB</button>
+
+</div>
+
+<script>
+    $('#incPopupPager').on('click', 'a', function () {
+       // alert('here');
+        $.ajax({
+            url: this.href,
+            type: 'GET',
+            cache: false,
+            success: function (result) {
+                $('#PopUpDiv').html(result);
+            }
+        });
+        return false;
+    });
+</script>

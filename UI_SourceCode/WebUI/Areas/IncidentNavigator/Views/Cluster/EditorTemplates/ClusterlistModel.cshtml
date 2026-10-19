@@ -1,0 +1,23 @@
+﻿@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.IncidentNavigator.Dto;
+
+@model ClusterlistModel
+
+<div class="product-view k-widget">
+
+    <table>
+        <tr>
+            <td style="width:150px">
+                @(Html.TextBoxFor(p => p.ClusterLablefromCluster, new { @class = "k-textbox" }))
+                <span data-for="ProductName" class="k-invalid-msg"></span>
+            </td>
+            <td>
+                <div class="edit-buttons">
+                    <a class="k-button k-button-icontext k-update-button" href="\\#"><span class="k-icon k-i-check"></span></a>
+                    <a class="k-button k-button-icontext k-cancel-button" href="\\#"><span class="k-icon k-i-cancel"></span></a>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

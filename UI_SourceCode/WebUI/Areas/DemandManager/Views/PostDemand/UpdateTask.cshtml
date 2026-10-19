@@ -1,0 +1,332 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.ClientProfileManager;
+@using System.Data;
+@using System.Web.Mvc;
+@using System.Linq;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model DMTaskActivitiesModel
+
+@{
+    ViewBag.Title = "Optimization Tool-Demand Task Update";
+    Layout = "~/Views/Shared/_Anonymouslayout.cshtml";
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css"  rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+}
+<style>
+    g {
+        color: rgb(91,121,171);
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 18px;
+        margin-top: 1.5em;
+        width: 70%;
+        line-height: 2em;
+        font-family: HelveticaNeue;
+    }
+
+    .update-header {
+        background-color: #0079A1;
+        height: 80px;
+    }
+
+    .brand-logo {
+        padding: 0.7em 2em;
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .brand-logo span.logo {
+            display: flex;
+            color: #FFF;
+        }
+
+            .brand-logo span.logo img {
+                height: 2.6em;
+                margin-top: 15px;
+                margin-left: 7px;
+            }
+
+            .brand-logo span.logo p {
+                font-size: 0.9em;
+                letter-spacing: 1px;
+                align-self: center;
+                padding: 0 1em 0 0.4em;
+                font-family: 'HelveticaNeue-Thin';
+                font-weight: bold;
+            }
+
+                .brand-logo span.logo p span {
+                    font-size: 0.8em;
+                    font-weight: normal;
+                }
+
+        .brand-logo span.ntt-logo {
+            align-self: center;
+            padding-left: 1em;
+            font-size: 28px;
+            margin: 15px 15px 0px 0px;
+        }
+
+            .brand-logo span.ntt-logo img {
+                max-width: 4em;
+            }
+
+    .btn-primary {
+        color: #ffffff;
+        background-color: #428bca;
+        border-color: #357ebd;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 4px 4px 4px;
+        margin-bottom: 0;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+        width: 80px;
+        font-size: 16px;
+        background-color: rgb(91,121,171);
+    }
+
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+        color: #ffffff;
+        background-color: rgb(91,121,171);
+        border-color: rgb(91,121,171);
+    }
+    .k-listbox .k-item, .k-popup .k-list .k-item {
+        font-size: 15px;
+    }
+    .k-list-optionlabel.k-state-selected.k-state-focused {
+        background-color: rgb(91,121,171);
+    }
+    .k-list > .k-state-focused.k-state-selected, .k-listview > .k-state-focused.k-state-selected, .k-state-focused.k-state-selected, td.k-state-focused.k-state-selected {
+        box-shadow: inset 0 0 10px 3px rgb(91,121,171);
+        background-color: rgb(91,121,171);
+    }
+</style>
+<div class="content-main" style="height: 59vw;">
+    <div class="update-header">
+        <figure class="brand-logo">
+            <span class="logo">
+                &nbsp;<img src="~/Content/images/demand_manager_white.png" alt="demand manager icon">&nbsp;
+                <span style="color:white;margin-top:23px;font-size: 20px;padding: 0px 16px 0px 6px;">Demand Manager    </span>
+                &nbsp;
+                @if (Model.imgurl != null)
+                {
+                    <img src="@Model.imgurl">
+                }
+                else
+                {
+                    <a class="header-logo-client" href="#" style="color:white;margin-top:23px;font-size: 20px;padding-left: 18px;border-left:2px solid #fff">
+                        @Model.ClientName
+                    </a>
+                }
+
+            </span>
+            <span class="ntt-logo">
+                <img src="~/Content/images/nttdata_logo.png" alt="NTT Data logo">
+            </span>
+        </figure>
+    </div>
+
+    <div>
+        <div style="margin:4em;">
+            <div style="text-align:right;color:red;font-style:italic;font-size:11px">*Mandatory Fields</div>
+
+            <span style="font-size: 20px;color: rgb(91,121,171); font-weight: bold"><img src="~/Content/images/view_blue.svg" alt="view" style=" height: 16px;"> Task Details: </span><br />
+            <p>
+                <g>Demand Name :</g>  @Model.DemandName<br />
+                <g>Operational Lead :</g> @Model.opLead<br />
+                <g>Demand Task :</g> @Model.TaskName<br />
+                <g>Task Start Date :</g> @Model.stDate<br />
+                <g>Task Description :</g> @Model.taskDesc<br />
+                <br />
+            </p>
+            @Html.HiddenFor(m => m.uniqueid)
+            <div style="line-height:2em;">
+                <g style="display: flex;">
+                    <span class="mandate">*</span> Select Task Status :&nbsp;
+
+                    <div class="custom-dropdown" style="font-size:15px;">
+                        @(Html.Kendo().DropDownListFor(e => e.Status)
+                                            .Name("Status")
+                                            .DataValueField("Value")
+                                            .DataTextField("Text")
+                                            .OptionLabel("Select Status..")
+                                            .HtmlAttributes(new { style = "background-color:transparent" })
+                                            .BindTo(new List<SelectListItem>() {
+                                                            new SelectListItem() {
+                                                                   Text = "Complete",
+                                                                   Value = "Complete"
+                                                            },
+                                                            new SelectListItem() {
+                                                                   Text = "Cancel",
+                                                                   Value = "Cancel"
+                                                            },
+                                            })
+                        )
+                        <label id="Staus_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+
+                </g>
+                <br />
+                <g>
+                    Type your comments:
+                </g>
+                <br />
+                <textarea id="comments" name="comments" rows="5" cols="40" style="resize:none;font-size:16px;" placeholder="Please enter comments here">
+
+                    </textarea>
+                <br />
+
+
+                <br />
+                <button type="reset" class="btn btn-primary" onclick="cancel()">CANCEL</button>
+                <button type="button" class="btn btn-primary" onclick="updatetask()">SUBMIT</button>
+                @*<button onclick="this.href='@ViewBag.CancelTaskLink+&comments=' + document.getElementById('comments').value" class="btn btn-primary">Cancelled</button>
+                    <button onclick="this.href='@ViewBag.CompleteTaskLink+&comments=' + document.getElementById('comments').value" class="btn btn-primary">Completed</button>*@
+                @*<a href="javascript:;" onclick="this.href='@ViewBag.CancelTaskLink+&comments=' + document.getElementById('comments').value" class="btn btn-primary"><b>Cancel</b></a>
+                    <a href="javascript:;" onclick="this.href='@ViewBag.CompleteTaskLink+&comments=' + document.getElementById('comments').value" class="btn btn-primary"><b>Complete</b></a>*@
+            </div>
+        </div>
+        <div class="center-content">
+            &nbsp;
+        </div>
+
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <p class="credit" style="text-align:right">&copy;@DateTime.Now.Year NTT DATA, Inc. All rights reserved.</p>
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="completeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Complete Task</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" >
+                <img style="height:65px" src="~/Content/images/submit_tick.svg" />
+                <h3>Are you sure?</h3><br />
+                <h5 style="line-height:2em;">
+                    Do you really want to Complete this task? <br />
+                    Once Submit, this Action cannot be undone.
+                </h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">NO</button>
+                <button type="button" data-bs-dismiss="modal" class="btn btn-primary complete-task-modal">YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Cancel Task</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" >
+                <img style="height:65px" src="~/Content/images/cancel_cross.svg" />
+                <h3>Are you sure?</h3><br />
+                <h5 style="line-height:2em;">
+                    Do you really want to Cancel this task? <br />
+                    Once Submit, this Action cannot be undone.
+                </h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">NO</button>
+                <button type="button" data-bs-dismiss="modal" class="btn btn-primary cancel-task-modal">YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var comment = "";
+    function updatetask() {
+        comment = document.getElementById('comments').value;
+        var status = $("#Status").data('kendoDropDownList').value();
+        console.log(comment);
+        console.log(status);
+        if (status == "Complete") {
+            $('#completeModal').modal('show');
+            console.log("Completed");
+        }
+        if (status == "Cancel") {
+            $('#cancelModal').modal('show');
+            console.log("Cancelled");
+        }
+        //document.getElementById('statusid').innerHTML = status.value();
+    }
+    $(".complete-task-modal").click(function ()
+    {
+        //console.log(comment);
+        var taskcomment = comment.split(' ').join('%20');
+        var uniqueid ="@Model.uniqueid";
+        var Completeurl = "@ViewBag.CompleteTaskLink+&comments=" + taskcomment;
+        //console.log(Completeurl);
+        window.location.replace(Completeurl);
+      
+    });
+    $(".cancel-task-modal").click(function ()
+    {
+        //console.log(comment);
+        var taskcomment = comment.split(' ').join('%20');
+        var uniqueid = "@Model.uniqueid";
+        var Cancelurl = "@ViewBag.CancelTaskLink+&comments=" + taskcomment;
+        //console.log(Cancelurl);
+        window.location.replace(Cancelurl);
+
+    });
+    function cancel() {
+        document.getElementById('comments').value="";
+        $("#Status").data('kendoDropDownList').text('');
+    }
+</script>

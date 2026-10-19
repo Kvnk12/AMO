@@ -1,0 +1,190 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.ClientProfileManager;
+@using System.Data;
+@using System.Web.Mvc;
+@using System.Linq;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model DMTaskActivitiesModel
+
+@{
+    ViewBag.Title = "Optimization Tool-Demand Task Update";
+    Layout = "~/Views/Shared/_Anonymouslayout.cshtml";
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css"  rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+}
+<style>
+    g {
+        color: rgb(91,121,171);
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 18px;
+        margin-top: 1.5em;
+        width: 70%;
+        line-height: 2em;
+        font-family: HelveticaNeue;
+    }
+
+    .update-header {
+        background-color: #0079A1;
+        height: 80px;
+    }
+
+    .brand-logo {
+        padding: 0.7em 2em;
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .brand-logo span.logo {
+            display: flex;
+            color: #FFF;
+        }
+
+            .brand-logo span.logo img {
+                height: 2.6em;
+                margin-top: 15px;
+                margin-left: 7px;
+            }
+
+            .brand-logo span.logo p {
+                font-size: 0.9em;
+                letter-spacing: 1px;
+                align-self: center;
+                padding: 0 1em 0 0.4em;
+                font-family: 'HelveticaNeue-Thin';
+                font-weight: bold;
+            }
+
+                .brand-logo span.logo p span {
+                    font-size: 0.8em;
+                    font-weight: normal;
+                }
+
+        .brand-logo span.ntt-logo {
+            align-self: center;
+            padding-left: 1em;
+            font-size: 28px;
+            margin: 15px 15px 0px 0px;
+        }
+
+            .brand-logo span.ntt-logo img {
+                max-width: 4em;
+            }
+
+    .btn-primary {
+        color: #ffffff;
+        background-color: #428bca;
+        border-color: #357ebd;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 4px 4px 4px;
+        margin-bottom: 0;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+        width: 80px;
+        font-size: 16px;
+        background-color: rgb(91,121,171);
+    }
+
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+        color: #ffffff;
+        background-color: rgb(91,121,171);
+        border-color: rgb(91,121,171);
+    }
+
+</style>
+<div class="content-main" style="height: 59vw;">
+    <div class="update-header">
+        <figure class="brand-logo">
+            <span class="logo">
+                &nbsp;<img src="~/Content/images/demand_manager_white.png" alt="demand manager icon">&nbsp;
+                <span style="color:white;margin-top:23px;font-size: 20px;padding: 0px 16px 0px 6px;">Demand Manager    </span>
+                &nbsp;
+                @if (Model.imgurl != null)
+                {
+                    <img src="@Model.imgurl">
+                }
+                else
+                {
+                    <a class="header-logo-client" href="#" style="color:white;margin-top:23px;font-size: 20px;padding-left: 18px;border-left:2px solid #fff">
+                        @Model.ClientName
+                    </a>
+                }
+
+            </span>
+            <span class="ntt-logo">
+                <img src="~/Content/images/nttdata_logo.png" alt="NTT Data logo">
+            </span>
+        </figure>
+    </div>
+
+    <div>
+        <div style="margin:4em;">
+            @if (Model.TaskName != null)
+            {
+                <p>
+                    <g>Demand Name :</g> @Model.DemandName<br />
+                    <g>Demand Task :</g> @Model.TaskName<br />
+                    <g>Task Status :</g> @ViewBag.Status<br />
+                    <g>User Comments for the Task. </g><br /> @ViewBag.Comments<br />
+                    <br />
+                    <img style="height:40px" src="~/Content/images/submit_tick.svg" /><g>&nbsp;&nbsp;@ViewBag.Message</g>
+                </p>
+            }
+            else
+            {
+                <img style="height:40px" src="~/Content/images/cancel_cross.svg" /><g>&nbsp;&nbsp;@ViewBag.Message</g>
+            }
+        </div>
+        <div class="center-content">
+            &nbsp;
+        </div>
+
+    </div>
+
+    <div id="footer">
+        <div class="container">
+            <p class="credit" style="text-align:right">&copy;@DateTime.Now.Year NTT DATA, Inc. All rights reserved.</p>
+        </div>
+    </div>
+
+</div>
+

@@ -1,0 +1,49 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+
+
+@{
+    //IList<Variable> variables = Model.GetChildren();
+    //IList<VariableType> rootLevelItems = Model.GetRootLevelTypes();
+    //const string singleWidth = "190px";
+    //string width = String.Format("{0:f2}px", Math.Max(1500, variables.Count * 250));
+}
+
+
+@*<div class="container row vcmidpane">*@
+
+@*commented on 11th Feb 2014  by Kumar*@
+@*<div class="container row" style="width: @width; max-width: @width;">
+
+
+    @foreach (Variable variable in variables)
+        {
+        mdmVariableLabel label = AlignmentHelper.GetLabelFor(variable);
+        <div class="col-sm-3" style="width: 220px">
+            <div>
+                <div class="arrow-label-container" style="width: @singleWidth">
+                    <span class="arrow-label" title="@label.VariableLabel" style="width:@singleWidth; background-image: url('@Url.Content("~/Content/images/detailsblue-arrow-only.png")'); background-size: 100% 40px; background-repeat:no-repeat;">
+                        <span class="content">@label.VariableLabel</span>
+                    </span>
+                </div>
+                <ul class="list-group no-padding-left">
+                    <li class="list-group-item" style="min-height: 6em">@label.FullDescription</li>
+                </ul>
+                <div class="arrow-label-container">
+                    <span class="arrow-label" style="width:@singleWidth; background-image: url('@Url.Content("~/Content/images/detailsblue-arrow-only.png")'); background-size: 100% 40px; background-repeat:no-repeat;">
+                        <span class="content">metadata</span>
+                    </span>
+                </div>
+                <ul class="list-group no-padding-left">
+                    <li class="list-group-item"><strong>Score:</strong> 4</li>
+                    <li class="list-group-item"><strong>Weight: </strong>1</li>
+                    <li class="list-group-item"><strong>Revenue Impact:</strong> 6%</li>
+                    <li class="list-group-item"><strong>Cost Impact:</strong> 20%</li>
+                </ul>
+            </div>
+        </div>
+        }
+</div>*@

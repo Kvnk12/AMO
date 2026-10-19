@@ -1,0 +1,123 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Object
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.DemandManager.Dto;
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+
+
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.DMPostDemandModel>
+
+
+@*<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>*@
+
+<div>
+
+    @{
+//using System.Web.Mvc;
+
+//// var Client = (Client)Session["Client"];
+
+        <div style="height:1000px">
+            <div class="row">
+                <div class="col-sm-2">
+                        <button tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">Post New Demand</button>
+                </div>
+            </div>
+            <div>
+                <div>
+                    @*<div class="grid_4 height400" style="height:620px; width:100%">*@
+                    <div>
+                        <table class="table" cellpadding="0" cellspacing="0" style="width:100%">
+                        @*<table style="width:100%;">*@
+                            <thead>
+                                <tr>
+
+
+                                    <th><u>@Html.ActionLink("Last Modified Date", "DisplayDemands", new {Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>                                
+                                    <th><u>@Html.ActionLink("Demands", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Demands }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Posted by", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status Comments", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Created Date", "DisplayDemands", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                </tr>
+                            </thead>
+                           
+                            
+                                @{
+
+                                    var uid = (int)Session["UserId"];
+
+
+                                    foreach (var vwItem in Model)
+                                    {
+
+                                        var name = (DMStatus)vwItem.StatusId;
+
+                                        <tr>
+                                            <td> @vwItem.LastUpdatedDate </td>
+
+                                            <td>
+                                                @if ((vwItem.StatusId == (int)DMStatus.Created || vwItem.StatusId == (int)DMStatus.Declined) && (vwItem.CreatedBy == uid))
+                                                {
+                                                    
+                                                    @Html.ActionLink(vwItem.ItemName, "DisplayHomePage", "DemandManager", new {ClientId = vwItem.ClientId, ItemId = vwItem.Id, SaveData="", TabName="home" }, null)
+                                                }
+                                                else
+                                                {
+                                                    @vwItem.ItemName
+                                                }
+                                            </td>
+
+                                            <td> @vwItem.CreatedByUser </td>
+
+                                            <td>
+                                                @if (vwItem.StatusId == (int)DMStatus.Approved && (vwItem.CreatedBy == uid))
+                                                {
+                                                    <div data-toggle="tooltip" data-placement="right" title="Click here if Demand is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                        @name <br /> (@Html.ActionLink("Mark as Implemented", "implementedStatus", "DemandManager", new { idid = vwItem.Id }, null))
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    @name
+                                                }
+                                            </td>
+
+                                            <td> @vwItem.StatusComments </td>
+                                            <td> @vwItem.CreateDateString </td>
+
+                                        </tr>
+
+                                    }
+
+                                    //}
+
+
+                                }
+                           
+
+                        </table>
+                        <div class="pagination">
+                            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            @Html.PagedListPager(Model, page => Url.Action("DisplayDemands", new { page = page, sortOrder = Request["sortOrder"] }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                                    //}
+    }
+    <!--.valchainContent-->
+    <!--/.treeMenuContent container-->
+
+
+</div>
+

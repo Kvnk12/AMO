@@ -1,0 +1,264 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientAndAccountsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+    {        
+    <div class="accdetailArea">
+        <div class="accdetailhdr">
+            <div class="accdetailhd">
+                <h4>Account Contract Details</h4>
+                
+                    @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                    }
+                    @if (ViewData.ModelState.ContainsKey("Success"))
+                    {
+                         @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                    }
+                    @*Html.ValidationSummary(false,"")*@
+            </div>
+
+
+
+
+            <div class="leftarea form-horizontal">
+
+                <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+                <input hidden id="AccountId" value="@Model.AccountId.ToString()"   />
+                <input hidden id="Contract" value="@Model.ContractCreate.ToString()"   />
+                <input hidden id="Cancel" value="CancelClick" />
+
+
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ContractName)</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.ContractName, new { @class = "cust-textbox", placeholder = "Contract Name", tabindex = "15", id = "txtContractName" })
+                    </div>
+
+                </div>
+
+
+
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ContractStatus)</label>
+                    <div class="col-sm-5">
+                        @Html.DropDownListFor(m => m.clientAccountContractInput.ContractStatus, new SelectList(Model.clientAccountContractInput.AccountStatusList, "text", "text", Model.clientAccountContractInput.AccountStatusList), "", new { @class = "selectpicker", tabindex = "20",@style="color:black; width:18em;background:transparent;border:none;border-bottom:1px solid;" })
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ContractType)</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.ContractType, new { @class = "cust-textbox", placeholder = "Contract Type", tabindex = "25", id = "txtContractName" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.HoursOfService)</label>
+                    <div class="col-sm-5">
+                        @Html.DropDownListFor(m => m.clientAccountContractInput.HoursOfService, new SelectList(Model.clientAccountContractInput.HoursOfServiceTypes, "text", "text", Model.clientAccountContractInput.AccountStatusList), "", new { @class = "selectpicker", tabindex = "20", @style = "color:black; width:18em;background:transparent;border:none;border-bottom:1px solid;" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.NTTDataClientManager)</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.NTTDataClientManager, new { @class = "cust-textbox", placeholder = "Client Manager", tabindex = "25", id = "txtContractName" })
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.NTTDataDeliveryManager)</label>
+
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.NTTDataDeliveryManager, new { @class = "cust-textbox", placeholder = "Delivery Manager", tabindex = "30", id = "txtDelvyMngr" })
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ClientContractSponspor)</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.ClientContractSponspor, new { @class = "cust-textbox", placeholder = "Contract Sponsor", tabindex = "35", id = "txtClientName" })
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ContractOpenDate)</label>
+
+                    <div id="sandbox-container">
+                        <div class="col-sm-4">
+                            @Html.TextBoxFor(m => (m.clientAccountContractInput.ContractOpenDate), new { @class = "cust-textbox datefield", tabindex = "40", @Value = Model.clientAccountContractInput.ContractOpenDate.ToString("MM/dd/yyyy") })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.clientAccountContractInput.ContractCloseDate)</label>
+                    <div id="sandbox-container">
+                        <div class="col-sm-4">
+                            @Html.TextBoxFor(m => (m.clientAccountContractInput.ContractCloseDate), new { @Value = Model.clientAccountContractInput.ContractCloseDate.ToString("MM/dd/yyyy"), @class = "cust-textbox datefield",  tabindex = "45" })
+                            <span class="add on"><i class="icon-th"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            <!--/.leftarea-->
+
+            <div class="rightarea">
+
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.FYActiveContractValue, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.FYActiveContractValue, new {   @Value = Model.clientAccountContractInput.FYActiveContractValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "50" })
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpFYActiveContractValue, new { @class = "metricchk", placeholder = "", tabindex = "55", onkeypress = "return isNumberKey(event)" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpFYActiveContractValue, new { @class = "", id = "" })
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.FYPlannedContractValue, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.FYPlannedContractValue, new { @Value = Model.clientAccountContractInput.FYPlannedContractValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "60", onkeypress = "return isNumberKey(event)"})
+
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpFYPlannedContractValue, new { @class = "metricchk", placeholder = "", tabindex = "65" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpFYPlannedContractValue, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.FYPipeLineContractValue, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.FYPipeLineContractValue, new { @Value = Model.clientAccountContractInput.FYPipeLineContractValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "70", onkeypress = "return isNumberKey(event)"})
+
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpFYPipeLineContractValue, new { @class = "metricchk", placeholder = "", tabindex = "75" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpFYPipeLineContractValue, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.FYExecutedContractValue, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.FYExecutedContractValue, new { @Value = Model.clientAccountContractInput.FYExecutedContractValue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "80", onkeypress = "return isNumberKey(event)"})
+
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpFYExecutedContractValue, new { @class = "metricchk", placeholder = "", tabindex = "85" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpFYExecutedContractValue, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.AverageAnnualRevenue, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.AverageAnnualRevenue, new { @Value = Model.clientAccountContractInput.AverageAnnualRevenue.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "90", onkeypress = "return isNumberKey(event)" })
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpAverageAnnualRevenue, new { @class = "metricchk", placeholder = "", tabindex = "95" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpAverageAnnualRevenue, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.RevenueToDate, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.RevenueToDate, new { @Value = Model.clientAccountContractInput.RevenueToDate.ToInteger(), @class = "cust-textbox", placeholder = "", tabindex = "100", onkeypress = "return isNumberKey(event)" })
+
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpRevenueToDate, new { @class = "metricchk", placeholder = "", tabindex = "105", onkeypress = "return isNumberKey(event)" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpRevenueToDate, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.AverageAnnualFTE, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.AverageAnnualFTE, new { @Value = Model.clientAccountContractInput.AverageAnnualFTE.ToInteger(), @class = "cust-textbox", placeholder = "", id = "txtAvgFTE", tabindex = "110", onkeypress = "return isNumberKey(event)"})
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.SumOfFTEOnShoreOffShore, new { @class = "metricchk", id = "chkAvgFTE", tabindex = "110" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.SumOfFTEOnShoreOffShore, new { @class = "", id = "" })
+                        </div>
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTE, new { @class = "metricchk", placeholder = "", tabindex = "115" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTE, new { @class = "", id = "" })
+
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.AverageAnnualFTEOnshore, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.AverageAnnualFTEOnshore, new { @Value = Model.clientAccountContractInput.AverageAnnualFTEOnshore.ToInteger(), @class = "cust-textbox", id = "txtAvgFTEOnShore", placeholder = "", tabindex = "120", onkeypress = "return isNumberKey(event)"})
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTEOnshore, new { @class = "metricchk", placeholder = "", tabindex = "125" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTEOnshore, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.clientAccountContractInput.AverageAnnualFTEoffShore, new { @class = "col-sm-5 control-label", id = "" })
+                    <div class="col-sm-7">
+                        @Html.TextBoxFor(m => m.clientAccountContractInput.AverageAnnualFTEoffShore, new { @Value = Model.clientAccountContractInput.AverageAnnualFTEoffShore.ToInteger(), @class = "cust-textbox", placeholder = "", id = "txtAvgFTEoffShore", tabindex = "130", onkeypress = "return isNumberKey(event)" })
+                        <div class="col-sm-0">
+                            @Html.CheckBoxFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTEoffShore, new { @class = "metricchk", placeholder = "", tabindex = "135" })
+                            @Html.LabelFor(m => m.clientAccountContractInput.RollUpAverageAnnualFTEoffShore, new { @class = "", id = "" })
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+                <!--/.rightarea-->
+                <div class="accdetailacction">
+
+                    <button type="submit" tabindex="145" class="btn btn-primary">Save</button>
+                    <button type="reset" tabindex="150" class="btn btn-secondary" id="cancel">Cancel</button>
+                </div>
+
+
+            </div>
+            <!--./accdetailArea-->
+
+        </div>
+
+    </div>
+    }
+<script>
+    $(function () {
+        $(".datefield").datepicker();
+
+    });
+</script>
+

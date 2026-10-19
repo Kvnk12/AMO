@@ -1,0 +1,245 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+<div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess" hidden>
+    <ul>
+        <li>Ideas Linked Successfully.</li>
+    </ul>
+</div>
+<div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger" hidden>
+    <ul>
+        <li>Error while linking the Ideas.</li>
+    </ul>
+</div> 
+
+
+<div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList" hidden>
+    <ul>
+        <li>Please select any one of the ideas for Linking.</li>
+    </ul>
+</div> 
+
+
+
+
+<div id="IdeaContainer">
+                            <div id="action" style="margin-top:25px">
+                            <button class="btn btn-primary" id="btnSaveLinks"   style="margin-left: 40%">Link Ideas</button>
+                        </div>
+<div id="SuggestIdeas" style="width:100%;margin:auto"></div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $('#btnSaveLinks').click(function (event) {
+
+
+        if (SaveSelectedIdeas())
+        {
+            //alert('save');
+            //$('#SuggestIdeas').jtable('load');
+
+        }
+
+        return false;
+
+    });
+
+    function SaveSelectedIdeas()
+    {
+        var ClientId = "@Model.ClientId";
+        var ItemId = "@Model.Id";
+        var IdeaIds = "";
+        var href = "@Url.Action("AddSelectedIdeas")";
+
+        var $selectedRows = $('#SuggestIdeas').jtable('selectedRows');
+
+        if ($selectedRows.length > 0) {
+            //Show selected rows
+            $selectedRows.each(function () {
+                var record = $(this).data('record');
+                IdeaIds += "," + record.Id;
+            });
+        } else {
+            //No rows selected
+            $('#SelectedRowList').show();
+        }
+        
+
+            {
+                $.ajax({
+                    url: href,
+                    type: 'POST',
+                    data: {ItemId:ItemId, ClientId:ClientId,  IdeaIds:IdeaIds},
+                    success: checkLinkIdeaSuccess,
+                    failure: errorLinkIdeaFailure,
+                    async: false
+
+                })
+            }
+
+            return true;
+    }
+
+    function checkLinkIdeaSuccess(data)
+    {
+        if (data == "Success")
+        {
+            //alert('Selected Ideas linked successfully');
+            $('#SelectedRowList').hide();
+            $('#msgSuccess').show();
+            recordadd();
+        }
+
+    }
+
+
+    function errorLinkIdeaFailure()
+    {
+        //alert('Failure');
+        $('#msgDanger').show();
+    }
+
+    //function ItemNameExists(ItemName, ItemId) {
+
+
+    //    var href = window.location.href.split('/');
+    //    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+    //    var baseurl = '';
+
+
+
+    //    if (href[3].toLowerCase() == 'ideamanager') {
+    //        var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/Challengemanager/CheckItemName';
+    //    }
+    //    else {
+    //        var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/Challengemanager/CheckItemName';
+    //    }
+    //    //var localToServer = "/";
+    //    //var sPageURL = window.location.search.substring(1);
+    //    //var sURLVariables = sPageURL.split('&');
+
+    //    //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+    //    //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+    //    //}
+
+    //    //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager/CheckItemName");
+
+    //    {
+    //        $.ajax({
+    //            url: baseurl,
+    //            type: 'POST',
+    //            data: { ItemName: ItemName, ItemId: ItemId },
+    //            success: checkItemSuccess,
+    //            failure: errorItem,
+    //            async: false
+
+    //        })
+    //    }
+
+    //}
+
+    $(document).ready(function () {
+        var ClientId = "@Model.ClientId";
+        var ChallengeId = "@Model.Id";
+
+        if (ClientId != null) {
+            $('#SuggestIdeas').jtable({
+                title: 'Ideas',
+                selecting: true, //Enable selecting
+                multiselect: true, //Allow multiple selecting
+                selectingCheckboxes: true, //Show checkboxes on first column
+                //selectionChanged:rowsselectedevent,
+                messages: {
+                    addNewRecord: 'Suggest  a New Idea'
+                },
+                actions: {
+                    listAction: "@Url.Action("GetListedIdeaDetails")" + "?ClientId=" + ClientId + "&ChallengeId=" + ChallengeId,
+                    @*createAction: "@Url.Action("AddIdeaDetails")" + "?ItemId=" + '0',*@
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                 
+                    ItemName: {
+                        title: 'Name',
+                        width: '30%'
+                    },
+
+
+
+                    Description: {
+                        title: 'Description',
+                        width: '30%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%'
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%'
+            }
+
+
+
+          
+                }
+
+            });
+            $('#SuggestIdeas').jtable('load');
+        }
+
+       
+    });
+
+    //function rowsselectedevent()
+    //{
+
+    //    var $selectedRows = $('#SuggestIdeas').jtable('selectedRows');
+
+    //    $('#SelectedRowList').empty();
+    //    if ($selectedRows.length > 0) {
+    //        //Show selected rows
+    //        $selectedRows.each(function () {
+    //            var record = $(this).data('record');
+    //            $('#SelectedRowList').append(
+    //                '<b>StudentId</b>: ' + record.StudentId +
+    //                '<br /><b>Name</b>:' + record.Name + '<br /><br />'
+    //                );
+    //        });
+    //    } else {
+    //        //No rows selected
+    //        $('#SelectedRowList').append('No row selected! Select rows to see here...');
+    //    }
+    //}
+
+    function recordadd(event, data)
+    {
+        $('#SuggestIdeas').jtable('reload', myfunction);
+        $('#ListedIdeas').jtable('load');
+    }
+    function myfunction()
+    {
+        var $selectedRows = $('#SuggestIdeas').jtable('selectedRows');
+        var $chkBox = $selectedRows.find('td.jtable-selecting-column input').attr('checked', true); $chkBox.attr('checked', false);
+        $selectedRows.each(function () {
+            $(this).removeClass('jtable-row-selected ui-state-highlight');
+        });
+    }
+   
+    
+</script>

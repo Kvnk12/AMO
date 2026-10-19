@@ -1,0 +1,1093 @@
+﻿<style>
+    .a3mm-dashboard li {
+        list-style-type: disc !important;
+        max-width: 10em;
+    }
+
+    .listItem {
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .flexClass {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .comp-abbrevation {
+        height: 10em;
+        background-color: #fff;
+        color: #333;
+        margin: 0em 2em;
+        padding:1em 2em;
+    }
+    .dot {
+        height: 5px;
+        width: 5px;
+        background-color: #FF3600;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>
+<div id="digiJourney" class="digiJourneyDiv">
+
+
+    <span hidden id="SelAccount">@Model.Account</span>
+    <div class="flexClass">
+        <div class="a3mm-dashboard" id="A3mmdashboard">
+            <div class="a3mm-dashboard-header">Digital Journey</div>
+
+            <div class="a3mm-dashboard-content">
+                <div class="a3mm-dgtlJrny-left">
+                    <div class="contract-duration"><span>Contract Duration : @Model.ContractDuration</span></div>
+
+                    @*<img src="~/Content/images/A3MMDgtlJourney2.png" style="width: auto; margin: 3em 4em; height: 41.5em;"/>*@
+                   
+                        <div class="a3mm-dgtlJrny-graph" style="display:flex" id="compare_2">
+                            <div class="graph-line-des">
+                                <div class="first-line">First Assessment</div>
+                                <div class="second-line">Second Assessment</div>
+
+                            </div>
+                            <div class="a3mm-graph-sec">
+                                <div class="level-52">
+                                    <ul style="">
+                                        @if (Model.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EngagementList)
+                                            {
+                                                if (item.level == "5")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl252_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="connective-block"><span></span></div>
+                                <div class="level-5">
+                                    <ul>
+                                        @if (Model.secondAssessmentDataList.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                            {
+                                                if (item.level == "5")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl25_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="a3mm-graph-sec">
+                                <div class="level-42">
+                                    <ul style="">
+                                        @if (Model.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EngagementList)
+                                            {
+                                                if (item.level == "4")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl242_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="connective-block"><span></span></div>
+                                <div class="level-4">
+                                    <ul>
+                                        @if (Model.secondAssessmentDataList.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                            {
+                                                if (item.level == "4")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl24_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="a3mm-graph-sec a2mm-third-level">
+                                <div class="level-32">
+                                    <ul style="">
+                                        @if (Model.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EngagementList)
+                                            {
+                                                if (item.level == "3")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl232_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="connective-block"><span></span></div>
+                                <div class="level-3">
+                                    <ul>
+                                        @if (Model.secondAssessmentDataList.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                            {
+                                                if (item.level == "3")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl23_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="a3mm-graph-sec a3mm-second-level">
+                                <div class="level-22">
+                                    <ul style="">
+                                        @if (Model.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EngagementList)
+                                            {
+                                                if (item.level == "2")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl222_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="connective-block"><span></span></div>
+                                <div class="level-2">
+                                    <ul>
+                                        @if (Model.secondAssessmentDataList.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                            {
+                                                if (item.level == "2")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl22_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="a3mm-graph-sec a3mm-first-level ">
+                                <div class="level-12">
+                                    <ul style="">
+                                        @if (Model.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.EngagementList)
+                                            {
+                                                if (item.level == "1")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl212_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+
+
+                                </div>
+                                <div class="connective-block"><span></span></div>
+                                <div class="level-1">
+                                    <ul style="height:5em">
+                                        @if (Model.secondAssessmentDataList.EngagementList != null)
+                                        {
+                                            var count = 0;
+                                            foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                            {
+                                                if (item.level == "1")
+                                                {
+                                                    count++;
+                                                    var cmpid = "lvl21_" + count;
+                                                    <li>
+                                                        <div class="listItem" onclick="cmpClick(@cmpid)">@item.ComponentAbbrevation</div>
+                                                        <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                  
+                  
+                        <div class="a3mm-3dgtlJrny-graph" style="display:none" id="compare_3">
+                            @if (Model.ThirdAssessmentDataList != null)
+                            {
+                                <div class="graph-line-des-3">
+                                    <div class="first-line">First</div>
+                                    <div class="second-line">Second</div>
+                                    <div class="third-line">Third</div>
+
+                                </div>
+                                <div class="a3mm-graph3-sec l5">
+                                    <div class="c3level-5 mlvl">
+                                        <ul style="">
+                                            @if (Model.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.EngagementList)
+                                                {
+                                                    if (item.level == "5")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl35_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-52 mlvl">
+                                        <ul>
+                                            @if (Model.secondAssessmentDataList.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "5")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl352_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-53 mlvl">
+                                        <ul>
+                                            @if (Model.ThirdAssessmentDataList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "5")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl353_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <div class="a3mm-graph3-sec l4">
+                                    <div class="c3level-4 mlvl">
+                                        <ul style="">
+                                            @if (Model.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.EngagementList)
+                                                {
+                                                    if (item.level == "4")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl34_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-42 mlvl">
+                                        <ul>
+                                            @if (Model.secondAssessmentDataList.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "4")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl342_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-43 mlvl">
+                                        <ul>
+                                            @if (Model.ThirdAssessmentDataList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "4")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl343_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <div class="a3mm-graph3-sec l3">
+                                    <div class="c3level-3 mlvl">
+                                        <ul style="">
+                                            @if (Model.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.EngagementList)
+                                                {
+                                                    if (item.level == "3")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl33_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-32 mlvl">
+                                        <ul>
+                                            @if (Model.secondAssessmentDataList.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "3")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl332_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-33 mlvl">
+                                        <ul>
+                                            @if (Model.ThirdAssessmentDataList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "3")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl333_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <div class="a3mm-graph3-sec l2">
+                                    <div class="c3level-2 mlvl">
+                                        <ul style="">
+                                            @if (Model.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.EngagementList)
+                                                {
+                                                    if (item.level == "2")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl32_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-22 mlvl">
+                                        <ul>
+                                            @if (Model.secondAssessmentDataList.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "2")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl322_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-23 mlvl">
+                                        <ul>
+                                            @if (Model.ThirdAssessmentDataList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "2")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl323_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div></div>
+                                </div>
+
+                                <div class="a3mm-graph3-sec l1">
+                                    <div class="c3level-1 mlvl">
+                                        <ul style="">
+                                            @if (Model.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.EngagementList)
+                                                {
+                                                    if (item.level == "1")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl31_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+
+
+                                    </div>
+                                    <div class="c3level-12 mlvl">
+                                        <ul>
+                                            @if (Model.secondAssessmentDataList.EngagementList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "1")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl312_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="c3level-13 mlvl">
+                                        <ul>
+                                            @if (Model.ThirdAssessmentDataList != null)
+                                            {
+                                                var count = 0;
+                                                foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                                {
+                                                    if (item.level == "1")
+                                                    {
+                                                        count++;
+                                                        var cmpid = "lvl313_" + count;
+                                                        <li>
+                                                            <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div></div>
+
+                                </div>
+                            }
+                        </div>
+                    
+                  
+                <div class="a3mm-4dgtlJrny-graph" style="display:none" id="compare_4">
+                    @if (Model.FourthAssessmentDataList != null)
+                    {
+                        <div class="graph-line-des-4">
+                            <div class="first-line">First</div>
+                            <div class="second-line">Second</div>
+                            <div class="third-line">Third</div>
+                            <div class="fourth-line">Fourth</div>
+
+                        </div>
+                        <div class="a3mm-graph4-sec l5">
+                            <div class="c4level-5 mlvl4">
+                                <ul style="">
+                                    @if (Model.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.EngagementList)
+                                        {
+                                            if (item.level == "5")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl45_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-52 mlvl4">
+                                <ul>
+                                    @if (Model.secondAssessmentDataList.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "5")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl452_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-53 mlvl4">
+                                <ul>
+                                    @if (Model.ThirdAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "5")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl453_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-54 mlvl4">
+                                <ul>
+                                    @if (Model.FourthAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.FourthAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "5")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl454_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,4)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div class="a3mm-graph4-sec l4">
+                            <div class="c4level-4 mlvl4">
+                                <ul style="">
+                                    @if (Model.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.EngagementList)
+                                        {
+                                            if (item.level == "4")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl44_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-42 mlvl4">
+                                <ul>
+                                    @if (Model.secondAssessmentDataList.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "4")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl442_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-43 mlvl4">
+                                <ul>
+                                    @if (Model.ThirdAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "4")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl443_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div class="c4level-44 mlvl4">
+                                <ul>
+                                    @if (Model.FourthAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.FourthAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "4")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl444_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div class="a3mm-graph4-sec l3">
+                            <div class="c4level-3 mlvl4">
+                                <ul style="">
+                                    @if (Model.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.EngagementList)
+                                        {
+                                            if (item.level == "3")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl43_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-32 mlvl4">
+                                <ul>
+                                    @if (Model.secondAssessmentDataList.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "3")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl432_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-33 mlvl4">
+                                <ul>
+                                    @if (Model.ThirdAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "3")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl433_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-34 mlvl4">
+                                <ul>
+                                    @if (Model.FourthAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.FourthAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "3")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl434_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,4)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div class="a3mm-graph4-sec l2">
+                            <div class="c4level-2 mlvl4">
+                                <ul style="">
+                                    @if (Model.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.EngagementList)
+                                        {
+                                            if (item.level == "2")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl42_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-22 mlvl4">
+                                <ul>
+                                    @if (Model.secondAssessmentDataList.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "2")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl422_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-23 mlvl4">
+                                <ul>
+                                    @if (Model.ThirdAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "2")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl423_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-24 mlvl4">
+                                <ul>
+                                    @if (Model.FourthAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.FourthAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "2")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl424_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,4)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div class="a3mm-graph4-sec l1">
+                            <div class="c4level-1 mlvl4">
+                                <ul style="">
+                                    @if (Model.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.EngagementList)
+                                        {
+                                            if (item.level == "1")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl41_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,1)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+
+
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-12 mlvl4">
+                                <ul>
+                                    @if (Model.secondAssessmentDataList.EngagementList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.secondAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "1")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl412_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,2)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-13 mlvl4">
+                                <ul>
+                                    @if (Model.ThirdAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.ThirdAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "1")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl413_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,3)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div style="width: 2%;"></div>
+                            <div class="c4level-14 mlvl4">
+                                <ul>
+                                    @if (Model.FourthAssessmentDataList != null)
+                                    {
+                                        var count = 0;
+                                        foreach (var item in Model.FourthAssessmentDataList.EngagementList)
+                                        {
+                                            if (item.level == "1")
+                                            {
+                                                count++;
+                                                var cmpid = "lvl414_" + count;
+                                                <li>
+                                                    <div class="listItem" onclick="cmpClick(@cmpid,4)">@item.ComponentAbbrevation</div>
+                                                    <span hidden id="@cmpid">@item.EnggComponent</span>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <div></div>
+
+                        </div>
+                    }
+                </div>
+                    
+                </div>
+                <div class="a3mm-dgtlJrny-right">
+                    @if (Model.NAEngagementList.Count != 0)
+                    {
+                        <span>Not Applicable</span>
+                        <ul>
+                            @foreach (var items in Model.NAEngagementList)
+                            {
+                                <li>@items  </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+        <div class="comp-abbrevation">
+            <strong> Hint:  &nbsp;</strong>
+
+            @{
+
+                foreach (var item in Model.ComponentList)
+                {
+                    <span >@item.Value  - @item.Text ,</span>
+                }
+            }
+            <br />
+          
+
+
+        </div>
+    </div>
+
+</div>
+<script>
+    $("#btnExp").click(function () {
+        console.log("export clicked");
+
+        window.print();
+
+    });
+</script>

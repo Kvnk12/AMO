@@ -1,0 +1,267 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostItemInput
+
+
+
+
+
+@using (Html.BeginForm("SavePostChallenge", "DemandManager", new { ClientId = Model.ClientId}, FormMethod.Post))
+    {
+    
+    
+    
+    
+    
+      <div class="treeMenuContent" style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+           @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container", id="danger" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container", id="success" })
+                }
+            else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+               
+                   <!--end of grid-->             
+                @*<div class="addvalaction"> <a href="#" class="btn btn-primary">Back</a> *@
+
+          <div class="DemandManagerContent">
+                <h4>Post Challenge</h4>
+
+         <!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist" id="challengetab">
+  <li class="active"><a href="#home" role="tab" data-toggle="tab">Home</a></li>
+  <li><a href="#classification" role="tab" data-toggle="tab">Classification</a></li>
+  <li><a href="#benefits" role="tab" data-toggle="tab">Benefits</a></li>
+  <li><a href="#itsavings" role="tab" data-toggle="tab">IT Savings</a></li>
+  <li><a href="#comments" role="tab" data-toggle="tab">Comments</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="home">
+      @Html.Hidden("ItemId", @Model.Id) 
+      <div class="leftarea form-horizontal">
+
+          <div class="form-group">
+              <label id="lblChallengeName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Challenge Name</label>
+              <div class="col-sm-5">
+                  @Html.TextBoxFor(m => m.postChallengeInput.ItemName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtchallange" })
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-sm-5 control-label" for="qtfyDemand">Value (Quantify  your Demand)</label>
+              <div class="col-sm-5">
+                  @Html.TextBoxFor(m => m.postChallengeInput.QtyFication, new { @class = "form-control", placeholder = "", tabindex = "2", id = "txtqtfyDemand", onkeypress = "return isNumberKey(this)", maxlength = "5" })
+
+                  @*<input type="text"  value="@Model.postChallengeInput.QtyFication.ToString()" class = "form-control" style="width:150px;margin-left:27%"  tabindex="2", id="txtqtfyDemand" name="txtqtfyDemand" onkeypress = "return isNumberKey(this)" maxlength="5"  />*@
+              </div>
+          </div>
+          <div class="form-group">
+              <div>
+                  <label for="desc" class="col-sm-5 control-label">Description</label>
+                  @Html.TextAreaFor(m => m.postChallengeInput.Description, new { @class = "", rows = "10", style="width:750px;height:250px",  placeholder = "Description", tabindex = "3", id = "txtdescription" })
+                 
+              </div>
+          </div>
+
+
+          <div id="action">
+              <button class="btn btn-primary" id="btnSave" name="command" value="savechallenge"  style="margin-left: 40%">Post Challenge</button>
+              <button class="btn btn-default" id="cancelChallenge">Cancel</button>
+              <button class="btn btn-primary" id="homepage">Home</button>
+          </div>
+          <!--/.form-horizontal-->
+      </div>
+
+     
+
+  </div>
+  <div class="tab-pane" id="classification">
+      @Html.Partial("_AssignItemCategory",Model)
+  </div>
+  <div class="tab-pane" id="benefits">Yet to design</div>
+  <div class="tab-pane" id="itsavings">Yet to design</div>
+  <div class="tab-pane" id="comments">Yet to design</div>
+</div>
+                    
+
+                
+                <!--/.leftarea-->
+                
+                
+
+
+                <!--/.rightarea-->
+              
+              </div>
+                
+         </div>
+    
+                  
+    }
+         
+
+<script>
+
+    $(document).ready(function () {
+
+        //For Tab Activation  On 10th Dec 2014
+        var tabName = "@Model.TabName";
+        if(tabName == "classification")
+            {
+                $('#challengetab li:eq(1) a').tab('show');
+            }
+        
+        ////
+
+        //$(function () {
+
+        //    $("#accordion").accordion({
+
+        //        collapsible: true
+
+        //    });
+
+        //});
+
+
+
+
+        //$('#txtdescription').htmlarea();
+
+        $('#txtdescription').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter","justifyright","Increasefontsize", "decreasefontsize","Forecolor","horizontalrule"],
+                    ["cut", "copy", "paste"],
+            ]
+        });
+
+    })
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+
+
+        //if (charCode != 46 && charCode > 31
+        //&& (charCode < 48 || charCode > 57))
+        //    return false;
+
+        if ((charCode < 48 || charCode > 57))
+            if (charCode != 46 && charCode != 44 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+        return true;
+    }
+
+
+    $('#btnSave').click(function () {
+        
+        var SelectedclientId = $('#ClientId :selected').val();
+        if (SelectedclientId == "" || SelectedclientId == "0") {
+            alert('Please Select Client name from the list');
+            return false;
+        }
+
+        if ($('#txtchallange').val() == "") {
+            alert('Please enter name');
+            $('#txtchallange').focus();
+            return false;
+        }
+        else {
+            
+            var itemName = $('#txtchallange').val();
+            var itemId = $('#ItemId')[0].value;
+
+            ItemNameExists(itemName, itemId);
+            if (blnItemNameExists) {
+                alert('Item name already exists, please change');
+                $('#txtchallange').focus();
+                return false;
+
+            }
+        }
+
+
+
+       
+    });        
+
+
+    function ItemNameExists(ItemName, ItemId) {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'Demandmanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'DemandManager/DemandManager/CheckItemName';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'DemandManager/DemandManager/CheckItemName';
+        }
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "DemandManager/DemandManager/CheckItemName");
+            
+             {
+                $.ajax({
+                    url: baseurl,
+                    type: 'POST',
+                    data: { ItemName: ItemName, ItemId: ItemId},
+                    success: checkItemSuccess,
+                    failure: errorItem,
+                    async: false
+
+                })
+            }
+            
+        }
+
+    function checkItemSuccess(status) {
+
+
+        blnItemNameExists = status;
+            
+            
+            
+        }
+
+    function errorItem() {
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+        
+
+        $('.tab-pane a').click(function (e) {
+            $("#success").hide();
+            $("#danger").hide();
+            
+        })
+    
+</script>
+         

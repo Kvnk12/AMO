@@ -1,0 +1,75 @@
+﻿@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using System.Data;
+@model  IList<MetaDataModel>
+
+    <style>
+        .table th {
+            background: rgb(91,121,171) !important;
+        }
+        table tr:nth-child(even) {
+            background-color: #F5F5F5;
+        }
+    </style>
+<div style="width:65%; height:400px; overflow-y:auto">
+    <table class="table" cellpadding="0" cellspacing="0" id="tablemetadata" style="width:100%;">
+        <thead>
+            <tr>
+                <th scope="col">Value</th>
+                <th scope="col">Edit</th>
+                <th scope="col">Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Text</td>
+                        <td><a href="#" data-id="@item.Value" data-text="@item.Text" class="hrefEdit"><img src="~/Content/images/edit.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:18px" /></a></td>
+                        <td><a href="#" data-ids="@item.Value" data-itemid="@item.Id" class="hrefDelete"><img src="~/Content/images/delete.png" style="height:16px;width:16px;float:left;cursor:pointer;margin-left:20px" /></a></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    $(".hrefDelete").click(function () {
+        var MetadataId = $(this).attr("data-ids")
+        var metadataitemtypeid = $('#metadataitemid :selected').val();
+
+        var dataToPost = {
+            MetadataTypeId: metadataitemtypeid,
+            MetaDataItem: MetadataId
+        }
+        var path = '@Url.Content("~/PortfolioAnalyzer/MetaData/DeleteMetaData")';
+
+        $.ajax({
+            url: path,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#metaDataView").html(data);
+
+            },
+            error: function () {
+                alert('error')
+                // $("#divLoading").hide();
+            }
+        });
+
+    });
+
+$(".hrefEdit").click(function () {
+
+    var metadataId = $(this).attr("data-id");
+    var metadatatext = $(this).attr("data-text");
+                $("#metadataid").val(metadataId);
+                $("#newValue").val(metadatatext);
+});
+</script>

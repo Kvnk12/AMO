@@ -1,0 +1,294 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using WebUI.Areas.DemandManager;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+@model DemandViewModel
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostDemandController();
+    var ComplexityList = DMHelper.getComplexity(client.ClientId);
+    var DocumentTypeList = DMHelper.getDocumentType(client.ClientId);
+
+}
+
+<div class="im-postidea-implementation">
+    <!---->
+
+    @using (Html.BeginForm("SaveDemandIMPDetails", "PostDemand", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.DemandId)
+        <!--Table - [Implementation Data]-->
+        <label class="alert alert-danger " id="MetricRequired_alert" hidden>
+            Atleast one Metrics detail is Required to continue working with implementation!
+        </label>
+        <label class="alert alert-danger " id="MetricAndCommentRequired_alert" hidden>
+            Atleast one Metric and Comment detail is Required to continue working with implementation!
+        </label>
+        <label class="alert alert-danger " id="CommentRequired_alert" hidden>
+            Aleast one Comment detail is Required to continue working with implementation!
+        </label>
+        if (!ViewData.ModelState.IsValid)
+        {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+        }
+        <br />
+        <div class="im-postidea-implementation-status">
+            <div class="im-postidea-radio-impstatus">
+                <label class="custom-blue-label">Fulfilment Status:</label>&nbsp;&nbsp;&nbsp;
+                @(Html.Kendo().RadioButtonFor(e => e.ImpDemandStatusID).Label("Planned").Name("ImpDemandStatusID").Value((int)DMStatus.Planned).Checked(true).Enable(false)
+                                                               .HtmlAttributes(new { @class = "k-button radBut" })
+                        )
+                @(Html.Kendo().RadioButtonFor(e => e.ImpDemandStatusID).Label("Initiated").Name("ImpDemandStatusID").Value((int)DMStatus.Initiated).Enable(false)
+                                                                .HtmlAttributes(new { @class = "k-button radBut" })
+                        )
+                @(Html.Kendo().RadioButtonFor(e => e.ImpDemandStatusID).Label("Hold").Name("ImpDemandStatusID").Value((int)DMStatus.Hold).Enable(false)
+                                                                .HtmlAttributes(new { @class = "k-button radBut" })
+                        )
+                @(Html.Kendo().RadioButtonFor(e => e.ImpDemandStatusID).Label("Cancel").Name("ImpDemandStatusID").Value((int)DMStatus.Cancelled).Enable(false)
+                                                                .HtmlAttributes(new { @class = "k-button radBut" })
+                        )
+                @(Html.Kendo().RadioButtonFor(e => e.ImpDemandStatusID).Label("Completed").Name("ImpDemandStatusID").Value((int)DMStatus.Implemented).Enable(false)
+                                                               .HtmlAttributes(new { @class = "k-button radBut" })
+                        )
+            </div>
+        </div>
+        <div class="im-postidea-implementation-details">
+            <div class="im-postidea-impfirst">
+                <div class="custom-group">
+                    <label class="custom-blue-label"><span class="mandate">*</span>Complexity:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.ComplexityId)
+                        .Name("ComplexityId")
+                        .OptionLabel("Select Complexity..")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .Enable(false)
+                        .BindTo(ComplexityList)
+                        )
+                        <label id="Complexity_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label"><span class="mandate">*</span>Priority:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(e => e.PriorityId)
+                                            .Name("PriorityId")
+                                            .DataValueField("Value")
+                                            .DataTextField("Text")
+                                            .OptionLabel("Select Priority..")
+                                            .Enable(false)
+                                            .BindTo(new List<SelectListItem>() {
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "1",
+                                                                                                      Value = "1"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "2",
+                                                                                                      Value = "2"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "3",
+                                                                                                      Value = "3"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "4",
+                                                                                                      Value = "4"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "5",
+                                                                                                      Value = "5"
+                                                                                                  }
+                              })
+                        )
+                        <label id="ImpPriority_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        <span class="mandate">*</span>Last Review Date:
+                    </label>
+                    <div class="custom-datepicker">
+                        @(Html.Kendo().DatePickerFor(e => e.LastReviewDt)
+                                                     .Name("LastReviewDt")
+                                                      .Format("MM/dd/yyyy")
+                                                     .Enable(false)
+
+                        )
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class=" custom-blue-label">
+                        <span class="mandate">*</span>Operational Lead:
+                    </label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(e => e.ImpManager)
+                                            .Name("ImpManager")
+                                            .DataValueField("Value")
+                                            .Enable(false)
+                                            .DataTextField("Text")
+                                            .OptionLabel("Select Manager..")
+                                            .DataSource(data => data
+                                            .Read(r => r.Action("ListOfAdmins", "PostDemand"))
+                                            ))
+
+                        <label id="ImpManager_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="im-postidea-impsecond">
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        <span class="mandate">*</span> Planned End Date:
+                    </label>
+                    <div class="custom-datepicker">
+                        @(Html.Kendo().DatePickerFor(e => e.PlannedEndDt)
+                                         .Name("PlannedEndDt")
+                                         .Format("MM/dd/yyyy")
+                                         .Enable(false)
+                        )
+                        <label id="PlannedEndDt_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                        <br />
+                        <label id="P_EndDate_Alert" hidden><span class="mandate" style="font-size:small"> Plan End Date should be greater than Actual Start Date!</span></label>
+
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        <span class="mandate">*</span>Actual Start Date:
+                    </label>
+                    <div class="custom-datepicker">
+                        @(Html.Kendo().DatePickerFor(e => e.ActualStartDt)
+                                         .Name("ActualStartDt")
+                                          .Format("MM/dd/yyyy")
+                                         .Enable(false)
+                                         .Value(Model.ActualStartDt)
+                        )
+                        <label id="ActualStartDt_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        Actual End Date:
+                    </label>
+                    <div class="custom-datepicker">
+                        @(Html.Kendo().DatePickerFor(e => e.ActualEndDt)
+                                         .Name("ActualEndDt")
+                                         .Format("MM/dd/yyyy")
+                                         .Enable(false)
+                        )
+                        <label id="ActualEndDt_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                        <br />
+                        <label id="A_EndDate_Alert" hidden><span class="mandate" style="font-size:small"> End Date should be greater than Start Date!</span></label>
+                    </div>
+                </div>
+            </div>
+            <div class="im-postidea-impthird">
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        Estimated Cost:
+                    </label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(e => e.EstimatedCost)
+                                                     .Name("EstimatedCost")
+                                                     .Enable(false)
+                        )
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        Document No:
+                    </label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(e => e.DocumentNo)
+                                                     .Name("DocumentNo")
+                                                     .Enable(false)
+                        )
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label">
+                        Document Type:
+                    </label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.DocumentTypeId)
+                        .Name("DocumentTypeId")
+                        .OptionLabel("Select DocumentType..")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .Enable(false)
+                        .BindTo(DocumentTypeList)
+                        )
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="im-postidea-impgrid" id="id1">
+            <!--Completed and Grid -->          
+            <div class="im-postidea-benefitsgrid">
+                <div class="custom-kendo-grid">
+                    <label class="custom-blue-label">Task/Activities</label>
+                    <div>
+                        <span id="errorlabel"></span>
+                    </div>
+                    @(Html.Kendo().Grid<DMTaskAndActivitiesModel>
+    ()
+    .Name("DMTaskAndActivitiesGrid")
+    .Columns(columns =>
+    {
+
+        columns.Bound(e => e.Id).Hidden();
+        columns.Bound(e => e.Task).Width(200).Title("Task");
+        columns.Bound(e => e.StartDate).Title("Start Date").Format("{0:MM/dd/yyyy}").Width(250);
+        columns.Bound(e => e.EndDate).Title("End Date").Format("{0:MM/dd/yyyy}").Width(250);
+        columns.Bound(e => e.Description).Width(200).Title("Description");
+        columns.Bound(e => e.AssignedTo).Width(200).Title("Assigned To");
+        columns.Bound(e => e.Stage).Width(200).Title("Stage");
+        columns.Bound(e => e.Comments).Width(200).Title("Comments");
+        columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(150);
+    })
+    .Scrollable()
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .ToolBar(toolbar => toolbar.Create().Text("Add New Task").HtmlAttributes(new { @style = "color:#000" }))
+    .HtmlAttributes(new { @style = "white-space: normal" })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Model(model =>
+    {
+        model.Id(f => f.Id);
+
+    })
+    .Read(read => read.Action("GetTaskAndActivities", "PostDemand").Data("GetDemandId"))
+    .Create(create => create.Action("AddTaskAndActivities", "PostDemand", new { idID = Model.DemandId }))
+    .Update(update => update.Action("EditTaskAndActivities", "PostDemand", new { idID = Model.DemandId }))
+    .Destroy(destroy => destroy.Action("DeleteTaskAndActivities", "PostDemand"))
+    .Events(events => events.Error("errorFunct"))
+  )
+     .Events(e => e.Edit("onEdit"))
+     )
+
+                </div>
+            </div>
+        </div>
+        <div class="im-post-approver-bottom right" title="Select Status to Update.">
+            <button type="reset" class="im-custom-button im-btn-cancel">Cancel</button>
+            <button type="submit" class="im-custom-button im-btn-save" id="ImplementationSave" value="ImpSubmit">Save</button>
+        </div>
+    }
+</div>
+
+

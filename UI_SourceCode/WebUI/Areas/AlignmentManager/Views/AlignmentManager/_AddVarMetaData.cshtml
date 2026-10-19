@@ -1,0 +1,112 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput
+
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string form_name = "frmSaveItemDetails";
+}
+@using (Html.BeginForm("SaveMetaDataDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+    {
+
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.VariableId)
+    @Html.HiddenFor(m => m.VariableCatId)
+    @Html.HiddenFor(m  => m.VariableTypeId)
+    @Html.HiddenFor(m  => m.VariableLabelId)
+ 
+    <div class="bam60midpane">
+    <!-- required content added here-->
+    <div class="panel-group" id="accordionbam">
+         @foreach (var item in Model.getnonvwVariableMdTypes)
+         {
+             var href = "href = \"#collapsebame" + @item.Id +"\"";
+             var  id  = "id =\"collapsebame"+@item.Id + "\"";
+             
+             mdmVariableMD itm = Model.GetVariableItems(Model.VariableLabelId, item.Id);
+             var Values = "";
+             int Scores = 0;
+             int Weight = 0;
+             Values = itm.MetaDataValue;
+             Scores = itm.MetaDataScore;
+             Weight = itm.MetaDataWeight;
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionbam" @Html.Raw(@href) ><span class="accord-plus"></span>@item.TypeName</a></h4>
+            </div>
+            <div  @Html.Raw(@id) class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Value</label>
+                                <div class="col-lg-6">
+                                    @Html.TextBox(@item.Id.ToString() + "_value","","", new { @Value = Values, @class = "form-control value, tabindex="+@item.Id.ToString()}) 
+                                    @*<input type="input" class="form-control" name="val" placeholder="" tabindex="">*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Score</label>
+                                <div class="col-lg-6">
+                                    @Html.TextBox(@item.Id.ToString()+"_score","","", new { @Value = Scores, @class = "form-control score, tabindex="+@item.Id.ToString() })
+                                    @*<input type="input" class="form-control" name="val" placeholder="" tabindex="">*@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Weight</label>
+                                <div class="col-lg-6">
+                                    
+                                    @*<input type="input" class="form-control" name="val" placeholder="" tabindex="">*@
+                                    @Html.TextBox(@item.Id.ToString()+"_weight","","", new { @Value = Weight, @class = "form-control weight, tabindex="+@item.Id.ToString()})
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/.row-->
+                </div>
+                <!--end of panelbodyone-->
+            </div>
+            <!--end of collapsebamone-->
+        </div>
+             
+             
+         }
+        <!--end of first panel-->
+
+      
+    </div>
+    <!-- end of panelGroup--> 
+
+
+
+     </div>                   
+    
+                       
+    ///
+    ///    
+                       
+                    
+    
+                    
+@*</div><!-- treemenu ends-->*@
+    
+
+
+    <div class="addvalaction">
+        @Html.ActionLink("Back", "AddVariable", "AlignmentManager", new { clientId = Model.ClientId, VariableId = Model.VariableId, varTypeId = Model.VariableTypeId, varCatId = Model.VariableCatId }, new { @class = "btn btn-default" })
+        <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+        @Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new { variableId = Model.VariableId, id = Model.ClientId }, new { @class = "btn btn-default" })
+    </div>
+
+        
+
+    }

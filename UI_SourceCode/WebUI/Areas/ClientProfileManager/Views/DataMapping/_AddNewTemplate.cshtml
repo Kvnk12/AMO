@@ -1,0 +1,537 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+
+@model MappingTemplateViewModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+    // var userApplications = Model.   //GetDropDownListItems.UserApplications((int)Session["UserId"], (int)Model.ClientId);
+   //  var sourceTemplateFormats = GetDropDownListItems.SourceTemplateFormats;
+  //  var standardsourceTemplates = GetDropDownListItems.StandardSourceTemplates;
+}
+
+<style>
+    hr {
+        color: rgb(91,121,171);
+        border-top: dashed 1.5px;
+        width: 63em;
+        margin-left: 13px;
+    }
+
+
+
+    #btnUpload {
+        background-color: rgb(91,121,171);
+        color: white;
+        font-size: 12px;
+        width: fit-content;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: none;
+        padding: 0.4em 1em;
+        /*margin-left: 46em;
+        margin-top: 3em;*/
+    }
+
+    #btnReset {
+        background-color: darkgray;
+        color: white;
+        font-size: 12px;
+        width: fit-content;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: none;
+        padding: 0.4em 1em;
+    }
+
+    .selectpicker {
+        width: 12em;
+        border: none;
+        border-bottom: 1px solid;
+        cursor: pointer;
+    }
+
+    #btnCancel {
+        background-color: darkgray;
+        color: white;
+        font-size: 12px;
+        width: fit-content;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: none;
+        padding: 0.4em 1em;
+    }
+
+
+
+    .k-button.k-flat.k-button-icon.k-window-action {
+        margin-top: 2.5em;
+    }
+
+    .k-widget.k-window {
+        width: 61em;
+        height: 36em;
+    }
+
+    .k-window-title {
+        padding: 0 .44em;
+        padding-top: 4px;
+        overflow: hidden;
+        cursor: default;
+        text-overflow: ellipsis;
+        height: 24px;
+    }
+
+    .AddTemplatePopUpDiv .Addcontent {
+        background-size: unset;
+        background-repeat: no-repeat;
+        background-image: url('../images/bg_white.png');
+        background-position: 0 55px;
+        background-attachment: fixed;
+        height: calc(100vh - 70px);
+        /* Analysus new width: 100vw;*/
+        font-family: HelveticaNeue;
+        padding-bottom: 55px;
+    }
+
+    #btnbrowse {
+        background-color: rgb(91,121,171);
+        border-radius: 4px;
+        margin-top: -2em;
+        width: 4.5em;
+        height: 1.5em;
+    }
+
+    #AddTemppopUp {
+        overflow-x: hidden;
+        overflow-y: hidden;
+        padding: unset;
+    }
+
+    input[type='radio']:checked:after {
+        width: 8.5px;
+        height: 8.5px;
+        border-radius: 15px;
+        top: -0.8px;
+        left: 1.6px;
+        position: relative;
+        background-color: #6785C1;
+        background: #6785C1;
+        content: '';
+        padding: 0.1em;
+        display: inline-block;
+        visibility: visible;
+        border: 1px solid #6785C1;
+    }
+
+    input[type='radio']:after {
+        width: 8.5px;
+        height: 8.5px;
+        border-radius: 15px;
+        top: -0.3px;
+        left: -0.3px;
+        position: relative;
+        background-color: white;
+        content: '';
+        padding: 5px;
+        display: inline-block;
+        visibility: visible;
+        border: 1px solid #6785C1;
+    }
+
+    #FileDelimiter {
+        border: none;
+        border-bottom: 1px solid #d3d1d1;
+        background-color: transparent;
+        width: 17em;
+    }
+
+    #AddTemppopUp .Addcontent .k-widget.k-dropdown {
+        width: 17em;
+    }
+
+    #AddTemppopUp .Addcontent .custom-blue-label #Description {
+        border: 1px solid #9f9f9f;
+        box-shadow: none;
+        /* border-color: #c3c3c3; */
+        background-color: whitesmoke;
+        /* border-bottom: 1px solid #9f9f9f; */
+        width: 26em;
+        height: 5em;
+        /* margin-left: -1em; */
+        /* margin-left: 0.5em; */
+        margin-bottom: 1em;
+        border-radius: 0px;
+        margin-right: 5px;
+    }
+
+    .page-actions {
+        /*float: right;
+        width: 62em;
+        height: 7em;*/
+        text-align:right;
+        margin-right: 1em;
+       /* margin-top: 5em;*/
+    }
+
+    .custom-dropdown span.k-input {
+        margin-left: -4px;
+        line-height: 0.935714em;
+    }
+
+    .custom-blue-label.fileform{
+        margin-left:-0.5em;
+    }
+
+    .custom-blue-label.delimitter {
+        margin-left:-0.5em;
+    }
+
+    custom-blue-label.drpapp .k-widget.k-dropdown {
+        margin-left:0.5em;
+    }
+
+    .k-picker, .k-widget.k-picker {
+        display: flex;
+    }
+</style>
+
+<div class="AddTemplatePopUpDiv">
+
+    @(Html.Kendo().Window()
+                .Name("AddTemppopUp")
+                .Title("Add New Template")
+                .Content(@<text>
+
+      <div class="Addcontent" style="background-size: unset; height: 39em; overflow-x: hidden; background: white; ">
+
+
+          <form action="DataMapping/AddNewMappingTemplate2" method="post" onsubmit="Upload()" enctype="multipart/form-data">
+
+
+                   <div class="custom-blue-label drpapp"  style="display:flex;margin-top:1.5em;margin-top:1em">
+                         <label for="drpAppId" id="" style="margin-left: 2em; padding: unset; width: 11em; " class="col-sm-5 control-label"><span class="mandate">*</span>Application Name:</label>
+                         <div class="custom-dropdown" style="margin-left:3em">
+                       @(Html.Kendo().DropDownList()
+                          .Name("drpAppId")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(Model.UserApplications)
+                         )
+                         </div>
+                    </div>
+
+                   <div class="custom-blue-label" style="margin-top: 1em;display:flex">
+                            <label for="Description" style="margin-left: 2em; padding: unset; width: 11em;" class="col-sm-5 control-label">Description</label>
+                            <div class="valueFields" style="margin-left:3em">
+                              <input type="text" id="Description" name="Description">
+                            </div>
+                    </div>
+
+
+                   <div class=" custom-blue-label" style="margin-top: 1em;display:flex;">
+                            <label for="rdCustom" style="margin-left: 2em; padding: unset; width: 11em;" class="col-sm-5 control-label">Template</label>
+                            <div class="valueFields" style="margin-left: 3em; margin-bottom: -1em;display:flex;">
+
+                                @*<input type="radio" id="IsStandard" name="IsStandard" value="Custom">*@
+                                 @Html.RadioButtonFor(m => m.IsStandard, "false", new { @class = "", id = "rdCustom", name = "std", tabindex = "25", })
+                                <label for="rdCustom">Custom</label><br>
+                                 @Html.RadioButtonFor(m => m.IsStandard, "true", new { @class = "",style= " margin-left: 4em;", id = "rdStd", val = "false", name = "std", tabindex = "25" })
+                                @*<input type="radio" id="IsStandard" name="IsStandard" value="Standard">*@
+                                 <label  for="rdStd">Standard</label><br>
+                            </div>
+                   </div>
+
+                    <div class="custom-blue-label" style="margin-top: 1em;display:flex">
+                            <label for="FileFormat" style="margin-left: 2em; padding: unset; width: 11em;" class="col-sm-5 control-label">File Format</label>
+                            <div class="custom-dropdown fileform" style="margin-left:3em">
+
+                         @(Html.Kendo().DropDownList()
+                          .Name("FileFormat")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(Model.SourceTemplateFormats)
+                    
+                                )
+                             </div>
+                  </div>
+
+                    <div class="custom-blue-label" style="margin-top: 2.5em;display:flex">
+                            <label for="lblid" style="margin-left: 2em; padding: unset; width: 11em;" class="col-sm-5 control-label">Select File</label>
+                            <div class="valueFields" style=" margin-left: 3em; ">
+                                <div class="input-group">
+
+
+                                    <label class="input-group-btn" id="lblid">
+                                        <input type="text" id="TemplateName" name="TemplateName" style="width: 17em; border: none; border-bottom: 1px solid #d3d1d1; margin-right: 1em" />
+                                        <label style="padding:4px 4px 3px 6px; top: 1px; right: 12px;" for="httpPostedTemplateFile" class="btn btn-primary" id="btnbrowse">Browse&hellip;</label>
+
+                                     <input  style="display:none;" type="file" id="httpPostedTemplateFile" name="httpPostedTemplateFile" accept = ".xls,.xlsx,.txt,.csv">
+
+
+                                    </label>
+
+                                </div>
+                            </div>
+                    </div>
+
+
+
+                   <div class=" custom-blue-label" style= "margin-top: 1em;display:flex">
+                            <label for="Delimiter" style="margin-left: 2em; padding: unset; width: 11em;" class="col-sm-5 control-label"><span id="delimeterspan" class="mandate"></span>Delimiter</label>
+                            <div class="valueFields" style="margin-left:3em" data-toggle="tooltip" data-placement="right" title="Only Speical Characters allowed">
+                               @* @Html.TextBoxFor(m => m.FileDelimiter, new { @class = "form-control", placeholder = "Delimiter", tabindex = "11", id = "txtDelimiter" })*@
+                           <input type="text"  id="FileDelimiter" name="FileDelimiter">
+                            </div>
+                   </div>
+                   @*standardsourceTemplates*@
+                    <div class=" custom-blue-label delimitter" style="margin-top: 1em;display:flex;">
+                            <label for="BaseMappingId" style="margin-left:2.5em;padding: unset; width: 11em;" class="col-sm-5 control-label"><span class="mandate" id="stdSpan"></span>Standard Template</label>
+                            <div class="custom-dropdown" style="margin-left:3em;">
+                         @(Html.Kendo().DropDownList()
+                          .Name("BaseMappingId")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .SelectedIndex(0)
+                         .BindTo(Model.StandardSourceTemplates)
+                        )
+                        </div>
+                     </div>
+
+            <div class="page-actions">
+               <button type="button" id="btnCancel" class="btn btn-default" onclick="popUpClose()">Back</button>
+               <button type="button" onclick="reset()"  class="btn btn-default" value="Reset">Reset</button>
+               <button type="submit" id="btnUpload" class="btn btn-primary" value="Submit">Upload</button>
+            </div>
+
+
+
+          </form>
+
+
+          </div>
+
+     </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(797)
+                                                .Height(473)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+
+)
+
+
+
+</div>
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+       
+        $('input#httpPostedTemplateFile').change(function () {
+            console.log("function1");
+            var filename = $('#httpPostedTemplateFile').val();
+            var fNameParts = filename.split("\\");
+
+            if (fNameParts.length > 0) {
+
+                $('#TemplateName').val(fNameParts[fNameParts.length - 1]);
+
+            }
+
+            else {
+
+                $('#TemplateName').val(filename);
+
+            }
+
+        });
+
+    
+
+
+        $('input:radio[name="IsStandard"]').change(function () {
+
+            if ($(this).is(':checked') && $(this).val() == 'false') {
+
+                $("#httpPostedTemplateFile").prop('disabled', false);
+
+                $("select#BaseMappingId").prop('disabled', true);
+
+                $("#stdSpan").html('');
+
+                $("input#FileDelimiter").prop('disabled', false);
+
+                $("select#FileFormat").prop('disabled', false);
+
+
+
+            } else {
+
+                $("#httpPostedTemplateFile").prop('disabled', true);
+
+                $("select#BaseMappingId").prop('disabled', false);
+
+                $("input#FileDelimiter").prop('disabled', true);
+
+                $("input#FileDelimiter").val('');
+
+                $("select#FileFormat").prop('disabled', true);
+
+                $("#TemplateName").val(' ');
+
+                $("#delimeterspan").html('');
+
+                $("#stdSpan").html('*');
+
+            }
+
+        });
+
+
+
+        $('input#httpPostedTemplateFile').change(function () {
+
+            
+            var selectedformat = $("#FileFormat").data("kendoDropDownList").value();
+            console.log("selected format"+selectedformat);
+            var upload = $('input#httpPostedTemplateFile').val().split('.').pop().toLowerCase().toString();
+            console.log("upload" + upload);
+            if (selectedformat.toLowerCase() == 'xls' && upload == 'xlsx') {
+
+                $("#btnUpload").prop('disabled', false);
+
+            }
+
+            else if (selectedformat.toLowerCase() != upload) {
+
+                alert("Please check the file format");
+
+                $("#btnUpload").prop('disabled', true);
+
+            }
+
+            else { $("#btnUpload").prop('disabled', false); }
+
+        });
+
+
+        $('#FileDelimiter').keyup(function () {
+
+            var $th = $('#FileDelimiter');
+
+            $th.val($th.val().replace(/^[0-9a-zA-Z]+/, function (str) {
+
+                return '';
+
+            }
+
+            ));
+
+        })
+
+        /*  $('#chkSLA').prop('checked', true);*/
+
+
+        $('input[type="file"]').change(function (e) {
+            var fileName = e.target.files[0].name;
+            document.getElementById("TemplateName").innerHTML = fileName;
+
+
+            // Inside find search element where the name should display (by Id Or Class)
+        });
+
+   
+
+    });
+
+    function Upload() {
+        // alert('tfg');
+        console.log("upload");
+        var filectrl = document.getElementById("httpPostedTemplateFile");
+        if (typeof (filectrl.files) == null) {
+            alert("Please select the file.");
+            return false;
+        }
+        else {
+            //alert('size');
+            var size = parseFloat(filectrl.files[0].size / 1024).toFixed(2);
+            // alert(size + " KB.");
+            if (size > 10240) {
+                alert("Please check the file size before uploading(Maximum file size is 10MB).");
+                return false;
+            }
+            else
+                return true;
+        }
+
+
+    }
+
+    $("#FileFormat").change(function () {
+
+        console.log("Change");
+        var selectedformat = $("#FileFormat").data("kendoDropDownList").value();
+        console.log("selected format txt" + selectedformat);
+        if (selectedformat.toLowerCase() == 'txt') {
+
+            $("#delimeterspan").html('*');
+
+            $("#FileDelimiter").prop('disabled', false);
+
+            $("#btnUpload").prop('disabled', false);
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }
+
+        else {
+
+            $("#FileDelimiter").prop('disabled', true);
+
+            $("#delimeterspan").html('');
+
+            $("#btnUpload").prop('disabled', false);
+
+        }
+
+    });
+
+    
+
+    function popUpClose() {
+        var rptpopup = $("#AddTemppopUp").data("kendoWindow");
+        rptpopup.close();
+    }
+
+    function reset() {
+        console.log("reset function");
+        this.form.reset();
+        var cnt = document.getElementById("filelabel");
+        cnt.value = "";
+        return true;
+    }
+
+</script>

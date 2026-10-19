@@ -1,0 +1,250 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto
+@using PagedList.Mvc
+@using PagedList
+
+@model NTTData.AMOPortal.WebUI.Dto.IdeaInput
+
+
+
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery-ui.css"  rel="stylesheet"/>
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery.dataTables.css" rel="stylesheet" />
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery.dataTables.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/dataTables.jqueryui.js"></script>
+<link href="~/Content/PagedList.css" rel="stylesheet" />
+
+
+
+                       @if (Model.ClientId > 0 && ViewBag.pagedItems != null)
+      {
+      @Html.PagedListPager((IPagedList)ViewBag.pagedItems, page => Url.Action("ViewIdeabyClient", new {ClientId=Model.ClientId, PageNumber = page }), PagedListRenderOptions.ClassicPlusFirstAndLast)
+      }
+
+
+<table  id="myTable05"  class="display" >
+        <thead>
+        <tr>
+        <th>ID</th>
+        <th>Include</th>
+        <th>Client ID</th>
+        <th>Challenge ID</th>
+        <th>Challenge Description</th>
+        <th>Idea ID</th>
+        <th>Idea Orgin</th>
+        <th>Idea Owner</th>
+        <th>Idea Description</th>
+        <th>Idea AsIs</th>
+        <th>Idea ToBe</th>
+        <th>Idea DateCreated</th>
+        <th>Idea CreatedBy</th>
+        <th>Idea DateSubmitted</th>
+        <th>Idea MonthSubmitted</th>
+        <th>Idea YearSubmitted</th>
+        <th>Idea SubmittedBy</th>
+        <th>Idea DateApproved</th>
+        <th>Idea ApprovedBy</th>
+        <th>Include InRoadmap</th>
+        <th>Idea Priority</th>
+        <th>Idea Roadmap Cycle</th>
+        <th>Idea Roadmap Comments</th>
+        <th>Idea NTTDATA Approval</th>
+        <th>IdeaClient Approval</th>
+        <th>Idea Status</th>
+        <th>Idea SubmittedToClient</th>
+        <th>Idea Sponsor</th>
+        <th>Idea Requested CompletionDate</th>
+        <th>Idea Estimated ImplementationDate</th>
+        <th>Idea Estimated ReleaseName</th>
+        <th>Idea Actual CompletionDate</th>
+        <th>Idea Actual CompletionDate_Month</th>
+        <th>Idea Actual CompletionDate_Year</th>
+        <th>Idea ActualReleaseName</th>
+        <th>Idea Category</th>
+        <th>Idea ServiceCategory</th>
+        <th>Idea Comment</th>
+        <th>Idea OpenActionItems</th>
+        <th>Estimate Size</th>
+        <th>Idea EstimatedCost</th>
+        <th>Idea ActualCost</th>
+        <th>Idea CostType</th>
+        <th>Revenue Increase</th>
+        <th>Productivity GainNotes</th>
+        <th>IdeaPotential ValueSize</th>
+        <th>Estimated PaybackPeriod</th>
+        <th>Idea Benefits Realized</th>
+        <th>Business CapabilityL1</th>
+        <th>Business CapabilityL2</th>
+        <th>Benefit ID</th>
+        <th>IdeaEstimated BenefitDescription</th>
+        <th>IdeaActual BenefitDescrition</th>
+        <th>Increased RevenueEstimate_Low</th>
+        <th>Increased Revenue Estimate_High</th>
+        <th>CostofService ReductionEstimate</th>
+        <th>SupportCapacity ImpactEstimate</th>
+        <th>IdeaEstBenefit RealizationDate</th>
+        <th>Increased RevenueActual</th>
+        <th>CostofService ReductionActual</th>
+        <th>SupportCapacity ImpactActual</th>
+        <th>Idea BenefitValueType</th>
+        <th>Application ID</th>
+        <th>Idea Application Impacts</th>
+        <th>LOB ID</th>
+        <th>Idea LOBImpacts</th>
+        <th>Increase ClientsMarketShare</th>
+        <th>Increase ClientsRevenue</th>
+        <th>ProvidedaccesstonewclientVerticals/Domains</th>
+        <th>Enabled_NTTDATA_offer_new_services_to_client</th>
+        <th>Increase_in NTTDATA_price_premium</th>
+        <th>Increase_in_NTTDATA_Customer_Satisfaction</th>
+        <th>Increase_in_NTTDATA_employee_Satisfaction</th>
+        <th>Increase_in_NTTDATA_talent_Retention</th>
+        <th>Improvement_in_NTTDATA_Brand_Perception</th>
+        <th>DateLastUpdated</th>
+        <th>LastUpdatedBy</th>
+        <th>Delete</th>
+        </tr>
+                        </thead>
+                        <tbody>
+                         
+             @*                  @foreach (var item in Model.IdeaLists)
+                               {
+    *@
+                            
+                                      @if (ViewBag.pagedItems != null)
+                                  {
+
+                                  foreach (var pageitem in ViewBag.pagedItems)
+                                      {
+                                      IdeaDataSet item = (IdeaDataSet)pageitem;
+                            
+                            <tr>
+        <td>@Html.ActionLink(item.Id.ToString(), "EditIdea", new { item.Id })</td>
+        <td>@item.Include</td>
+        <td>@item.ClientId</td>
+        <td>@item.ChallengeId</td>
+        <td>@item.ChallengeDescription</td>
+        <td>@item.IdeaId</td>
+        <td>@item.IdeaOrgin</td>
+        <td>@item.IdeaOwner</td>
+        <td>@item.IdeaDescription</td>
+        <td>@item.IdeaASIS</td>
+        <td>@item.IdeaTOBE</td>
+        <td>@item.IdeaDateCreated</td>
+        <td>@item.IdeaCreatedBy</td>
+        <td>@item.IdeaDateSubmitted</td>
+        <td>@item.IdeaMonthSubmitted</td>
+        <td>@item.IdeaYearSubmitted</td>
+        <td>@item.IdeaSubmittedBy</td>
+        <td>@item.IdeaDateApproved</td>
+        <td>@item.IdeaApprovedBy</td>
+        <td>@item.IncludeInRoadmap</td>
+        <td>@item.IdeaPriority</td>
+        <td>@item.IdeaRoadmapCycle</td>
+        <td>@item.IdeaRoadmapComments</td>
+        <td>@item.IdeaNTTDATAApproval</td>
+        <td>@item.IdeaClientApproval</td>
+        <td>@item.IdeaStatus</td>
+        <td>@item.IdeaSubmittedToClient</td>
+        <td>@item.IdeaSponsor</td>
+        <td>@item.IdeaRequestedCompletionDate</td>
+        <td>@item.IdeaEstimatedImplementationDate</td>
+        <td>@item.IdeaEstimatedReleaseName</td>
+        <td>@item.IdeaActualCompletionDate</td>
+        <td>@item.IdeaActualCompletionDate_Month</td>
+        <td>@item.IdeaActualCompletionDate_Year</td>
+        <td>@item.IdeaActualReleaseName</td>
+        <td>@item.IdeaCategory</td>
+        <td>@item.IdeaServiceCategory</td>
+        <td>@item.IdeaComment</td>
+        <td>@item.IdeaOpenActionItems</td>
+        <td>@item.EstimateSize</td>
+        <td>@item.IdeaEstimatedCost</td>
+        <td>@item.IdeaActualCost</td>
+        <td>@item.IdeaCostType</td>
+        <td>@item.RevenueIncrease</td>
+        <td>@item.ProductivityGainNotes</td>
+        <td>@item.IdeaPotentialValueSize</td>
+        <td>@item.EstimatedPaybackPeriod</td>
+        <td>@item.IdeaBenefitsRealized</td>
+        <td>@item.BusinessCapabilityL1</td>
+        <td>@item.BusinessCapabilityL2</td>
+        <td>@item.BenefitId</td>
+        <td>@item.IdeaEstimatedBenefitDescription</td>
+        <td>@item.IdeaActualBenefitDescrition</td>
+        <td>@item.IncreasedRevenueEstimate_Low</td>
+        <td>@item.IncreasedRevenueEstimate_High</td>
+        <td>@item.CostofServiceReductionEstimate</td>
+        <td>@item.SupportCapacityImpactEstimate</td>
+        <td>@item.IdeaEstBenefitRealizationDate</td>
+        <td>@item.IncreasedRevenueActual</td>
+        <td>@item.CostofServiceReductionActual</td>
+        <td>@item.SupportCapacityImpactActual</td>
+        <td>@item.IdeaBenefitValueType</td>
+        <td>@item.ApplicationId</td>
+        <td>@item.IdeaApplicationImpacts</td>
+        <td>@item.LOBId</td>
+        <td>@item.IdeaLOBImpacts</td>
+        <td>@item.IncreaseClientsMarketShare</td>
+        <td>@item.IncreaseClientsRevenue</td>
+        <td>@item.Provided_access_to_new_client_VerticalsDomains</td>
+        <td>@item.Enabled_NTTDATA_to_offer_new_services_to_client</td>
+        <td>@item.Increase_in_NTTDATA_price_premium</td>
+        <td>@item.Increase_in_NTTDATA_Customer_Satisfaction</td>
+        <td>@item.Increase_in_NTTDATA_employee_satisfaction</td>
+        <td>@item.Increase_in_NTTDATA_talent_retention</td>
+        <td>@item.Improvement_in_NTTDATA_Brand_Perception</td>
+        <td>@item.DateLastUpdated</td>
+        <td>@item.LastUpdatedBy</td>
+         <td>
+                @Html.Hidden("Id", item.Id)
+                <button type="submit" class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("DelIdea", "Idea", new { id = item.Id })'; return false;">Delete</button>
+        </td>
+        </tr>
+                               }
+                               }
+                        </tbody>
+                      </table>
+
+
+<script>
+
+    $(document).ready(function () {
+        var table = $('#myTable05');
+        if (table.length  > 0) {
+            
+            $('#myTable05').dataTable({
+
+
+                "sScrollX": "100%",
+                "sScrollY": "500px",
+                "sScrollXInner": "120%",
+                "bScrollCollapse": true,
+                "bLengthChange": false,
+                "bInfo": false,
+                "jQueryUI": true,
+                "paging": false,
+                "sDom": '<"top"Hf>rt<"bottom"><"clear">'
+
+
+                //"sScrollX": "100%",
+                //"sScrollY": "750px",
+                //"sScrollXInner": "120%",
+                //"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                //"bScrollCollapse": true,
+                //"dom": '<"top"pflr>t<"bottom"pi><"clear">'
+
+            }
+
+
+
+
+       );
+        }
+        
+} );
+
+</script>

@@ -1,0 +1,137 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model Integration_ReportListModel
+<div  class="dashbord-integrated">
+    <div class="top-content-heading">
+        <label id="CategoryChartlabel">Integration Report By Category</label>
+
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="CategoryTG">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartCategory()"></span>
+
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<Integration_ReportModel>
+    ()
+    .Name("ChartCategory")
+    //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+    .Legend(legend => legend
+    .Visible(true)
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    //.Offset(1, 1)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    .Height(600)
+    )
+    .DataSource(ds => ds.Read(read => read.Action("GetIntegrationReportDashboard", "Integration_Report").Data("GetIR")))
+       //   .SeriesDefaults(seriesDefaults => seriesDefaults
+       //.Column().Overlay(ChartBarGradient.None)
+       //  )
+       .AutoBind(false)
+    .SeriesDefaults(seriesDefaults => seriesDefaults
+                                    .Bar().Visual("LabelVisualIntegrated")
+
+                                )
+    .Series(series =>
+    {
+
+        series.Bar(model => model.IncidentCount).Name("Category Count").Spacing(0).CategoryField("LongCategory").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true))
+        .Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # ")).Color("#75B5F9");
+        series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("LongCategory").Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %")).Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Template("#= value# %").Visible(true)/*.Position(ChartBarLabelsPosition.InsideEnd)*/).Color("LightGray");
+
+
+        //series.Bar(model => model.IncidentCount).Opacity(0).Name("Category").Markers(markers => markers.Visible(true).Background("#FFA500")).Labels(labels => labels.Visible(false)).CategoryField("LongCategory").Axis("Cate").Labels(labels => labels.Format("{0:N0}").Padding(0, 0, -15, 45).Background("transparent").Visible(true));
+        //series.Bar(model => model.Percent).Name("Tickets Count").Axis("%").Spacing(0).CategoryField("LongCategory").Labels(labels => labels.Template("#= value# %").Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+        //series.Line(model => model.IncidentCount).Name("Tickets Count").CategoryField("LongCategory").Labels(labels => labels.Background("transparent").Visible(true)).Color("#FFA500");
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(6)
+    .Categories(model =>model.LongCategory)
+    .Line(line => line.Visible(true))
+    //.AxisCrossingValue(0)
+    .Labels(labels => labels.Visible(true)/*.Mirror(true)*/)
+    .MajorGridLines(0, "#D7DBDD", ChartDashType.Solid).Visible(false)
+    //.MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+    )
+     .Pannable(p => p.Lock(ChartAxisLock.X))
+             .Zoomable(zoomable => zoomable
+            .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+            .Selection(selection => selection.Lock(ChartAxisLock.X))
+        )
+
+    .ValueAxis(axis => axis
+
+    .Numeric("Cate").Visible(true)
+
+    // .AxisCrossingValue(0)
+    .Line(line => line.Visible(true))
+    .Labels(labels => labels.Rotation("auto").Visible(true))
+    .MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+    )
+    .ValueAxis(axis => axis
+    .Numeric("%").Visible(true)
+    .Min(0).Max(100)
+    .Labels(labels => labels.Format("{0}%").Visible(false))
+    .Line(line => line.Visible(false))
+    .MajorGridLines(lines => lines.Visible(false))
+    )
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    // .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+    )
+    .Events(events => events
+    .DataBound("i_category_minmax_onDataBound")
+    .SeriesClick("onIntegrationReportSeriesClickcategory")
+            )
+    )
+</div>
+    </div>
+    <div class="table-content fix-grid-head hide" style="color: #000;padding: 0 18px 12px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 100.55%; padding: 2px 0 0 4px ">
+            <div style="width:275px" onclick="kendoGridHeaderSort('CategoryTable', 'LongCategory')">GCategory</div>
+            <div style="width:275px" onclick="kendoGridHeaderSort('CategoryTable', 'IncidentCount')">Ticket Count</div>
+            <div style="width:50px" onclick="kendoGridHeaderSort('CategoryTable', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<Integration_ReportModel>
+                                    ()
+                                    .Name("CategoryTable")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(e => e.LongCategory).Title("GCategory").ClientFooterTemplate("Total").Width(275);
+                                        columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(275);
+                                        columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                                    })
+                                    .AutoBind(false)
+                                    .HtmlAttributes(new { style = "height:235px;" })
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                     .Aggregates(agg =>
+                                                {
+                                                    agg.Add(p => p.IncidentCount).Sum();
+                                                    agg.Add(p => p.Percent).Sum();
+                                                })
+                                        .Read(read => read.Action("GetIntegrationReportDashboardforGrid", "Integration_Report").Data("GetIR"))
+                                        )
+        )
+
+    </div>
+</div>

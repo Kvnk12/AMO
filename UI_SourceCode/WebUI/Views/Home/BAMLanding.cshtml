@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/alignmentmngr-logo.png");
+    ViewBag.ImagePathTwo = null;
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+  <div class="container bamlpcontainer">
+    <div class="bamlpleft">
+      <div class="qArea">
+        <p>Are you reporting service levels are green but your customer think they are red</p>
+        <p class="secrow">Can you articulate what business outcomes you get from your service providers</p>
+        <p>Can you quickly understand impact of an outage on your business</p>
+      </div>
+      <div class="gArea"></div>
+    </div>
+    <!-- left part ends here-->
+    
+    <!-- right part starts here-->
+    <div class="bamlpright">
+      <div class="bamlpbanner"></div>
+      <!--this section contains the banner image -->
+      <div class="bamkeyArea">
+        <div class="bamlphd"> <img src="@Url.Content("~/Content/images/alignmentmngr-logo.png")" height="34"></img>&nbsp;&nbsp;NextGen <strong>Business Alignment Manager</strong>
+
+          <p><strong>can help you</strong></p>
+        </div>
+        <div class="bamhelp"> Articulate how an AO will influence business outcome </div>
+        <div class="bamhelp top"> Define opportunities to improve/achieve business KPIs </div>
+        <div class="bambtnsection pull-right">
+          <button class="btn btn-default bambtn">Learn More</button>
+             @if (!@User.IsInRole("User") || !@User.IsInRole("CustomerUser"))
+                        {
+          <a href="@Url.Action("DisplayVerticalSubVerticals","VerticalSubVerticalsGrid",new { area = "" }, null)" class="btn btn-primary bambtn">Try App</a>
+                 }
+            else
+            {
+                <a href="#" class="btn btn-primary bambtn">Try App</a> 
+                 }
+
+
+        </div>
+
+      </div>
+      <!-- end of bamkeyArea--> 
+    </div>
+    <!-- right part ends here--> 
+    
+  </div>
+

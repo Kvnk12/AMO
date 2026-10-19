@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title</title>
+    <!-- Bootstrap core CSS -->
+    <link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+
+    <link href="@Url.Content("~/Content/css/bootstrap-select.css")" rel="stylesheet">
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap.min.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/menu.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/script.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/tab.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/modal.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap-select.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-ui-1.12.1.min.js")'></script>
+
+    <script src='@Url.Content("~/Scripts/multiselect/jquery.multiple.select.js")'></script>
+    <link href="@Url.Content("~/Content/css/bootstrap-select.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Scripts/multiselect/multiple-select.css")" rel="stylesheet">
+
+</head>
+   <body>
+        <div id="wrap"> 
+             <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+             </section>
+        </div>
+     </body>
+</html>

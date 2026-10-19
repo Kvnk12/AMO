@@ -1,0 +1,75 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+
+ <button class="btn btn-primary pull-right" type="button" tabindex="30" id="btnAddSLEL3">Add </button>
+<div class="sltableArea">
+                      <table class="table sltable" >
+                        <colgroup>
+                        <col width="230px">
+                        <col width="54px">
+                        <col width="70px">
+                        <col width="84px">
+                        <col width="187px">
+                        <col width="154px">
+                        <col width="155px">
+                        <col width="21px">
+                        </colgroup>
+                        <tbody>
+                          <tr style="">
+                               <th scope="col">Line of Business</th>
+                             <th scope="col">App Support</th>
+                             <th scope="col">Manual Support</th>
+                              <th scope="col">External Support</th>
+                              <th scope="col">App SLE</th>
+                              <th scope="col">Manual SLE</th>
+                              <th scope="col">External SLE</th>
+                                 </tr>
+                        </tbody>
+                      </table>
+                      <div class="slinnertableArea">
+                        <table class="table slinnertable">
+                          <colgroup>
+                          <col width="217px">
+                          <col width="71px">
+                          <col width="69px">
+                          <col width="84px">
+                          <col width="182px">
+                          <col width="142px">
+                          <col width="155px">
+                          <col width="53px">
+                          </colgroup>
+                          <tbody style="border-collapse: collapse;">
+                                 
+                                     
+  @{
+      if (Model.JunctionLOBClientBCLevel3List.Count() > 0 && Model.JunctionLOBClientBCLevel3List.Count() != null)
+                            {
+                                foreach (var item in Model.JunctionLOBClientBCLevel3List)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.lineOfBusiness.LOBName,"DisplayClientBClevels","ClientBClevels", new {ClientID=@Model.ClientId,CLevel1Id=@Model.CLevel1Id,CLevel1Name = @Model.CLevel1Name,CLevel2Id=@Model.CLevel2Id,CLevel2Name = @Model.CLevel2Name,CLevel3Id=@Model.CLevel3Id,CLevel3Name = @Model.CLevel3Name,InExValue = @Model.InExValue,LOBClientBCId=@item.Id,LOBName=@item.lineOfBusiness.LOBName,LOBId = @item.LOBId,InTabs="Tab2"}, null)</td>
+                                   <td>
+                                       @Html.CheckBoxFor(m => item.CBCLevel3_AppSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                    <td>
+                                          @Html.CheckBoxFor(m => item.CBCLevel3_ManualSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                  <td>
+                                  @Html.CheckBoxFor(m => item.CBCLevel3_ExternalSupport, new { tabindex = "",disabled="disabled"})</td>
+                               <td>@item.CBCLevel3_AppSLEDesc</td>
+
+                              <td>@item.CBCLevel3_ManualSLEDesc</td>
+
+                                <td>@item.CBCLevel3_ExternalSLEDesc</td>
+                                </tr>
+                            }
+                            }
+                        }
+                              
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+ <!-- end of both table div-->
+                

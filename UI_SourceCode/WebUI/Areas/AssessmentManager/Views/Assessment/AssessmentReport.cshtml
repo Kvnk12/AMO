@@ -1,0 +1,484 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Telerik.Reporting;
+@using Telerik.ReportViewer.Mvc;
+@using System.Web.Configuration;
+
+
+@model A3MMModel
+
+@{
+    ViewBag.Title = "A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    /*new*/
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    /*new*/
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    var area = HttpContext.Current.Request.Url.AbsoluteUri;
+    var Patharray = area.Contains("AMOPortalAPIPTest");
+    var ReportUrl = "A3MM/A3MM_ManualReport";
+    if (Patharray)
+    {
+        ReportUrl = "A3MM/A3MM_ManualReport";
+    }
+
+    var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+    var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+    var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+    var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = client.ClientId;
+    var clientName = client.ClientName;
+
+
+}
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+<link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+<script src="@RepJsResources"></script>
+<style>
+
+    #ReportAssessment {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+
+    .k-button#btnPreview {
+        background: #fff;
+        color: rgb(91,121,171);
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+    }
+    .custom-textbox textarea {
+        resize: none;
+        background: transparent;
+        color: white;
+        border: none;
+        border-bottom: 1px solid white;
+        height: 1.7vw;
+        width: 16vw;
+        overflow: hidden;
+    }
+</style>
+<div class="content-main dark-bg support-body-container">
+    <div>
+        <ol class="breadcrumb container">
+            <li>Assessment Manager</li>
+            <li class="active">Assessment Report</li>
+        </ol>
+
+    </div>
+
+
+
+    <div id="wrap" style="margin:20px; position: relative; overflow: hidden; padding: 0; height: auto;min-height: unset; ">
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <span class="parameter-filter-icon"></span>
+            </div>
+
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+
+
+                        <li>
+                            Account :
+                            <div class="custom-textbox">
+                                @Html.TextAreaFor(m => m.AccountName, new { @class = "custom-textboxfor", id = "AccountName" })
+                            </div>
+
+                        </li>
+                        <li>
+                            Assessment Name :
+                            <div class="custom-dropdown">
+                                @( Html.Kendo().DropDownList().Name("AssessmentList")
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .SelectedIndex(0)
+                                                            .BindTo(Model.AssessmentNameList)
+                                                            .HtmlAttributes(new { style = "width: 16vw;border-bottom: 1px solid white; color:white;font-size:0.95vw;" })
+                                                            .Events(e =>
+                                                            {
+                                                            e.Change("onSelectAssessmentName");
+                                                            })
+                                                            )
+                            </div>
+
+                        </li>
+
+
+                        <li>
+                            Select Second Assessment :
+                            @( Html.Kendo().DropDownList().Name("AssessmentList2")
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .SelectedIndex(0)
+                                                            .BindTo(Model.SecondAssessmentNameList)
+                                                             .Events(e =>
+                                                             {
+                                                                 e.Change("onSelectAssessmentName2");
+                                                             })
+
+                               )
+                        </li>
+                        @if (Model.ThirdAssessmentNameList == null)
+                        {
+                            <li>
+                                Select Third Assessment :
+                                @( Html.Kendo().DropDownList().Name("AssessmentList3")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                           //  .Value("No Selection")
+                             .Enable(false)
+
+                                )
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                Select Third Assessment :
+                                @( Html.Kendo().DropDownList().Name("AssessmentList3")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             // .SelectedIndex(0)
+                             .BindTo(Model.ThirdAssessmentNameList)
+                           .Events(e =>
+                           {
+                               e.Change("onSelectAssessmentName3");
+                           })
+
+                                )
+                            </li>
+                        }
+
+                        @if (Model.FourthAssessmentNameList == null)
+                        {
+                            <li>
+                                Select Fourth Assessment :
+                                @( Html.Kendo().DropDownList().Name("AssessmentList4")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             // .Value("No Selection")
+                                .Enable(false)
+
+)
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                Select Fourth Assessment :
+                                @( Html.Kendo().DropDownList().Name("AssessmentList4")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .Enable(false)
+                             // .SelectedIndex(0)
+                             .BindTo(Model.FourthAssessmentNameList)
+
+
+)
+                            </li>
+                        }
+
+
+                        <li>
+                            @(Html.Kendo().Button()
+
+                            .Name("btnPreview")
+                            .Content("Apply")
+                            .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+
+                            )
+
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div style="padding:0;padding-top: 15px;width:100%;margin:8px" id="reportPartialID">
+
+            <div>
+
+                @(Html.TelerikReporting().ReportViewer()
+                      // Each report viewer must have an id - it will be used by the initialization script
+                        // to find the element and initialize the report viewer.
+                       .Id("ReportAssessment")
+                        .ViewMode(ViewMode.Interactive)
+                      // The settings of the report server that hosts the reports - URL, username and password.
+                       // If username and password are not provided or are set to null, the server's Guest account will be used.
+                        // The report server should have its Guest account enabled along with configured permissions for accessing the report.
+                       // For more information see http://www.telerik.com/help/reporting/html5-report-viewer-howto-use-it-with-reportserver.html.
+                       .ReportServer(new ReportServer()
+                       {
+                           Url = repSiteLink,
+                             Username = repSiteUserName,
+                         Password = repSitePassword
+                        })
+                        // The URL for the report viewer template. The template can be edited -
+                       // new functionalities can be added and unneeded ones can be removed.
+                       // For more information please check http://www.telerik.com/help/reporting/html5-report-viewer-templates.html.
+                //
+                // The report source value contains Category and ReportName in the following format: {Category/ReportName}.
+                .ReportSource(ReportUrl
+                , new Dictionary<string, object>
+                    () {
+
+                    { "ClientId", Model.ClientId },
+                    { "ClientName", Model.ClientName },
+                    { "AssessmentId", Model.AssessmentID },
+                    { "AssessmentName", Model.AssessmentName },
+                    { "AccountName", Model.AccountName }})
+                    // Specifies whether the viewer is in interactive or print preview mode.
+                    // PrintPreview - Displays the paginated report as if it is printed on paper. Interactivity is not enabled.
+                    // Interactive - Displays the report in its original width and height with no paging. Additionally interactivity is enabled.
+                    .ViewMode(ViewMode.Interactive)
+                    // Sets the scale mode of the viewer.
+                    // Three modes exist currently:
+                    // FitPage - The whole report will fit on the page (will zoom in or out), regardless of its width and height.
+                    // FitPageWidth - The report will be zoomed in or out so that the width of the screen and the width of the report match.
+                    // Specific - Uses the scale to zoom in and out the report.
+                    .ScaleMode(ScaleMode.Specific)
+                    // Zoom in and out the report using the scale
+                    // 1.0 is equal to 100%, i.e. the original size of the report
+                    .Scale(1.0)
+                    // Sets whether the viewer’s client session to be persisted between the page’s refreshes(ex. postback).
+                    // The session is stored in the browser’s sessionStorage and is available for the duration of the page session.
+                    .PersistSession(false)
+
+                    // Sets the print mode of the viewer.
+                    .PrintMode(PrintMode.AutoSelect)
+                    //If set to true shows the Send Mail Message toolbar button
+                    .SendEmail(new SendEmail { Enabled = false })
+                    //Switches accessibility mode ON or OFF.
+                    .EnableAccessibility(true)
+
+                    //----------------------//
+                    //Added to remove the parameter specifying area
+                    //.ParametersAreaVisible(true)
+                    //.Parameters(new Parameters { Editors = new Editors { SingleSelect = EditorTypes.ComboBox, MultiSelect = EditorTypes.ComboBox } })
+                    )
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<script src="~/Content/js/bootstrap.min.js"></script>
+
+<script>
+
+
+    $('#btnPreview').on("click", function (e) {
+
+        console.log("Preview");
+        var actName = $("#AccountName").val();
+        var ass = $("#AssessmentList").data("kendoDropDownList");
+        var ass2 = $("#AssessmentList2").data("kendoDropDownList");
+        var ass3 = $("#AssessmentList3").data("kendoDropDownList");
+        var ass4 = $("#AssessmentList4").data("kendoDropDownList");
+        var asstName = ass.text();
+        var asstId = ass.value();
+        var assessmentIds = ass.value() ;
+        if (ass2.value()!= "0") {
+            assessmentIds = assessmentIds + "," + ass2.value();
+        }
+        if (ass3.value() != "0") {
+            assessmentIds = assessmentIds + "," + ass3.value();
+        }
+        if (ass4.value() != "0") {
+            assessmentIds = assessmentIds + "," + ass4.value();
+        }
+       
+        console.log("assessmentIds->" + assessmentIds);
+        var viewer = $("#ReportAssessment").data("telerik_ReportViewer");
+        viewer.reportSource({
+            report: viewer.reportSource().report,
+            parameters: {
+                Clientid: '@Model.ClientId',
+                ClientName: '@Model.ClientName',
+                AssessmentId: asstId,
+                AssessmentName: asstName,
+                AssessmentIds: assessmentIds,
+                AccountName:actName
+            }
+        });
+        //setting the HTML5 Viewer's reportSource, causes a refresh automatically
+        //if you need to force a refresh for other case, use:
+        viewer.refreshReport();
+
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider').addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+
+       function onSelectAssessmentName(e) {
+
+         var AssessmentName = $("#AssessmentList").data("kendoDropDownList").text();
+        var mod = {
+            AssessmentName: AssessmentName
+        }
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/getSecondAssessmentList")';
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+                $('#AssessmentList2').data('kendoDropDownList').setDataSource(response);
+                $('#AssessmentList2').data('kendoDropDownList').select(0);
+                $('#AssessmentList2').data('kendoDropDownList').enable();
+
+                $('#AssessmentList3').data('kendoDropDownList').setDataSource(response);
+                $('#AssessmentList3').data('kendoDropDownList').select(0);
+                $('#AssessmentList3').data('kendoDropDownList').enable(false);
+
+                $('#AssessmentList4').data('kendoDropDownList').setDataSource(response);
+                $('#AssessmentList4').data('kendoDropDownList').select(0);
+                $('#AssessmentList4').data('kendoDropDownList').enable(false);
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+    }
+
+       function onSelectAssessmentName2(e) {
+
+       var AssessmentName1 = $("#AssessmentList").data("kendoDropDownList").text();
+       var AssessmentName2 = $("#AssessmentList2").data("kendoDropDownList").text();
+      var mod = {
+          AssessmentName1: AssessmentName1,
+          AssessmentName2: AssessmentName2
+      }
+      var data1 = JSON.stringify(mod);
+      baseurl = '@Url.Content("~/AssessmentManager/Assessment/getThirdAssessmentList")';
+      $.ajax({
+
+          type: 'post',
+          url: baseurl,
+          async: false,
+          data: data1,
+          contentType: 'application/json; charset=utf-8',
+          success: function (response) {
+
+              //console.log(response);
+              $('#AssessmentList3').data('kendoDropDownList').setDataSource(response);
+              $('#AssessmentList3').data('kendoDropDownList').select(0);
+              $('#AssessmentList3').data('kendoDropDownList').enable();
+              // $('#AssessmentList4').data('kendoDropDownList').setDataSource(response);
+              $('#AssessmentList4').data('kendoDropDownList').setDataSource(response);
+              $('#AssessmentList4').data('kendoDropDownList').select(0);
+              $('#AssessmentList4').data('kendoDropDownList').enable(false);
+          },
+          error: function (err, response) {
+
+          }
+      });
+    }
+       function onSelectAssessmentName3(e) {
+
+     var AssessmentName1 = $("#AssessmentList").data("kendoDropDownList").text();
+    var AssessmentName2 = $("#AssessmentList2").data("kendoDropDownList").text();
+    var AssessmentName3 = $("#AssessmentList3").data("kendoDropDownList").text();
+    var mod = {
+        AssessmentName1: AssessmentName1,
+        AssessmentName2: AssessmentName2,
+        AssessmentName3: AssessmentName3
+    }
+    var data1 = JSON.stringify(mod);
+    baseurl = '@Url.Content("~/AssessmentManager/Assessment/getFourthAssessmentList")';
+    $.ajax({
+
+        type: 'post',
+        url: baseurl,
+        async: false,
+        data: data1,
+        contentType: 'application/json; charset=utf-8',
+        success: function (response) {
+
+            $('#AssessmentList4').data('kendoDropDownList').setDataSource(response);
+            $('#AssessmentList4').data('kendoDropDownList').select(0);
+            $('#AssessmentList4').data('kendoDropDownList').enable();
+        },
+        error: function (err, response) {
+
+        }
+    });
+}
+</script>
+

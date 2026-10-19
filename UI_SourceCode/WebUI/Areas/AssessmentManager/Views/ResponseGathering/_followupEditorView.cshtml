@@ -1,0 +1,27 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+<div class="ques-follow-editor">
+    <div style="display: flex; justify-content: space-between; align-items:flex-end">
+        <div>
+            <label class="ques-label-1"><span class="circle-fp">AT</span>Follow up Question @Model.SubResponseOrder</label>
+            <label class="hide" id="followuplabel" style="color:red;font-size:10px">* Please enter follow up question</label>
+        </div>
+        <button class="btn-eng-save" id="idfirstbtnsave" onclick="saveFollowup(@Model.QuestionResponseID,@Model.SubResponseId,@Model.AssessmentID)"></button>
+        <button class="btn-eng-save hide" id="idfirstbtnupdate" onclick="updateFollowupforfirst()"></button>
+        <button class="btn-eng-edit editdisablebtn hide" id="idfirstttnedit" onclick="editFollowupforfirst()"></button>
+    </div>
+    <input type="hidden" id="id-followup-save" name="Followupid" value="" />
+    <div class="ques-followup-editor" id="firstresponse">
+        @(Html.Kendo().Editor()
+.Name("AssessmentFollowEditor")
+.HtmlAttributes(new { style = "width: 99%;color:#fff !important", aria_label = "editor", /*@class = "eng-res-texteditor"*/ })
+.Resizable(resizable => resizable.Content(false).Toolbar(true))
+.Tools(tools => tools
+.Clear()
+.Bold().Italic().Underline()
+.InsertUnorderedList().InsertOrderedList()
+)
+)
+    </div>
+</div>

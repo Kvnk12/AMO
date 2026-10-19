@@ -1,0 +1,62 @@
+﻿@using Kendo.Mvc.UI;
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+
+        <div class="row">
+            <div class="col-xs-12">
+                @(Html.Kendo().ProgressBar()
+              .Name("profileCompleteness")
+              .Type(ProgressBarType.Value)
+              .ShowStatus(false)
+              .Min(0)
+              .Max(6)
+              .Value(1)
+                )
+
+                @Html.AntiForgeryToken()
+
+                @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Basic Info")
+                  .Selected(true)
+
+                  .Content(m => Html.Partial("_contactInfo", Model)
+                   );
+
+              tabstrip.Add().Text("Life Cycle & Criticality")
+                  .Enabled(false)
+                  .Content(m => Html.Partial("_LifeCycle", Model));
+
+              tabstrip.Add().Text("Performance")
+                  .Enabled(false)
+                  .Content(m => Html.Partial("_Performance", Model));
+
+              tabstrip.Add().Text("Arch & Geography")
+                  .Enabled(false)
+                  .Content(m => Html.Partial("_ArchGeo", Model));
+
+              tabstrip.Add().Text("Financial")
+                  .Enabled(false)
+                  .Content(m => Html.Partial("_Financial", Model));
+
+              tabstrip.Add().Text("Notes")
+                  .Enabled(false)
+                  .Content(m => Html.Partial("_Notes", Model));
+
+          })
+        .Events(ev =>
+        {
+            ev.Select("onSelect");
+            ev.Show("onShow");
+        })
+
+                )
+
+            </div>
+        </div>
+  
+
+
+
+

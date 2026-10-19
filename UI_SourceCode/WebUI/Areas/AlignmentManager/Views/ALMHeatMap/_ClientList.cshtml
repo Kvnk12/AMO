@@ -1,0 +1,8 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@model heatMapInput 
+
+@using (Html.BeginForm())
+{
+@Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required="required"})  
+ @Html.DropDownListFor(m => m.HeatMapReportId, new SelectList(Model.HeatMapReportNames, "value", "text", Model.HeatMapReportNames), "", new { @class = "selectpicker", id = "HeatMapReportId", name = "HeatMapReportId", required="required"})     
+    }

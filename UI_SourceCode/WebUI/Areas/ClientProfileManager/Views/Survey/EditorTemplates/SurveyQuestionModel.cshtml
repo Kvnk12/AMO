@@ -1,0 +1,154 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@model SurveyQuestionModel
+
+
+@{
+  //  var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new SurveyController();
+    var survid = Model.SurveyId;
+    // var perspectiveCateList = v.SurveyPerspective(client.Id, survid);
+}
+
+
+<div class="container" style="padding:0;">
+    <div class="treeMenuContent">
+        <div class="selectappArea" style="align-content:center">
+            <h2><strong>Add Questions</strong></h2>
+        </div>
+
+        <div class="leftarea form-horizontal" style="width:47%">
+            <div class="form-group">
+                <label>Question Type: </label>
+                @(Html.Kendo().DropDownListFor(m => m.ModelType)
+                        .Name("ModelType")
+                         .OptionLabel("Select")
+                         .DataTextField("Text")
+                         .DataValueField("Value")
+              .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Rating",
+                  Value = "rating"
+              },
+              new SelectListItem() {
+                  Text = "Dropdown",
+                  Value = "ans"
+              },
+              new SelectListItem() {
+                  Text = "FreeText",
+                  Value = "freetext"
+              },
+              new SelectListItem() {
+                  Text = "Multiple Selection",
+                  Value = "multiple"
+              },
+              new SelectListItem() {
+                  Text = "Yes/No",
+                  Value = "yesno"
+              }
+          })
+
+                            .AutoBind(true)
+                    )
+
+            </div>
+            <br />
+            <div class="form-group" style="margin-bottom:1em;">
+    <label style="line-height:1.2em">Perspective/Dimension Type: </label>
+    <br />
+    @Html.DropDownListFor(m => m.PerspectiveTypeId, new SelectList(ViewData["PerspectiveTypes"] as IEnumerable<SelectListItem>, "Value", "Text", Model.PerspectiveTypeId), "Select Perspective Type", new { @class = "selectpicker", style = "width:70%;" })
+    @*@Html.DropDownListFor(m => m.PerspectiveTypeId, new SelectList((List<SelectListItem>)ViewData["PerspectiveTypes"], "value", "text", Model.PerspectiveTypeId), "", new { @class = "selectpicker", tabindex = "6", id = "drpAppId", style = "width:70%;" })*@
+    @*@Html.DropDownListFor(m => m.PerspectiveTypeId, new SelectList(perspectiveCateList, "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6", id = "drpAppId", style = "width:70%;" })*@
+    @*@(Html.Kendo().DropDownListFor(m => m.PerspectiveTypeId)
+        .Name("PerspectiveTypeId")
+            .OptionLabel("Select")
+            .DataTextField("Text")
+            .DataValueField("Value")
+            .BindTo(perspectiveCateList)
+        )*@
+</div>
+            <div class="form-group">
+                <label>Question: </label>
+                <br />
+                @Html.TextAreaFor(m=>m.Question, new { @class = "form-control", rows = "5", style = "width:192%; height:83px;font-size:13px;resize:none;overflow:auto" })
+
+            </div>
+            <br />
+            <div class="form-group">
+                <label>Hint: </label>
+               <br />
+                @*@(Html.Kendo().TextBoxFor(m => m.Hint))*@
+                @Html.TextAreaFor(m => m.Hint, new { @class = "form-control", rows = "5", style = "width:90%; height:20%;font-size:13px;resize:none;overflow:auto" })
+
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <label>QuestionIdentifier: </label>
+                <br />
+                @(Html.Kendo().TextBoxFor(m => m.QuestionIdentifier).HtmlAttributes(new { onchange = "validateidentifier(this)" }))
+                @*@Html.TextBoxFor((m => m.QuestionIdentifier), new { @onfocusout = "validateidentifier(this)"})*@
+
+
+            </div>
+        </div>
+
+
+        @*Right area*@
+        <div class="rightarea form-horizontal" style="width:47%">
+            <div class="form-group">
+                <label>Weighting: </label>
+                @(Html.Kendo().TextBoxFor(m => m.Weighting)
+        .HtmlAttributes(new { @style = "text-align:right;" })
+    )
+
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <label>Include</label>
+                @(Html.Kendo().CheckBoxFor(m => m.Include))
+
+            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+          
+
+            <div class="form-group">
+                <label>Default Comment: </label>
+                <br />
+                @Html.TextAreaFor(m => m.DefaultComment, new { title = this.Model.DefaultComment, @class = "form-control", rows = "5", placeholder = "Please Enter Your Comments Here", style = "width:80%; height:20%;font-size:13px;resize:none;overflow:auto" })
+
+            </div>
+            <br />
+            <br />
+            <div class="=form-group">
+                <label>Created By:</label>
+                <br />
+                @(Html.Kendo().TextBoxFor(m => m.createdbyName)
+                            .Name("createdbyName")
+                            .Enable(false)
+                )
+
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+
+

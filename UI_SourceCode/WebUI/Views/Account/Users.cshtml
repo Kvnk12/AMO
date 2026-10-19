@@ -1,0 +1,295 @@
+﻿@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using WebUI.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+@model List<NTTData.AMOPortal.WebUI.Dto.UserProfileModel>
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    @{
+        ViewBag.Title = "Configuration Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/home/configuration_manager_white.svg");
+        //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+        Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+        ClientDetail client = (ClientDetail)Session["SessionClient"];
+        var clientId = client.ClientId;
+        var templateObject = new RegisterModel();
+        var EdittemplateObject = new UserProfileModel();
+    }
+    <div class="content-main dark-bg">
+        <div class="clear"></div>
+
+        <ol class="breadcrumb">
+            <li>Admin</li>
+            <li class="active">User Management</li>
+        </ol>
+
+
+
+        @using (Html.BeginForm("Users", "Account", FormMethod.Post, new { @class = "form-horizontal", ReturnUrl = Request.QueryString["ReturnUrl"] }))
+        {
+
+            <!--end of breadcrumb container-->
+    <div class="container userarea user-list">
+        <div class="user-header">
+            <input type="button" style="width:fit-content;padding: 0.5em 1em;" class="custom-button" id="btnAddUser" value="REGISTER A NEW USER" />
+        </div>
+       @if (TempData["UserExist"] == "0")
+        {
+        <div id="alertModalDelete" class="modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-body">
+                    
+        <div id="lblErrdel" style="display:none;">
+            <label class="alert alert-danger" id="lblErr1">
+                User is associated to an Application and can not be deleted.
+                <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </label>
+        </div>
+        <div id="lblSuccessdel" style="display:none;">
+            <label class="alert alert-success" id="lblSuccess1">
+                User is Deleted            
+                <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+            </label>
+        </div>
+                </div>
+            </div>
+        </div>
+    }
+        @*@if (TempData["UserExist"] == "0")
+        {
+            <div align="center" id="show_deleteusr_msg">
+                <label style="color: #FF0000; text-align:right">User is associated to an Application and can not be deleted</label>
+            </div>
+        }*@
+        <br />
+        <div class="custom-kendo-grid user-detail-grid">
+            @(Html.Kendo().Grid<UserProfileModel>
+    ()
+    .Name("UserlistDeletion")
+    .Columns(columns =>
+    {
+        columns.Bound(e => e.Id).Hidden();
+        columns.Bound(e => e.UserName).Title("UserName").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.FirstName).Title("FirstName").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.LastName).Title("LastName").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.NTTDataResourceString).Title("Organization").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.Phone).Title("Phone No.").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.JobTitle).Title("JobTitle").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+        columns.Bound(e => e.Id).Filterable(false).ClientTemplate("<input style='margin-left:2em' class='user-grid-edit' id='e-userid#=Id#' value='' onclick='showEdit(#:Id#);' name='Editbtn' type='button' />" +
+            " <input class='user-grid-delete' id='d-userid#=Id#' value='' onclick='DeleteUsercrfm(#:Id#);' name='Deletebtn' type='button' />" +
+            " <input class='user-grid-assign' id='a-userid#=Id#' value='' onclick='AssignUser(#:Id#);' name='Assignbtn' type='button' />").Title("Action").Width(150);
+        //  columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(200);
+    })
+    .Resizable(r => r.Columns(true))
+    .Pageable()
+    .Scrollable()
+    //.Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("UserProfileModel"))
+    .Filterable()
+    .Sortable()
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(15)
+    .Model(model =>
+    {
+        model.Id(f => f.Id);
+    })
+    .Read(read => read.Action("UMGetUserList", "Account"))
+    //.Create(create => create.Action("AddBusinessBenefits", "PostIdea"))
+    //.Update(update => update.Action("EditBusinessBenefits", "PostIdea"))
+    //.Destroy(destroy => destroy.Action("DeleteBusinessBenefits", "PostIdea"))
+    )
+    )
+        </div>
+        <br />
+    </div><!--./end of user area-->
+
+        }
+
+    </div>
+    <div class="modal fade kedb-dialog-popup" id="cfmDeleteUser" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Delete Task</h5>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/cancel_cross.svg" />
+                    <h4>Are you sure?</h4>
+                    <h6 style="font-size:11px">
+                        Do you really want to Delete User from the list?
+                    </h6>
+                    <h6 style="font-size:11px">
+                        Once Delete, this action cannot be Undone.
+                    </h6>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="custom-button" data-bs-dismiss="modal" style="background-color: darkgrey;">NO</button>
+                    <button type="button" data-bs-dismiss="modal" class="custom-button" onclick="DeleteUser()">YES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="alertModalRegister" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body">
+                <div id="lblErr" style="display:none;">
+                    <label class="alert alert-danger" id="lblErr1">
+                        Error while saving data.
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+                <div id="lblSuccess" style="display:none;">
+                    <label class="alert alert-success" id="lblSuccess1">
+                        User Got Added successfully!.
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Partial("Register", templateObject)
+    @Html.Partial("UserProfileEdit", EdittemplateObject)
+           <script>
+        var DeleteUserid;
+$('#btnAddUser').click(function () {
+     //var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/Account/Register")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+           // data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data)
+                    
+                    if (data.NTTDataResource == true) {
+                       // alert("in")
+                        $('input[id="NTTDataResource"]').prop('checked', true);
+                    } else {
+                        $('input[id="NTTDataResource"]').prop('checked', false);
+                    }
+                    var rptpopup = $("#AddTemppopUp").data("kendoWindow");
+                    rptpopup.open();
+            }
+
+
+       })             
+        });
+        function DeleteUser() {
+            var Id = DeleteUserid;
+            //var confirm = window.confirm('Do you want to delete the user?');
+            //if (confirm) {
+                var href = window.location.href.split('/');
+                var baseurl = '';
+
+                if (href[3] == 'Account') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'Account/DeleteUser/?Id='
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Account/DeleteUser/?Id='
+                }
+
+                var url = baseurl + parseInt(Id);
+                window.location = url;
+                return false;
+            //}
+            //else { return false; }
+        }
+        function DeleteUsercrfm(useId) {
+            DeleteUserid = useId;
+            $('#cfmDeleteUser').modal('show');
+        }
+        function showEdit(useId) {
+        var mod = {
+            Id: useId
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/Account/UserProfileEdit")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data)
+                    $("#UserName").val(data.UserName);
+                    $("#FirstName").val(data.FirstName);
+                    $("#LastName").val(data.LastName);
+                    $("#CountryCode").val(data.CountryCode);
+                    $("#Phone").val(data.Phone);
+                    $("#JobTitle").val(data.JobTitle);
+                    $("#ReportingManager").val(data.ReportingManager);
+                    if (data.NTTDataResource == true) {
+                       // alert("in")
+                        $('input[id="NTTDataResource"]').prop('checked', true);
+                    } else {
+                        $('input[id="NTTDataResource"]').prop('checked', false);
+                    }
+                    $("#Id").val(data.Id);
+                    $("#Email").val(data.Email);
+                    $("#Active").val(data.Active);
+                    $("#NTTDataResource").val(data.NTTDataResource);
+                    $("#IsPhoneVerified").val(data.IsPhoneVerified);
+                    var popup = $("#EditTemppopUp").data("kendoWindow");
+                    popup.open();
+                    popup.center();
+            }
+
+
+       })
+            var rptpopup = $("#EditTemppopUp").data("kendoWindow");
+            rptpopup.open();
+            return false;
+        }
+
+        function AssignUser(useId) {
+            var Id = useId;
+            var href = window.location.href.split('/');
+            var baseurl = '';
+
+            if (href[3] == 'Account') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Account/AssignUser/?Id='
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Account/AssignUser/?Id='
+            }
+
+            var url = baseurl + parseInt(Id);
+            window.location = url;
+            return false;
+        }
+               function onEditcancel() {
+                   var popup = $("#EditTemppopUp").data("kendoWindow");
+                   popup.close();
+        }
+
+$(document).ready(function () {
+    var InvDate = '@TempData["UserExist"]';
+    if (InvDate == "0") {
+        $('#alertModalDelete').modal('show');
+        $('#lblErrdel').show();
+            $('#lblSuccessdel').hide();
+    }
+    if (InvDate == "1"){
+        $('#alertModalDelete').modal('show');
+        $('#lblErrdel').hide();
+        $('#lblSuccessdel').show();
+    }
+});
+
+           </script>

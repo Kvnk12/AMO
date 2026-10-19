@@ -1,0 +1,205 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    var Table = ViewData["Table"];
+}
+<style>
+    .k-state-active .k-icon:before {
+        /*   background-color: #fff !important;*/
+        /*        color: #000 !important;
+        margin: 2px !important;*/
+    }
+    /*.fixed-header {
+        top: 0;
+        position: fixed;
+        width: auto;
+        z-index: 1;
+    }*/
+    .k-tooltip, .k-tooltip.k-popup, .k-tooltip.k-widget {
+        /*// .k-tooltip {*/
+        border-radius: 4px;
+        border-color: #fff;
+        color: #000;
+        background-color: #fff;
+        max-width: 250px;
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+</style>
+<div class="content-main custom-grid">
+    <div class="content-wrapper">
+        @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("GridTickets")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100).Locked(true).Lockable(false);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Locked(true).Lockable(false);
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Locked(true);
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Locked(true);
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.ShortDescription).Title("Short description").Width(100).Locked(true);
+                                                        columns.Bound(p => p.Track).Title("Track").Width(100);
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100);
+
+                                                        columns.Group(group => group.Title("Ticket Dates").Columns(cost =>
+                                                        {
+                                                            cost.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy }").Width(100);
+                                                            cost.Bound(p => p.AssignedDateTime).Title("Assigned").Format("{0:MM/dd/yyyy }").Width(100);
+                                                            cost.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy }").Width(100);
+                                                            cost.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy }").Width(100);
+                                                            cost.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        }));
+
+                                                        columns.Group(group => group.Title("Response").Columns(cost =>
+                                                        {
+                                                            cost.Bound(p => p.ResponseTarget).Title("Target").Width(100);
+                                                            cost.Bound(p => p.ResponseTime).Title("Time").Width(100);
+                                                            cost.Bound(p => p.ResponseTimeMetSLA).Title("MetSLA").Width(100);
+                                                            cost.Bound(p => p.ResponseExceptionIndicator).Title("Waive?").Width(100);
+                                                            cost.Bound(p => p.ResponseExceptionReason).Title("Waive Reason").Width(100);
+
+                                                        }));
+
+                                                        columns.Group(group => group.Title("Resolution").Columns(cost =>
+                                                        {
+                                                            cost.Bound(p => p.ResolutionTarget).Title("Target").Width(100);
+                                                            cost.Bound(p => p.ResolutionTime).Title("Time").Width(100);
+                                                            cost.Bound(p => p.ResolutionTimeMetSLA).Title("MetSLA").Width(100);
+                                                            cost.Bound(p => p.ResolutionExceptionIndicator).Title("Waive?").Width(100);
+                                                            cost.Bound(p => p.ResolutionExceptionReason).Title("Waive Reason").Width(100);
+                                                            cost.Bound(p => p.ResolutionDescription).Title("Resolution Description").Width(100);
+
+                                                        }));
+                                                        columns.Bound(p => p.WaiveSLAReport).Title("Waive from SLA Report").Width(100).ClientTemplate(
+"# if (WaiveSLAReport == true) { #" +
+"<span>Yes</span>" +
+"# } else { #" +
+"<span>No</span>" +
+"# } #"
+);
+                                                        columns.Bound(p => p.WaiveReason).Title("Reason to Waive").Width(100);
+
+
+                                                        columns.Bound(p => p.ClusterLabel).Title("Cluster ID").Width(100);
+                                                        columns.Bound(p => p.ClusterName).Title("Cluster Word").Width(100);
+                                                        //columns.Bound(p => p.ClusterName).Title("Cluster Word").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        //.ClientTemplate("<div class=\"forTopWordToolTip\">#=ClusterName#</div>");
+
+
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        // tools.Save();
+                                                        tools.Excel();
+                                                        tools.Custom().Text("Export All To Excel")
+                                                                        .HtmlAttributes(new { @class = "export" })
+                                                                        .Url(Url.Action("ExportTicketData", "ConfigureReport"));
+                                                        // tools.Custom().Text("Export to excel").Name("mycommand"); ;
+                                                    })
+                                                    .Pageable(pager => pager.AlwaysVisible(true))
+                                                    //.Pageable()
+                                                    .Filterable()
+                                                    .Sortable()
+                                                    .Scrollable(e => e.Endless(false))
+                                                    .Groupable()
+                                                    //.Editable(editable => editable.Mode(GridEditMode.InCell))
+                                                    .Excel(excel => excel.FileName("Ticket_Data_Repository.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Reorderable(r => r.Columns(true))
+                                                    .Resizable(r => r.Columns(true))
+                                                    // .HtmlAttributes(new { @style = "height:480px" })
+                                                    .ColumnMenu()
+                                                    .Filterable()
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .PageSize(100)
+                                                     .Batch(true)
+
+                                                    .Read(read => read.Action("GetTickets", "ConfigureReport"))
+                                                    // .Update(update => update.Action("UpdateTickets", "ConfigureReport"))
+                                                    )
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#GridTickets")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#GridTickets")
+                  .Filter(".forTopWordToolTip")
+                  .ContentHandler("getTopWordsToolTip")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+
+    </div>
+</div>
+<script>
+    function getDescriptionToolTip(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+
+    function getTopWordsToolTip(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ClusterName;
+        return content;
+    }
+    //function DateTimeFilter(control) {
+    //    $(control).kendoDateTimePicker({
+    //        format: "MM/dd/yyyy HH:mm:ss",
+    //        timeFormat: "HH:mm:ss"
+    //    });
+    //}
+    $("#GridTickets").on("click", "#customButton", function (e) {
+
+        var baseurl = '@Url.Content("~//ConfigureReport/ExportTicketData")';
+          window.location.replace(baseurl);
+
+    });
+</script>

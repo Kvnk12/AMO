@@ -1,0 +1,513 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1DE460E0-AF08-436C-BAE0-0F2C92145F12}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Domain</RootNamespace>
+    <AssemblyName>Domain</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>%24/SE2/25Nov2015/UI/Domain</SccProjectName>
+    <SccLocalPath>.</SccLocalPath>
+    <SccAuxPath>https://atifmalik.visualstudio.com/defaultcollection</SccAuxPath>
+    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MVC Foolproof Validation">
+      <HintPath>..\packages\foolproof.0.9.4517\lib\MVC Foolproof Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Entity.Design" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Abstract\IAuth.cs" />
+    <Compile Include="Abstract\IDelRepo.cs" />
+    <Compile Include="Abstract\IGenericRepository.cs" />
+    <Compile Include="Abstract\IRepo.cs" />
+    <Compile Include="Abstract\IUnitOfWorks.cs" />
+    <Compile Include="Entities\A3MM\A3SurveyType.cs" />
+    <Compile Include="Entities\A3MM\AMSCatalog.cs" />
+    <Compile Include="Entities\A3MM\BusinessDriverr.cs" />
+    <Compile Include="Entities\A3MM\ImplementationPlann.cs" />
+    <Compile Include="Entities\A3MM\A3MM_MultipleFollowUpQuestions.cs" />
+    <Compile Include="Entities\A3MM\A3MM_MultipleResponses.cs" />
+    <Compile Include="Entities\A3MM\ActionItemTrackerLog.cs" />
+    <Compile Include="Entities\A3MM\ActionItemTracker.cs" />
+    <Compile Include="Entities\A3MM\Aspect.cs" />
+    <Compile Include="Entities\A3MM\Assessment.cs" />
+    <Compile Include="Entities\A3MM\Component.cs" />
+    <Compile Include="Entities\A3MM\Discipline.cs" />
+    <Compile Include="Entities\A3MM\EngagementQuestionnaire.cs" />
+    <Compile Include="Entities\A3MM\EngagementQuestionSet.cs" />
+    <Compile Include="Entities\A3MM\QuestionnaireResponse.cs" />
+    <Compile Include="Entities\A3MM\QuestRespAttachments.cs" />
+    <Compile Include="Entities\BAMDegreeofSupport.cs" />
+    <Compile Include="Entities\BaseLineData.cs" />
+    <Compile Include="Entities\BCApplicationJunction.cs" />
+    <Compile Include="Entities\AMSCustomAuditLog.cs" />
+    <Compile Include="Entities\Businessprocesshealth.cs" />
+    <Compile Include="Entities\BusinessProcessImportance.cs" />
+    <Compile Include="Entities\ClientEngagement.cs" />
+    <Compile Include="Entities\ClientEngagementFTE_Q.cs" />
+    <Compile Include="Entities\DMAnalysisRootCause.cs" />
+    <Compile Include="Entities\DMChallengeDemandsRelations.cs" />
+    <Compile Include="Entities\DMComplexity.cs" />
+    <Compile Include="Entities\DMDemandApprover.cs" />
+    <Compile Include="Entities\DMCategory.cs" />
+    <Compile Include="Entities\DMClassification.cs" />
+    <Compile Include="Entities\DMDocumentType.cs" />
+    <Compile Include="Entities\DMItemComments.cs" />
+    <Compile Include="Entities\DMCompletedAndNextSteps.cs" />
+    <Compile Include="Entities\DMConfigItem.cs" />
+    <Compile Include="Entities\DMConfigItemsMap.cs" />
+    <Compile Include="Entities\DMConfigType.cs" />
+    <Compile Include="Entities\DMDemandType.cs" />
+    <Compile Include="Entities\DMImpPriorityHistory.cs" />
+    <Compile Include="Entities\DMItemBusinessBenefits.cs" />
+    <Compile Include="Entities\DMItemCategoryMap.cs" />
+    <Compile Include="Entities\DMItemITBenefits.cs" />
+    <Compile Include="Entities\DMItemStatus.cs" />
+    <Compile Include="Entities\DMLOB.cs" />
+    <Compile Include="Entities\DMMetricTarget.cs" />
+    <Compile Include="Entities\DMPostChallenge.cs" />
+    <Compile Include="Entities\DMPostDemand.cs" />
+    <Compile Include="Entities\DMPriorityHistory.cs" />
+    <Compile Include="Entities\DMProgressStatus.cs" />
+    <Compile Include="Entities\DMRiskAndMitigation.cs" />
+    <Compile Include="Entities\DMSolution.cs" />
+    <Compile Include="Entities\DMStage.cs" />
+    <Compile Include="Entities\DMStatusHistory.cs" />
+    <Compile Include="Entities\DMTask.cs" />
+    <Compile Include="Entities\DMTaskActivitiesHistory.cs" />
+    <Compile Include="Entities\DMTaskAndActivities.cs" />
+    <Compile Include="Entities\EngagementLocation.cs" />
+    <Compile Include="Entities\EngagementPhase.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKActivityLogs.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKAttachment.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKClient.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKComment.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKDgtlOfferingMgr.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKMapTag.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKNotification.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKPost.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKProductGroups.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKProductMgr.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKSentiment.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKStatus.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKTag.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKUser.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKVote.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKDigitalOffering.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKFeedbackType.cs" />
+    <Compile Include="Entities\FDBKManager\InternalClient.cs" />
+    <Compile Include="Entities\IMAutoApprovers.cs" />
+    <Compile Include="Entities\FDBKManager\IMFDBKProductApp.cs" />
+    <Compile Include="Entities\IMIdeaReassign_log.cs" />
+    <Compile Include="Entities\IMIdeaSourceMaster.cs" />
+    <Compile Include="Entities\IMOfflineApprover.cs" />
+    <Compile Include="Entities\IMSystemImpactedService.cs" />
+    <Compile Include="Entities\IMEmailtemplates.cs" />
+    <Compile Include="Entities\IncidentNavigator\ConfigAgingQuery.cs" />
+    <Compile Include="Entities\IncidentNavigator\INColumnValue.cs" />
+    <Compile Include="Entities\IncidentNavigator\INColumnValueRule.cs" />
+    <Compile Include="Entities\IncidentNavigator\INContractRule.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBBusinessFunction.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBInstance.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBIssueTypes.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBSolutionCategory.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBSolutionStatus.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBStatusAudit.cs" />
+    <Compile Include="Entities\IncidentNavigator\RPTJobDetail.cs" />
+    <Compile Include="Entities\IncidentNavigator\RPTJobDetailArchive.cs" />
+    <Compile Include="Entities\IncidentNavigator\RPTSubscription.cs" />
+    <Compile Include="Entities\INDictionary.cs" />
+    <Compile Include="Entities\LeadershipRoles.cs" />
+    <Compile Include="Entities\ApprovalAttachments.cs" />
+    <Compile Include="Entities\ServiceImprovementGoal.cs" />
+    <Compile Include="Entities\ServiceImprovementPlan_Q.cs" />
+    <Compile Include="Entities\ServiceImprovementPlanStatus.cs" />
+    <Compile Include="Entities\ServiceImprovementType.cs" />
+    <Compile Include="Entities\SSIS_INUpdateQuery.cs" />
+    <Compile Include="Entities\SurveyINCollection.cs" />
+    <Compile Include="Entities\SurveyINUser.cs" />
+    <Compile Include="Entities\AccountStatus.cs" />
+    <Compile Include="Entities\Address.cs" />
+    <Compile Include="Entities\Application.cs" />
+    <Compile Include="Entities\BAMBusinessCapabilities.cs" />
+    <Compile Include="Entities\BAMClientBusinessCapabilities.cs" />
+    <Compile Include="Entities\EstimateCategory.cs" />
+    <Compile Include="Entities\EstimateType.cs" />
+    <Compile Include="Entities\IMAnalysisRootCause.cs" />
+    <Compile Include="Entities\IMChallengeApprover.cs" />
+    <Compile Include="Entities\IMChallengeBusinessBenefits.cs" />
+    <Compile Include="Entities\IMChallengeCategoryMap.cs" />
+    <Compile Include="Entities\IMChallengeComments.cs" />
+    <Compile Include="Entities\IMChallengeIdeasRelations.cs" />
+    <Compile Include="Entities\IMChallengeITBenefits.cs" />
+    <Compile Include="Entities\IMChallengePriorityHistory.cs" />
+    <Compile Include="Entities\IMChallengeStatusHistory.cs" />
+    <Compile Include="Entities\IMCompletedAndNextSteps.cs" />
+    <Compile Include="Entities\IMComplexity.cs" />
+    <Compile Include="Entities\IMConfigItem.cs" />
+    <Compile Include="Entities\IMConfigItemsMap.cs" />
+    <Compile Include="Entities\IMConfigType.cs" />
+    <Compile Include="Entities\IMImpPriorityHistory.cs" />
+    <Compile Include="Entities\IMMetrics.cs" />
+    <Compile Include="Entities\IMRiskAndMitigation.cs" />
+    <Compile Include="Entities\IMSolution.cs" />
+    <Compile Include="Entities\IMTeam.cs" />
+    <Compile Include="Entities\IncidentNavigator\INAssigneeGroup.cs" />
+    <Compile Include="Entities\IncidentNavigator\INBusinessTower.cs" />
+    <Compile Include="Entities\IncidentNavigator\INClientReport.cs" />
+    <Compile Include="Entities\IncidentNavigator\INReport.cs" />
+    <Compile Include="Entities\IncidentNavigator\INReportObservation.cs" />
+    <Compile Include="Entities\IncidentNavigator\SourceFieldCalculate.cs" />
+    <Compile Include="Entities\IncidentNavigator\TeamRule.cs" />
+    <Compile Include="Entities\MFAType.cs" />
+    <Compile Include="Entities\MFAUserAuthLogging.cs" />
+    <Compile Include="Entities\MFAUserLoggedInDevice.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\ApplicationLOBEcoSystemJunctions.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\ApplicationEcoSystemJunctions.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppClassification.cs" />
+    <Compile Include="Entities\ApplicationLOBJunctions.cs" />
+    <Compile Include="Entities\AppStoreApplication.cs" />
+    <Compile Include="Entities\Calculation.cs" />
+    <Compile Include="Entities\CalculationDataElement.cs" />
+    <Compile Include="Entities\ChartIndicator.cs" />
+    <Compile Include="Entities\Cities.cs" />
+    <Compile Include="Entities\ClassAndCategory.cs" />
+    <Compile Include="Entities\Client.cs" />
+    <Compile Include="Entities\ClientAccounSetup.cs" />
+    <Compile Include="Entities\ClientAccount.cs" />
+    <Compile Include="Entities\ClientAccountContract.cs" />
+    <Compile Include="Entities\ClientAndAccounts.cs" />
+    <Compile Include="Entities\ClientBCLevel1.cs" />
+    <Compile Include="Entities\ClientBCLevel2.cs" />
+    <Compile Include="Entities\ClientBCLevel3.cs" />
+    <Compile Include="Entities\ClientBCLevels.cs" />
+    <Compile Include="Entities\ClientProfileManager\ClientTicketInfo.cs" />
+    <Compile Include="Entities\ClientProfileManager\JobDetails.cs" />
+    <Compile Include="Entities\ClientProfileManager\JobErrorLog.cs" />
+    <Compile Include="Entities\ClientProfileManager\SourceFieldConcat.cs" />
+    <Compile Include="Entities\ClientProfileManager\MappingTemplate.cs" />
+    <Compile Include="Entities\ClientProfileManager\SourceDataMapping.cs" />
+    <Compile Include="Entities\ClientProfileManager\StoreApplication.cs" />
+    <Compile Include="Entities\ClientProfileManager\TicketInfo.cs" />
+    <Compile Include="Entities\ClientProfileManager\TicketInfoType.cs" />
+    <Compile Include="Entities\ClientStatus.cs" />
+    <Compile Include="Entities\Columns.cs" />
+    <Compile Include="Entities\ContextualElement.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppHostingType.cs" />
+    <Compile Include="Entities\IMIdeaApprover.cs" />
+    <Compile Include="Entities\IMIdeaTask.cs" />
+    <Compile Include="Entities\IMIdeaTaskPriority.cs" />
+    <Compile Include="Entities\IMLOB.cs" />
+    <Compile Include="Entities\Countries.cs" />
+    <Compile Include="Entities\Currencies.cs" />
+    <Compile Include="Entities\CustomerRating.cs" />
+    <Compile Include="Entities\DelEntity.cs" />
+    <Compile Include="Entities\Engagements.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\heatDist.cs" />
+    <Compile Include="Entities\HeatMapBuilderSetup.cs" />
+    <Compile Include="Entities\heatUseAlgorithm.cs" />
+    <Compile Include="Entities\heatUseMetadata.cs" />
+    <Compile Include="Entities\HeatUseReport.cs" />
+    <Compile Include="Entities\heatUseThreshold.cs" />
+    <Compile Include="Entities\heatVariable.cs" />
+    <Compile Include="Entities\heatVariableRelationship.cs" />
+    <Compile Include="Entities\IdeaDataSet.cs" />
+    <Compile Include="Entities\IDel.cs" />
+    <Compile Include="Entities\IMCategory.cs" />
+    <Compile Include="Entities\IMCategory2.cs" />
+    <Compile Include="Entities\IMCategory2Map.cs" />
+    <Compile Include="Entities\IMClassification.cs" />
+    <Compile Include="Entities\IMIdea.cs" />
+    <Compile Include="Entities\IMIdeaPriorityHistory.cs" />
+    <Compile Include="Entities\IMIdeaSource.cs" />
+    <Compile Include="Entities\IMIdeaStatusHistory.cs" />
+    <Compile Include="Entities\IMIdeaType.cs" />
+    <Compile Include="Entities\IMItemBusinessBenefits.cs" />
+    <Compile Include="Entities\IMItemCategoryMap.cs" />
+    <Compile Include="Entities\IMItemComments.cs" />
+    <Compile Include="Entities\IMItemITBenefits.cs" />
+    <Compile Include="Entities\IMItemPriority.cs" />
+    <Compile Include="Entities\IMItemStatus.cs" />
+    <Compile Include="Entities\IMMetricTarget.cs" />
+    <Compile Include="Entities\IMPhase.cs" />
+    <Compile Include="Entities\IMPostChallenge.cs" />
+    <Compile Include="Entities\IMPostIdea.cs" />
+    <Compile Include="Entities\IMPostItem.cs" />
+    <Compile Include="Entities\IMPostItemDataType.cs" />
+    <Compile Include="Entities\IMProgressStatus.cs" />
+    <Compile Include="Entities\IMProgressTemplate.cs" />
+    <Compile Include="Entities\IMResource.cs" />
+    <Compile Include="Entities\IMRole.cs" />
+    <Compile Include="Entities\IMStage.cs" />
+    <Compile Include="Entities\IMStatuss.cs" />
+    <Compile Include="Entities\IMTaskDependency.cs" />
+    <Compile Include="Entities\IMTaskResource.cs" />
+    <Compile Include="Entities\IMWbsTemplate.cs" />
+    <Compile Include="Entities\Incident.cs" />
+    <Compile Include="Entities\IncidentNavigator\INAuditTable.cs" />
+    <Compile Include="Entities\IncidentNavigator\INCluster.cs" />
+    <Compile Include="Entities\IncidentNavigator\INIncidentClustered.cs" />
+    <Compile Include="Entities\IncidentNavigator\INIncidentServicehours.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDB.cs" />
+    <Compile Include="Entities\IncidentNavigator\KEDBIncident.cs" />
+    <Compile Include="Entities\IncidentNavigator\KeywordSearch.cs" />
+    <Compile Include="Entities\INClusterActivityLog.cs" />
+    <Compile Include="Entities\INClusterConfigurationKey.cs" />
+    <Compile Include="Entities\INClusterConfigurationValue.cs" />
+    <Compile Include="Entities\INClusterParameterValue.cs" />
+    <Compile Include="Entities\ITypeClass.cs" />
+    <Compile Include="Entities\JunctionAppLOBClientBCs.cs" />
+    <Compile Include="Entities\JunctionLOBClientBCs.cs" />
+    <Compile Include="Entities\LineOfBusinesses.cs" />
+    <Compile Include="Entities\LOBandApplications.cs" />
+    <Compile Include="Entities\MaintenanceRequest.cs" />
+    <Compile Include="Entities\mdmDataUploadTable.cs" />
+    <Compile Include="Entities\mdmHeatmapConfig.cs" />
+    <Compile Include="Entities\mdmhstDataFileupload.cs" />
+    <Compile Include="Entities\mdmMetadataHeat.cs" />
+    <Compile Include="Entities\mdmRelationshipType.cs" />
+    <Compile Include="Entities\mdmVariable.cs" />
+    <Compile Include="Entities\mdmVariableCategory.cs" />
+    <Compile Include="Entities\mdmVariableLabel.cs" />
+    <Compile Include="Entities\mdmVariableMD.cs" />
+    <Compile Include="Entities\mdmVariableMdType.cs" />
+    <Compile Include="Entities\mdmVariableREL.cs" />
+    <Compile Include="Entities\mdmVariableType.cs" />
+    <Compile Include="Entities\Metric.cs" />
+    <Compile Include="Entities\MetricActual.cs" />
+    <Compile Include="Entities\MetricChartIndicator.cs" />
+    <Compile Include="Entities\MetricPerspective.cs" />
+    <Compile Include="Entities\MetricSpecification.cs" />
+    <Compile Include="Entities\MetricStatus.cs" />
+    <Compile Include="Entities\MetricType.cs" />
+    <Compile Include="Entities\MetricUnit.cs" />
+    <Compile Include="Entities\ObjectiveType.cs" />
+    <Compile Include="Entities\Personnel.cs" />
+    <Compile Include="Entities\PersonnelRole.cs" />
+    <Compile Include="Entities\PIDataMaskList.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\ApplicationInformation.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppArchitecture.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppCriticality.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppDisposition.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppEnvironment.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppHardware.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppInterface.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRApplicationCountry.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRApplicationInterfaceMethod.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppLifeCycle.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppProcessType.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppRedundancy.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppSecurity.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppSoftware.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppSourceCodeType.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppType.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDeploymentModel.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDifferentiationLevel.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDispAndDispSollution.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDisposition.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDispositionAction.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDispositionRationale.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDispositionSolution.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRDomain.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRAppFinancial.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APREcoSystem.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRHostList.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRInterfaceMethod.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APROwningCompany.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRRedundancy.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRRoadmapTargetApp.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\APRStandardStatus.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\ClientAccessControl.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\Vendor.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\VendorProduct.cs" />
+    <Compile Include="Entities\PortfolioAnalyzer\VendorProductVersion.cs" />
+    <Compile Include="Entities\PrimaryAudience.cs" />
+    <Compile Include="Entities\Problem.cs" />
+    <Compile Include="Entities\Referencable.cs" />
+    <Compile Include="Entities\Referred.cs" />
+    <Compile Include="Entities\RegDataSet.cs" />
+    <Compile Include="Entities\Regions.cs" />
+    <Compile Include="Entities\RegisterDataset.cs" />
+    <Compile Include="Entities\RegisterDatasetMap.cs" />
+    <Compile Include="Entities\RelationshipType.cs" />
+    <Compile Include="Entities\ReportAlgorithm.cs" />
+    <Compile Include="Entities\ReportAlgorithmConfiguration.cs" />
+    <Compile Include="Entities\reportalgorithmDefn.cs" />
+    <Compile Include="Entities\ReportAlgorithmMD.cs" />
+    <Compile Include="Entities\ReportAlgorithmStageMD.cs" />
+    <Compile Include="Entities\ReportChartTemplates.cs" />
+    <Compile Include="Entities\ReportConfiguration.cs" />
+    <Compile Include="Entities\ReportConfigurationMD.cs" />
+    <Compile Include="Entities\ReportDataSet.cs" />
+    <Compile Include="Entities\ReportFilter.cs" />
+    <Compile Include="Entities\ReportGraphConfiguration.cs" />
+    <Compile Include="Entities\ReportThreshold.cs" />
+    <Compile Include="Entities\ReportVariable.cs" />
+    <Compile Include="Entities\Report\Report.cs" />
+    <Compile Include="Entities\Report\ReportFieldType.cs" />
+    <Compile Include="Entities\Report\ReportView.cs" />
+    <Compile Include="Entities\Report\ReportViewField.cs" />
+    <Compile Include="Entities\Report\ReportViewFilter.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAAssessment.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RADispCandidate.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RADispRecommendation.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAEstimateCategory.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAExecutionCost.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAExecutionCostActivity.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAOngoingArchivalActivity.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAOngoingArchivalSupport.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAProjectHealth.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAProjectManagement.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAProjectManagementActivity.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAReplacementScope.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAResource.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAResourceGroup.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RARetirementPhase.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RARetirementStage.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RARoles.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RASupportCost.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RASupportCostActivity.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RATask.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RATaskDependency.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RATaskResource.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAWbsStatus.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAWbsTemplate.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAWbsTemplateDetails.cs" />
+    <Compile Include="Entities\RetirementAccelerator\RAWorkProduct.cs" />
+    <Compile Include="Entities\Role.cs" />
+    <Compile Include="Entities\Rules.cs" />
+    <Compile Include="Entities\Service.cs" />
+    <Compile Include="Entities\ServiceCalendar.cs" />
+    <Compile Include="Entities\ServiceCategory.cs" />
+    <Compile Include="Entities\ServiceComponent.cs" />
+    <Compile Include="Entities\ServiceReqeustDataSet.cs" />
+    <Compile Include="Entities\ServiceYear.cs" />
+    <Compile Include="Entities\SLAClockType.cs" />
+    <Compile Include="Entities\SlaFieldCol.cs" />
+    <Compile Include="Entities\SLAManagers.cs" />
+    <Compile Include="Entities\SRFilters.cs" />
+    <Compile Include="Entities\SubVerticals.cs" />
+    <Compile Include="Entities\Survey\PerspectiveCategory.cs" />
+    <Compile Include="Entities\Survey\SB_ScheduleEmailConfig.cs" />
+    <Compile Include="Entities\Survey\Survey.cs" />
+    <Compile Include="Entities\Survey\SurveyCollection.cs" />
+    <Compile Include="Entities\Survey\SurveyModel.cs" />
+    <Compile Include="Entities\Survey\SurveyModelRatingFactor.cs" />
+    <Compile Include="Entities\Survey\SurveyPerspective.cs" />
+    <Compile Include="Entities\Survey\SurveyUser.cs" />
+    <Compile Include="Entities\Tables.cs" />
+    <Compile Include="Entities\tblOverallSummery.cs" />
+    <Compile Include="Entities\UserActionTracking.cs" />
+    <Compile Include="Entities\UserApplications.cs" />
+    <Compile Include="Entities\UserLeadershipRole.cs" />
+    <Compile Include="Entities\UserPasswordLog.cs" />
+    <Compile Include="Entities\UserProfile.cs" />
+    <Compile Include="Entities\UserRole.cs" />
+    <Compile Include="Entities\Variable.cs" />
+    <Compile Include="Entities\VariableMDType.cs" />
+    <Compile Include="Entities\VariableType.cs" />
+    <Compile Include="Entities\VariableTypesAndMetaData.cs" />
+    <Compile Include="Entities\VerticalAndSubVertical.cs" />
+    <Compile Include="Entities\Verticals.cs" />
+    <Compile Include="Entities\vwAlmTreeView.cs" />
+    <Compile Include="Entities\vwClientInfo.cs" />
+    <Compile Include="Entities\vwIdeaPriorityHistory.cs" />
+    <Compile Include="Entities\vwIdeaStatusHistory.cs" />
+    <Compile Include="Entities\vwIMaccountwithcat.cs" />
+    <Compile Include="Entities\vwIMclasswithcat.cs" />
+    <Compile Include="Entities\vwIMSuggestIdeas.cs" />
+    <Compile Include="Entities\VwMDMrelationwithlabel.cs" />
+    <Compile Include="Entities\vwmdmvartypes.cs" />
+    <Compile Include="Entities\vwMetaDataDetails.cs" />
+    <Compile Include="Entities\vwMetriclistWithSpecifications.cs" />
+    <Compile Include="Entities\vwRegDataSet.cs" />
+    <Compile Include="Entities\vwreportvartypes.cs" />
+    <Compile Include="Entities\vwVariableVariableLabel.cs" />
+    <Compile Include="Entities\v_DashboardOverallSummary.cs" />
+    <Compile Include="Entities\webpages_Membership.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service\ICrudService.cs" />
+    <Compile Include="Entities\SLASetup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="scripts\mvcfoolproof.unobtrusive.min.js" />
+    <Content Include="scripts\MvcFoolproofJQueryValidation.min.js" />
+    <Content Include="scripts\MvcFoolproofValidation.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Readme\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

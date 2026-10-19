@@ -1,0 +1,390 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+    //  //  alert('dadasd');
+    //    var grid=$('#portFolioGrid').data('kendoGrid');
+    //    grid.dataSource.read();
+    //    //gridPortfolio.dataSource.read();
+    //    //alert('dadasd');
+    //});
+</script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    //if (ViewData["ClientApplicationList"] == null)
+    //{
+    //    var client = (Client)Session["Client"];
+    //    var v = new APRAjaxServiceController();
+    //    ViewData["ClientApplicationList"] = v.ApplicationList(client.Id);
+    //}
+
+}
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+</style>
+
+
+<div id="wrap">
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li><a href="#">Portfolio Analyzer</a></li>
+            <li><a href="#">Configure</a></li>
+            <li class="active"><a href="#">Portfolio</a></li>
+        </ol>
+    </div>
+
+    <div style="padding: 0;">
+        
+
+        <div style="display:none">
+
+            @(Html.Kendo().Grid<PortfolioEcoAppsModel>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+
+        columns.Bound(p => p.PortFolioName).Title("PortFolio");
+        columns.Bound(p => p.EcoSystemName).Title("EcoSystem");
+        columns.Bound(p => p.ApplicationName).Title("Application");
+        columns.Bound(p => p.ClientApplicationNumber).Title("Client Application Id");
+        columns.Bound(p => p.ApplicationType).Title("Application Type");
+    })
+    .HtmlAttributes(new { style = "height: 500px;width:100%" })
+    .Pageable(pageable => pageable
+       .Input(true)
+       .Numeric(false)
+     )
+    .Sortable()
+    .Pageable()
+.Scrollable(scr => scr.Height(430))
+.Resizable(resize => resize.Columns(true))
+.Filterable()
+.AutoBind(true)
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("ClusterReport.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+      //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+      .Read(read => read.Action("GetLEAData", "APRAjaxService"))
+ )
+            )
+        </div>
+        <div class="treeMenuContent">
+            <div class="well well-sm" style="margin-left:-30px;"><strong>Portfolio Information</strong></div>
+            <form action="@Url.Action("EcoConfigureExportServer", "APRAjaxService")" style="float:right" method="POST">
+                <input type="hidden" id="export-data" name="data" />
+                <input type="hidden" id="export-model" name="model" />
+                <input type="submit" class="k-button download"  data-format="xlsx" data-title="Title1" value="Export To Excel" />
+
+            </form>
+            <br />
+            <br />
+
+             @(Html.Kendo().Grid<PortfolioModel>()
+             .Name("portFolioGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.LOBName).Title("Portfolio Name").Width(150);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             .Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add new Portfolio"))
+             .Scrollable()
+             .HtmlAttributes(new { style = "height:750px;margin-left:-30px;" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(10)
+              .Model(model => { model.Id(f => f.LOBId); model.Field(f => f.LOBId).Editable(false); })
+              .Read(read => read.Action("PortfolioInfo", "Portfolio"))
+              .Create(create => create.Action("CreatePortfolio", "Portfolio"))
+              .Update(update => update.Action("UpdatePortfolio", "Portfolio"))
+              .Destroy(destroy => destroy.Action("DestroyPortfolio", "Portfolio"))
+               )
+               .ClientDetailTemplateId("EcoGridTemplate")
+                )
+            </div>
+        </div>
+
+</div>
+
+<script id="EcoGridTemplate" type="text/kendo-tmpl">
+    
+    @(Html.Kendo().Grid<PortfolioEcoModel>()
+            .Name("AppGrid#=LOBId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.EcoId).Hidden();//.ClientTemplate("#:ApplicationName#");
+                columns.Bound(e => e.EcoSystemName).Title("EcoSystem"); //to be worked
+                                                                        //columns.Bound(p => p.Category).ClientTemplate("#=ecosystem.EcosystemName#").Sortable(false).Width(180);
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .HtmlAttributes(new { style = "height:350px;" })
+    .Pageable()
+
+     .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add EcoSystem");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.LobEcoId); model.Field(f => f.LobEcoId).Editable(false);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetEcosForLOB", "PortfolioEco", new { Id = "#=LOBId#" }))
+        .Create(create => create.Action("CreateEcoApp", "PortfolioEco", new { Id = "#=LOBId#" }))
+        .Update(update => update.Action("EditingLOBEco", "PortfolioEco"))
+        .Destroy(delete => delete.Action("DeleteLOBEco", "PortfolioEco"))
+    )
+    .Events(events => events
+     .DataBound("onDataBound")
+    .Save("EcoSystemGrid_Save"))
+     .ClientDetailTemplateId("AppsGridTemplate")
+    .ToClientTemplate())
+
+</script>
+
+<script id="AppsGridTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<PortfolioEcoAppsModel>()
+            .Name("AppGrid#=LobEcoId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.AppId).Hidden();//.ClientTemplate("#:ApplicationName#");
+                columns.Bound(e => e.ApplicationName).Title("Application/Service"); //to be worked
+                columns.Bound(e => e.ClientApplicationNumber).Title("Client Application/Service Number")/*.Width(100)*/;
+                columns.Bound(e => e.ApplicationAliasName).Title("Alias Name")/*.Width(100)*/;
+                //columns.Bound(e => e.ApplicationName).Title("Application Name ");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .HtmlAttributes(new { style = "height:350px;" })
+    .Pageable()
+
+     .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add Application/Service");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.PEAId);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetAppsbyLOBECOId", "PortfolioEco", new { LobEcoId = "#=LobEcoId#" }))
+        .Create(create => create.Action("CreateAppsByLOBEcoId", "PortfolioEco", new { Id = "#=LobEcoId#" }))
+        .Update(update => update.Action("UpdateAppsByLOBEcoId", "PortfolioEco"))
+        .Destroy(delete => delete.Action("DeleteAppsByLOBEcoId", "PortfolioEco"))
+    )
+    .Events(events => events
+     // .DataBound("onDataBound")
+    .Save("ApplicationGrid_Save"))
+    .ToClientTemplate())
+
+</script>
+
+
+
+<script>
+
+  
+    //function onDataBound(arg) {
+    //   alert("bount");
+    //}
+
+        function returnfalse()
+        {
+            return false;
+        }
+       
+
+        function EcoSystemGrid_Save(e) {
+
+            var appid = $("#EcoId").data().kendoDropDownList.value();
+
+            var appname = $("#EcoId").data().kendoDropDownList.text();
+          
+
+            e.model.set("EcoId", appid);
+            e.model.set("EcoSystemName", appname);
+
+
+            var mod = {
+                appid: appid
+            };
+           
+            baseurl = '@Url.Content("~/Portfolio/applicationDetails")';
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                async: false,
+
+                data: mod,
+                success: function (data) {
+                   
+                    //e.model.set("ApplicationAliasName", data._appaliasname);
+                    //e.model.set("ClientApplicationNumber", data._clientappno);
+                },
+                error: function () {
+                    // alert("error");
+                }
+            });
+
+        }
+
+        function ApplicationGrid_Save(e) {
+
+            var appid = $("#AppId").data().kendoDropDownList.value();
+
+            var appname = $("#AppId").data().kendoDropDownList.text();
+            //alert(appid);
+            // var appid = $("#tempAppId").data().kendoDropDownList.value();        
+            //var appname = $("#tempAppId").data().kendoDropDownList.text();
+          
+           
+            e.model.set("AppId", appid);
+            e.model.set("ApplicationName", appname);
+           
+
+            var mod = {
+                appid: appid
+            };
+            //alert(mod);
+            // var data = JSON.stringify(mod)
+
+            baseurl = '@Url.Content("~/Portfolio/applicationDetails")';
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                async:false,
+
+                data: mod,
+                success: function (data) {
+
+                    e.model.set("ApplicationAliasName", data._appaliasname);
+                    e.model.set("ClientApplicationNumber", data._clientappno);
+                  
+                },
+                error: function () {
+                    // alert("error");
+                }
+            }); 
+
+        }
+
+    function refresheditor(e) {
+   
+        var appid1 = $("#AppId").data().kendoDropDownList.value();
+        var appname1 = $("#AppId").data().kendoDropDownList.text();
+
+        // alert(appid1);
+      //var appid1 = $("#tempAppId").data().kendoDropDownList.value();
+     // var appname1 = $("#tempAppId").data().kendoDropDownList.text();
+      // var appname1 = e.data().kendoDropDownList.text();
+   
+
+        //var formObj = $("gfd")
+        var formObj = $(".k-edit-form-container");
+        //e.model.set("AppId", appid1);
+      //  e.model.set("ApplicationName", appname1);
+
+        var mod = {
+            appid: appid1
+        };
+        // var data = JSON.stringify(mod)
+       
+        baseurl = '@Url.Content("~/Portfolio/applicationDetails")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+
+            data: mod,
+            success: function (data) {
+                //formObj.find('#ApplicationName').val(data._appaliasname);
+                formObj.find('#ApplicationName').val(appname1);
+                formObj.find('#ApplicationAliasName').val(data._appaliasname);
+                formObj.find('#ClientApplicationNumber').val(data._clientappno);
+              
+            },
+            error: function () {
+                // alert("error");
+            }
+        });
+
+
+    }
+
+    $(document).ready(function () {
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+</script>
+
+<script>
+    $(".download").click(function () {
+        var grid = $("#Grid").data("kendoGrid");
+
+        var options = {
+            format: $(this).data("format"),
+            title: "PortfolioEcoAppExport"
+        }
+        $("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+        $("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+
+
+    });
+</script>
+

@@ -1,0 +1,2225 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using System.IO;
+
+@model A3MMModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    List<A3MMModel> QuestionSetList = new List<A3MMModel>();
+
+}
+<style>
+    .pager-btn {
+        width: 100%;
+        border: none;
+        text-align: left;
+        padding-left: 15px !important;
+    }
+
+    #EngagementResponseDiv table tbody tr td.k-editor-content .k-iframe {
+        height: 5vw;
+    }
+
+
+    #EngagementResponseDiv table tbody tr td.k-editor-toolbar-wrap ul.k-toolbar.k-editor-toolbar.k-toolbar-resizable {
+        height: 2vw;
+    }
+
+    #saveAlertModal .alert {
+        width: 30vw;
+        height: 4.5vh !important;
+        padding: unset;
+        display: flex;
+    }
+
+    .arrow1 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow1::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow1.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow2 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow2::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow2.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow3 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow3::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow3.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow4 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow4::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow4.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow5 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow5::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow5.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .fileAttachment {
+        display: flex;
+        height: 20px;
+        font-size: 0.9vw;
+        padding: 2px 5px;
+        color: rgb(91,121,171);
+        background-color: white;
+        margin-right: 0.5vw;
+        border-radius: 5px;
+        border: 1px solid rgb(91,121,171);
+        margin-top: 9px;
+    }
+
+    .refMat .k-widget {
+        border-color: transparent;
+    }
+
+    .refMat .k-upload {
+        border-radius: unset;
+    }
+
+    .refMat .k-dropzone {
+        color: transparent;
+        background-color: transparent;
+        padding: unset;
+    }
+
+    .refMat .k-button-solid-base {
+        border-color: rgb(91,121,171);
+        color: white;
+        background-color: rgb(91,121,171);
+        padding: 2px;
+        margin-right: 4px;
+    }
+
+    .fileAtt-delbtn {
+        font-size: 1.5vw;
+        padding-left: 0.7vw;
+        cursor: pointer;
+        height: 1vw;
+        margin-top: -0.6vw;
+    }
+
+    .k-dropzone .k-upload-status, .k-dropzone .k-dropzone-hint, .k-upload .k-action-buttons, .k-upload-files.k-reset {
+        display: none;
+    }
+
+
+    #selfAssessmentSaveAlertModal .alert {
+        width: 30vw;
+        height: 4.5vh !important;
+        padding: unset;
+        display: flex;
+    }
+
+    /* Self Assessment Styles*/
+    .eng-dg-SA {
+        margin: 1em 1em 1em 1em;
+    }
+
+    .eng-ratingButton {
+        margin-right: 1em;
+        border-radius: 4px;
+        height: 1.25em;
+        width: 0.5em;
+        border: none;
+        color: white;
+        font-weight: bold;
+    }
+
+    #ratingSelected {
+        color: red;
+        margin-top: -1vw;
+        font-style: italic;
+        font-size: 12px;
+        margin-left: 0.3vw;
+    }
+
+
+    #ratingImg {
+        background-size: 12px;
+        background-repeat: no-repeat;
+        height: 12px;
+        margin-top: -0.8vw;
+    }
+
+
+    textarea::placeholder {
+        color: black;
+        font-style: italic;
+        font-size: x-small;
+    }
+
+    .eng-comments {
+        /*margin-left: -0.5vw;*/
+        margin-top: -1vw;
+        /*//height:10px;*/
+    }
+
+    .mark-as-complete {
+        margin-top: 1vw;
+    }
+
+        .mark-as-complete .k-checkbox + .k-checkbox-label, .k-checkbox-label + .k-checkbox {
+            margin-left: 4px;
+            margin-top: 0.5vw;
+        }
+
+        .mark-as-complete .k-checkbox:checked {
+            border-color: black;
+            color: black;
+            background-color: white;
+        }
+
+    .custom-scrollbar1::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar1::-webkit-scrollbar-track-piece {
+        background-color: #CCCCCC;
+        border-radius: 7px;
+    }
+
+    .custom-scrollbar1::-webkit-scrollbar-thumb:vertical {
+        background-color: rgb(91,121,171);
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    eng-ratingButton:hover {
+        border-style: dashed;
+        border-width: 3px;
+        color: white;
+        height: 13.2vh;
+        width: 7vw;
+        border-radius: 21px;
+        position: relative;
+        margin-top: -5%;
+        margin-left: -5%;
+    }
+
+    .eng-ratingButton:hover {
+        border-style: dashed;
+        border-width: 2px;
+        color: black;
+        height: 1.25em;
+        width: 0.5em;
+        border-radius: 5px;
+    }
+
+    .eng-dg-SA-ratingButtons {
+        height: 3em;
+    }
+
+    #selfAssessmentSaveAlertModal #engagementSASuccessLabel {
+        width: 19vw;
+        height: 8.5vh !important;
+        padding: unset;
+        display: flex;
+        margin-left: 112%;
+        margin-top: 8%;
+    }
+
+    .k-animation-container .k-tooltip.k-popup .k-tooltip-content {
+        min-height: 20px;
+        max-width: 300px;
+        min-width: 50px;
+        width: unset !important;
+    }
+
+    .eng-ratingButton {
+        position: relative; /* This allows us to position the pseudo-elements relative to the button */
+        padding: 8px 16px;
+        background-color: #f0f0f0;
+        outline: none;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 2em;
+        border-radius: 4px;
+        height: 1.5em;
+        width: 0.5em;
+        color: white;
+        border: none;
+        text-align: center;
+    }
+
+        .eng-ratingButton::before {
+            content: '';
+            position: absolute;
+            pointer-events: none; /* This ensures the pseudo-elements don't interfere with button interaction */
+            transition: all 0.3s ease; /* Smooth transition for hover and click effects */
+        }
+
+
+
+        .eng-ratingButton::after {
+            content: '';
+            position: absolute;
+            pointer-events: none; /* This ensures the pseudo-elements don't interfere with button interaction */
+            transition: all 0.3s ease; /* Smooth transition for hover and click effects */
+        }
+
+        .eng-ratingButton::before,
+        .eng-ratingButton::after {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .eng-ratingButton:hover::before {
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 2px solid #000;
+            border-radius: 6px;
+        }
+
+        .eng-ratingButton:hover::after {
+            top: -7px;
+            left: -7px;
+            right: -7px;
+            bottom: -7px;
+            border: 2px dashed #000;
+            border-radius: 8px;
+        }
+
+        .eng-ratingButton.clicked::before {
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 2px solid #000;
+            border-radius: 6px;
+        }
+
+        .eng-ratingButton.clicked::after {
+            top: -7px;
+            left: -7px;
+            right: -7px;
+            bottom: -7px;
+            border: 2px dashed #000;
+            border-radius: 8px;
+        }
+
+    #engagementSelfAssessmentpopUp.k-window-content {
+        padding: 2px 10px 2px 10px;
+    }
+
+</style>
+
+@Html.HiddenFor(m => m.AssessmentID)
+<input type="hidden" value="@Model.AssessmentID" id="AssessmentId" />
+<input value="@Model.VersionID" id="VersionId" type="hidden" />
+<div class="content-main dark-bg" style="padding: 0 30px 48px">
+    <ol class="breadcrumb" style="font-size: 11px;">
+        <li>Assessment Manager</li>
+        <li class="active"> Response Gathering</li>
+    </ol>
+
+    <div class=" neweg-bg egdscreen" style="display:flex;">
+        <label style="color: white; font-size: 12px;">Assessment : @Model.AssessmentName</label>
+        <label style="color: white; font-size: 12px; margin-left: 12px; border-left: 1px dashed; padding-left: 10px;">Assessment Status : @Model.Status</label>
+    </div>
+    <div class="eng-que-quedrp">
+
+        <label style="font-size:12px;color: white; padding-right: 1em; border-right: 1px solid #ffffff;">Question Identifier</label>
+
+        <div style="display:flex">
+
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Discipline : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.DisciplineId)
+           .DataTextField("Text")
+           .DataValueField("Value")
+           .BindTo(Model.DisciplineList)
+           .Enable(true)
+           .Value(Model.DisciplineId.ToString())
+           .Name("DisciplineId")
+           .Events(e =>
+           {
+               e.Change("onChangeDscName");
+           })
+           .HtmlAttributes(new { style = "width:12vw;background-color:#fff;" })
+                                )
+                </div>
+            </div>
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Component : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.ComponentId)
+           .DataTextField("Text")
+           .DataValueField("Value")
+           //.BindTo(Model.ComponentList)
+           .Value(Model.ComponentId.ToString())
+           .Enable(true)
+           .Name("ComponentId")
+           .Events(e =>
+           {
+               e.Change("onChangeCompName");
+           })
+
+           //.AutoBind(false)
+           .DataSource(d => d.Read(r => r.Action("Readcomponent", "Assessment").Data("loadcomponent")))
+
+
+           .HtmlAttributes(new { style = "width:12vw;background-color:#fff;padding-right: 0.2em;" })
+                               )
+                </div>
+            </div>
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Aspect : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.AspectID)
+          .DataTextField("Text")
+          .DataValueField("Value")
+          //.BindTo(Model.AspectList)
+          .Value(Model.AspectID.ToString())
+          .Enable(true)
+
+           .Events(e =>
+           {
+               e.Change("onChangeAspName");
+           })
+           // .AutoBind(false)
+           .DataSource(d => d.Read(r => r.Action("ReadAspect", "Assessment").Data("loadAspect")))
+          .HtmlAttributes(new { style = "width:12vw;background-color:#fff;" })
+           )
+                </div>
+            </div>
+            <div style="padding-left: 2em;  border-left: 1px solid #ffffff;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 0.3vw; margin-right: -2vw; ">
+
+                <button style=" width: 5vw; font-size: 0.95vw; margin-right: 1em; margin-left: -7px;" class="custom-button " type="button" onclick="onChangeADCName()"> APPLY </button>
+                <button style="width: 5vw; color: #fff; font-size: 0.9vw; margin-top: 2px; margin-right: 1em; background-image: url(../../Content/images/revise.svg); background-repeat: no-repeat; border: none; background-color: transparent; padding-left: 1vw; background-size: 0.9vw; background-position: left;" class="custom-button" type="button" onclick="onclearADCName()">CLEAR</button>
+            </div>
+        </div>
+    </div>
+    <div class="question-content">
+        <div class="ques-nav">
+            @Html.Partial("_QuestionNavigation")
+        </div>
+
+        <div class="ques-detail">
+            <div class="ques-detail-head">
+                Details
+            </div>
+            <div class="ques-detail-content">
+                @Html.Partial("_QuestionDetail")
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div id="popupdiv">
+    @(Html.Kendo().Window()
+                .Name("SelfAssessmentPopup")
+                .Title("Self Assessment")
+                .Content(@<text>
+    <div class="self-assessment-sec">
+        <div>
+            <label>Thank you for submitting aresponse. How would you rate this interaction?</label>
+            1 2 3 4 5
+        </div>
+    </div>
+    </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+
+</div>
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while Submitting.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+
+                    <label id="lblsuccesstext" style="width: 20vw; margin-top: 4px; margin-left: 1em;">Response Submitted Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess2" style="display: none; width: 29vw; height: 5.5vh !important;">
+                <div style="display:flex">
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em;">Question set has been deleted.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span hidden id="refId"></span>
+                <span>Do you want to delete the reference material</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="deleteFileRef()">OK</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="selfAssessmentSaveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblError1" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while Submitting.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-danger" id="lblError2" style="display: none; height:11.5vh !important;">
+                <div style="display:flex">
+
+                    <label id="labelContent" style="width: 26vw; margin-top: 4px; margin-left: 1em; ">Response for this question is marked as complete, Self assessment can not be provided</label>
+                    <button style="margin-top: -5px;cursor:pointer; " type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-success" id="engagementSASuccessLabel" style="display:none">
+                <div style="display:flex">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <label style="width: 18em; margin-top: 1vw;">Response is saved successfully</label>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="ChangesSaveAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document" style="transform: translate(15%, 38%);">
+        <div class="modal-content" style=" width: 27vw; height: 30vh;">
+            <div class="modal-body" style="text-align: center;">
+                <div style="margin:2em">
+                    Do you want to move to question <span id="questSel"></span> without saving the changes ?<span id="AssessIdSel" hidden></span>
+                </div>
+                <div>
+                    <button type="button" class="close" onclick="retriveChng()" style=" color: #0079A1; background-color: transparent; font-size: 13px; width: 62px; vertical-align: middle; border-radius: 4px; border: none; font-weight: 700; padding: 0.3em;">Cancel</button>
+                    <button type="button" class="custom-button" onclick="nextQuest()">YES</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="ChangesuploadAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-modal="true">
+    <div class="modal-dialog" role="document" style="transform: translate(15%, 38%);">
+        <div class="modal-content" style=" width: 27vw; height: 24vh;">
+            <div class="modal-body" style="text-align: center;">
+                <div style="margin:2em">
+                    The file not uploaded, pleas click on upload button to save the file or your file will not save
+                </div>
+                <div>
+                    <button type="button" class="close" onclick="CloseuploadalertChng()" style=" color: #0079A1; background-color: transparent; font-size: 13px; width: 62px; vertical-align: middle; border-radius: 4px; border: none; font-weight: 700; padding: 0.3em;">Cancel</button>                   
+                    <button type="button" class="custom-button" onclick="SaveFilespopupbtn()">Upload</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    var GunAnswered=true;
+    var GResponseInProgress =true;
+    var GResponsed =true;
+    var GRatingInProgress =true;
+    var GCompleted=true;
+    var GisChanged = 0;
+    var Ggroupname = "Incompleted";
+
+    $(document).ready(function () {
+        var loadedSQno =@Html.Raw(Json.Encode(Model.SQNo));
+              $(".pager-btn").removeClass("ques-selected");
+              $("#Quesid_" + loadedSQno).addClass("ques-selected");
+              var grpsec = $("#Quesid_" + loadedSQno).attr('data-grp');
+              callleftQuestionNavigation(grpsec);
+
+
+        $('#RefFiles').attr('title', '');
+        var elementsload = document.getElementsByClassName("eng-res-texteditor");
+        console.log("document ready function" + elementsload);
+        console.log(elementsload.length);
+        $('.main-response iframe').contents().find('body').css({
+            'color': 'white'
+        });
+        $('.firstresponseclass iframe').contents().find('body').css({
+            'color': 'black'
+        });
+        if (elementsload.length!=0) {
+            for (var i = 0; i < elementsload.length; i++) {
+
+                $($('#' + elementsload[i].id).data().kendoEditor.body).attr('contenteditable', false);
+            }
+
+        }
+
+
+        var responseStatus = @Html.Raw(Json.Encode(Model.Response));
+        var markAsCompletecheckBox = @Html.Raw(Json.Encode(Model.responseStatus));
+        if (markAsCompletecheckBox == 'Completed' || markAsCompletecheckBox == 'RatingInProgress' || markAsCompletecheckBox == 'Responded') {
+            console.log("response status on Question click : ", responseStatus);
+
+            var elements = document.getElementsByClassName("editdisablebtn");
+
+            for (var i = 0; i < elements.length; i++) {
+                document.getElementById(elements[i].id).disabled = true;
+            }
+
+            var elements1 = document.getElementsByClassName("eng-res-texteditor");
+
+            for (var i = 0; i < elements1.length; i++) {
+
+                $($('#' + elements1[i].id).data().kendoEditor.body).attr('contenteditable', false);
+            }
+
+
+            //document.getElementById('RefFiles').disabled = true;
+            var browseUpload = $("#RefFiles").data("kendoUpload");
+            browseUpload.disable();
+
+            document.getElementById('browseSave').disabled = true;
+            document.getElementById('selfAssessmentbtn').disabled = true;
+            document.getElementById('btnrating').disabled = true;
+
+            $(".fileAtt-delbtn").css('display', 'none');
+
+        }
+        if (markAsCompletecheckBox == 'Completed') {
+            var elements = document.getElementsByClassName("editdisablebtn");
+            console.log("button elements ", elements);
+            console.log("button elements length", elements.length);
+            for (var i = 0; i < elements.length; i++) {
+                document.getElementById(elements[i].id).style.display = "none";
+            }
+        }
+
+
+            if (@Model.MultipleResponses.Count == 0) { // for unanswered question
+               document.getElementById("selfAssessmentbtn").disabled = true;
+               document.getElementById("btnrating").disabled = true;
+
+                document.getElementById('selfAssessmentbtn').setAttribute('title', 'Please provide response to enable');
+                document.getElementById('btnrating').setAttribute('title', 'Please provide response to enable');
+
+    }
+    else {
+        document.getElementById("selfAssessmentbtn").disabled = false;
+        document.getElementById("btnrating").disabled = false;
+
+        document.getElementById('selfAssessmentbtn').setAttribute('title', 'Self Assessment');
+        document.getElementById('btnrating').setAttribute('title', 'Engagement Rating');
+
+        }
+
+
+        if (@Model.MultipleFollowUpQuestions.Count +1 > @Model.MultipleResponses.Count ) {
+            console.log("Follow up greater");
+            document.getElementById("selfAssessmentbtn").disabled = true;
+            document.getElementById("btnrating").disabled = true;
+
+            document.getElementById('selfAssessmentbtn').setAttribute('title', 'Please provide response to enable');
+            document.getElementById('btnrating').setAttribute('title', 'Please provide response to enable');
+        }
+        else if (markAsCompletecheckBox == 'ResponseInProgress') {
+            console.log("Follow up lesser");
+            document.getElementById("selfAssessmentbtn").disabled = false;
+            document.getElementById("btnrating").disabled = false;
+
+            document.getElementById('selfAssessmentbtn').setAttribute('title', '');
+            document.getElementById('btnrating').setAttribute('title', '');
+        }
+
+    });
+
+
+
+    var isdrpchanged = 0;
+    var isdiscChanged = 0;
+    var iscompChanged = 0;
+    var isAspChanged = 0;
+    var GDisciplineId = 0;
+    var GComponentId = 0;
+    var GAspectID = 0;
+    function onChangeDscName() {
+        isdiscChanged = 1;
+        iscompChanged = 0;
+        isAspChanged = 0;
+        $("#ComponentId").data("kendoDropDownList").dataSource.read();
+        $("#AspectID").data("kendoDropDownList").dataSource.read();
+        GDisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+    }
+    function onChangeCompName() {
+        isdiscChanged = 0;
+        iscompChanged = 1;
+        isAspChanged = 0;
+        $("#AspectID").data("kendoDropDownList").dataSource.read();
+        GComponentId = $("#ComponentId").data("kendoDropDownList").value();
+    }
+    function onChangeAspName() {
+        isdiscChanged = 0;
+        iscompChanged = 0;
+        isAspChanged = 1;
+        GAspectID = $("#AspectID").data("kendoDropDownList").value();
+
+    }
+     function onChangeADCName() {
+         isdrpchanged = 1;
+
+     var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+     var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+     var AspectID = $("#AspectID").data("kendoDropDownList").value();
+     var mod = {
+         AssessmentID: @Model.AssessmentID,
+         DisciplineId: DisciplineId,
+         ComponentId: ComponentId,
+         AspectID: AspectID,
+         isdiscChanged: isdiscChanged,
+         iscompChanged: iscompChanged,
+         isAspChanged: isAspChanged
+
+			};
+
+			var data1 = JSON.stringify(mod);
+			baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/GetAssessmentTypeWithACD")';
+
+         $.ajax(
+             {
+                 url: baseurl1,
+                 type: 'post',
+                 data: data1,
+                 async: false,
+                 contentType: 'application/json; charset=utf-8',
+                 success: function (data) {
+                     //console.log(data);
+                     $('#Id-ques-navigation-main').html(data);
+                     var assId = document.getElementById("AssessmentId").value;
+                     var sqno = document.getElementById("nav-Sqno-id").value;
+
+                     console.log(sqno, assId);
+                     pageSelectalert(sqno, assId);
+                 }
+                 });
+
+ }
+
+    function loadcomponent() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        // var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId
+        }
+    }
+    function loadAspect() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId,
+            ComponentId: ComponentId
+        }
+    }
+    var ischanged = false;
+
+
+    function pageSelectalert(QNo, AssessmentID) {
+        if (GisChanged) {
+            $("#AssessIdSel").text(AssessmentID);
+            $("#questSel").text(QNo);
+            $('#ChangesSaveAlertModal').modal('show');
+        } else {
+            pageClick(QNo, AssessmentID);
+        }
+    }
+    function retriveChng() {
+        $('#ChangesSaveAlertModal').modal('hide');
+    }
+    function CloseuploadalertChng() {
+        $('#ChangesuploadAlertModal').modal('hide');
+    }
+    function SaveFilespopupbtn() {
+        $('#ChangesuploadAlertModal').modal('hide');
+        SaveFiles();
+    }
+    function callleftQuestionNavigation(grpsec) {
+        if (grpsec == 'unans') {
+            $(".blockA").addClass("active");
+            $('.blockA').css('display', 'block')
+            $(".arrow1").removeClass("down");
+            Ggroupname = "Unanswered";
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $(".arrow3").addClass("down");
+            $('.blockC').css('display', 'none')
+            $(".blockC").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'Resinprogress') {
+            $(".blockB").addClass("active");
+            $('.blockB').css('display', 'block')
+            $(".arrow2").removeClass("down");
+            Ggroupname = "ResponseInProgress";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow3").addClass("down");
+            $('.blockC').css('display', 'none')
+            $(".blockC").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'Responded') {
+            $(".blockC").addClass("active");
+            $('.blockC').css('display', 'block')
+            $(".arrow3").removeClass("down");
+            Ggroupname = "Responded";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'RatingInProgress') {
+            $(".blockD").addClass("active");
+            $('.blockD').css('display', 'block')
+            $(".arrow4").removeClass("down");
+            Ggroupname = "RatingInProgress";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'comp') {
+            $(".block5").addClass("active");
+            $('.block5').css('display', 'block')
+            $(".arrow5").removeClass("down");
+            Ggroupname = "Completed";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+        }
+
+    }
+
+    function nextQuest() {
+        var AssessmentID = $("#AssessIdSel").text();
+        var QNo = $("#questSel").text();
+        $('#ChangesSaveAlertModal').modal('hide');
+        pageClick(QNo, AssessmentID);
+    }
+    function pageClick(QNo, AssessmentID) {
+        $(".pager-btn").removeClass("ques-selected");
+        $("#Quesid_" + QNo).addClass("ques-selected");
+            var mod = {
+	        AssessmentID: AssessmentID,
+			SQNo : QNo
+		  };
+          var data1 = JSON.stringify(mod);
+          baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/GetPageClickAssessmentDetail")';
+$.ajax(
+	{
+		url: baseurl1,
+		type: 'post',
+		data: data1,
+		async: false,
+		contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#Id-dynamicpartial').html(data);
+            $("#Quesid_" + QNo).addClass("ques-selected");
+            var grpsec = $("#Quesid_" + QNo).attr('data-grp');
+            callleftQuestionNavigation(grpsec);
+
+            GisChanged = 0;
+            $('.main-response iframe').contents().find('body').css({
+                'color': 'white'
+            });
+            $('.firstresponseclass iframe').contents().find('body').css({
+                'color': 'black'
+            });
+            $("#EngagementSAComments").val("");
+            document.getElementById("EngagementSAComments").value = "";
+
+
+            var responseComp = $("#EngagementResponseEditor").data("kendoEditor");
+            console.log("responseComp ",+responseComp);
+
+            if (responseComp != null) {
+                var responseContent = responseComp.value();
+                document.getElementById("selfAssessmentbtn").disabled = true;
+                document.getElementById("btnrating").disabled = true;
+                console.log("responseContent", responseContent);
+
+                document.getElementById('selfAssessmentbtn').setAttribute('title', 'Please provide response to enable');
+                document.getElementById('btnrating').setAttribute('title', 'Please provide response to enable');
+            }
+            else {
+                document.getElementById("selfAssessmentbtn").disabled = false;
+                document.getElementById("btnrating").disabled = false;
+
+                document.getElementById('selfAssessmentbtn').setAttribute('title', 'Self Assessment');
+                document.getElementById('btnrating').setAttribute('title', 'Engagement Rating');
+            }
+
+            var elementsload = document.getElementsByClassName("eng-res-texteditor");
+            console.log("document ready function" + elementsload);
+            console.log(elementsload.length);
+            if (elementsload.length!=0) {
+                for (var i = 0; i < elementsload.length; i++) {
+                    console.log("individual element id", elementsload[i].id);
+                    $($('#' + elementsload[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                }
+
+            }
+            /* --------group filter start---------*/
+            $("#unAnsweredDiv").css("display", "block");
+            $("#ResInProgDiv").css("display", "block");
+            $("#RespondedDiv").css("display", "block");
+            $("#RatingInProgressDiv").css("display", "block");
+            $("#CompleteDiv").css("display", "block");
+            if (GunAnswered == false) {
+                $("#unAnsweredDiv").css("display", "none");
+            }
+            if (GResponseInProgress == false) {
+                $("#ResInProgDiv").css("display", "none");
+            }
+            if (GResponsed == false) {
+                $("#RespondedDiv").css("display", "none");
+            }
+            if (GRatingInProgress == false) {
+                $("#RatingInProgressDiv").css("display", "none");
+            }
+            if (GCompleted == false) {
+                $("#CompleteDiv").css("display", "none");
+            }
+
+            /* ------------group filter end------------------*/
+
+
+            var responseStatus = $('#responseStatusOnQuestionClick').text();
+
+            if (responseStatus == 'Completed' || responseStatus == 'RatingInProgress' || responseStatus == 'Responded') {
+
+                console.log("response status on Question click : ", responseStatus);
+
+                var elements = document.getElementsByClassName("editdisablebtn");
+
+                console.log("button elements ",elements);
+                console.log("button elements length",elements.length);
+                for (var i = 0; i < elements.length; i++) {
+
+                    console.log(elements[i]);
+                    console.log("individual button element id", elements[i].id);
+                    document.getElementById(elements[i].id).disabled=true;
+                }
+
+                var elements1 = document.getElementsByClassName("eng-res-texteditor");
+                console.log(elements1);
+                console.log(elements1.length);
+                for (var i = 0; i < elements1.length; i++) {
+
+                    console.log(elements1[i]);
+                    console.log("individual element id", elements1[i].id);
+                    $($('#' + elements1[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                }
+
+
+                //document.getElementById('RefFiles').disabled = true;
+                var browseUpload = $("#RefFiles").data("kendoUpload");
+                browseUpload.disable();
+
+                document.getElementById('browseSave').disabled = true;
+                document.getElementById('selfAssessmentbtn').disabled = true;
+                document.getElementById('btnrating').disabled = true;
+
+                $(".fileAtt-delbtn").css('display', 'none');
+
+            }
+            if (responseStatus == 'Completed') {
+                var elements = document.getElementsByClassName("editdisablebtn");
+                console.log("button elements ", elements);
+                console.log("button elements length", elements.length);
+                for (var i = 0; i < elements.length; i++) {
+                    document.getElementById(elements[i].id).style.display = "none";
+                }
+            }
+
+            var boolFollowResponseCount = $('#boolFollowResponseCount').text();
+            console.log(boolFollowResponseCount);
+
+             if (boolFollowResponseCount == 'True' ) {
+            console.log("Follow up greater");
+
+            document.getElementById("selfAssessmentbtn").disabled = true;
+            document.getElementById("btnrating").disabled = true;
+
+            document.getElementById('selfAssessmentbtn').setAttribute('title', 'Please provide response to enable');
+            document.getElementById('btnrating').setAttribute('title', 'Please provide response to enable');
+        }
+             else if (responseStatus == 'ResponseInProgress') {
+                 console.log("Follow up lesser");
+                 document.getElementById("selfAssessmentbtn").disabled = false;
+                 document.getElementById("btnrating").disabled = false;
+
+                 document.getElementById('selfAssessmentbtn').setAttribute('title', '');
+                 document.getElementById('btnrating').setAttribute('title', '');
+             }
+
+
+            var Id_Discipline = document.getElementById("Id-Discipline").value;
+            var Id_Component = document.getElementById("Id-Component").value;
+            var Id_Aspect = document.getElementById("Id-Aspect").value;
+
+			var DisciplineDropdown = $("#DisciplineId").data("kendoDropDownList");
+			DisciplineDropdown.value(Id_Discipline);
+			var ComponentDropdown = $("#ComponentId").data("kendoDropDownList");
+                  ComponentDropdown.dataSource.read();
+                  setTimeout(function () {
+                      ComponentDropdown.value(Id_Component);
+                  }, 500);
+                  var AspectDropdown = $("#AspectID").data("kendoDropDownList");
+                  setTimeout(function () {
+                      AspectDropdown.dataSource.read();
+                      setTimeout(function () {
+                          AspectDropdown.value(Id_Aspect);
+                      }, 900);
+
+                  }, 1000);
+
+
+
+		}
+          })
+
+    }
+    function openSelfAssessment() {
+        var savepopup = $("#SelfAssessmentPopup").data("kendoWindow");
+        savepopup.open();
+        savepopup.center();
+    }
+    function saveEngagementResponse(AssessmentID, SQNo) {
+
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+
+
+            Ggroupname = "Unanswered";
+            var Response = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+            if (Response == null || Response.trim() == '') {
+                $('#responsenulllabel').removeClass("hide")
+                setTimeout(function () {
+                    $('#responsenulllabel').addClass("hide")
+                }, 3000);
+                return 0;
+            }
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                SQNo: SQNo,
+                Response: Response,
+                DisciplineId: GDisciplineId,
+                ComponentId: GComponentId,
+                AspectID: GAspectID,
+                isdiscChanged: isdiscChanged,
+                iscompChanged: iscompChanged,
+                isAspChanged: isAspChanged
+            }
+            var data1 = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/SaveEngagementResponse")';
+            $.ajax({
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    GisChanged = 0;
+
+                    /* --------group filter start---------*/
+                    $('#Id-ques-navigation-main').html(response);
+                    $("#unAnsweredDiv").css("display", "block");
+                    $("#ResInProgDiv").css("display", "block");
+                    $("#RespondedDiv").css("display", "block");
+                    $("#RatingInProgressDiv").css("display", "block");
+                    $("#CompleteDiv").css("display", "block");
+                    console.log(GunAnswered);
+
+                    console.log(GCompleted);
+                    if (GunAnswered == false) {
+                        $("#unAnsweredDiv").css("display", "none");
+                    }
+                    if (GResponseInProgress == false) {
+                        $("#ResInProgDiv").css("display", "none");
+                    }
+                    if (GResponsed == false) {
+                        $("#RespondedDiv").css("display", "none");
+                    }
+                    if (GRatingInProgress == false) {
+                        $("#RatingInProgressDiv").css("display", "none");
+                    }
+                    if (GCompleted == false) {
+                        $("#CompleteDiv").css("display", "none");
+                    }
+
+                    //if (GInComplete == true) {
+                    //    $(".blockB").addClass("active");
+                    //    $('.blockB').css('display', 'block')
+                    //    $(".arrow2").removeClass("down");
+
+                    //    $(".arrow1").addClass("down");
+                    //    $('.blockA').css('display', 'none')
+                    //    $(".blockA").removeClass("active");
+
+                    //    $(".arrow3").addClass("down");
+                    //    $('.blockC').css('display', 'none')
+                    //    $(".blockC").removeClass("active");
+
+                    //    $(".pager-btn").removeClass("ques-selected");
+                    //    $("#Quesid_" + SQNo).addClass("ques-selected");
+                    //}
+
+                    /* ------------group filter end------------------*/
+                    $("#firstresponse").addClass("editor-disabled");
+                    $("#idfirstbtnsave").addClass("hide");
+                    $("#idfirstbtnupdate").addClass("hide");
+                    $("#idfirstbtnedit").removeClass("hide");
+                    $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', false);
+
+                    $('.firstresponseclass iframe').contents().find('body').css({
+                        'color': 'white'
+                    });
+
+                    document.getElementById('selfAssessmentbtn').disabled = false;
+                    document.getElementById('btnrating').disabled = false;
+                    buttonEngagementSelfAssessment();
+                    //$('#saveAlertModal').modal('show');
+                    //$('#lblErr').hide();
+                    //$('#lblSuccess2').hide();
+                    //$('#lblSuccess1').show();
+                },
+
+                error: function (err, response) {
+                    console.log("error " + err);
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#lblSuccess2').hide();
+                    $('#lblErr').show();
+                    // alert(err.responseText);
+                }
+            });
+        }
+        }
+
+    function convertToPlain(html) {
+
+            var tempDivElement = document.createElement("div");
+
+            tempDivElement.innerHTML = html;
+
+            return tempDivElement.textContent || tempDivElement.innerText || "";
+
+    }
+    function editEngagementRes(sunresId) {
+        var editor = convertToPlain($("#EngagementResponseEditor" + sunresId).data("kendoEditor").value());
+        $("#Id-Editor-" + sunresId).removeClass("editor-disabled");
+        $("#btn-edi-save-" + sunresId).removeClass("hide");
+        $("#btn-edi-edit-" + sunresId).addClass("hide");
+        GisChanged = 1;
+        console.log("current ", sunresId);
+       $($('#EngagementResponseEditor' + sunresId).data().kendoEditor.body).attr('contenteditable', true);
+        $('.main-response iframe').contents().find('body').css({
+            'color': 'black'
+        });
+        $('.main-response.editor-disabled iframe').contents().find('body').css({
+            'color': 'white'
+        });
+    }
+    function editEngagementResforfollowup() {
+        console.log("in")
+        GisChanged = 1;
+        var editor = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+        $("#Id-followEditor").removeClass("editor-disabled");
+        $("#btn-followupsave").addClass("hide");
+        $("#btn-followupedit").addClass("hide");
+        $("#btn-followupUpdate").removeClass("hide");
+        $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', true);
+    }
+    function editEngagementResforFirst() {
+        console.log("in")
+        GisChanged = 1;
+        var editor = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+        $("#firstresponse").removeClass("editor-disabled");
+        $("#idfirstbtnsave").addClass("hide");
+       $("#idfirstbtnupdate").removeClass("hide");
+        $("#idfirstbtnedit").addClass("hide");
+        $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', true);
+        $('iframe').contents().find('body').css({
+            'color': 'black'
+        });
+    }
+
+    function mainupdate(subresponseId,ResponseVal){
+             var mod = {
+             Id: subresponseId,
+             Response: ResponseVal
+          }
+          console.log(mod)
+         var data1 = JSON.stringify(mod);
+         var baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/UpdateEngagementResponse")';
+         $.ajax({
+             type: 'post',
+             url: baseurl,
+             async: false,
+             data: data1,
+             contentType: 'application/json; charset=utf-8',
+             success: function (response) {
+                 console.log(response);
+                 $('.main-response iframe').contents().find('body').css({
+                     'color': 'white'
+                 });
+                 $('.firstresponseclass iframe').contents().find('body').css({
+                     'color': 'white'
+                 });
+                 $('#saveAlertModal').modal('show');
+                 $('#lblErr').hide();
+                 $('#lblSuccess2').hide();
+                 $('#lblSuccess1').show();
+                 GisChanged = 0;
+             },
+
+             error: function (err, response) {
+                 console.log("error " + err);
+                 $('#saveAlertModal').modal('show');
+                 $('#lblSuccess1').hide();
+                 $('#lblSuccess2').hide();
+                 $('#lblErr').show();
+                 // alert(err.responseText);
+             }
+         });
+    }
+
+    function updateEngagementResponse(subresponseId) {
+
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+
+            var ResponseVal = convertToPlain($("#EngagementResponseEditor" + subresponseId).data("kendoEditor").value());
+            if (ResponseVal == null || ResponseVal.trim() == '') {
+                $('#responselabel_' + subresponseId).removeClass("hide")
+                setTimeout(function () {
+                    $('#responselabel_' + subresponseId).addClass("hide")
+                }, 3000);
+                return 0;
+            }
+            $("#Id-Editor-" + subresponseId).addClass("editor-disabled");
+            $("#btn-edi-save-" + subresponseId).addClass("hide");
+            $("#btn-edi-edit-" + subresponseId).removeClass("hide");
+            $($('#EngagementResponseEditor' + subresponseId).data().kendoEditor.body).attr('contenteditable', false);
+            mainupdate(subresponseId, ResponseVal);
+        }
+    }
+    function updateEngagementResponseforfollowup() {
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+
+            var subresponseId = document.getElementById("id-followup").value;
+            var ResponseVal = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+            if (ResponseVal == null || ResponseVal.trim() == '') {
+                $('#responsefollowuplabel').removeClass("hide")
+                setTimeout(function () {
+                    $('responsefollowuplabel').addClass("hide")
+                }, 3000);
+                return 0;
+            }
+            $("#Id-followEditor").addClass("editor-disabled");
+            $("#btn-followupsave").addClass("hide");
+            $("#btn-followupedit").removeClass("hide");
+            $("#btn-followupUpdate").removeClass("hide");
+            $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', false);
+
+            mainupdate(subresponseId, ResponseVal);
+        }
+}
+    function updateEngagementResforFirst() {
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+
+            var subresponseId = document.getElementById("id-current-resid").value;
+            var ResponseVal = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+            if (ResponseVal == null || ResponseVal.trim() == '') {
+                $('#responsenulllabel').removeClass("hide")
+                setTimeout(function () {
+                    $('responsenulllabel').addClass("hide")
+                }, 3000);
+                return 0;
+            }
+            $("#firstresponse").addClass("editor-disabled");
+            $("#idfirstbtnsave").addClass("hide");
+            $("#idfirstbtnupdate").addClass("hide");
+            $("#idfirstbtnedit").removeClass("hide");
+            $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', false);
+
+            mainupdate(subresponseId, ResponseVal);
+        }
+}
+
+    function onUpload(e) {
+
+        console.log(e);
+        var SQNo = document.getElementById("ActiveSQNo").value;
+        var AssessmentID = @Model.AssessmentID;
+        var SurveyTypeID = @Model.SurveyTypeID;
+        let VersionID =  document.getElementById("VersionId").value;
+
+        e.data = {
+            SQNo: SQNo,
+            AssessmentID: AssessmentID,
+            SurveyTypeID: SurveyTypeID,
+            VersionID: VersionID
+        };
+
+        GisChanged = 0;
+        ischanged = false;
+
+        console.log(ischanged)
+        $('#saveAlertModal').modal('show');
+        $('#lblErr').hide();
+        document.getElementById('lblsuccesstext').innerHTML = "";
+        document.getElementById('lblsuccesstext').innerHTML = "File(s) has uploaded successfully";
+        $('#lblSuccess2').hide();
+        $('#lblSuccess1').show();
+    }
+    function onSelect(e) {
+        // $(".k-upload-files.k-reset").css("display", "block");
+        var fileid = e.response;
+        console.log("e.response fileid", fileid);
+        var filename = "";
+        $.map(e.files, function (file) {
+            filename = file.name;
+        }).join(", ");
+        console.log("e.response filename", filename);
+        $("<div class='fileAttachment' id='attach_" + fileid + "'>" + filename + "<span aria-hidden='true' class='fileAtt-delbtn' onclick='removeFile(" + fileid + ")'>&times;</span></div>").appendTo($("#fileAttach"));
+        ischanged = true;
+        console.log(ischanged)
+       // console.log("onselect")
+        GisChanged = 1;
+
+    }
+
+    function onSuccess(e) {
+        console.log("e.response onSuccess", e.response);
+
+        var fileid = e.response;
+        $("#refId").text(fileid);
+        var filename = "";
+        $.map(e.files, function (file) {
+            filename = file.name;
+        }).join(", ");
+
+        var inp = document.getElementById('attach_undefined');
+
+        inp.id = "attach_"+fileid;
+
+        console.log("new inp id", inp.id);
+
+        //$("<div class='fileAttachment' id='attach_" + fileid + "'>" + filename + "<span aria-hidden='true' class='fileAtt-delbtn' onclick='removeFile(" + fileid + ")'>&times;</span></div>").appendTo($("#fileAttach"));
+
+    }
+    function removeFile(Id) {
+        if (Id != null) {
+            $("#refId").text(Id);
+        }
+     $('#deleteDraftModal').modal('show');
+ }
+
+ function deleteFileRef() {
+     var Id = $("#refId").text();
+     console.log("ref id", Id);
+     var mod = {
+				fileId: Id,
+	    };
+			var data1 = JSON.stringify(mod);
+			baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RemoveFile")';
+
+			$.ajax(
+				{
+					url: baseurl1,
+					type: 'post',
+					data: data1,
+					async: false,
+					contentType: 'application/json; charset=utf-8',
+					success: function (data) {
+                     $('#deleteDraftModal').modal('hide');
+                     $("#attach_" + Id).css("display", "none");
+					}
+             })
+    }
+
+    function saveEngagementResponseforfollowup(AssessmentID, SQNo) {
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+
+            Ggroupname = "Incompleted";
+            var Response = convertToPlain($("#EngagementResponseEditor").data("kendoEditor").value());
+            if (Response == null || Response.trim() == '') {
+                $('#responsefollowuplabel').removeClass("hide")
+
+                setTimeout(function () {
+                    $('#responsefollowuplabel').addClass("hide")
+                }, 3000);
+
+                return 0;
+            }
+            var mod = {
+                AssessmentID: AssessmentID,
+                SQNo: SQNo,
+                Response: Response,
+                DisciplineId: GDisciplineId,
+                ComponentId: GComponentId,
+                AspectID: GAspectID,
+                isdiscChanged: isdiscChanged,
+                iscompChanged: iscompChanged,
+                isAspChanged: isAspChanged
+            }
+            var data1 = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/SaveEngagementResponse")';
+            $.ajax({
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    console.log(response);
+                    document.getElementById("id-followup").value = response;
+                    $($('#EngagementResponseEditor').data().kendoEditor.body).attr('contenteditable', false);
+                    $("#Id-followEditor").addClass("editor-disabled");
+                    $("#btn-followupsave").addClass("hide");
+                    $("#btn-followupedit").removeClass("hide");
+                    GisChanged = 0;
+                    //$('#saveAlertModal').modal('show');
+                    //$('#lblErr').hide();
+                    //document.getElementById('lblsuccesstext').innerHTML = "";
+                    //document.getElementById('lblsuccesstext').innerHTML = "Response Submitted Successfully.";
+                    //$('#lblSuccess2').hide();
+                    //$('#lblSuccess1').show();
+                    buttonEngagementSelfAssessment();
+                },
+
+                error: function (err, response) {
+                    console.log("error " + err);
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#lblSuccess2').hide();
+                    $('#lblErr').show();
+                    // alert(err.responseText);
+                }
+            });
+        }
+    }
+
+    // function buttonEngagementSelfAssessment() {
+    //    var popup1 = $("#engagementSelfAssessmentpopUp").data("kendoWindow");
+    //    //console.log(popup);
+    //    //$('.k-window-title').text("Add KEDB");
+    //    popup1.open();
+    //    popup1.center();
+    //}
+
+    function onWinClose() {
+        document.getElementById('matContentInfo').style.visibility = 'hidden';
+        document.getElementById('matContent').innerHTML = " ";
+    }
+
+
+    function onCancelSelfAssessment() {
+        var popup = $("#engagementSelfAssessmentpopUp").data("kendoWindow");
+        popup.close();
+
+        $("#EngagementSAComments").val("");
+        document.getElementById("EngagementSAComments").value = "";
+        $('#markAsComplete').prop('checked', false);
+
+        document.getElementById('matContentInfo').style.visibility = 'hidden';
+        document.getElementById('matContent').innerHTML = " ";
+    }
+
+
+
+    function onSaveSelfAssessment() {
+
+        var rating = $("#engagementRatingSelected").val();
+       // console.log("rating in save functionality", rating);
+
+        if (rating == 0) {
+
+            document.getElementById('ratingValidation').style.visibility = 'visible';
+
+            setTimeout(function () {
+                document.getElementById('ratingValidation').style.visibility = 'hidden';
+
+            }, 2000);
+
+
+            return 0;
+        }
+        var comments = $("#EngagementSAComments").val();
+        var markAsCompletecheckBox = $("#markAsComplete").data("kendoCheckBox").value();
+        var responseID = $('#responseIDOnQuesClick').text();
+
+        $('#eng-rating-display').text(rating);
+
+        var mod = {
+            responseID: responseID,
+            rating: rating,
+            comments: comments,
+            markAsCompletecheckBox: markAsCompletecheckBox,
+            DisciplineId: GDisciplineId ,
+            ComponentId: GComponentId,
+            AspectID: GAspectID,
+            isdiscChanged: isdiscChanged,
+            iscompChanged: iscompChanged,
+            isAspChanged: isAspChanged
+        }
+
+        var data1 = JSON.stringify(mod);
+
+        baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/SaveEngagementSelfAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                $('#Id-ques-navigation-main').html(response);
+
+                /* --------group filter start---------*/
+                $("#unAnsweredDiv").css("display", "block");
+                $("#ResInProgDiv").css("display", "block");
+                $("#RespondedDiv").css("display", "block");
+                $("#RatingInProgressDiv").css("display", "block");
+                $("#CompleteDiv").css("display", "block");
+                if (GunAnswered == false) {
+                    $("#unAnsweredDiv").css("display", "none");
+                }
+                if (GResponseInProgress == false) {
+                    $("#ResInProgDiv").css("display", "none");
+                }
+                if (GResponsed == false) {
+                    $("#RespondedDiv").css("display", "none");
+                }
+                if (GRatingInProgress == false) {
+                    $("#RatingInProgressDiv").css("display", "none");
+                }
+                if (GCompleted == false) {
+                    $("#CompleteDiv").css("display", "none");
+                }
+                /* ----------------------*/
+
+
+                /* ------------group filter end------------------*/
+
+                document.getElementById("selfAssessmentbtn").disabled = true;
+                $("#EngagementSAComments").val("");
+                if (markAsCompletecheckBox==true) {
+                    console.log("response status on Question click : ", responseStatus);
+
+                    var elements = document.getElementsByClassName("editdisablebtn");
+
+                    console.log("button elements ", elements);
+                    console.log("button elements length", elements.length);
+                    for (var i = 0; i < elements.length; i++) {
+
+                        console.log(elements[i]);
+                        console.log("individual button element id", elements[i].id);
+                        document.getElementById(elements[i].id).disabled = true;
+                    }
+
+                    var elements1 = document.getElementsByClassName("eng-res-texteditor");
+                    console.log(elements1);
+                    console.log(elements1.length);
+                    for (var i = 0; i < elements1.length; i++) {
+
+                        console.log(elements1[i]);
+                        console.log("individual element id", elements1[i].id);
+                        $($('#' + elements1[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                    }
+
+
+                    //document.getElementById('RefFiles').disabled = true;
+                    var browseUpload = $("#RefFiles").data("kendoUpload");
+                    browseUpload.disable();
+
+                    document.getElementById('browseSave').disabled = true;
+                    document.getElementById('selfAssessmentbtn').disabled = true;
+                    document.getElementById('btnrating').disabled = true;
+
+                    $(".fileAtt-delbtn").css('display', 'none');
+
+                }
+
+
+
+                var responseStatus = $('#responseStatusOnQuestionClick').text();
+
+                NextSqno(responseID, Ggroupname);
+                $('#selfAssessmentSaveAlertModal').modal('show');
+                $('#lblError1').hide();
+                $('#lblError2').hide();
+                $('#engagementSASuccessLabel').show();
+                onCancelSelfAssessment();
+                $("#engagementRatingSelected").val(0);
+
+            },
+            error: function (err, response) {
+                console.log("error " + err);
+                $('#selfAssessmentSaveAlertModal').modal('show');
+                $('#engagementSASuccessLabel').hide();
+                $('#lblError2').hide();
+                $('#lblError1').show();
+                onCancelSelfAssessment();
+                $("#engagementRatingSelected").val(0)
+                // alert(err.responseText);
+            }
+        });
+
+    }
+    function returnEngagementRes(followupId,sqno) {
+        var mod = {
+            FId: followupId,
+            SqNO: sqno
+
+        };
+        console.log(mod)
+		baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/GeteditorView")';
+
+     var data1 = JSON.stringify(mod);
+		$.ajax(
+{
+	         url: baseurl1,
+	         type: 'post',
+             async: false,
+             data: data1,
+	         contentType: 'application/json; charset=utf-8',
+             success: function (data) {
+                 $('#idNewResponse').html(data);
+
+	}
+      })
+}
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const buttonContainer = document.querySelector('.eng-dg-SA-ratingButtons');
+        const colors = ['#FF0D0D', '#FF8E15', '#FAB733', '#ACB334', '#69B34C'];
+        const tooltips = ['Components unpredictable, poorly managed and/or reactive', 'Components identified for the engagement are often reactive', 'Components characterized for the engagement and is proactive', 'Components outcome are measured and controlled', 'Components focuses on improvement'];
+        for (let i = 0; i < colors.length; i++) {
+            const button = document.createElement('button');
+            button.textContent = `${i + 1}`;
+            button.classList.add('eng-ratingButton');
+            button.id = `engrt${i + 1}`;
+            button.style.backgroundColor = colors[i];
+            button.title = tooltips[i];
+            //button.onclick = engagementRatingSelection(`${i + 1}`);
+            //button.click = engagementRatingSelection(`${i + 1}`);
+            button.style.borderColor = colors[i];
+            button.setAttribute("onclick", "engagementRatingSelection(" + `${i + 1}` + ");");
+            buttonContainer.appendChild(button);
+
+        }
+        const buttonNA = document.createElement('button');
+        buttonNA.textContent = 'NA';
+        buttonNA.classList.add('eng-ratingButton');
+        buttonNA.id = 'engrtNA';
+        buttonNA.style.backgroundColor = '#72A0C1';
+        buttonNA.title = 'Not Applicable';
+        buttonNA.style.borderColor = '#72A0C1';
+        buttonNA.style.width = '1.2em';
+        buttonNA.setAttribute("onclick", "engagementRatingNASelection();");
+        buttonContainer.appendChild(buttonNA);
+    });
+
+     //onclick on self assessment icon
+    function buttonEngagementSelfAssessment() {
+        console.log(ischanged)
+        if (ischanged == true) {
+            $('#ChangesuploadAlertModal').modal('show');
+        } else {
+            var responseID = $('#responseIDOnQuesClick').text();
+
+            var mod = {
+                responseID: responseID,
+
+            }
+
+            var data1 = JSON.stringify(mod);
+
+            baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/GetSelfAssessmentDetailsForResponse")';
+
+
+
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (detail) {
+                    //alert("Success");
+                    console.log(detail);
+
+
+
+                    if (detail.responseStatus == 'Completed' || detail.responseStatus == 'RatingInProgress' || detail.responseStatus == 'Responded') {
+                        document.getElementById("selfAssessmentbtn").disabled = true;
+                        $('#selfAssessmentSaveAlertModal').modal('show');
+                        $('#engagementSASuccessLabel').hide();
+                        $('#lblError1').hide();
+                        $('#lblError2').show();
+                    }
+                    else {
+                        document.getElementById("selfAssessmentbtn").disabled = false;
+                        var popup = $("#engagementSelfAssessmentpopUp").data("kendoWindow");
+                        //console.log(popup);
+                        //$('.k-window-title').text("Add KEDB");
+                        popup.open();
+                        popup.center();
+                    }
+
+                    if (detail.engagementComments != null) {
+                        $('#EngagementSAComments').val(detail.engagementComments);
+                    }
+
+                    if (detail.EngagementRating != null) {
+                        document.getElementById('ratingSelectedInfo').style.visibility = 'visible';
+                        document.getElementById('ratingNo').innerHTML = detail.EngagementRating;
+                        $("#engagementRatingSelected").val(detail.EngagementRating);
+                    }
+                    else {
+                        document.getElementById('ratingSelectedInfo').style.visibility = 'hidden';
+                        $("#engagementRatingSelected").val(0);
+                    }
+
+
+
+                },
+                error: function (err, response) {
+                    console.log("error " + err);
+                    $('#selfAssessmentSaveAlertModal').modal('show');
+                    $('#engagementSASuccessLabel').hide();
+                    $('#lblError2').hide();
+                    $('#lblError1').show();
+                    onCancelSelfAssessment();
+                    $("#engagementRatingSelected").val(0)
+                    // alert(err.responseText);
+                }
+            });
+
+        }
+    }
+
+    function engagementRatingSelection(rat) {
+         console.log("before setting", rat);
+         $("#engagementRatingSelected").val(rat);
+         console.log("after setting ", $("#engagementRatingSelected").val());
+         document.getElementById('ratingSelectedInfo').style.visibility = 'visible';
+         document.getElementById('ratingNo').innerHTML = rat;
+
+        document.getElementById('matContentInfo').style.visibility = 'visible';
+        if (rat == 1) {
+            document.getElementById('matContent').innerHTML = "Components unpredictable, poorly managed and/or reactive";
+
+        }
+        if (rat == 2) {
+            document.getElementById('matContent').innerHTML = "Components identified for the engagement are often reactive";
+
+        }
+        if (rat == 3) {
+            document.getElementById('matContent').innerHTML = "Components characterized for the engagement and is proactive";
+
+        }
+        if (rat == 4) {
+            document.getElementById('matContent').innerHTML = "Components outcome are measured and controlled";
+
+        }
+        if (rat == 5) {
+            document.getElementById('matContent').innerHTML = "Components focuses on improvement";
+
+        }
+        }
+
+
+    function engagementRatingNASelection() {
+        console.log("engagementRatingNASelection");
+        $("#engagementRatingSelected").val("NA");
+        document.getElementById('ratingSelectedInfo').style.visibility = 'visible';
+        document.getElementById('ratingNo').innerHTML = "NA";
+        document.getElementById('matContentInfo').style.visibility = 'visible';
+        document.getElementById('matContent').innerHTML = "Not Applicable";
+    }
+
+
+    function onCancelClick(Sqno,AssessmentId){
+        console.log(Sqno, AssessmentId)
+        pageClick(Sqno, AssessmentId);
+    }
+    function SaveFiles(e) {
+        console.log("SaveFiles")
+        console.log(e);
+        var upload = $("#RefFiles").data("kendoUpload");
+        upload.upload();
+
+    }
+    function onclearADCName() {
+        isdiscChanged = 0;
+        iscompChanged = 0;
+        isAspChanged = 0;
+        $("#DisciplineId").data("kendoDropDownList").select(0);
+        $("#ComponentId").data("kendoDropDownList").select(0);
+        $("#AspectID").data("kendoDropDownList").select(0);
+        onChangeADCName();
+    }
+    function onEditorchange(e) {
+        GisChanged = 1;
+    }
+
+    function NextSqno(responseID, Ggroupname) {
+            var mod = {
+                ResponseId: responseID,
+                grpName: Ggroupname
+    }
+        var data1 = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/AssessmentManager/ResponseGathering/GetNextQuestionforResponse")';
+        $.ajax({
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                $('#Id-dynamicpartial').html(response);
+                $(".pager-btn").removeClass("ques-selected");
+                var QNo = document.getElementById("SQNo").value;
+                $("#Quesid_" + QNo).addClass("ques-selected");
+                var grpsec = $("#Quesid_" + QNo).attr('data-grp');
+                callleftQuestionNavigation(grpsec);
+
+                GisChanged = 0;
+                $('.main-response iframe').contents().find('body').css({
+                    'color': 'white'
+                });
+                $('.firstresponseclass iframe').contents().find('body').css({
+                    'color': 'black'
+                });
+                $("#EngagementSAComments").val("");
+              //  document.getElementById("EngagementSAComments").value = "";
+
+
+                var responseComp = $("#EngagementResponseEditor").data("kendoEditor");
+                console.log("responseComp ", +responseComp);
+
+                if (responseComp != null) {
+                    var responseContent = responseComp.value();
+                    document.getElementById("selfAssessmentbtn").disabled = true;
+                    document.getElementById("btnrating").disabled = true;
+                    console.log("responseContent", responseContent);
+
+                    document.getElementById('selfAssessmentbtn').setAttribute('title', 'Please provide response to enable');
+                    document.getElementById('btnrating').setAttribute('title', 'Please provide response to enable');
+                }
+                else {
+                    document.getElementById("selfAssessmentbtn").disabled = false;
+                    document.getElementById("btnrating").disabled = false;
+
+                    document.getElementById('selfAssessmentbtn').setAttribute('title', 'Self Assessment');
+                    document.getElementById('btnrating').setAttribute('title', 'Engagement Rating');
+                }
+
+                var elementsload = document.getElementsByClassName("eng-res-texteditor");
+                console.log("document ready function" + elementsload);
+                console.log(elementsload.length);
+                if (elementsload.length != 0) {
+                    for (var i = 0; i < elementsload.length; i++) {
+                        console.log("individual element id", elementsload[i].id);
+                        $($('#' + elementsload[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                    }
+
+                }
+                /* --------group filter start---------*/
+                $("#unAnsweredDiv").css("display", "block");
+                $("#ResInProgDiv").css("display", "block");
+                $("#RespondedDiv").css("display", "block");
+                $("#RatingInProgressDiv").css("display", "block");
+                $("#CompleteDiv").css("display", "block");
+
+                if (GunAnswered == false) {
+                    $("#unAnsweredDiv").css("display", "none");
+                }
+                if (GResponseInProgress == false) {
+                    $("#ResInProgDiv").css("display", "none");
+                }
+                if (GResponsed == false) {
+                    $("#RespondedDiv").css("display", "none");
+                }
+                if (GRatingInProgress == false) {
+                    $("#RatingInProgressDiv").css("display", "none");
+                }
+                if (GCompleted == false) {
+                    $("#CompleteDiv").css("display", "none");
+                }
+
+                /* ------------group filter end------------------*/
+
+
+                var responseStatus = $('#responseStatusOnQuestionClick').text();
+
+                if (responseStatus == 'Completed' || responseStatus == 'RatingInProgress' || responseStatus == 'Responded') {
+
+                    console.log("response status on Question click : ", responseStatus);
+
+                    var elements = document.getElementsByClassName("editdisablebtn");
+
+                    console.log("button elements ", elements);
+                    console.log("button elements length", elements.length);
+                    for (var i = 0; i < elements.length; i++) {
+
+                        console.log(elements[i]);
+                        console.log("individual button element id", elements[i].id);
+                        document.getElementById(elements[i].id).disabled = true;
+                    }
+
+                    var elements1 = document.getElementsByClassName("eng-res-texteditor");
+                    console.log(elements1);
+                    console.log(elements1.length);
+                    for (var i = 0; i < elements1.length; i++) {
+
+                        console.log(elements1[i]);
+                        console.log("individual element id", elements1[i].id);
+                        $($('#' + elements1[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                    }
+
+
+                    //document.getElementById('RefFiles').disabled = true;
+                    var browseUpload = $("#RefFiles").data("kendoUpload");
+                    browseUpload.disable();
+
+                    document.getElementById('browseSave').disabled = true;
+                    document.getElementById('selfAssessmentbtn').disabled = true;
+                    document.getElementById('btnrating').disabled = true;
+
+                    $(".fileAtt-delbtn").css('display', 'none');
+
+                }
+                var Id_Discipline = document.getElementById("Id-Discipline").value;
+                var Id_Component = document.getElementById("Id-Component").value;
+                var Id_Aspect = document.getElementById("Id-Aspect").value;
+
+                var DisciplineDropdown = $("#DisciplineId").data("kendoDropDownList");
+                DisciplineDropdown.value(Id_Discipline);
+                var ComponentDropdown = $("#ComponentId").data("kendoDropDownList");
+                ComponentDropdown.dataSource.read();
+                setTimeout(function () {
+                    ComponentDropdown.value(Id_Component);
+                }, 500);
+                var AspectDropdown = $("#AspectID").data("kendoDropDownList");
+                setTimeout(function () {
+                    AspectDropdown.dataSource.read();
+                    setTimeout(function () {
+                        AspectDropdown.value(Id_Aspect);
+                    }, 900);
+
+                }, 1000);
+
+
+
+
+            },
+
+            error: function (err, response) {
+                console.log("error " + err);
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#lblSuccess2').hide();
+                $('#lblErr').show();
+                // alert(err.responseText);
+            }
+        });
+    }
+
+</script>

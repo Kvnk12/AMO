@@ -1,0 +1,648 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Models
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model  DemandViewModel
+
+@{
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+}
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-state-selected a {
+        color: #ffffff;
+    }
+
+    /*Status Change Buttons Inside Tabs*/
+    .StatusChangeButton {
+        text-overflow: ellipsis;
+        width: 150px;
+        line-height: 1.75em;
+        border-radius: 5px;
+        background-color: #2196F3;
+        border: solid;
+        border-color: #357ebd;
+        color: white;
+        padding: 0px 0px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: auto;
+        margin-right: 17px;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        cursor: pointer;
+        background-color: #2196F3;
+    }
+
+    /* Kendo Modifications*/
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+    /*Column Header- FullName*/
+    .k-filter-row th, .k-grid-header th.k-header {
+        white-space: normal;
+        border: thin 1px #ccc;
+    }
+</style>
+
+<div id="wrap">
+    <div class="content-main dark-bg idea-manager">
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">View/Post Demand</li>
+        </ol>
+        <div id="MainDivforA" class="idea-manager-content">
+            <!--Contains Radio buttons, Search Bar-->
+            <div class="main-heading-section">
+                <div class="view-ideas-toggle">
+                    <span class="active" id="myDemands"> MY Demand </span>
+                    <span id="allDemands"> ALL Demand </span>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="DemandSearchBox" placeholder="Search Demands" name="search">
+                    <button type="submit" class="search-submit" onclick="DemandSearchClick()"></button>
+                </div>
+            </div>
+
+            <!-- Tab links -->
+            <div class="tab-container">
+                <div class="tab-main">
+                    <span id="CreatedOpen" class="tab-link" onclick="openTab(event, 'Created')">Pre-Approval</span>
+                    <span id="ReviewOpen" class="tab-link" onclick="openTab(event, 'Review')">Submitted for Review/ Approval</span>
+                    <span id="ApprovedOpen" class="tab-link" onclick="openTab(event, 'Approved')">Approved/ Declined/ Cancelled</span>
+                    <span id="ImplementationOpen" class="tab-link" onclick="openTab(event, 'Implementation')">Implementation</span>
+                    <span id="CompleteOpen" class="tab-link" onclick="openTab(event, 'Complete')">Complete</span>
+                    <span id="HeadDemandSearch" class="tab-link" hidden>Search Results...</span>
+                </div>
+                @if (Model.IsSysAdmin == true)
+                {
+                    <div class="export-button">
+                        <form action="@Url.Action("ExportServer", "ViewDemand")" method="POST">
+                            @*<input type="hidden" id="export-data" name="data" />
+                                <input type="hidden" id="export-model" name="model" />*@
+                            <input type="hidden" id="export-AllDemands" name="AllDemands" />
+                            <button type="submit" id="ExportToExcel">Export -       </button>
+                        </form>
+                    </div>
+                }
+            </div>
+            <div id="DemandSearch" class="tab-content" hidden>
+                <!--Search Grid-->
+                <button type="submit" class="btn btn-primary" onclick="location.href='@Url.Action("Index","ViewDemand")';return false;">Return to View Demands</button>
+                <br />
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<DemandSearchModel>()
+                                        .Name("DemandSearchGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.DemandId).Hidden();
+                                            columns.Bound(e => e.DemandNumber).Title("Demand No.");
+                                            columns.Template(@<text></text>).Title("Name")
+            .ClientTemplate("<a target='_blank' rel='noopener noreferrer' href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+
+                                            columns.Bound(e => e.Status).Title("Status");
+
+                                        })
+.PersistSelection()
+.Filterable()
+.Sortable()
+
+.Scrollable()
+.HtmlAttributes(new { @style = "height:250px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+.Model(model =>
+{
+model.Id(f => f.DemandId);
+})
+.Read(read => read.Action("DemandSearch", "ViewDemand").Data("SearchString")) //Data--
+)
+                    )
+                </div>
+            </div>
+            <div id="Created" class="tab-content">
+                <!--Status Change Buttons-->
+                <div class="tab-action-buttons">
+                    <button id="PostNewDemandButton" onclick="NewDemandClick()" class="post-new-idea">Post New Demand</button>
+                    <button id="DeleteButton" onclick="DeleteClick()" class="delete-idea">Delete</button>
+                    <button id="SubmitForReviewButton" onclick="SubmitForReviewClick()" class="submit-idea">Submit for Review</button>
+                </div>
+                <!--Grid          "<input type='checkbox' #= Discontinued ? checked='checked' :'' # />"             -->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<DemandPreApprovalModel>()
+                                        .Name("PreApprovalGrid")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Select().Width(50);
+                                            columns.Bound(e => e.DemandId).Hidden();
+                                            columns.Bound(e => e.DemandName).Hidden();
+                                            columns.Bound(e => e.DemandNumber).Title("Demand No.").Width(80);
+                                            columns.Bound(e => e.DemandName).Title("Name").Width(80)
+                                            .ClientTemplate("<a href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+                                            columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                                                .ClientTemplate(
+                                                        "#if(InternalInitiative === true) {# "
+                                                            + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                                                        + " #} else{#"
+                                                                + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                                                        + "#}#");
+                                            columns.Bound(e => e.Status).Title("Status").Width(80).Filterable(ftb => ftb.Multi(true));
+                                            columns.Bound(e => e.CreatedBy).Title("Created By").Width(80).Filterable(ftb => ftb.Multi(true))/*.Filterable(filterable => filterable.UI("CreaterFilter"))*/;
+                                            columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+                                            columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                            columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(120);
+
+                                        })
+                                //.Events(eve=>eve.ExcelExport("exporting"))
+                                .PersistSelection()
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+                                .Scrollable()
+                                .Filterable()
+                                .Sortable()
+                                .HtmlAttributes(new { @style = "height:250px;" })
+                                .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Model(model =>
+                                {
+                                    model.Id(f => f.DemandId);
+                                    model.Field(f => f.InternalInitiative).Editable(false);
+                                })
+                                .Read(read => read.Action("PreApproval", "ViewDemand").Data("MyDemandsOrAllDemands"))
+                                )
+                    )
+                </div>
+            </div>
+            <div id="Review" class="tab-content">
+                <!--Status Change Buttons-->
+                <div class="tab-action-buttons">
+                    @*@if (Model.IsSysAdmin)*@
+                    @* <button id="SubmitForApproveButton" onclick="SubmitForApprovalClick" class="StatusChangeButton" style = "text-overflow:ellipsis; width:200px;">Submit for Approval, Approve/Decline/Revise</button>
+                    *@
+                    @if (Model.IsSysAdmin)
+                    {
+                        <button id="SubmitForApproveButton" onclick="SubmitForApprovalClick()" class="next-steps">Next Steps</button>
+                    }
+
+
+                    @*@(Html.Kendo().Button()
+                                                .Name("SubmitForApproveButton")
+                                                .Enable(true)
+                                                .HtmlAttributes(new { @style = "text-overflow:ellipsis; width:200px;" })
+                                                .Content("Submit for Approval")
+                                                .Events(eve => eve.Click("SubmitForApprovalClick"))
+                        )*@
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<SubmitForReviewModel>()
+.Name("SubmitForReviewGrid")
+.Columns(columns =>
+{
+//columns.Select().Width(50);
+columns.Bound(e => e.DemandId).Hidden();
+columns.Bound(e => e.DemandNumber).Title("Demand No.").Width(60);
+columns.Bound(e => e.DemandName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+columns.Bound(e => e.DemandSource).Title("Demand Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                        .ClientTemplate(
+                                "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                                + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                                + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LOB).Title("Workstream").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedBy).Title("Created By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.AssignedApprover).Title("Assigned Approver(s)").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(140);
+columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(140);
+
+})
+
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Filterable()
+.Sortable()
+.HtmlAttributes(new { @style = "height:250px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.DemandId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("SubmittedForReview", "ViewDemand").Data("MyDemandsOrAllDemands"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Approved" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<DemandApprovedModel>()
+.Name("ApprovedGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.DemandId).Hidden();
+columns.Bound(e => e.DemandNumber).Title("Demand No.").Width(100);
+columns.Bound(e => e.DemandName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+columns.Bound(e => e.DemandSource).Title("Demand Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LOB).Title("Workstream").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Status).Title("Approved/ Declined/ Cancelled").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImpStatus).Title("Imp Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedBy).Title("Created By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ApproverBy).Title("Approved By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Operational Lead").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedDt).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.StatusChangeDt).Title("Status Change Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Sortable()
+.Filterable()
+.HtmlAttributes(new { @style = "height:250px;width:100%"})
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.DemandId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Approval", "ViewDemand").Data("MyDemandsOrAllDemands"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Implementation" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<DemandImplementationModel>()
+.Name("ImplementationGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.DemandId).Hidden();
+columns.Bound(e => e.DemandNumber).Title("Demand No.").Width(100);
+columns.Bound(e => e.DemandName).Title("Name").Width(100)
+                    .ClientTemplate("<a href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImpStatus).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Operational Lead").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.LastReviewDt).Title("Last Review Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.SubmitForPlanningDt).Title("Submitted For Planning Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedStartDt).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedEndDt).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualStartDt).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualEndDt).Title("Est. End Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Sortable()
+.Filterable()
+.HtmlAttributes(new { @style = "height:250px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.DemandId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Implementation", "ViewDemand").Data("MyDemandsOrAllDemands"))
+                                            )
+                    )
+                </div>
+            </div>
+            <div id="Complete" class="tab-content">
+                <!--Status Change Buttons-->
+                <div>
+                </div>
+                <!--Grid-->
+                <div class="custom-grid">
+                    @(Html.Kendo().Grid<DemandCompletionModel>()
+.Name("CompletionGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.DemandId).Hidden();
+columns.Bound(e => e.DemandNumber).Title("Demand No.").Width(100);
+columns.Bound(e => e.DemandName).Title("Name").Width(100)
+                        .ClientTemplate("<a href='" + Url.Action("Index", "PostDemand", new { DemandId = "#=DemandId#" }) + "'>#=DemandName#</a>");
+columns.Bound(e => e.DemandSource).Title("Demand Source").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.InternalInitiative).Width(100).Title("Internal Initiative").Hidden(Model.IsCusUser)
+                    .ClientTemplate(
+                            "#if(InternalInitiative === true) {# "
+                                + "<input class='chkbox' type='checkbox' checked style='pointer-events:none'/>"
+                            + " #} else{#"
+                                    + "<input class='chkbox' type='checkbox' style='pointer-events:none'/>"
+                            + "#}#").Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.Priority).Title("Priority").Width(80).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.CreatedBy).Title("Created By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ApprovedBy).Title("Approved By").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.ImplementationManager).Title("Operational Lead").Width(100).Filterable(ftb => ftb.Multi(true));
+columns.Bound(e => e.PlannedStartDt).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.PlannedEndDt).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualStartDt).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.ActualEndDt).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(100);
+columns.Bound(e => e.LastModifiedDt).Title("Last Modified Date").Format("{0:MM/dd/yyyy}").Width(100);
+
+})
+.Resizable(r => r.Columns(true))
+.Reorderable(r => r.Columns(true))
+
+.Scrollable()
+.Filterable()
+.Sortable()
+.HtmlAttributes(new { @style = "height:250px;width:100%" })
+                                            .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Model(model =>
+                                            {
+                                                model.Id(f => f.DemandId);
+                                                model.Field(f => f.InternalInitiative).Editable(false);
+                                            })
+                                            .Read(read => read.Action("Completion", "ViewDemand").Data("MyDemandsOrAllDemands"))
+                                            )
+                    )
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //Data for Kendo Grid..
+    function MyDemandsOrAllDemands() {
+       
+        var val = $('.view-ideas-toggle span.active').attr('id');
+        if (val == 'myDemands') {
+            return {
+                AllDemands: 1
+            }
+        } else {
+            return {
+                AllDemands: 2
+            }
+        }
+
+    }
+
+    //Button Functions
+    //---Tab -1------
+    function NewDemandClick() {
+        var indexurl = '@Url.Content("~/DemandManager/PostDemand/Index")';
+        window.location.href = indexurl
+
+
+    }
+
+    function DeleteClick() {
+        var grid = $("#PreApprovalGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            DemandIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PostDemand/DeleteDemands")';
+        $.ajax(
+        {
+        url: baseurl,
+        type: 'post',
+        data: data,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#PreApprovalGrid').data('kendoGrid').dataSource.read();
+            $('#SubmitForReviewGrid').data('kendoGrid').dataSource.read();
+            //alert("Participants Successfully Added");
+            }
+        })
+
+    }
+
+    function SubmitForReviewClick() {
+        var grid = $("#PreApprovalGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            DemandIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PostDemand/SubmitforReview")';
+        $.ajax(
+        {
+        url: baseurl,
+        type: 'post',
+        data: data,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#PreApprovalGrid').data('kendoGrid').dataSource.read();
+            $('#SubmitForReviewGrid').data('kendoGrid').dataSource.read();
+            //alert("Participants Successfully Added");
+            }
+        })
+
+    }
+
+    //---Tab - 2 --------
+    function SubmitForApprovalClick() {
+
+        var grid = $("#SubmitForReviewGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        var mod = {
+            DemandIDs: selectedIDs
+        };
+        var data = JSON.stringify(mod);
+
+        var approvalurl = '@Url.Content("~/DemandManager/DemandApproval/Index")';
+        window.location.href = approvalurl;
+
+    }
+
+
+    //---------Search Tab-------------//
+    function DemandSearchClick() {
+        $(".tab-link").hide();
+
+        $("#Created").hide();
+        $("#Review").hide();
+        $("#Approved").hide();
+        $("#Implementation").hide();
+        $("#Complete").hide();
+
+        $("#HeadDemandSearch").show();
+        $("#DemandSearch").show();
+
+        $('#DemandSearchGrid').data('kendoGrid').dataSource.read();
+        $('#DemandSearchGrid').data('kendoGrid').refresh();
+    }
+
+    function SearchString() {
+        var obj = $("#DemandSearchBox").val();
+
+        return {
+            stringLike: obj.trim()
+        }
+    }
+
+    //On change of Radio Button
+    $('.view-ideas-toggle').on('click', 'span', function () {
+        $(this).addClass('active');
+        $(this).siblings().removeClass('active');
+
+        var DemandVar = $(this).attr('id');
+        console.log(DemandVar);
+        if (DemandVar == 'allDemands')
+        {
+        //alert('2');
+            //var SFRB = $("#SubmitForReviewButton").data("kendoButton");
+            //SFRB.enable(false);
+            //var DB = $("#DeleteButton").data("kendoButton");
+            //DB.enable(false);
+            //var SFAB = $("#SubmitForApproveButton").data("kendoButton");
+            //SFAB.enable(false);
+
+            $('#SubmitForReviewButton').prop('disabled', true);
+            $('#DeleteButton').prop('disabled', true);
+            //$('#SubmitForApproveButton').prop('disabled', true);
+
+        }
+        if (DemandVar == 'myDemands')
+        {
+
+
+            $('#SubmitForReviewButton').prop('disabled', false);
+            $('#DeleteButton').prop('disabled', false);
+            //$('#SubmitForApproveButton').prop('disabled', false);
+
+        }
+        //Refreshing Grids.
+        var preApproval = $('#PreApprovalGrid').data('kendoGrid');
+        preApproval.dataSource.read();
+
+        var submitForReview = $('#SubmitForReviewGrid').data('kendoGrid');
+        submitForReview.dataSource.read();
+
+        var approved = $('#ApprovedGrid').data('kendoGrid');
+        approved.dataSource.read();
+
+        var implementation = $('#ImplementationGrid').data('kendoGrid');
+        implementation.dataSource.read();
+
+        var completion = $('#CompletionGrid').data('kendoGrid');
+        completion.dataSource.read();
+
+    });
+
+    //Functions for Tab Click..
+    function openTab(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+        //Using sessionStorage to save tab information
+        sessionStorage.setItem("ViewDemandTab", cityName);
+    }
+
+    // Get the element with id="CreatedOpen" and click on it
+    $(window).on('load', function () {
+        var ViewDemandTabName = sessionStorage.getItem("ViewDemandTab");
+        if (ViewDemandTabName == null) {
+            document.getElementById("CreatedOpen").click();
+        }
+        else {
+            var newString = ViewDemandTabName + 'Open';
+            document.getElementById(newString).click();
+        }
+    })
+
+    $("#ExportToExcel").click(function () {
+        var val = $('.view-ideas-toggle span.active').attr('id');
+        if (val == 'myDemands') {
+            val = 1;
+        } else {
+            val = 2;
+        }
+        //$("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+        //$("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+        $("#export-AllDemands").val(encodeURIComponent(JSON.stringify(val)));
+    });
+      function CreaterFilter(element) {
+          element.kendoMultiSelect({
+            dataSource: {
+                transport: {
+                    read: "@Url.Action("getCreaterFilter")"
+                }
+            },
+            optionLabel: "--Select Value--"
+        });
+    }
+
+</script>

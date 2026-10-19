@@ -1,0 +1,1015 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers
+@model string
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    <link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+    int usid = (int)Session["UserId"];
+    ReportSubscriptionController rptc = new ReportSubscriptionController();
+    var emailId = rptc.getEmailID(usid);
+
+    List<int> listhours = new List<int>();
+    List<string> listminutes = new List<string>();
+    List<string> listmonths = new List<string>();
+    for (int i = 0; i <= 23; i++)
+    {
+        listhours.Add(i);
+    }
+
+    IEnumerable<SelectListItem> hours = listhours.Select(g =>
+                   new SelectListItem
+                   {
+                       Text = g.ToString(),
+                       Value = g.ToString()
+                   }).ToList();
+
+
+    for (int i = 0; i <= 59; i++)
+    {
+        if (i >= 0 && i < 10)
+        {
+            listminutes.Add("0" + i.ToString());
+        }
+        else
+        {
+            listminutes.Add(i.ToString());
+        }
+    }
+
+    IEnumerable<SelectListItem> minutes = listminutes.Select(g =>
+                   new SelectListItem
+                   {
+                       Text = g.ToString(),
+                       Value = g.ToString()
+                   }).ToList();
+
+
+    for (int i = 1; i <= 31; i++)
+    {
+        if (i >= 1 && i < 10)
+        {
+            listmonths.Add("0" + i.ToString());
+        }
+        else
+        {
+            listmonths.Add(i.ToString());
+        }
+    }
+
+    IEnumerable<SelectListItem> months = listmonths.Select(g =>
+               new SelectListItem
+               {
+                   Text = g.ToString(),
+                   Value = g.ToString()
+               }).ToList();
+
+    IEnumerable<string> userEmailList = ViewBag.userEmailList;
+   
+   
+}
+<style>
+    hr {
+        color: rgb(91,121,171);
+        border-top: dashed 1.5px;
+        width: 63em;
+        margin-left: 13px;
+    }
+
+    .delim_frequency {
+        color: rgb(91,121,171);
+        border-top: dashed 1.5px;
+        width: 61em;
+        margin-left: 15px;
+    }
+
+    .delim_criteria {
+        color: rgb(91,121,171);
+        border-top: dashed 1.5px;
+        width: 57.9em;
+    }
+
+    #Recipients {
+        resize: none;
+        width: 31em;
+        height: 4em;
+        margin-left: 1em;
+        display: none;
+    }
+
+    #EmailAdd::placeholder {
+        color: gray;
+    }
+
+    .k-button.k-flat.k-button-icon.k-window-action {
+        margin-top: 2.5em;
+    }
+
+    .add-ticket-alert .modal-body p:before {
+        content: '';
+        position: absolute;
+        background-image: url(../images/success.png);
+        width: 3.5em;
+        height: 2em;
+        background-size: 2.2em;
+        background-repeat: no-repeat;
+        left: 0;
+    }
+
+    .k-window-title {
+        padding: 0 .44em;
+        padding-top: 4px;
+        overflow: hidden;
+        cursor: default;
+        text-overflow: ellipsis;
+        height: 24px;
+    }
+
+    #EmailList {
+        max-width: 94%;
+        overflow-x: hidden; 
+    }
+
+    .k-widget.k-autocomplete.k-autocomplete-clearable.k-state-default {
+        width: 94%;
+        margin-left: 1.5em;
+    }
+
+    .k-widget.k-autocomplete.k-autocomplete-clearable.k-state-default.k-state-hover {
+        background-color:transparent;
+        color:transparent;
+    }
+    .custom-dropdown .k-picker, .k-widget.k-picker {
+        display: flex;
+    }
+    input#StartDate, input#EndDate {
+        width: 7em;
+    }
+    .k-widget .k-input {
+        width: 9.5em;
+    }
+</style>
+
+<div class="RPTpopUpDiv">
+
+    @(Html.Kendo().Window()
+                .Name("RPTSubspopUp")
+                .Title(" " + Model + " ")
+                .Content(@<text>
+       <p hidden id="Reportnameindex"></p>
+       <p hidden id="TelerikReportnameindex"></p>
+       <p hidden id="stringJsonText"></p>
+       <p hidden id="primaryID"></p>
+       <div class="RptpopUp" style="padding: 1em; padding-top: 0em;">
+         <div class="RPTDetails">
+            <div class="Emailsub_Recipients">
+                <div style="display:flex">
+                  <p class="custom-blue-label" style="font-weight:bold">Email : </p>
+                  <hr />
+                </div>
+                <div class="firstrowFields" style=" padding-left: 8px;">
+                   <span class="custom-blue-label">Email Subject:</span>
+                     @*@(Html.Kendo().TextBox().Name("Email_Subject"))*@
+                     @(Html.Kendo().TextArea().Name("Email_Subject").HtmlAttributes(new { style = "width: 22em;resize: none;height: 6em;overflow: auto;margin-left: 6px;background-color: #ffffff;color: #000000;position: absolute; " }))
+
+                    <div class="email-content-bottom" style="margin-top: 4em;">
+                       <div class="email-heading" style="display: flex; margin-left: -50px; width: 37em; ">
+                            <span class="custom-blue-label" style="margin-left: 1em;">Add Recipients : </span>
+                           <span style="margin-left:3.3em">
+                              @*@(Html.Kendo().TextBox()
+                                                .Name("EmailAdd")
+                                                .Enable(true)
+                                                .HtmlAttributes(new { placeholder = "Type Email ID",@class= "custom-kendotextbox", style= "width: 186%; border-radius:0px;" })
+                                      )*@
+
+                                  @(Html.Kendo().AutoComplete()
+                           .Name("EmailList")
+                           .Filter("startswith")
+                           .Placeholder("Select Email Address...")
+                           .BindTo(userEmailList)
+                           .Events(e =>
+                           {
+                            e.Change("onEmailChange");
+                           })
+                           .Separator(", ")
+                          )
+
+
+                           </span>
+                            @*<button class="custom-button" id="parameter-add-blue-button" style="width: 3em; height: 1em; margin-left: 15.7em; margin-top: 7px;" >ADD</button>*@
+                           <br />
+                           <div class="email-tag" style="display: flex; position: absolute; margin-top: 3em;">
+                            <span  class="custom-blue-label" style="width: 9em; margin-left: 1em;">Added Recipients : </span>
+                               @(Html.Kendo().TextArea().Name("Recipients").HtmlAttributes(new { style = "display:none" }))
+                                <div class="email-word scrollbar-rail" id="parentEmail" style="border: 1px solid black; width: 29em; height: 4em; margin-left: 1.7em; overflow: auto; ">
+                                @{
+                                //email tags will be added through javascript
+
+                                }
+                              </div>
+                               </div>
+                       </div>
+                    </div>
+
+
+
+
+                </div>
+
+
+            </div>
+             <div style="display:flex;margin-top:5em;" >
+                <p class="custom-blue-label" style="font-weight:bold">Frequency :</p>
+                <hr class="delim_frequency"/>
+               </div>
+             <div class="rpt_secondrowFields" id="rpt_secrowfields" style="height: 10em;">
+            <div class="ReportFor_ScheduledDate" >
+                <div class="ReportFor" style="display: flex; margin-left: 10px;">
+                    <span class="custom-blue-label" >Report For :</span>
+                    <div class="custom-dropdown" style="margin-left: 1.3em; margin-right: 1em; margin-top: 7px;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("ReportFortxt")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { style = "width: 9em;margin-top: -0.5em;color: black !important;" })
+                          .SelectedIndex(0)
+                         .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                                Text = "Current Week", Value ="Current Week"
+                              },
+                              new SelectListItem() {
+                                Text = "Monthly", Value ="Monthly"
+                              },
+                              new SelectListItem() {
+                                Text = "Quarter", Value ="Quarter"
+                              },
+                              new SelectListItem() {
+                                Text = "Half Yearly", Value ="Half Yearly"
+                              },
+                              new SelectListItem() {
+                                Text = "Yearly", Value ="Yearly"
+                              }
+
+                          })
+                            )
+                        </div>
+                    <div style="display:flex" >
+                    <p class="custom-blue-label" style="margin-left:5.2em;font-weight:bold">Schedule Duration :</p>
+                    <span class="custom-blue-label" style="margin-left:1.7em">Start Date :</span>
+                        <div class="date-field">
+                    @(Html.Kendo().DatePicker().Value(DateTime.Now).Name("StartDate").Format("MM/dd/yyyy"))
+                            </div>
+                    <span class="custom-blue-label" style="margin-left: 2.5em;">End Date :</span>
+                          <div class="date-field">
+                    @(Html.Kendo().DatePicker().Value(DateTime.Now).Name("EndDate").Format("MM/dd/yyyy"))
+                    </div>
+                   </div>
+               </div>
+           </div>
+             <div class="radio-buttons" style="display: flex; margin-top: 0.5em; margin-bottom: 1em; margin-left: 10px;">
+                 <span class="custom-blue-label" > Frequency :</span>
+                 <div style="margin-top: 6px; margin-left: 6px;display:flex">
+                  <input type="radio" style="margin-left: 2.2em; " id="daily" checked name="periodradio" value="Daily" onclick="onDailyClick()"/>
+                     <div style="font-weight: unset; padding-left: 4px; padding-right: 10px; padding-top: 3px;">
+                        Daily
+                     </div>
+                     <input type="radio"  id="weekly" name="periodradio" value="Weekly" onclick="onWeeklyClick()" />
+                     <div style="font-weight: unset; padding-left: 4px; padding-right: 10px; padding-top: 3px;">
+                        Weekly
+                     </div>
+                     <input type="radio"  id="monthly" name="periodradio" value="Monthly" onclick="onMonthlyClick()" />
+                     <div style="font-weight: unset; padding-left: 4px; padding-right: 10px; padding-top: 3px;">
+                        Monthly
+                     </div>
+               </div>
+             </div>
+
+             <div class="SelectTime" id="selectTimeHid" style="display: flex; margin-top: 9px; margin-left: 10px;">
+                  <span class="custom-blue-label">Schedule Time : </span>
+
+                 <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectHours")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(hours
+                            )
+                         )
+                  </div>
+
+                     <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                 @(Html.Kendo().DropDownList()
+                          .Name("selectMinutes")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(minutes
+                            )
+                         )
+                     </div>
+                 <div>
+                     <p style=" margin-top: 8px;">(24 hour format)</p>
+
+
+               </div>
+                   <div>
+                     <span class="custom-blue-label" style="margin-left: 2em; position: absolute; padding-top: 11px;">Select Time Zone : </span>
+                  </div>
+               <div class="custom-dropdown" style="margin-left: 9.5em; margin-right: 1em;">
+                  @(Html.Kendo().DropDownList()
+                          .Name("selectTimeZone")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                                            Text = "EST", Value ="EST"
+                              },
+                              new SelectListItem() {
+                                            Text = "PST", Value ="PST"
+                              },
+                              new SelectListItem() {
+                                            Text = "CST", Value ="CST"
+                              }
+                                    })
+                            )
+                     </div>
+
+              </div>
+
+                <div class="SelectTime_Day" id="SelectTime_Day" >
+                   <div class="selectDay" id="select_day" style="margin-left: 10px;">
+                   <span class="custom-blue-label">Schedule Day :</span>
+
+                   <input type="checkbox" value="1" class="day-of-week" style="width:0" id="1" name="dayOfWeek">
+                   <label class="checkboxicon" style="margin-left: 11px;" for="1">Sunday</label>
+                   <input type="checkbox" value="2" class="day-of-week" style="width:0" id="2"  name="dayOfWeek">
+                   <label class="checkboxicon" for="2">Monday</label>
+                   <input type="checkbox" value="3" class="day-of-week" style="width:0" id="3" name="dayOfWeek">
+                   <label class="checkboxicon" for="3">Tuesday</label>
+                   <input type="checkbox" value="4" class="day-of-week" style="width:0" id="4"  name="dayOfWeek">
+                   <label class="checkboxicon" for="4">Wednesday</label>
+                   <input type="checkbox" value="5" class="day-of-week" style="width:0" id="5"  name="dayOfWeek">
+                   <label class="checkboxicon" for="5">Thursday</label>
+                   <input type="checkbox" value="6" class="day-of-week" style="width:0"  id="6" name="dayOfWeek">
+                   <label class="checkboxicon" for="6">Friday</label>
+                   <input type="checkbox" value="7" class="day-of-week" style="width:0" id="7"  name="dayOfWeek">
+                   <label class="checkboxicon" for="7">Saturday</label>
+                   </div>
+
+                    <div class="SelectTime" id="select_time" style="display: flex; margin-left: 10px;">
+                         <span class="custom-blue-label">Schedule Time :</span>
+
+                 <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectHours_Weekly")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(hours
+                            )
+                         )
+                        </div>
+
+                     <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em; ">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectMinutes_Weekly")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(minutes
+                            )
+                         )
+                        </div>
+
+                         <div>
+                     <span class="custom-blue-label" style="margin-left: 2em; position: absolute; padding-top: 11px;">Select Time Zone : </span>
+                  </div>
+               <div class="custom-dropdown" style="margin-left: 9.5em; margin-right: 1em; ">
+                  @(Html.Kendo().DropDownList()
+                          .Name("selectTimeZone1")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                         Text = "EST", Value ="EST"
+                              },
+                              new SelectListItem() {
+                         Text = "PST", Value ="PST"
+                              },
+                              new SelectListItem() {
+                         Text = "CST", Value ="CST"
+                              }
+                 })
+                            )
+                     </div>
+                 <div>
+                     <p style=" margin-top: 8px; font-weight: 600;">(24 hour format)</p>
+                 </div>
+                </div>
+               </div>
+
+                <div class="select-time-monthly" id="selectTimeMonthly" style="display: flex; margin-left: 10px; }">
+                  <span class="custom-blue-label">Month Date :</span>
+
+                 <div class="custom-dropdown" style="margin-left: 2em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectMonth")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(months
+                            )
+                         )
+                  </div>
+
+                  <span class="custom-blue-label" style="margin-left: 1em;">Schedule Time  : </span>
+
+                 <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectHours_Monthly")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(hours
+                            )
+                         )
+                        </div>
+
+                     <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("selectMinutes_Monthly")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(minutes
+                            )
+                         )
+                        </div>
+                  <div>
+                     <span class="custom-blue-label" style="margin-left: 2em; position: absolute; padding-top: 11px;">Select Time Zone : </span>
+                  </div>
+               <div class="custom-dropdown" style="margin-left: 9.5em; margin-right: 1em; ">
+                  @(Html.Kendo().DropDownList()
+                          .Name("selectTimeZone2")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(0)
+                         .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                         Text = "EST", Value ="EST"
+                              },
+                              new SelectListItem() {
+                         Text = "PST", Value ="PST"
+                              },
+                              new SelectListItem() {
+                         Text = "CST", Value ="CST"
+                              }
+                 })
+                            )
+                     </div>
+                 <div>
+                     <p style=" margin-top: 8px; font-weight: 600;">(24 hour format)</p>
+                 </div>
+              </div>
+
+            </div>
+
+             <div style="display: flex; margin-top: 2px" >
+                <p class="custom-blue-label" style="font-weight:bold">Reporting Criteria :</p>
+                <hr class="delim_criteria" />
+               </div>
+
+             <div class="FilterCriteria_Rptformat" id="FiltertxtArea" style="display:flex">
+                 <p class="custom-blue-label" style=" margin-left: 10px;">Selected Filter Criteria :  </p>
+                 @Html.TextArea("FilterCriteria", "", new { @class = "k-textbox", @readonly = "readonly",  id = "edit_Description", rows = 3, cols = 12, style = "width:35em;resize:none; height:9em; overflow:auto;margin-left: 6px;background-color: #d1d1d1; color: #000000;opacity:70%;padding: 0.7em;border: 1px solid black;" })
+
+                 <div  id="ReportFormatCtrl" >
+                     <div style="display:flex">
+                     <p class="custom-blue-label" style="margin-left:4.7em;">Report Format : </p>
+                        <div class="custom-dropdown" style="margin-left: 1em; margin-right: 1em;">
+                    @(Html.Kendo().DropDownList()
+                          .Name("ReportFormat")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          //   .HtmlAttributes(new { style = "width: 100%" })
+                          .SelectedIndex(1)
+                         .BindTo(new List<SelectListItem>()
+                          {
+                              new SelectListItem() {
+                         Text = "PDF", Value ="PDF"
+                              },
+                              new SelectListItem() {
+                         Text = "PPTX", Value ="PPTX"
+                              },
+                              new SelectListItem() {
+                         Text = "EXCEl", Value ="XLSX"
+                              }
+                 })
+                            )
+                            </div>
+
+                     </div>
+                 </div>
+             </div>
+
+
+    <div class="kedb-buttons" >
+    <div style="margin: 0 1em 0 0;">
+        <button class="custom-button" type="button" style="background-color:lightgrey;color:white"onclick="cancelPopup()"  >CANCEL</button>
+    </div>
+    <div id="saveForsub" style="margin: 0 1.5em 0 0;">
+        <button class="custom-button" type="button" onclick="saveSubscriptionDetails()" id="saveEdit">SAVE</button>
+    </div>
+    <div id="updateForsub" style="margin: 0 1.5em 0 0;">
+        <button class="custom-button" type="button" onclick="UpdateSubscriptionDetails()" id="Edit">Update</button>
+    </div>
+    </div>
+
+ </div>
+</div>
+
+               </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(550)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+
+)
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        document.getElementById('selectTimeMonthly').style.display = "none";
+        document.getElementById('SelectTime_Day').style.display = "none";
+    });
+
+
+
+    $('.day-of-week').on('change', function () {
+        $('.day-of-week').not(this).prop('checked', false);
+    });
+
+
+
+
+    function onDailyClick() {
+        document.getElementById('selectTimeMonthly').style.display = "none";
+        document.getElementById('SelectTime_Day').style.display = "none";
+        document.getElementById('selectTimeHid').style.display = "block";
+        document.getElementById('selectTimeHid').style.display = "flex";
+        document.getElementById('rpt_secrowfields').style.height = "10em";
+        document.getElementById('select_time').style.marginTop = "0em";
+        document.getElementById('select_day').style.marginTop = "0em";
+    }
+
+    function onWeeklyClick() {
+        document.getElementById('selectTimeMonthly').style.display = "none";
+        document.getElementById('selectTimeHid').style.display = "none";
+        document.getElementById('SelectTime_Day').style.display = "block";
+        document.getElementById('rpt_secrowfields').style.height = "12em";
+        document.getElementById('select_time').style.marginTop = "1em";
+        document.getElementById('select_day').style.marginTop = "1.2em";
+    }
+
+    function onMonthlyClick() {
+        document.getElementById('SelectTime_Day').style.display = "none";
+        document.getElementById('selectTimeHid').style.display = "none";
+        document.getElementById('selectTimeMonthly').style.display = "block";
+        document.getElementById('selectTimeMonthly').style.display = "flex";
+        document.getElementById('rpt_secrowfields').style.height = "10em";
+        document.getElementById('select_time').style.marginTop = "0em";
+        document.getElementById('select_day').style.marginTop = "0em";
+    }
+
+    $('#parameter-add-blue-button').on('click', function () {
+
+        console.log("Email Icon Clicked");
+         var a = $("#EmailAdd").data("kendoTextBox").value();
+         console.log(a);
+
+         if (a != "") {
+             if (validateEmail(a)) {
+                 var b = document.getElementById('Recipients').value;
+                 var c = $('.delete -icon').val();
+                 console.log(b);
+
+                 if (b == '' || b == null) {
+                     document.getElementById('Recipients').value = a;
+                     document.getElementById('EmailAdd').value = '';
+                     $(".delete-icon").html(a);
+                     $("#delIcon").attr("data-word", a);
+
+                     console.log("if");
+
+                 } else {
+                     document.getElementById('Recipients').value = b + ";" + a;
+                     document.getElementById('EmailAdd').value = '';
+                     $(".delete-icon").html(b + ";" + a);
+                     $("#delIcon").attr("data-word", b + ";" + a);
+                     console.log("else");
+
+                 }
+                 var object = { id: a , class: "emailcustWord" , onclick:"deleteemail(id)"};
+                 var addition = $("<div>", object);
+                 addition.html(a);
+                 $(".email-word").append(addition);
+             } else {
+                 //error message to be displayed for incorrect email format.
+                 alert("Entered email id is not in correct email format, please re-enter email id");
+             }
+        }
+
+
+    });
+
+    $('.emailcustWord').on('click', function () {
+        console.log("delete icon click");
+        //var a = $(this).data('id');
+        var word = $(this).data('word');
+        console.log(word);
+
+       });
+
+    function deleteemail(id) {
+        console.log("delete");
+        console.log(id);
+        var element = document.getElementById(id);
+        element.parentNode.removeChild(element);
+    }
+
+   function validateEmail(a) {
+       var expr = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+       if (expr.test(a)) {
+           console.log("success");
+           return true;
+       } else {
+           return false;
+       }
+        }
+
+
+    function cancelPopup() {
+        var popup = $("#RPTSubspopUp").data("kendoWindow");
+        popup.close();
+    }
+
+    //On save click in pop-up
+    function saveSubscriptionDetails() {
+
+        var email_subject = $("#Email_Subject").val();
+        var Recipients_list="";
+
+        const divIds = $('#parentEmail > div').map((i, div) => div.id).get(); //fetch values of child divs created through JS
+
+        console.log(Recipients_list);
+        for (i = 0; i < divIds.length; i++) {
+            Recipients_list += divIds[i] + ';';
+        }
+        Recipients_list += '@emailId';
+        console.log("Recipients list is:" + Recipients_list);
+      /*  Recipients_list = Recipients_list.slice(0, -1);*/ //remove last character
+        var reportFor = $("#ReportFortxt").data("kendoDropDownList").value();
+
+        var startDate = $("#StartDate").val().toString();
+        console.log("start date " + startDate);
+        var endDate = $("#EndDate").val().toString();
+
+        var ScheduleType = $('input[name="periodradio"]:checked').val();
+        console.log("Schedule Type: " + ScheduleType);
+        var reportparamters = $("#edit_Description").val();
+        if (reportparamters.trim() == '') {
+            reportparamters = " ";
+        }
+
+        var reportformat = $("#ReportFormat").data("kendoDropDownList").value();
+        if (reportformat == 'EXCEL') {
+            reportformat = 'XLSX';
+        }
+
+
+
+        var selectHours = null;
+        var selectMinutes = null;
+        var timeZone = null
+        /*var selectPeriod = null;*/
+        var weeklyCheck = 0;
+        var monthDay = 0;
+
+        if (ScheduleType == 'Daily') {
+            selectHours = $("#selectHours").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod").data("kendoDropDownList").value();
+            timeZone = $("#selectTimeZone").data("kendoDropDownList").value();
+        }
+        if (ScheduleType == 'Weekly') {
+            selectHours = $("#selectHours_Weekly").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes_Weekly").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod_Weekly").data("kendoDropDownList").value();
+            weeklyCheck = $('.day-of-week:checked').val();
+            timeZone = $("#selectTimeZone1").data("kendoDropDownList").value();
+        }
+        if (ScheduleType == 'Monthly') {
+            selectHours = $("#selectHours_Monthly").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes_Monthly").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod_Monthly").data("kendoDropDownList").value();
+            monthDay = $("#selectMonth").data("kendoDropDownList").value();
+            timeZone = $("#selectTimeZone2").data("kendoDropDownList").value();
+        }
+
+        var ReportName = document.getElementById("Reportnameindex").innerHTML;
+        var TelerikReportName = document.getElementById("TelerikReportnameindex").innerHTML;
+        var stringJson = document.getElementById("stringJsonText").innerHTML;
+        console.log("rpt names " + ReportName + TelerikReportName);
+
+        var mod = {
+            EmailSubject: email_subject,
+            Recipients: Recipients_list,
+            ReportFor: reportFor,
+            StartDate: startDate,
+            EndDate: endDate,
+            ScheduleType: ScheduleType,
+            ReportParameters: stringJson,
+            ReportFormat: reportformat,
+            selectHours: selectHours,
+            selectMinutes: selectMinutes,
+            ReportName: ReportName,
+            TelerikReportName: TelerikReportName,
+            WeekDay: weeklyCheck,
+            MonthDay: monthDay,
+            Timezone: timeZone
+
+        }
+
+        var Param_string_object = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/ClientProfileManager/ReportSubscription/SaveEditReportSubcriptionDetails")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: Param_string_object,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                console.log(response);
+                var popup = $("#RPTSubspopUp").data("kendoWindow");
+                popup.close();
+                $('#addSubcriptionAlertModal').modal('show');
+                setTimeout(function () {
+                    $('#addSubcriptionAlertModal').modal('hide');
+                }, 5000);
+                $("#Email_Subject").val("");
+
+                $("#ReportFortxt").data("kendoDropDownList").select(0);
+                $("#selectHours").data("kendoDropDownList").select(0);
+                $("#selectMinutes").data("kendoDropDownList").select(0);
+                $("#selectHours_Weekly").data("kendoDropDownList").select(0);
+                $("#selectMinutes_Weekly").data("kendoDropDownList").select(0);
+                $("#selectHours_Monthly").data("kendoDropDownList").select(0);
+                $("#selectMinutes_Monthly").data("kendoDropDownList").select(0);
+                $("#ReportFormat").data("kendoDropDownList").select(0);
+                var todayDate = kendo.toString(kendo.parseDate(new Date()), 'MM/dd/yyyy');
+                $("#StartDate").data("kendoDatePicker").value(todayDate);
+                $("#EndDate").data("kendoDatePicker").value(todayDate);
+                $("#selectMonth").data("kendoDropDownList").select(0);
+                $("#selectTimeZone").data("kendoDropDownList").select(0);
+                $("#selectTimeZone1").data("kendoDropDownList").select(0);
+                $("#selectTimeZone2").data("kendoDropDownList").select(0);
+                $('#parentEmail').empty();
+                document.getElementById('daily').checked = true;
+                document.getElementById('weekly').checked = false;
+                document.getElementById('monthly').checked = false;
+                document.getElementById('selectTimeMonthly').style.display = "none";
+                document.getElementById('SelectTime_Day').style.display = "none";
+                document.getElementById('selectTimeHid').style.display = "block";
+                document.getElementById('selectTimeHid').style.display = "flex";
+                document.getElementById('rpt_secrowfields').style.height = "10em";
+                document.getElementById('select_time').style.marginTop = "0em";
+                document.getElementById('select_day').style.marginTop = "0em";
+                $('.day-of-week').prop('checked', false);
+
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+
+
+    }
+
+
+    function UpdateSubscriptionDetails() {
+        var email_subject = $("#Email_Subject").val();
+        var Recipients_list="";
+        var primaryID = document.getElementById("primaryID").innerHTML;
+
+        const divIds = $('#parentEmail > div').map((i, div) => div.id).get(); //fetch values of child divs created through JS
+
+        console.log(Recipients_list);
+        for (i = 0; i < divIds.length; i++) {
+            Recipients_list += divIds[i] + ';';
+        }
+
+        Recipients_list = Recipients_list.slice(0, -1); //remove last character
+        var reportFor = $("#ReportFortxt").data("kendoDropDownList").value();
+
+        var startDate = $("#StartDate").val().toString();
+        console.log("start date " + startDate);
+        var endDate = $("#EndDate").val().toString();
+
+        var ScheduleType = $('input[name="periodradio"]:checked').val();
+        console.log("Schedule Type: " + ScheduleType);
+        var reportparamters = $("#edit_Description").val();
+        if (reportparamters.trim() == '') {
+            reportparamters = " ";
+        }
+
+        var reportformat = $("#ReportFormat").data("kendoDropDownList").value();
+
+        var selectHours = null;
+        var selectMinutes = null;
+        /*var selectPeriod = null;*/
+        var weeklyCheck = 0;
+        var monthDay = 0;
+        var timeZone = null
+
+        if (ScheduleType == 'Daily') {
+            selectHours = $("#selectHours").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod").data("kendoDropDownList").value();
+            timeZone = $("#selectTimeZone").data("kendoDropDownList").value();
+        }
+        if (ScheduleType == 'Weekly') {
+            selectHours = $("#selectHours_Weekly").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes_Weekly").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod_Weekly").data("kendoDropDownList").value();
+            weeklyCheck = $('.day-of-week:checked').val();
+            timeZone = $("#selectTimeZone1").data("kendoDropDownList").value();
+        }
+        if (ScheduleType == 'Monthly') {
+            selectHours = $("#selectHours_Monthly").data("kendoDropDownList").value();
+            selectMinutes = $("#selectMinutes_Monthly").data("kendoDropDownList").value();
+            //selectPeriod = $("#selectPeriod_Monthly").data("kendoDropDownList").value();
+            monthDay = $("#selectMonth").data("kendoDropDownList").value();
+            timeZone = $("#selectTimeZone2").data("kendoDropDownList").value();
+        }
+
+        var ReportName = document.getElementById("Reportnameindex").innerHTML;
+        var TelerikReportName = document.getElementById("TelerikReportnameindex").innerHTML;
+        var stringJson = document.getElementById("stringJsonText").innerHTML;
+        console.log("rpt names " + ReportName + TelerikReportName);
+
+        var mod = {
+            EmailSubject: email_subject,
+            Recipients: Recipients_list,
+            ReportFor: reportFor,
+            StartDate: startDate,
+            EndDate: endDate,
+            ScheduleType: ScheduleType,
+            ReportParameters: stringJson,
+            ReportFormat: reportformat,
+            selectHours: selectHours,
+            selectMinutes: selectMinutes,
+            ReportName: ReportName,
+            TelerikReportName: TelerikReportName,
+            WeekDay: weeklyCheck,
+            MonthDay: monthDay,
+            Id: primaryID,
+            Timezone: timeZone
+        }
+
+        var Param_string_object = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/ClientProfileManager/ReportSubscription/EditReportSubcriptionDetails")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: Param_string_object,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                console.log(response);
+                var popup = $("#RPTSubspopUp").data("kendoWindow");
+                popup.close();
+
+                document.getElementById("addListP").innerHTML = "Report Subscription has been edited successfully";
+                $('#addSubcriptionListModal').modal('show');
+
+                setTimeout(function () {
+                    $('#addSubcriptionListModal').modal('hide');
+                }, 5000);
+                $("#Email_Subject").val("");
+
+                $("#ReportFortxt").data("kendoDropDownList").select(0);
+                $("#selectHours").data("kendoDropDownList").select(0);
+                $("#selectMinutes").data("kendoDropDownList").select(0);
+                $("#selectHours_Weekly").data("kendoDropDownList").select(0);
+                $("#selectMinutes_Weekly").data("kendoDropDownList").select(0);
+                $("#selectHours_Monthly").data("kendoDropDownList").select(0);
+                $("#selectMinutes_Monthly").data("kendoDropDownList").select(0);
+                $("#ReportFormat").data("kendoDropDownList").select(0);
+                var todayDate = kendo.toString(kendo.parseDate(new Date()), 'MM/dd/yyyy');
+                $("#StartDate").data("kendoDatePicker").value(todayDate);
+                $("#EndDate").data("kendoDatePicker").value(todayDate);
+                $("#selectMonth").data("kendoDropDownList").select(0);
+                $('#parentEmail').empty();
+                document.getElementById('daily').checked = true;
+                document.getElementById('weekly').checked = false;
+                document.getElementById('monthly').checked = false;
+                document.getElementById('selectTimeMonthly').style.display = "none";
+                document.getElementById('SelectTime_Day').style.display = "none";
+                document.getElementById('selectTimeHid').style.display = "block";
+                document.getElementById('selectTimeHid').style.display = "flex";
+                document.getElementById('rpt_secrowfields').style.height = "10em";
+                document.getElementById('select_time').style.marginTop = "0em";
+                document.getElementById('select_day').style.marginTop = "0em";
+                $('.day-of-week').prop('checked', false);
+
+                var editgrid = $("#RtpSubscriptionList").data("kendoGrid");
+                editgrid.dataSource.read();
+
+
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+
+
+    }
+
+
+        function onEmailChange(e) {
+            console.log(e);
+            var a = $("#EmailList").val();
+            a = a.substring(0, a.length);
+
+            if (a.charAt(a.length - 2) == ',') {
+                a = a.substring(0, a.length-2);
+            }
+
+            console.log("a is " + a);
+            var b = document.getElementById('Recipients').value;
+            if (b == '' || b == null) {
+                document.getElementById('Recipients').value = a;
+                $("#EmailList").data("kendoAutoComplete").value("");
+                e.preventDefault();
+               /* $(".delete-icon").html(a);*/
+               /* $("#delIcon").attr("data-word", a);*/
+
+                console.log("if");
+
+            } else {
+                document.getElementById('Recipients').value = b + ";" + a;
+                $("#EmailList").data("kendoAutoComplete").value("");
+                e.preventDefault();
+               /* $(".delete-icon").html(b + ";" + a);*/
+              /*  $("#delIcon").attr("data-word", b + ";" + a);*/
+                console.log("else");
+
+            }
+            var object = { id: a, class: "emailcustWord", onclick: "deleteemail(id)" };
+            var addition = $("<div>", object);
+            addition.html(a);
+            $(".email-word").append(addition);
+
+        }
+
+
+
+</script>

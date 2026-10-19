@@ -1,0 +1,165 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.MaintenanceRequestInput
+@using NTTData.AMOPortal.Domain.Entities;
+@using WebUI.Dto;
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_DataMaintenanceAppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+   // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    Model.ClientId = client.ClientId;
+}
+
+
+
+@using (Html.BeginForm())
+     {
+
+        <!--.container-->@*
+    
+        <div class="selectappArea">
+          <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-5 control-label"><span class="mandate">*</span> Client Name</label>
+                <div class="col-sm-5">
+                   @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text",Model.ClientId), "", new { @class = "selectpicker", id = "ddlClient", tabindex = "1" })                    
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <!--/.selectyearArea-->
+          </div>
+          <!--/.container-->
+        </div>
+    
+        *@<!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+          <!--start of breadcrumb-->
+         @* <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li><a href="#">Data Administration</a></li>
+            <li><a href="#">Data Maintanence</a></li>
+            <li class="active">Maintenance Request</li>
+          </ol>*@
+         <ol class="breadcrumb container">
+            <li class="active">SLA Manager</li>
+            <li class="active">Data Maintanence</li>
+            <li class="active">Maintenance Request</li>
+          </ol>
+        </div>
+                
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+            @if (!ViewData.ModelState.IsValid)
+            {
+              @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+             }
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DMCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div style="min-height:700px">
+                  <div class="timeZonearea">
+                    <div class="left timeLeft">
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label" for="sametime">Maintenance Request Data Set </label>
+                          @Html.HiddenFor(m => m.ClientId)
+                          @if(Model.ClientId !=0)
+                        {
+                        <p style="width:1500px">@Html.ActionLink("Create New Maintenance Request", "CreateMaintenanceRequest", new {Id = Model.ClientId })</p>
+                          }
+                      </div>
+                    </div>
+                    <!--.left-->
+                    
+                    <!--/.right-->
+                  </div>
+                  <!--/.well-->
+                    
+
+                  <div>
+                      @Html.Partial("_ViewMaintenanceRequestbyClient",Model)
+@*                    <div class="grid_4 height400">
+                      
+                    </div>*@
+                    @*<div class="clear"></div>*@
+                  </div>
+                </div>
+                <!--END OF LEFTAREA-->
+              </div>
+              <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+          </div>
+          <!--/.treeMenuArea-->
+        </div>
+        <!--/.container-->
+    
+}
+<script>
+    $('select#ddlClient').change(function () {
+        var SelectedclientId = $('#ddlClient :selected').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3].toLowerCase() == 'maintenancerequest') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'MaintenanceRequest/ViewMaintenanceRequest/?ClientId='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'MaintenanceRequest/ViewMaintenanceRequest/?ClientId='
+        }
+
+        window.location = baseurl + SelectedclientId;
+
+    });
+
+    </script>
+
+    <!--
+
+
+      <script>
+          //$(document).ready(function () {
+          //$(document.body).on('change', '#ddlClient', function () {
+          //    var v = $(this).val();
+
+          //    var url = '../ViewIncidentbyClient/?ClientId=' + v;
+          //    window.location = url;
+          //});
+
+          $('select#ddlClient').change(function () {
+              var SelectedclientId = $('#ddlClient :selected').val();
+              var href = window.location.href.split('/');
+              //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+              var baseurl = '';
+              if (href[3] == 'Incident') {
+                  //alert('local url');
+
+                  var baseurl = href[0] + '//' + href[2] + '/' + 'Incident/ViewIncidentbyClient/?ClientId='
+              }
+              else {
+                  //alert('server');
+                  var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Incident/ViewIncidentbyClient/?ClientId='
+              }
+
+              window.location = baseurl + SelectedclientId;
+
+          });
+
+    </script>
+     <script>
+         var j = jQuery.noConflict(true);
+         j(document).ready(function () {
+             j('#myTable05').fixedHeaderTable({ altClass: 'odd', footer: 'false' });
+         });
+
+
+</script>   -->

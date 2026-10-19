@@ -1,0 +1,189 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model INNewDashboardModel
+<div>
+    <div class="top-content-heading">
+        <div class="top-content-head">
+            <h6>Total Incidents in % </h6>
+            <div class="chart-type">
+                @(Html.Kendo().DropDownListFor(m => m)
+                        .Name("DrpValChart4")
+                        .OptionLabel("")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .Value("Assignedbygroup")
+                        .Events(e => e
+                        .Change("Chart4DrpChange")
+                        )
+                        // .BindTo(Model.INMappedColumn)
+                        .BindTo(new List<SelectListItem>
+                            () {
+                            new SelectListItem() {
+                            Text = "Assigned Group",
+                            Value = "Assignedtosupportgroup"
+                            },
+                            new SelectListItem() {
+                            Text = "Config Item Name",
+                            Value = "Configitemname"
+                            },
+                            new SelectListItem() {
+                            Text = "Category",
+
+                            Value = "Servicecategory"
+                            },
+                            new SelectListItem() {
+                            Text = "Sub Category",
+                            Value = "Servicesubcategory"
+                            },
+                            new SelectListItem() {
+                            Text = "Data Source",
+                            Value = "Datasource"
+                            },
+                            new SelectListItem() {
+                            Text = "Ticket Type",
+                            Value = "Type"
+                            },
+                            new SelectListItem() {
+                            Text = "Resolved Group",
+                            Value = "Resolvedbygroup"
+                            },
+                            new SelectListItem() {
+                            Text = "Tower/Track",
+                            Value = "Tower"
+                            }
+                            })
+                            .AutoBind(true)
+                )
+
+            </div>
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c4"><span id="d1c4_span"></span>Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChart4()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>
+            ()
+            .Name("Chart4")
+
+            //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+            .Legend(legend => legend
+            .Visible(true)
+            .Align(ChartLegendAlign.Start)
+            .Position(ChartLegendPosition.Bottom)
+            //.Offset(1, 1)
+            )
+
+            .ChartArea(chartArea => chartArea
+            .Background("transparent")
+            .Height(280)
+            )
+            .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("GetParameter")))
+               .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                   .Bar().Visual("LabelVisual")
+
+                                                )
+            .Series(series =>
+            {
+
+                series.Bar(model => model.IncidentCount).Name("Ticket Count").Spacing(0).CategoryField("LongCategory").Labels(labels => labels/*.VisibleHandler("LabelVisual")*//*.Position(ChartBarLabelsPosition.InsideEnd)*/.Background("transparent").Visible(true))
+        .Color("#19BDFF");
+                series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("LongCategory").Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %")).Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)/*.Position(ChartBarLabelsPosition.InsideEnd)*/).Color("LightGray");
+
+
+
+
+            })
+            .CategoryAxis(axis => axis
+            .Min(0)
+            .Max(5)
+
+            //.Categories(model =>model.)
+            .Line(line => line.Visible(false))
+            .MajorGridLines(lines => lines.Visible(false))
+            .Labels(labels => labels.Mirror(false).Visible(false)/*.Position(ChartAxisLabelsPosition.End)*/)
+            .AxisCrossingValue(10000, 0, 2)
+            //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+            )
+
+            .ValueAxis(axis => axis
+
+            .Numeric()
+            //.Max(10)
+            .Line(line => line.Visible(false))
+            .MajorGridLines(lines => lines.Visible(false))
+            .Labels(labels => labels.Rotation("auto"))
+            //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+            )
+            .ValueAxis(axis => axis
+            .Numeric("%")
+            .Min(0).Max(100)
+            .Labels(labels => labels.Format("{0}%").Visible(false))
+            .Line(line => line.Visible(false))
+            .MajorGridLines(lines => lines.Visible(false))
+            )
+            //.XAxis(a => a.DrpCategory)
+            .Tooltip(tooltip => tooltip
+            //.Background("transparent")
+            .Visible(true)
+            .Color("#000000")
+            .Template("#= series.name #: #= value #")
+
+            )
+            // .Panes(panes => panes.Add().Clip(true))
+            .Pannable(pannable => pannable
+            .Lock(ChartAxisLock.X)
+            )
+            .Zoomable(zoomable => zoomable
+            .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+            .Selection(selection => selection.Lock(ChartAxisLock.X))
+            )
+        .Events(events => events
+        .DataBound("minmax_onDataBound")
+        .SeriesClick("onChart4SeriesClick")
+        )
+        )
+
+        </div>     
+    </div>
+    <div class="table-content hide" style="color: #000;padding: 0 18px;">
+        @(Html.Kendo().Grid<INChartDashboardModel>
+            ()
+            .Name("Chart4Grid")
+            .Columns(columns =>
+            {
+
+                columns.Bound(e => e.LongCategory).Title("Category").ClientFooterTemplate("Total");
+                columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#");
+                columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+            })
+            //.Scrollable()
+            .AutoBind(false)
+            .Sortable()
+            .HtmlAttributes(new { style = "height:235px;" })
+            .DataSource(dataSource => dataSource
+            .Ajax()
+            .Aggregates(agg =>
+            {
+                agg.Add(p => p.IncidentCount).Sum();
+                agg.Add(p => p.Percent).Sum();
+            })
+            .Read(read => read.Action("GetINDashboardDataDynamicGrid", "Dashboard").Data("GetParameter")))
+            .Events(events => events
+            .DataBound("Chart4Grid_onDataBound")
+
+            )
+        )
+
+    </div>
+</div>

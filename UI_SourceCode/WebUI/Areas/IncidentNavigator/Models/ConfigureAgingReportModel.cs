@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace WebUI.Areas.IncidentNavigator.Models
+{
+    public class ConfigureAgingReportModel
+    {
+        public int ID { get; set; }
+        public int? SeqNo { get; set; }
+        public string Titlevalue { get; set; }
+        public string Datetype { get; set; }
+        public string  StartValue { get; set; }
+        public int? EndValue { get; set; }
+        public int? ClientID { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public DateTime? CreatedDt { get; set; }
+        public DateTime? UpdatedDt { get; set; }
+        public int? Count { get; set; }
+    }
+}

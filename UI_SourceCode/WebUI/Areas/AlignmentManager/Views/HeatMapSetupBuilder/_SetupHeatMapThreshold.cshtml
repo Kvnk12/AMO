@@ -1,0 +1,794 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+@using (Html.BeginForm("SaveHeatMapThreshold", "HeatMapSetUpBuilder", new { ClientId = Model.ClientId, ReportId = Model.ReportId, ReportType = Model.HeatMapReportStatus }, FormMethod.Post))
+    {
+    
+        	@Html.Hidden("ReportId", Model.ReportId) 
+            @Html.Hidden("ReportType", Model.HeatMapReportStatus) 
+            
+           
+    
+    
+      <div class="treeMenuContent" style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+           @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+               {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+               }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            else
+                {
+                //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+                }
+               
+              
+              
+            <div class="treeMenuContent" style="min-height:700px">
+              <div class=""><!--valchainContent-->
+                <div class="container_12">
+                <div class="form-horizontal" style="float:left">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-10 control-label">Heat Map Algorithm</label>
+                  <label for="clientName" class="col-sm-10 control-label" style="font-weight:bold">@Model.reportThresholdInput.AlorithmName</label>
+              </div>
+            </div>
+
+            <br>
+            <div class="clearfix" ></div>
+                    <div data-intro="Enter Threshold range/discrete values" data-step="7">
+             
+                  <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0" style="border-left:1.5px solid #DDD">
+                    <colgroup>
+                    <col style="width:4.6%">
+                    <col width="5%">
+                    <col width="5%">
+                    <col width="5%">
+                    <col width="5%">
+                    <col width="5%">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th scope="col" colspan="2">Threshold Range</th>
+                        <th scope="col" colspan="1">Threshold Values</th>
+                        <th scope="col">Threshold Color</th>
+                      </tr>
+                      <tr class="secrowhead">
+                        <td scope="col" class="text-center">Min Value</td>
+                        <td scope="col" class="text-center">Max Value</td>
+                        <td scope="col" class="text-center">Discrete Values</td>
+                        <td scope="col"></td>
+                      </tr>
+                    </thead>
+                      @{
+                          List<ReportThresholdInput> thInput = new List<ReportThresholdInput>();
+                          IList<ReportThreshold> thresholdList = Model.reportThresholdInput.ThresholdValues(Model.ReportId);
+                          if (thresholdList.Count() > 0)
+                              {
+                              foreach (ReportThreshold rt in thresholdList)
+                                  {
+                                  //if (rt.MinimumThreshold != null && rt.MaximumThreshold != null)
+                                      {
+                                      ReportThresholdInput rtinput = new ReportThresholdInput();
+                                      rtinput.MinimumThreshold = rt.MinimumThreshold;
+                                      rtinput.MaximumThreshold = rt.MaximumThreshold;
+                                      rtinput.ThresholdColor = rt.ThresholdColor.ToLower();
+                                      rtinput.DiscreetThreshold = rt.DiscreetThreshold;
+                                      thInput.Add(rtinput);
+                                      }
+                                  //else
+                                  //    {
+                                  //    ReportThresholdInput rtinput = new ReportThresholdInput();
+                                  //    rtinput.MinimumThreshold = "";
+                                  //    rtinput.MaximumThreshold = "";
+                                  //    rtinput.DiscreetThreshold = rt.DiscreetThreshold;
+                                  //    rtinput.ThresholdColor = rt.ThresholdColor.ToLower();
+                                  //    thInput.Add(rtinput);
+                                  //    }
+                                  }
+
+                              }
+                          
+                              //Checkfor each colour in the thinput list if not exists then add an emty row to make all the rows
+                              //red
+                          if (thInput.Where(t => t.ThresholdColor == "red").Count() == 0)
+                          {
+                          ReportThresholdInput rtinput = new ReportThresholdInput();
+                          rtinput.MinimumThreshold = "";
+                          rtinput.MaximumThreshold = "";
+                          rtinput.ThresholdColor = "red";
+                          rtinput.DiscreetThreshold = "";
+                          thInput.Add(rtinput);
+                          }
+
+                          if (thInput.Where(t => t.ThresholdColor == "blue").Count() == 0)
+                              {
+                              ReportThresholdInput rtinput = new ReportThresholdInput();
+                              rtinput.MinimumThreshold = "";
+                              rtinput.MaximumThreshold = "";
+                              rtinput.ThresholdColor = "blue";
+                              rtinput.DiscreetThreshold = "";
+                              thInput.Add(rtinput);
+                              }
+
+                          if (thInput.Where(t => t.ThresholdColor == "green").Count() == 0)
+                              {
+                              ReportThresholdInput rtinput = new ReportThresholdInput();
+                              rtinput.MinimumThreshold = "";
+                              rtinput.MaximumThreshold = "";
+                              rtinput.ThresholdColor = "green";
+                              rtinput.DiscreetThreshold = "";
+                              thInput.Add(rtinput);
+                              }
+
+                          if (thInput.Where(t => t.ThresholdColor == "yellow").Count() == 0)
+                              {
+                              ReportThresholdInput rtinput = new ReportThresholdInput();
+                              rtinput.MinimumThreshold = "";
+                              rtinput.MaximumThreshold = "";
+                              rtinput.ThresholdColor = "yellow";
+                              rtinput.DiscreetThreshold = "";
+                              thInput.Add(rtinput);
+                              }
+
+                          if (thInput.Where(t => t.ThresholdColor == "orange").Count() == 0)
+                              {
+                              ReportThresholdInput rtinput = new ReportThresholdInput();
+                              rtinput.MinimumThreshold = "";
+                              rtinput.MaximumThreshold = "";
+                              rtinput.ThresholdColor = "orange";
+                              rtinput.DiscreetThreshold = "";
+                              thInput.Add(rtinput);
+                              }
+                               
+                              
+                       }
+                      
+                      @{
+    foreach (ReportThresholdInput rth in thInput)
+    { 
+        int  counter = 5000;
+                              <tr>
+                          <td scope="col" class="text-center">
+                              <input type="text"  value="@rth.MinimumThreshold" class = "form-control"  style="width:150px;margin-left:27%;" id="@("txt"+rth.ThresholdColor+"min")"   name="@("txt"+rth.ThresholdColor+"min")" onkeypress = "return isNumberKey(this)"   maxlength="5" />
+                          </td>
+                          <td scope="col" class="text-center">
+                              <input type="text"  value="@rth.MaximumThreshold" class = "form-control" style="width:150px;margin-left:27%"  id="@("txt"+rth.ThresholdColor+"max")" name="@("txt"+rth.ThresholdColor+"max")" onkeypress = "return isNumberKey(this)" maxlength="5"  />
+                          </td>
+                          <td scope="col" class="text-center">
+                              <input type="text"  value="@rth.DiscreetThreshold" class = "form-control" id="@("txt"+rth.ThresholdColor+"dis")" name="@("txt"+rth.ThresholdColor+"dis")"  maxlength="2000" />
+                          </td>
+                           <td scope="col" class="text-center">
+                               <input type="text" name="red" id="@rth.ThresholdColor"  class = "form-control" style="background-color:@rth.ThresholdColor;width:50px;font-size:0;margin-left:37%"    disabled="true" readonly="true" value="@rth.ThresholdColor"  tabindex="-1" />
+                            </td>
+                      </tr>
+    counter = counter + 1;
+
+    }    
+                          
+                       }  
+
+                    
+
+
+                          
+
+                  </table>
+                  </div>
+                </div>
+                <!--./row-->
+                
+                <div class="addvalaction">
+                 
+                    <button type="Submit" tabindex="-1" class="btn btn-primary"  name="btnSave" value="Next">Finish</button>
+                    <button  tabindex="-1" class="btn btn-primary"  id="btnHome" name="btnHome" value="Home">Home</button>
+                    <button class="btn btn-default" id="cancelregDataSetMap"  tabindex="-1" type="submit">Cancel</button>
+
+                </div>
+              </div>
+              <!--.valchainContent--> 
+              
+              <!--/.treeMenuContent container--> 
+            </div>
+            <!--/.treeMenuContent--> 
+            
+              
+              
+                   <!--end of grid-->             
+                
+         </div>
+    }
+         
+
+<script>
+
+    $(document).ready(function () {
+
+        
+
+        var blnReportNameExists = false;
+
+        $("input").blur(function () {
+
+
+            var $control = $(this);
+            var cid = $control.attr("id");
+            var thisvalue = $control.attr("value");
+            var contval = $control.val();
+            var min ="";
+            var max = "";
+            var dis = "";
+            var controlid = cid;
+            var cidcolor = cid.replace("txt", "").replace("min", "").replace("max", "").replace("dis", "");
+
+            var minormax = cid.substr(cid.length - 3, 3);   //cid.replace("txt","").replace(cidcolor,"");
+            if(minormax.indexOf("min") > -1)
+            {
+                min = minormax;
+            }
+            if(minormax.indexOf("max") > -1)
+            {
+                max = minormax;
+            }
+
+            if(minormax.indexOf("dis")  > -1)
+            {
+                dis = minormax;
+            }
+
+            
+            var discontrol = "txt"+ cidcolor+"dis";
+            var mincontrol = "txt"+cidcolor+"min";
+            var maxcontrol = "txt"+cidcolor+"max";
+
+            if(min != "" || max != "")
+            {
+                //var $thiscotrol = $(this);
+                //if($thiscotrol.val().trim() != "")
+                //{
+                //    var $discontrol = $("#"+discontrol);
+                //    $discontrol.attr("disabled", "true");
+                //}
+
+                var $mincontrol = $("#"+mincontrol);
+                var $maxcontrol = $("#" + maxcontrol);
+
+                if($mincontrol.val().trim() != "" || $maxcontrol.val().trim() != "")
+                {
+                    var $discontrol = $("#"+discontrol);
+                    $discontrol.attr("disabled", "true");
+                    $discontrol.attr("value","");
+                }
+
+                if($mincontrol.val().trim() == "" && $maxcontrol.val().trim() == "")
+                {
+                    var $discontrol = $("#"+discontrol);
+                    $discontrol.removeAttr("disabled", "false");
+                    $discontrol.attr("value", "");
+                }
+
+
+            }
+
+            if (dis != "")
+            {
+
+                var $thiscotrol = $(this);
+                if ($thiscotrol.val().trim() != "") {
+                    var $mincontrol = $("#" + mincontrol);
+                    $mincontrol.attr("disabled", "true");
+                    var $maxcontrol = $("#" + maxcontrol);
+                    $maxcontrol.attr("disabled", "true");
+
+
+                }
+
+                //var $mincontrol = $("#" + mincontrol);
+                //var $maxcontrol = $("#" + maxcontrol);
+
+                //if ($mincontrol.val().trim() != "" || $maxcontrol.val().trim() != "") {
+                //    var $discontrol = $("#" + discontrol);
+                //    $discontrol.attr("disabled", "true");
+                //    $discontrol.attr("value", "");
+                //}
+
+                //if ($mincontrol.val().trim() == "" && $maxcontrol.val().trim() == "") {
+                //    var $discontrol = $("#" + discontrol);
+                //    $discontrol.removeAttr("disabled", "false");
+                //    $discontrol.attr("value", "");
+                //}
+
+            }
+
+            
+
+
+
+
+            //if (dis != "" )
+            //{
+            //    var $thiscotrol = $(this);
+            //    if ($thiscotrol.val().trim() != "")
+            //    {
+            //        var $mincontrol = $("#" + mincontrol);
+            //        var $maxcontrol = $("#" + maxcontrol);
+            //        $mincontrol.attr("disabled", "true");
+            //        $mincontrol.val("");
+            //        $maxcontrol.attr("disabled", "true");
+            //        $maxcontrol.val("");
+
+
+
+            //    }
+            //    else
+            //    {
+
+            //        var $mincontrol = $("#" + mincontrol);
+            //        var $maxcontrol = $("#" + maxcontrol);
+            //        $mincontrol.removeAttr("disabled", "false");
+            //        $mincontrol.val("");
+            //        $maxcontrol.removeAttr("disabled", "false");
+            //        $maxcontrol.val("");
+
+
+            //    }
+            //}
+
+
+            //if(max != "")
+            //{
+            //    var $mincontrol = $("#" + mincontrol);
+            //    if($(this).val() < $mincontrol.val())
+            //    {
+            //        alert('Max value should be greater than Min value');
+            //        $(this).focus(1, fn1);
+            //    }
+
+            //}
+
+            ////Check for overlapping ranges
+            //var colors = new Array();
+            //colors[0] = "red";
+            //colors[1] = "blue";
+            //colors[2] = "green";
+            //colors[3] = "yellow";
+            //colors[4] = "orange";
+            //for (var i = 0; i < colors.length; i++)
+            //{
+            //    $mincontrol = $("#txt" + colors[i] + "min");
+            //    $maxcontrol = $("#txt" + colors[i] + "max");
+            //    if ($mincontrol.val() != "" && $mincontrol.val() != "")
+            //    {
+            //        for (var checkcntr = 0; checkcntr < colors.length; checkcntr++)
+            //        {
+            //            if (colors[i] != colors[checkcntr])
+            //            {
+            //                var $checkmincontrol = $("#txt" + colors[checkcntr] + "min");
+            //                var $checkmaxcontrol = $("#txt" + colors[checkcntr] + "max");
+            //                if ($checkmincontrol.val() != "" && $checkmaxcontrol.val() != "")
+            //                {
+            //                    if ($mincontrol.val() >= $checkmincontrol.val() && $maxcontrol.val() <= $checkmaxcontrol.val())
+            //                    {
+            //                        alert('Range values should not overlap');
+            //                        $(this).focus();
+            //                        return false;
+            //                    }
+
+            //                    //if ($maxcontrol.val() <= $checkmaxcontrol.val()) {
+            //                    //    alert('Range values should not overlap');
+            //                    //    $(this).focus();
+            //                    //}
+
+            //                }
+
+            //            }
+            //        }
+            //    }
+
+
+       
+
+
+
+
+
+
+
+
+
+
+
+            //if (dis != "")
+            //{
+            //    var $thiscotrol = $(this);
+
+            //}
+
+
+
+
+
+
+            //var txtidsubstring = cid.substring(0, cid.indexOf("min") == -1 ? cid.indexOf("max") : cid.indexOf("min"));
+            
+            //if(cid.indexOf("min") > -1)
+            
+            //var txtmin = cid.indexOf("min"
+
+
+            //if (cid.indexOf("min") > 0 || cid.indexOf("max") > 0) 
+            //{
+            //    if (contval.trim() != "") {
+
+
+
+            //        if (cid.indexOf("min") > 0 || cid.indexOf("max") > 0) {
+
+            //            var distxt = cid.substring(0, cid.indexOf("min") == -1 ? cid.indexOf("max") : cid.indexOf("min")) + "dis";
+            //            var $control1 = $("#" + distxt);
+            //            $control1.attr("disabled", "true");
+            //        }
+            //    }
+            
+            //    if (contval.trim() == "") {
+            //        if (cid.indexOf("min") > 0 || cid.indexOf("max") > 0) {
+            //            var distxt = cid.substring(0, cid.indexOf("min") == -1 ? cid.indexOf("max") : cid.indexOf("min")) + "dis";
+            //            var $control1 = $("#" + distxt);
+            //            $control1.removeAttr("disabled", "false");
+            //        }
+            //    }
+            //}
+
+
+            //$("span").filter('.blur').fadeOut(4000);
+
+        });
+
+        function fn1()
+        {
+
+        }
+
+
+        $('#btnHome').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+
+             @*   var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");*@
+            
+                window.location = baseurl;
+                return false;
+
+        });
+
+        $('#cancelregDataSetMap').click(function () {
+
+            
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+                window.location = baseurl;
+                return false;
+
+
+@*                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;*@
+            }
+            else { return false; }
+
+        });
+
+
+
+        $('#btnBack').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+                else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+            window.location = baseurl;
+            return false;
+
+
+        @*    var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+            window.location = strUrl;
+            return false;*@
+
+        });
+
+
+
+
+        $('[name="btnSave"]').click(function () {
+
+
+
+            //Check for overlapping ranges
+            var colors = new Array();
+            colors[0] = "red";
+            colors[1] = "blue";
+            colors[2] = "green";
+            colors[3] = "yellow";
+            colors[4] = "orange";
+            var boolSuccess = true;
+
+            var boolAllAreEmpty = true;
+            for (var i = 0; i < colors.length; i++)
+            {
+                var $mincontrol = $("#txt" + colors[i] + "min");
+                var $maxcontrol = $("#txt" + colors[i] + "max");
+                var $discontrol = $("#txt" + colors[i] + "dis");
+                if ($mincontrol.val().trim() != "" || $maxcontrol.val().trim() != "" || $discontrol.val().trim() != "") {
+                    boolAllAreEmpty = false;
+                    break;
+                }
+                
+            }
+
+            if (boolAllAreEmpty)
+            {
+                alert('Please enter atleast one value');
+                $("#txtredmin").focus();
+                return false;
+            }
+
+            //Check for more than one Decimal points
+            
+            for (var i = 0; i < colors.length; i++) {
+                var $mincontrol = $("#txt" + colors[i] + "min");
+                var $maxcontrol = $("#txt" + colors[i] + "max");
+                if ($mincontrol.val() != "")
+                {
+                    var count = $mincontrol.val().split(".").length;
+                    if (count > 2) {
+                        alert('Invalid Value');
+                        $($mincontrol).focus();
+                        return false;
+                    }
+                }
+
+                if ($maxcontrol.val() != "") {
+                    var count = $maxcontrol.val().split(".").length;
+                    if (count > 2) {
+                        alert('Invalid Value');
+                        $($maxcontrol).focus();
+                        return false;
+                    }
+                }
+
+
+                }
+
+
+
+            
+
+            for (var i = 0; i < colors.length; i++) {
+                var $mincontrol = $("#txt" + colors[i] + "min");
+                var $maxcontrol = $("#txt" + colors[i] + "max");
+                if ($mincontrol.val() != "" && $maxcontrol.val() != "") {
+                    if (parseFloat($maxcontrol.val()) < parseFloat($mincontrol.val())) {
+                        //alert($maxcontrol.val());
+                        //alert(colors[i] + '' + $maxcontrol.val() + $mincontrol.val());
+                        alert('Max value should be greater than Min Value');
+                        $($maxcontrol).focus();
+                        return false;
+                        //break;
+                        //return boolSuccess;
+                    }
+                    for (var checkcntr = 0; checkcntr < colors.length; checkcntr++) {
+                        if (colors[i] != colors[checkcntr]) {
+                            var $checkmincontrol = $("#txt" + colors[checkcntr] + "min");
+                            var $checkmaxcontrol = $("#txt" + colors[checkcntr] + "max");
+                            var intMinVal = parseFloat($mincontrol.val());
+                            var intMaxVal = parseFloat($maxcontrol.val());
+                            var chkMinVal = parseFloat($checkmincontrol.val());
+                            var chkMaxVal = parseFloat($checkmaxcontrol.val());
+                            if (intMinVal >= chkMinVal && intMinVal <= chkMaxVal) {
+                                alert('Range values should not overlap');
+                                $($mincontrol).focus();
+                                return false;
+
+                            }
+
+                            if (intMaxVal >= chkMinVal && intMaxVal <= chkMaxVal) {
+                                alert('Range values should not overlap');
+                                $($maxcontrol).focus();
+                                return false;
+
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            //Check for min value more than once
+            var blnSecondTime = false;
+            for (var i = 0; i < colors.length; i++) {
+                var $mincontrol = $("#txt" + colors[i] + "min");
+                var $maxcontrol = $("#txt" + colors[i] + "max");
+                if ($mincontrol.val() != "" && $maxcontrol.val() == "" && blnSecondTime) {
+                    alert('Only One Min Value is allowed');
+                    $($mincontrol).focus();
+                    return false;
+
+                }
+
+                if ($mincontrol.val() != "" && $maxcontrol.val() == "")
+                {
+                    blnSecondTime=true;
+                }
+            }
+
+
+            //Check for min value more than once
+            blnSecondTime = false;
+            for (var i = 0; i < colors.length; i++) {
+                var $mincontrol = $("#txt" + colors[i] + "min");
+                var $maxcontrol = $("#txt" + colors[i] + "max");
+                if ($maxcontrol.val() != "" && $mincontrol.val() == "" && blnSecondTime) {
+                    alert('Only One Max Value is allowed');
+                    $($maxcontrol).focus();
+                    return false;
+
+                }
+
+                if ($maxcontrol.val() != "" && $mincontrol.val() == "") {
+                    blnSecondTime = true;
+                }
+            }
+
+
+
+        
+                    //    if (parseInt($maxcontrol.val()) < parseInt($mincontrol.val())) {
+                    //        alert('Max value should be greater than Min Value');
+                    //        $($maxcontrol).focus();
+                    //        return false;
+                    //        //break;
+                    //        //return boolSuccess;
+                    //    }
+                    //    for (var checkcntr = 0; checkcntr < colors.length; checkcntr++) {
+                    //        if (colors[i] != colors[checkcntr]) {
+                    //            var $checkmincontrol = $("#txt" + colors[checkcntr] + "min");
+                    //            var $checkmaxcontrol = $("#txt" + colors[checkcntr] + "max");
+                    //            var intMinVal = parseInt($mincontrol.val());
+                    //            var intMaxVal = parseInt($maxcontrol.val());
+                    //            var chkMinVal = parseInt($checkmincontrol.val());
+                    //            var chkMaxVal = parseInt($checkmaxcontrol.val());
+                    //            if (intMinVal >= chkMinVal && intMinVal <= chkMaxVal) {
+                    //                alert('Range values should not overlap');
+                    //                $($mincontrol).focus();
+                    //                return false;
+
+                    //            }
+
+                    //            if (intMaxVal >= chkMinVal && intMaxVal <= chkMaxVal) {
+                    //                alert('Range values should not overlap');
+                    //                $($maxcontrol).focus();
+                    //                return false;
+
+                    //            }
+
+                    //        }
+                    //    }
+                    //}
+                //}
+            //}
+
+
+
+
+
+
+        });
+
+
+       
+
+
+        
+
+
+
+
+
+    });
+
+</script>
+
+
+<script>
+
+    
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            
+
+            //if (charCode != 46 && charCode > 31
+            //&& (charCode < 48 || charCode > 57))
+            //    return false;
+            
+            if((charCode < 48 || charCode > 57))
+            if (charCode != 46 && charCode != 44 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+
+
+    
+</script>
+         

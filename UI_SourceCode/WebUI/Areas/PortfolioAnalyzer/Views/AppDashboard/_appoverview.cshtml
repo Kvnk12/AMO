@@ -1,0 +1,269 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+
+<style>
+    
+    td{
+       overflow-y:scroll;
+    }
+</style>
+
+<div class="container">
+
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent">
+            <div class="container" style="padding: 0;" id="AppOverview">
+                @*<h4>Application :</h4><label><b id="ApplicationName"></b></label>*@
+               
+                    <div class="form-group">
+                        <table>
+                            <tr>
+                                
+                                <th colspan="4" style="background-color:#47a3da;color:white">
+                                    Application Details
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table>
+                                        <tr>
+                                            <td><b>Name</b></td>
+                                            <td>
+                                                <label id="LblAppName"></label>
+                                            </td>
+                                            <td>
+                                                <b>Alias Name</b>
+                                            </td>
+                                            <td>
+                                                <label id="AppAliasName"></label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td width="25%"><b>Client Application ID</b></td>
+                                            <td width="25%">
+                                                <label id="ClientAppId"></label>
+                                            </td>
+                                            <td width="25%">
+                                                <b>Incident Tickets#</b>
+                                            </td>
+                                            <td width="25%">
+                                                <label id="AppTicketCount"></label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>Portfolio Name(s)</b>
+                                            </td>
+                                            <td>
+                                                <label id="portfolioName"></label>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <b>Application Description</b>
+                                            </td>
+                                            <td>
+                                                <label id="lblAppDescription"></label>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                @*<th width="5px"><button onclick="TechExpand(this)" id="TE">+</button><button onclick="TechDrop" id="TD" hidden>-</button></th>*@
+                                <th colspan="4" style="background-color:#47a3da;color:white">
+                                    <div>
+                                        <a href="#0" id="Tech_Toggle" style="color:#ffffff">+Technical Architecture</a>
+                                    </div> 
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="TechDetails" style="display: none;">
+                                        <table>
+                                            <tr>
+                                                <td width="25%">
+                                                    <b> Architecture</b>
+                                                </td>
+                                                <td width="25%">
+                                                    <label id="Architecture"></label>
+                                                </td>
+                                                <td width="25%">
+                                                    <b>Application Size</b>
+                                                </td>
+                                                <td width="25%">
+                                                    <label id="ApplicationSize"></label>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                               
+                            </tr>
+                            <tr>
+                                @*<th width="5px"><a onclick="DemoExpand" id="DE">+</a><a onclick="DemoDrop" id="DD" hidden>-</a></th>*@
+                                <th colspan="4" style="background-color:#47a3da;color:white">
+                                    <div>
+                                        <a href="#0" id="Demo_Toggle" style="color:#ffffff">+Demographics</a>
+                                    </div> 
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="DemoDetails" style="display: none;">
+                                        <table>
+                                            <tr>
+                                                <td width="25%"><b>Criticality</b></td>
+                                                <td width="25%">
+                                                    <label id="Criticality"></label>
+                                                </td>
+                                                <td width="25%">
+                                                    <b> No. of users</b>
+                                                </td>
+                                                <td width="25%">
+                                                    <label id="NoOfUsers"></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b>Revenue Impact</b>
+                                                </td>
+                                                <td>
+                                                    <label id="RevenueImpact"></label>
+                                                </td>
+                                                <td>
+                                                    <b>Code Type</b>
+                                                </td>
+                                                <td>
+                                                    <label id="CodeType"></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b> App domain</b>
+                                                </td>
+                                                <td>
+                                                    <label id="AppDomainName"></label>
+                                                </td>
+                                                <td>
+                                                    <b>Security Level</b>
+                                                </td>
+                                                <td>
+                                                    <label id="SecurityLevel"></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b> Application Classification</b>
+                                                </td>
+                                                <td>
+                                                    <label id="AppClassification"></label>
+                                                </td>
+                                                <td>
+                                                    <b>External Hosting</b>
+                                                </td>
+                                                <td>
+                                                    <label id="ExtHosting"></label>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                @*<th width="5px"><a onclick="DispExpand" id="DDE">+</a><a onclick="DispDrop" id="DDD" hidden>-</a></th>*@
+                                <th colspan="4" style="background-color:#47a3da;color:white">
+                                    <div>
+                                        <a href="#0" id="Disp_Toggle" style="color:#ffffff">+Desposition Details</a>
+                                    </div> 
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="DispDetails" style="display: none;">
+                                        <table>
+                                            <tr>
+                                                <td width="25%">
+                                                    <b>Planned Disposition</b>
+                                                </td>
+                                                <td width="25%">
+                                                    <label id="PlannedDisposition"></label>
+                                                </td>
+                                                <td width="25%">
+                                                    <b> Disposition Immediacy</b>
+                                                </td>
+                                                <td width="25%">
+                                                    <label id="DispositionImmediacy"></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <b> Retirement/ Replacement Date</b>
+                                                </td>
+                                                <td>
+                                                    <label id="RetirementDate"></label>
+                                                </td>
+                                                <td> </td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                @*<th width="5px"><a onclick="KendoExpand" id="KE">+</a><a onclick="KendoDrop" id="KD" hidden>-</a></th>*@
+                                <th colspan="4" style="background-color:#47a3da;color:white">
+                                    <div>
+                                        <a href="#0" id="Grid_Toggle" style="color:#ffffff">+Application Ownership</a>
+                                    </div> 
+                                </th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div id="GridDetails" style="display: none;">
+                                        <table>
+                                            <tr>
+                                                <td colspan="4">
+                                                    @(Html.Kendo().Grid<_ownershipType>(Model.OwnerShipType)
+                        .Name("AppOwner")
+                        .Columns(column =>
+                        {
+                            column.Bound(m => m.Name);
+                            column.Bound(m => m.Email);
+                            column.Bound(m => m.Title).Title("Ownership");
+                            column.Bound(m => m.IsSurveyParticipant).Title("Title");
+                        })
+                        //.Scrollable()
+                       // .Pageable()
+                        .DataSource(data => data
+                        .Ajax()
+                        .PageSize(5)
+                        )
+                                                    )
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                        </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

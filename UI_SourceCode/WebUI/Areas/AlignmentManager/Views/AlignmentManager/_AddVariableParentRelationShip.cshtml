@@ -1,0 +1,138 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    string form_name = "frmSaveItemDetails";
+}
+
+<div class="accdetailhd">   
+    @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+        {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+        }
+    @if (ViewData.ModelState.ContainsKey("Success"))
+    {
+        @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+    }
+ </div>
+
+@using (Html.BeginForm("SaveParentRelationShipDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+{
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.VariableId)
+    @Html.HiddenFor(m => m.VariableCatId)
+    @Html.HiddenFor(m  => m.VariableTypeId)
+    @Html.HiddenFor(m  => m.VariableLabelId)
+ 
+       <div class="container row">
+            <div class="col-sm-6">                            	                                  
+            <div class="vchainhdr">
+                <div class="left">Parent Relationship</div>                   
+            </div>
+            
+            @if (Model.GetAllOfOtherTypesForParentChild.Count() > 0) 
+            { 
+                <div class="tblacc">
+                 <table class="table table-striped" border="1" cellpadding="10" cellspacing="10" width="100%">                 
+                        <tbody>
+                            <tr>
+                                <th width="80%" scope="col">Parent</th>
+                                <th width="4%" scope="col">
+                                <input name="chkselectallRelation" id="chkselectallRelation" type="checkbox">
+                                </th>
+                            </tr>
+                            @foreach (var item in Model.GetAllOfOtherTypesForParentChild)
+                            {
+                             <tr>
+                               <td><a href="#" id="">@item.VariableLabel</a></td>
+                               <td>
+                                  <div class="col-sm-2">                                    
+                                    @Html.CheckBox(@item.VariableId.ToString()+"parentchkbox",  new { @class = "chkRelation tabindex="+@item.VariableId})
+                                  </div>
+                               </td>
+                             </tr>                                                         
+                             }
+                     </tbody>
+                 </table>
+				</div>
+                }
+                else
+                {
+                    <div>No Data exist for parent relationship</div>
+                }
+        </div><!--end of col-->
+                        
+        <div class="col-sm-6">                            	                                  
+            <div class="vchainhdr">
+                <div class="left">Children Relationship</div>                   
+            </div>
+            
+            @if (Model.GetAllOfOtherTypesForParentChild.Count() > 0) 
+            { 
+                <div class="tblacc">
+                 <table class="table table-striped" border="1" cellpadding="10" cellspacing="10" width="100%">                 
+                        <tbody>
+                            <tr>
+                                <th width="80%" scope="col">Children</th>
+                                <th width="4%" scope="col">
+                                <input name="chkselectallRelation1" id="chkselectallRelation1" type="checkbox">
+                                </th>
+                            </tr>
+                            @foreach (var item in Model.GetAllOfOtherTypesForParentChild)
+                            {
+                             <tr>
+                               <td><a href="#" id="">@item.VariableLabel</a></td>
+                               <td>
+                                  <div class="col-sm-2">                                    
+                                    @Html.CheckBox(@item.VariableId.ToString()+"childchkbox",  new { @class = "chkRelation1 tabindex="+@item.VariableId})
+                                  </div>
+                               </td>
+                             </tr>                                                         
+                             }
+                     </tbody>
+                 </table>
+				</div>
+                }
+                else
+                {
+                    <div>No Data exist for children relationship</div>
+                }
+        </div><!--end of col-->
+     </div><!--./row-->               
+        <div class="addvalaction">
+            @Html.ActionLink("Back", "AddVariableRelationShip", "AlignmentManager", new { clientId = Model.ClientId, chainCatId = 1, varTypeId = Model.VariableTypeId, varLabelId = Model.VariableLabelId, VariableId = Model.VariableId }, new { @class = "btn btn-default" })
+            <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+            <button class="btn btn-default" tabindex="" type="submit">Cancel</button>
+        </div>    
+    }
+
+<script>
+    $(document).ready(function () {
+        $("#chkselectallRelation").click(function () {
+            {
+                if ($('#chkselectallRelation').prop('checked')) {
+                    $('.chkRelation').prop('checked', true);
+                }
+                else {
+                    $('.chkRelation').prop('checked', false);
+                }
+            }
+        })
+
+        $("#chkselectallRelation1").click(function () {
+            {
+                if ($('#chkselectallRelation1').prop('checked')) {
+                    $('.chkRelation1').prop('checked', true);
+                }
+                else {
+                    $('.chkRelation1').prop('checked', false);
+                }
+            }
+        })
+    });
+
+</script>

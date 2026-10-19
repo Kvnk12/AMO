@@ -1,0 +1,125 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+
+<div id="ItemComments" style="width:100%;margin:auto"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+        if (ItemId != null) {
+            $('#ItemComments').jtable({
+                recordAdded: recordadd,
+                title: 'Comments',
+                formCreated: myfunction,
+                formSubmitting: commentsSubmit,
+                messages: {
+                    addNewRecord: 'New Comments'
+                },
+                actions: {
+                    listAction: "@Url.Action("GetCommentsDetails")"+ "?ItemId="+ItemId,
+                    createAction: "@Url.Action("AddCommentDetails")" + "?ItemId=" + ItemId,
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                    ItemId:
+                        {
+                            key: true,
+                            list: false
+                        },
+                    //Name: {
+                    //    title: 'Name',
+                    //    width: '30%'
+                    //},
+
+
+
+                    Comments: {
+                        title: 'Comments',
+                        width: '80%',
+                        input: function (data) {
+                            if (data.record) {
+
+                                //return ("<textarea rows='4' cols='50' id='detail'></textarea>");
+                                return ("<textarea rows='15'  cols='100' id='Comments' Name='Comments'>" + data.record.Comments + "</textarea>");
+                                //return '<input type="textarea" id="detail" name="detail" style="width:200px" value="' + data.record.Detail + '" />';
+                            } else {
+                                return ("<textarea rows='15' cols='100' id='Comments' Name='Comments'></textarea>");
+                                //return '<input type="textarea" id="detail"  name="detail" style="width:200px" value="enter your name here" />';
+                            }
+                        }
+                    },
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%',
+                            key: true
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%',
+                key: true
+            }
+
+
+
+                    //Value: {
+                    //    title: 'Value',
+                    //    width: '20%'
+                    //},
+                    //FTEHours: {
+                    //    title: 'FTE Hours',
+                    //    width: '20%'
+                    //}
+                }
+
+            });
+            $('#ItemComments').jtable('load');
+        }
+
+       
+    });
+
+    function recordadd(event, data)
+    {
+        $('#ItemComments').jtable('load');
+    }
+
+    function commentsSubmit(event, data)
+    {
+
+    }
+  
+    function myfunction()
+    {
+        
+        $('#Comments').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter", "justifyright", "Increasefontsize", "decreasefontsize", "Forecolor", "horizontalrule"],
+                    ["cut", "copy", "paste"]
+            ],
+            
+        });
+    }
+</script>

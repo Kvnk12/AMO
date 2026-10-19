@@ -1,0 +1,86 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+}
+
+<style>
+    .k-grid-header th.k-header{
+        font-weight: bold;
+        font-size: 15px;
+    }
+     .k-grid tbody tr.k-treelist-group td:first-child {
+        font-weight: 900;
+    }
+   
+</style>
+
+<div class="content-main"id="wrap" style="height:900px">
+    <div style="padding: 0;">
+            <div>
+                <ol class="breadcrumb">
+                    <li>Demand Manager</li>
+                    <li class="active">WBS Template</li>
+                </ol>
+            </div>
+       
+          
+        <div>
+            <label><strong style="font-size:medium; align-content:center;">WBS Template</strong></label>
+            @(Html.Kendo().TreeList<DMWBSTemplateModel>()
+                .Name("WBSTemplate")
+    .Toolbar(toolbar => toolbar.Create().Text("Add New WBS Template"))
+    .Columns(columns =>
+    {
+        columns.Add().Field(e => e.Name).Title("Phase/Progress");
+        columns.Add().Title("Edit").Width(350).Command(c =>
+        {
+            c.Edit().Text("");
+            c.Destroy().Text("");
+            c.CreateChild().Text("Add Sub-Task");
+        })
+        .HtmlAttributes(new
+        {
+            // style = "text-align: center;"
+        });
+    })
+    .Editable(e => e.Mode("inline"))
+    .DataSource(dataSource => dataSource
+        .Create(create => create.Action("Create", "ConfigDemand"))
+        .Read(read => read.Action("GetAllTemplates", "ConfigDemand"))
+        .Update(update => update.Action("Update", "ConfigDemand"))
+        .Destroy(delete => delete.Action("Destroy", "ConfigDemand"))
+        .Model(m =>
+        {
+            m.Id(f => f.TaskId);
+            m.ParentId(f => f.TParentId);
+            m.Expanded(true);
+            m.Field(f => f.Name);
+        })
+    )
+    .Height(600)
+            )
+
+        </div>
+
+        </div>
+</div>

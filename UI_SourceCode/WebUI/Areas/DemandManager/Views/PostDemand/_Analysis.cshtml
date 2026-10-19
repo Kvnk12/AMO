@@ -1,0 +1,30 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+
+
+<div>
+    @(Html.Kendo().EditorFor(e => e.Analysis)
+.Name("AnalysisEditor")
+
+.HtmlAttributes(new { style = "height:200px; width:100%;", aria_label = "editors" })
+      .Resizable(resizable => resizable.Content(true).Toolbar(true))
+      .HtmlAttributes(new { @style= "height:500px;"})
+
+        )
+    <div class="right" style="margin:10px 5px">
+        <button class="btn btn-primary" id="AnalysisSave" onclick="saveAnalysis()">Save</button>
+    </div>
+</div>
+

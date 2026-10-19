@@ -1,0 +1,1294 @@
+﻿
+
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.Data;
+
+@model IList<EngagementQuestionnaireModel>
+
+<style>
+    .listItem {
+        cursor: pointer;
+    }
+
+    /*#tbl-Heatmap.toggleClass {
+        width: max-content !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        min-width: 100% !important;*/
+        /*color: red !important;*/
+    /*}*/
+
+    #tbl-Heatmap {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #tbl-Heatmap th, #tbl-Heatmap td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+
+</style>
+<div id="HeatmapTable" style="margin-top:1em">
+    <div class="custom-html-grid table-col-fix">
+
+        <table id="tbl-Heatmap" class="toggleClass">
+            <thead>
+                @*<tr>
+                    <th rowspan="1" class="fixed" style="left: 0; border-bottom: none; border-right: none !important;"></th>
+                    <th rowspan="1" class="fixed" style="left: 0; border-left: 1px solid darkgrey; border-right: none !important; "></th>
+                    <th rowspan="1" colspan="10" class="fixed" style="left: 0; border-left: none !important;">A3 Discipline</th>
+                </tr>*@
+                <tr>
+                    <th rowspan="1">A3 Component</th>
+                    @{
+                        
+                        foreach (var i in Model[0].DisciplineList)
+                        {
+                            <th colspan="1"  scope="colgroup">@i.Text (Baseline) </th>
+                            <th colspan="1"  scope="colgroup">@i.Text (Second) </th>
+                            if (Model[0].Count == 3)
+                            {
+                                <th colspan="1"  scope="colgroup">@i.Text (Third) </th>
+                            }
+                            else if (Model[0].Count == 4)
+                            {
+                                <th colspan="1"  scope="colgroup">@i.Text (Third) </th>
+                                <th colspan="1"  scope="colgroup">@i.Text (Fourth) </th>
+                           
+                            }
+
+                        }
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @{
+
+                    var cmp = 0;
+                    foreach (var comp in Model[0].ComponentList)
+                    {
+
+                        var cmpName = "Cmp_" + cmp++;
+                        <tr>
+
+                            @*change*@
+                            <td colspan="1"  onclick="cmpNameClick('@cmpName')"><span id="@cmpName">@comp.Text</span></td>
+
+                            @foreach (var dis in Model[0].DisciplineList)
+                            {
+                                var avg = (from x in Model
+                                           where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                           select x.MaturityLevelAVG).FirstOrDefault();
+                                avg = Math.Round(avg, 2);
+                                if (avg != 0)
+
+                                {
+                                    // int avg = Convert.ToInt32(item.MaturityLevel);
+                                    if (avg >= 1 && avg < 2)
+                                    {
+                                        <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,1)"><div class="level1"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                    }
+                                    else if (avg >= 2 && avg < 3)
+                                    {
+                                        <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,1)"><div class="level2"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+
+                                    }
+                                    else if (avg >= 3 && avg < 4)
+                                    {
+                                        <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,1)"><div class="level3"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                    }
+                                    else if (avg >= 4 && avg < 5)
+                                    {
+                                        <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,1)"><div class="level4"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                    }
+                                    else if (avg == 5)
+                                    {
+                                        <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,1)"><div class="level5"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                    }
+
+                                }
+
+                                else
+                                {
+                                    <td><div class="notAppl"></div> </td>
+                                }
+
+
+
+                                var avg2 = (from x in Model[0].secondAssessmentDataList
+                                            where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                            select x.MaturityLevelAVG).FirstOrDefault();
+                                avg2 = Math.Round(avg2, 2);
+                                if (avg2 != 0)
+
+                                {
+                                    // int avg = Convert.ToInt32(item.MaturityLevel);
+                                    if (avg2 >= 1 && avg2 < 2)
+                                    {
+                                        if (avg2 > avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avg2</div><div class="levelGreater"></div></div> </td>
+
+                                        }
+                                        if (avg2 < avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avg2</div><div class="levelLesser"></div></div> </td>
+
+                                        }
+                                        if (avg2 == avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avg2</div><div class="levelEqual"></div></div> </td>
+
+                                        }
+                                    }
+                                    else if (avg2 >= 2 && avg2 < 3)
+                                    {
+                                        if (avg2 > avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avg2</div><div class="levelGreater"></div></div> </td>
+
+                                        }
+                                        else if (avg2 < avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avg2</div><div class="levelLesser"></div></div> </td>
+
+                                        }
+                                        else if (avg2 == avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avg2</div><div class="levelEqual"></div></div> </td>
+
+                                        }
+
+                                    }
+                                    else if (avg2 >= 3 && avg2 < 4)
+                                    {
+                                        if (avg2 > avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avg2</div><div class="levelGreater"></div></div> </td>
+
+                                        }
+                                        else if (avg2 < avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avg2</div><div class="levelLesser"></div></div> </td>
+
+                                        }
+                                        else if (avg2 == avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avg2</div><div class="levelEqual"></div></div> </td>
+
+                                        }
+                                    }
+                                    else if (avg2 >= 4 && avg2 < 5)
+                                    {
+                                        if (avg2 > avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avg2</div><div class="levelGreater"></div></div> </td>
+
+                                        }
+                                        else if (avg2 < avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avg2</div><div class="levelLesser"></div></div> </td>
+
+                                        }
+                                        else if (avg2 == avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avg2</div><div class="levelEqual"></div></div> </td>
+
+                                        }
+                                    }
+                                    else if (avg2 == 5)
+                                    {
+                                        if (avg2 > avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avg2</div><div class="levelGreater"></div></div> </td>
+
+                                        }
+                                        else if (avg2 < avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avg2</div><div class="levelLesser"></div></div> </td>
+
+                                        }
+                                        else if (avg2 == avg)
+                                        {
+                                            <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avg2</div><div class="levelEqual"></div></div> </td>
+
+                                        }
+                                    }
+
+                                }
+
+                                else
+                                {
+                                    <td><div class="notAppl"></div> </td>
+                                }
+
+
+
+
+
+
+
+
+
+                                if (Model[0].Count == 3)
+                                {
+
+                                    var avgThree = (from x in Model[0].thirdAssessmentDataList
+                                                    where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                                    select x.MaturityLevelAVG).FirstOrDefault();
+                                    avgThree = Math.Round(avgThree, 2);
+                                    if (avgThree != 0)
+
+                                    {
+                                        // int avg = Convert.ToInt32(item.MaturityLevel);
+                                        if (avgThree >= 1 && avgThree < 2)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree >= 2 && avgThree < 3)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+
+                                        }
+                                        else if (avgThree >= 3 && avgThree < 4)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree >= 4 && avgThree < 5)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree == 5)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+
+                                    }
+
+                                    else
+                                    {
+                                        <td><div class="notAppl"></div> </td>
+                                    }
+
+                                }
+
+                                else if (Model[0].Count == 4)
+                                {
+                                    var avgThree = (from x in Model[0].thirdAssessmentDataList
+                                                    where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                                    select x.MaturityLevelAVG).FirstOrDefault();
+                                    avgThree = Math.Round(avgThree, 2);
+                                    if (avgThree != 0)
+
+                                    {
+                                        // int avg = Convert.ToInt32(item.MaturityLevel);
+                                        if (avgThree >= 1 && avgThree < 2)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree >= 2 && avgThree < 3)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+
+                                        }
+                                        else if (avgThree >= 3 && avgThree < 4)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree >= 4 && avgThree < 5)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgThree == 5)
+                                        {
+                                            if (avgThree > avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgThree < avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgThree == avg2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgThree</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+
+                                    }
+
+                                    else
+                                    {
+                                        <td><div class="notAppl"></div> </td>
+                                    }
+
+
+
+                                    //Fourth Assessment Data
+
+
+                                    var avgFour = (from x in Model[0].fourthAssessmentDataList
+                                                   where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                                   select x.MaturityLevelAVG).FirstOrDefault();
+                                    avgFour = Math.Round(avgFour, 2);
+                                    if (avgFour != 0)
+
+                                    {
+                                        // int avg = Convert.ToInt32(item.MaturityLevel);
+                                        if (avgFour >= 1 && avgFour < 2)
+                                        {
+                                            if (avgFour > avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            if (avgFour < avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            if (avgFour == avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level1"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgFour >= 2 && avgFour < 3)
+                                        {
+                                            if (avgFour > avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgFour < avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgFour == avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level2"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+
+                                        }
+                                        else if (avgFour >= 3 && avgFour < 4)
+                                        {
+                                            if (avgFour > avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgFour < avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgFour == avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level3"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgFour >= 4 && avgFour < 5)
+                                        {
+                                            if (avgFour > avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgFour < avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgFour == avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level4"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+                                        else if (avgFour == 5)
+                                        {
+                                            if (avgFour > avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelGreater"></div></div> </td>
+
+                                            }
+                                            else if (avgFour < avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelLesser"></div></div> </td>
+
+                                            }
+                                            else if (avgFour == avgThree)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName,2)"><div class="level5"></div><div style="margin-left: 1em;">@avgFour</div><div class="levelEqual"></div></div> </td>
+
+                                            }
+                                        }
+
+                                    }
+
+                                    else
+                                    {
+                                        <td><div class="notAppl"></div> </td>
+                                    }
+
+
+
+                                }
+                            }
+                        </tr>
+                    }
+                }
+                @{
+                    var OverallFirst = 0.00;
+                    var OverallSecond = 0.00;
+                    var OverallThird = 0.00;
+                    var OverallFourth = 0.00;
+                }
+                <tr>
+                    <td  style="font-weight:bold;">Average score</td>
+
+                    @foreach (var dis in Model[0].DisciplineList)
+                    {
+                        Db db = new Db();
+
+                        var MatAvg = (from x in Model
+                                      where x.DisciplineName == dis.Text
+                                      select x.MaturityLevelAVG).ToList();
+
+                        var sum = 0.00;
+                        foreach (var ite in MatAvg)
+                        {
+                            sum = sum + Convert.ToDouble(ite);
+                        }
+                        var avg1 = sum / MatAvg.Count();
+                        if (sum == 0)
+                        {
+                            avg1 = 0;
+                        }
+
+                        avg1 = Math.Round(avg1, 2);
+                        OverallFirst += avg1;
+                        if (avg1 >= 1)
+                        {
+                            if (avg1 >= 1 && avg1 < 2)
+                            {
+                                <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 >= 2 && avg1 < 3)
+                            {
+                                <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+
+                            }
+                            else if (avg1 >= 3 && avg1 < 4)
+                            {
+                                <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 >= 4 && avg1 < 5)
+                            {
+                                <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 == 5)
+                            {
+                                <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                        }
+                        else
+                        {
+
+                            <td><div class="notAppl"></div> </td>
+                        }
+
+
+
+                        var MatAvg2 = (from x in Model[0].secondAssessmentDataList
+                                       where x.DisciplineName == dis.Text
+                                       select x.MaturityLevelAVG).ToList();
+
+                        var sum2 = 0.00;
+                        foreach (var ite2 in MatAvg2)
+                        {
+                            sum2 = sum2 + Convert.ToDouble(ite2);
+                        }
+                        var avg3 = sum2 / MatAvg2.Count();
+
+                        avg3 = Math.Round(avg3, 2);
+                        if (sum2 == 0)
+                        {
+                            avg3 = 0;
+                        }
+                        OverallSecond += avg3;
+                        if (avg3 >= 1)
+                        {
+                            if (avg3 >= 1 && avg3 < 2)
+                            {
+                                if (avg3 > avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg3</div><div class="levelGreater"></div></div> </td>
+                                }
+                                if (avg3 < avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg3</div><div class="levelLesser"></div></div> </td>
+
+                                }
+                                if (avg3 == avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg3</div><div class="levelEqual"></div></div> </td>
+
+                                }
+                            }
+                            else if (avg3 >= 2 && avg3 < 3)
+                            {
+                                if (avg3 > avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg3</div><div class="levelGreater"></div></div> </td>
+                                }
+                                if (avg3 < avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg3</div><div class="levelLesser"></div></div> </td>
+
+                                }
+                                if (avg3 == avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg3</div><div class="levelEqual"></div></div> </td>
+
+                                }
+
+                            }
+                            else if (avg3 >= 3 && avg3 < 4)
+                            {
+                                if (avg3 > avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg3</div><div class="levelGreater"></div></div> </td>
+                                }
+                                if (avg3 < avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg3</div><div class="levelLesser"></div></div> </td>
+
+                                }
+                                if (avg3 == avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg3</div><div class="levelEqual"></div></div> </td>
+
+                                }
+                            }
+                            else if (avg3 >= 4 && avg3 < 5)
+                            {
+                                if (avg3 > avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg3</div><div class="levelGreater"></div></div> </td>
+                                }
+                                if (avg3 < avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg3</div><div class="levelLesser"></div></div> </td>
+
+                                }
+                                if (avg3 == avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg3</div><div class="levelEqual"></div></div> </td>
+
+                                }
+                            }
+                            else if (avg3 == 5)
+                            {
+                                if (avg3 > avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg3</div><div class="levelGreater"></div></div> </td>
+                                }
+                                if (avg3 < avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg3</div><div class="levelLesser"></div></div> </td>
+
+                                }
+                                if (avg3 == avg1)
+                                {
+                                    <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg3</div><div class="levelEqual"></div></div> </td>
+
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            <td><div class="notAppl"></div> </td>
+                        }
+
+
+
+
+
+
+
+
+
+                        if (Model[0].Count == 3)
+                        {
+
+
+                            var MatAvg3 = (from x in Model[0].thirdAssessmentDataList
+                                           where x.DisciplineName == dis.Text
+                                           select x.MaturityLevelAVG).ToList();
+
+                            var sum3 = 0.00;
+                            foreach (var ite3 in MatAvg3)
+                            {
+                                sum3 = sum3 + Convert.ToDouble(ite3);
+                            }
+                            var avg4 = sum3 / MatAvg3.Count();
+
+                            avg4 = Math.Round(avg4, 2);
+                            if (sum3 == 0)
+                            {
+                                avg4 = 0;
+                            }
+                            OverallThird += avg4;
+
+                            if (avg4 >= 1)
+                            {
+                                if (avg4 >= 1 && avg4 < 2)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 >= 2 && avg4 < 3)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+
+                                }
+                                else if (avg4 >= 3 && avg4 < 4)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 >= 4 && avg4 < 5)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 == 5)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                                <td><div class="notAppl"></div> </td>
+                            }
+                        }
+
+
+
+
+                        if (Model[0].Count == 4)
+                        {
+
+
+                            var MatAvg3 = (from x in Model[0].thirdAssessmentDataList
+                                           where x.DisciplineName == dis.Text
+                                           select x.MaturityLevelAVG).ToList();
+
+                            var sum3 = 0.00;
+                            foreach (var ite3 in MatAvg3)
+                            {
+                                sum3 = sum3 + Convert.ToDouble(ite3);
+                            }
+                            var avg4 = sum3 / MatAvg3.Count();
+
+                            avg4 = Math.Round(avg4, 2);
+                            if (sum3 == 0)
+                            {
+                                avg4 = 0;
+                            }
+                            OverallThird += avg4;
+
+                            if (avg4 >= 1)
+                            {
+                                if (avg4 >= 1 && avg4 < 2)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 >= 2 && avg4 < 3)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+
+                                }
+                                else if (avg4 >= 3 && avg4 < 4)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 >= 4 && avg4 < 5)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg4 == 5)
+                                {
+                                    if (avg4 > avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg4 < avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg4 == avg3)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg4</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                                <td><div class="notAppl"></div> </td>
+                            }
+
+
+
+                            //Fourth Assessment
+
+                            var MatAvg4 = (from x in Model[0].fourthAssessmentDataList
+                                           where x.DisciplineName == dis.Text
+                                           select x.MaturityLevelAVG).ToList();
+
+                            var sum4 = 0.00;
+                            foreach (var ite4 in MatAvg4)
+                            {
+                                sum4 = sum4 + Convert.ToDouble(ite4);
+                            }
+                            var avg5 = sum4 / MatAvg4.Count();
+
+                            avg5 = Math.Round(avg5, 2);
+                            if (sum4 == 0)
+                            {
+                                avg5 = 0;
+                            }
+                            OverallFourth += avg5;
+
+                            if (avg5 >= 1)
+                            {
+                                if (avg5 >= 1 && avg5 < 2)
+                                {
+                                    if (avg5 > avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg5</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg5 < avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg5</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg5 == avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg5</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg5 >= 2 && avg5 < 3)
+                                {
+                                    if (avg5 > avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg5</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg5 < avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg5</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg5 == avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg5</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+
+                                }
+                                else if (avg5 >= 3 && avg5 < 4)
+                                {
+                                    if (avg5 > avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg5</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg5 < avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg5</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg5 == avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg5</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg5 >= 4 && avg5 < 5)
+                                {
+                                    if (avg5 > avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg5</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg5 < avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg5</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg5 == avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg5</div><div class="levelEqual"></div></div> </td>
+
+                                    }
+                                }
+                                else if (avg5 == 5)
+                                {
+                                    if (avg5 > avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg5</div><div class="levelGreater"></div></div> </td>
+                                    }
+                                    if (avg5 < avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg5</div><div class="levelLesser"></div></div> </td>
+
+                                    }
+                                    if (avg5 == avg4)
+                                    {
+                                        <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg5</div><div class="levelEqual"></div></div> </td>
+                                    }
+                                }
+                            }
+                            else
+                            {
+
+                                <td><div class="notAppl"></div> </td>
+                            }
+                        }
+
+
+
+
+
+
+
+
+                    }
+                </tr>
+                <tr>
+                    <td rowspan="1" colspan="8">
+                        <div style="float:right;">
+                            @{
+                                OverallFirst = OverallFirst / 3;
+                                OverallSecond = OverallSecond / 3;
+                                OverallThird = OverallThird / 3;
+                                OverallFourth = OverallFourth / 3;
+                                OverallFirst = Math.Round(OverallFirst, 2);
+                                OverallSecond = Math.Round(OverallSecond, 2);
+                                OverallThird = Math.Round(OverallThird, 2);
+                                OverallFourth = Math.Round(OverallFourth, 2);
+
+
+                            }
+                            @if (Model[0].Count != 3 && Model[0].Count != 4)
+                            {
+                                <label>Overall rating (Baseline) :&nbsp; @OverallFirst &nbsp;&nbsp;&nbsp;  Overall rating (Second) :&nbsp; @OverallSecond &nbsp;&nbsp;&nbsp;  </label>
+                            }
+
+                            @if (Model[0].Count == 3)
+                            {
+                                <label>Overall rating (Baseline) :&nbsp; @OverallFirst &nbsp;&nbsp;&nbsp;  Overall rating (Second) :&nbsp; @OverallSecond &nbsp;&nbsp;&nbsp; Overall rating (Third) :&nbsp; @OverallThird </label>
+                            }
+
+                            @if (Model[0].Count == 4)
+                            {
+                                <label>Overall rating (Baseline) :&nbsp; @OverallFirst &nbsp;&nbsp;&nbsp;  Overall rating (Second) :&nbsp; @OverallSecond &nbsp;&nbsp;&nbsp; Overall rating (Third) :&nbsp; @OverallThird  &nbsp;&nbsp;&nbsp; Overall rating (Fourth) :&nbsp; @OverallFourth</label>
+                            }
+
+                        </div>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td class="fixed" colspan="12" style="padding:15px;">
+                        <div style="display: flex; font-size: 1.02vw;">
+                            <div style="padding-right:2em;">Maturity Assessment Legend</div>
+                            <div class="level1"></div>
+                            <div style="padding-right:2em">Level 1</div>
+                            <div class="level2"></div>
+                            <div style="padding-right:2em">Level 2</div>
+                            <div class="level3"></div>
+                            <div style="padding-right:2em">Level 3</div>
+                            <div class="level4"></div>
+                            <div style="padding-right:2em">Level 4</div>
+                            <div class="level5"></div>
+                            <div style="padding-right:2em">Level 5</div>
+                            <div class="notAppl"></div>
+                            <div style="padding-right:2em">Not Applicable</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+
+<script>
+
+
+        $('#btnPreview').on("click", function (e) {
+
+        console.log("preview button clicked");
+        var FirstAssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+        var SecondAssessmentID = $("#AssessmentName2").data("kendoDropDownList").value();
+        var ThirdAssessmentID = $("#AssessmentName3").data("kendoDropDownList").value();
+        var FourthAssessmentID = $("#AssessmentName4").data("kendoDropDownList").value();
+
+
+
+
+        console.log("Third Assessment ID : ", ThirdAssessmentID);
+        console.log("Fourth Assessment ID : ", FourthAssessmentID);
+
+        if (FirstAssessmentID == "" || SecondAssessmentID == "") {
+            return;
+        }
+
+        if (ThirdAssessmentID != 0 && FourthAssessmentID != 0) {
+            //alert("Zero");
+
+            console.log("inside if");
+
+            //const myTable = document.getElementById('tbl-Heatmap');
+            //console.log("Mytable", myTable);
+
+            //myTable.style.width = 'max-content';
+            //myTable.style.borderCollapse = 'collapse';
+            //myTable.style.tableLayout = 'fixed';
+            //myTable.style.minWidth = '100%';
+
+            const myTable = document.getElementById('tbl-Heatmap');
+            myTable.classList.add('toggleClass');
+            console.log("Mytable", myTable);
+            console.log(myTable.className);
+        }
+
+        var FirstassessmentName = $("#AssessmentName").data("kendoDropDownList").text();
+        var SecondassessmentName = $("#AssessmentName2").data("kendoDropDownList").text();
+        var ThirdassessmentName = $("#AssessmentName3").data("kendoDropDownList").text();
+        var FourthassessmentName = $("#AssessmentName4").data("kendoDropDownList").text();
+
+        var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+        //var ContractName = $("#ContractList").data("kendoDropDownList").text();
+
+        //$("#AssessmentNametxtbox").data("kendoTextBox").value(FirstassessmentName);
+        //$("#AssessmentName2txtbox").data("kendoTextBox").value(SecondassessmentName);
+
+        console.log("FirstAssessmentID : ", FirstAssessmentID);
+        console.log("SecondAssessmentID : ", SecondAssessmentID);
+        if (FirstAssessmentID == SecondAssessmentID) {
+
+        } else {
+             var mod = {
+                         FirstAssessmentID: FirstAssessmentID,
+                         SecondAssessmentID: SecondAssessmentID,
+                         ThirdAssessmentID: ThirdAssessmentID,
+                 FourthAssessmentID: FourthAssessmentID
+
+ }
+
+ var data1 = JSON.stringify(mod);
+ baseurl = '@Url.Content("~/AssessmentManager/Assessment/getHeatMapComparativeFilterData")';
+ $.ajax({
+
+     type: 'post',
+     url: baseurl,
+     async: false,
+     data: data1,
+     contentType: 'application/json; charset=utf-8',
+     success: function (response) {
+         //alert("Success");
+         console.log(response);
+         $('#HeatmapTable').html(response);
+
+         //setTimeout(function () {
+         //    if (ThirdAssessmentID != 0 && FourthAssessmentID != 0) {
+         //        const myTable = document.getElementById('tbl-Heatmap');
+         //        if (myTable) {
+         //            myTable.classList.add('toggleClass');
+         //            console.log("Class added to table:", myTable.className);
+         //        } else {
+         //            console.warn("tbl-Heatmap not found after AJAX response");
+         //        }
+         //    }
+         //}, 100); // slight delay ensures DOM is ready
+
+     },
+     error: function (err, response) {
+         // alert(err.responseText);
+     }
+ });
+        }
+
+
+
+    });
+</script>

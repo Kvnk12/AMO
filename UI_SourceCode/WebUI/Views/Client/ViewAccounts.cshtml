@@ -1,0 +1,275 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientInput
+
+@{
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+}
+<!--<form class="form-horizontal" role="form" id="">-->
+<!--.container-->
+
+@{
+    if (TempData["IsDeleted"] == "1")
+    {
+        <script>
+            alert('Client Deleted Successfully');
+        </script>
+
+    }
+}
+
+
+<!--newly added begin-->
+<!--/.selectApp-->
+<!--newly added End-->
+
+
+<div class="content-main">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb" style="background-color: #EDEFF1;">
+            <li><a href="#">Client Profile Manager</a></li>
+            <li class="active"><a href="#">Account List</a></li>
+
+        </ol>
+    </div>
+    <!--end of breadcrumb container-->
+
+    @using (Html.BeginForm())
+    {
+        <div class="container" style="padding: 0;">
+            <div class="treeMenuArea">
+                <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=clientsByRegionAndVertical")' border="0" frameborder="0" height="750px" width="1450px"></iframe>
+                <!--/.end of treeMenuContent-->
+            </div>
+            <!--/.end of treeMenuArea-->
+        </div>
+    }
+
+    <!--/.end of container-->
+    <!--/.end of pushContainer1Content-->
+    <!--end pushContainer1-->
+
+</div>
+
+<!--.wrap-->
+<!--</form>-->
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+@*<script type="text/javascript">
+
+        $('#drpSelClient').change(function () {
+            var SelectedclientId = $('#drpSelClient :selected').val();
+            if (SelectedclientId == "") {
+                return false;
+            }
+            var href = window.location.href.split('/');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var url = baseurl + 'Client/Edit/?id=' + $('#drpSelClient').val();
+            window.location = url;
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        function isNumbersKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode;
+            if (charCode != 46 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+        $(document).ready(function () {
+            $('#txtStartDate').change(EngagementDiff);
+            $("#txtDuration").prop('readonly', true);
+            $('#txtEndDate').change(EngagementDiff);
+            $('#showdate_error').hide();
+        });
+
+        function EngagementDiff() {
+            if ($("#txtStartDate").val() == "") {
+                $("#txtDuration").val("0.0");
+                return false;
+            }
+            if ($("#txtEndDate").val() == "") {
+                $("#txtDuration").val("0.0");
+                return false;
+            }
+
+            if ($("#txtStartDate").val() != "" && $("#txtEndDate").val() != "") {
+                var start_date = Date.parse($("#txtStartDate").val());
+                var end_date = Date.parse($("#txtEndDate").val());
+                var eDate = new Date(end_date);
+                var sDate = new Date(start_date);
+
+                if (sDate > eDate) {
+                    $('#showdate_error').show();
+                    $("#txtDuration").val("0.0");
+                    return false;
+                }
+
+                $('#showdate_error').hide();
+
+                var date1 = new Date($("#txtStartDate").val());
+                var date2 = new Date($("#txtEndDate").val());
+                var t1 = date1.getTime();
+                var t2 = date2.getTime();
+                var dayDiff = parseInt((t2 - t1) / (24 * 3600 * 1000));
+
+                if (dayDiff == 364) {
+                    var dayDiffRoundOff = parseInt(dayDiff) / 364;
+                    dayDiffRoundOff = dayDiffRoundOff.toString().substring(0, 3);
+                }
+                else {
+                    var dayDiffRoundOff = parseInt(dayDiff) / 365;
+                    dayDiffRoundOff = dayDiffRoundOff.toString().substring(0, 3);
+                }
+
+                $("#txtDuration").val("");
+                $("#txtDuration").val(dayDiffRoundOff);
+            }
+            else {
+                $("#txtDuration").val("0.0");
+            }
+        }
+
+        $('#chkAverageAnnualFTE').change(function () {
+            if ($("#chkAverageAnnualFTE").is(':checked')) {
+                var OnshoreVal = $("#AvgAnnualFTEsOnShore").val();
+                var OffshoreVal = $("#AvgAnnualFTEsOffShore").val();
+                var AverageVal = parseInt(OnshoreVal) + parseInt(OffshoreVal);
+                $("#AvgAnnualFTEs").val(AverageVal);
+            }
+        });
+
+        $('#btnDelClient').click(function () {
+            var Id = $('#drpSelClient').val();
+            var confirm = window.confirm('Do you want to delete the client?');
+
+            if (Id == "") {
+                alert('please select client to delete');
+                return false;
+            }
+
+            if (confirm) {
+                var href = window.location.href.split('/');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var url = baseurl + 'Client/DeleteClient/?id=' + $('#drpSelClient').val();
+                window.location = url;
+                return false;
+            }
+            else { return false; }
+        });
+
+        $('#drpSelRegion').change(function () {
+            var Id = parseInt($(this).find(":selected").val());
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3] == 'Client') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetCountry'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetCountry'
+            }
+
+            if (Id != "") {
+                $.ajax({
+                    url: baseurl,
+                    type: 'GET',
+                    data: { region: Id },
+                    success: getCountry,
+                    failure: errorInDropdownPopulation
+                })
+            }
+        });
+
+        function getCountry(data, status) {
+            $("select#drpSelCountry").empty();
+            $("select#drpSelCountry").selectpicker('refresh');
+            $("select#drpSelCountry").append("<option value='0'></option>");
+            $.each(data, function (key, value) {
+                $("select#drpSelCountry").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+            });
+            $("select#drpSelCountry").selectpicker('refresh');
+        }
+
+        function errorInDropdownPopulation() {
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+
+        $('#drpSelCountry').change(function () {
+            var Id = parseInt($(this).find(":selected").val());
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3] == 'Client') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetCity'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetCity'
+            }
+
+            if (Id != "") {
+                $.ajax({
+                    url: baseurl,
+                    type: 'GET',
+                    data: { city: Id },
+                    success: getCities,
+                    failure: errorInDropdownPopulation
+                })
+            }
+        });
+
+        function getCities(data, status) {
+            $("select#drpSelCity").empty();
+            $("select#drpSelCity").selectpicker('refresh');
+            $("select#drpSelCity").append("<option value='0'></option>");
+            $.each(data, function (key, value) {
+                $("select#drpSelCity").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+            });
+            $("select#drpSelCity").selectpicker('refresh');
+        }
+
+        $('#drpIndustryVertical').change(function () {
+            var Id = parseInt($(this).find(":selected").val());
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3] == 'Client') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetSubVertical'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetSubVertical'
+            }
+            if ($("#drpIndustryVertical :selected").val() != "") {
+                $.ajax({
+                    url: baseurl,
+                    type: 'GET',
+                    data: { vertical: Id },
+                    success: getSubVertical,
+                    failure: errorInDropdownPopulation
+                })
+            }
+        });
+
+        function getSubVertical(data, status) {
+            $("select#drpIndustrySubVertical").empty();
+            $("select#drpIndustrySubVertical").selectpicker('refresh');
+            $("select#drpIndustrySubVertical").append("<option value='0'></option>");
+            $.each(data, function (key, value) {
+                $("select#drpIndustrySubVertical").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+            });
+            $("select#drpIndustrySubVertical").selectpicker('refresh');
+        }
+
+    </script>*@

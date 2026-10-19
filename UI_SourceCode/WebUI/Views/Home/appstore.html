@@ -1,0 +1,118 @@
+@{
+    ViewBag.Title = "NTT Data | DynAMO | Appstore";
+}
+
+
+    
+    <hgroup class="title">
+        <h1>@ViewBag.Title</h1>
+    </hgroup>
+
+
+      
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="ico/favicon.png">
+
+    
+
+    @Styles.Render("~/Content/css")
+
+  </head>
+
+  <body>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html"><img src="images/logo.png" alt=""/>&nbsp;<img src="images/Ntt-logo.png" alt=""/></a>
+        </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-right">
+          		<li class="active"><a href="#">Welcome! <b>@User.Identity.Name</b></a></li>
+           		<li><a href="#about">Settings</a></li>
+            	<li>@Html.ActionLink("LogOff", "Login", "Account")</li>
+           </ul>
+        </div><!-- /.nav-collapse -->
+      </div><!-- /.container -->
+    </div><!-- /.navbar -->
+
+
+@using (Html.BeginForm("Login","Account",new { ReturnUrl = ViewBag.ReturnUrl },FormMethod.Post, new { @class="login" })) 
+{     
+                       
+    <div class="container" style="padding-top:100px;">
+          <h4><b>DynAMO App Store</b></h4>   
+          <ol class="breadcrumb">
+              <li><a href="dashboard.html">Dashboard</a></li>
+              <li><a href="active">App Store</a></li>
+          </ol>
+
+          
+            <div class="apps">
+  <ul>
+  	<li><a href="#" title="Portfolio Analyzer"><img src="images/portfolio-analyzer.png" alt="Portfolio Analyzer" /></a></li>
+    <li><a href="#" title="Business Alignment"><img src="images/business-alignment.png" alt="Business Alignment" /></a></li>
+    <li><a href="#" title="SLA Manager">
+        
+        <img src="images/sla-manager.png" alt="SLA Manager" />
+        
+        </a></li>
+     <li><a href="#" title="Service Catalog"><img src="images/service-catalog.png" alt="Service Catalog" /></a></li>
+     <li><a href="#" title="Idea Manager"><img src="images/idea-manager.png" alt="Idea Manager" /></a></li>
+      <li><a href="#" title="Migration Planner"><img src="images/migration-planner.png" alt="Migration Planner" /></a></li>
+      <li><a href="#" title="Retirement Solution Accelerator"><img src="images/retirement-accelerator.png" alt="Retirement Solution Accelerator" /></a></li>
+      <li><a href="#" title="Knowledge Manager"><img src="images/knowledge-manager.png" alt="Knowledge Manager" /></a></li>
+        <li><a href="#" title="Staffing Model Optimizer"><img src="images/staffing-model-optimizer.png" alt="Staffing Model Optimizer" /></a></li>
+      <li><a href="#" title="Cloud Migrator"><img src="images/cloud-migrator.png" alt="Cloud Migrator" /></a></li>
+       <li><a href="#" title="Code Analyzer"><img src="images/code-analyzer.png" alt="Code Analyzer" /></a></li>
+     
+    <li><a href="#" title="Performance and capacity Predictor"><img src="images/performance.png" alt="Performance and capacity Predictor" /></a></li>
+    
+    
+   
+    <li><a href="#" title="Incident Navigator"><img src="images/incident-navigator.png" alt="Incident Navigator" /></a></li>
+   <li><a href="#" title="Sourcing Effectiveness Evaluator"><img src="images/sourcing-effectiveness-evaluator.png" alt="Sourcing Effectiveness Evaluator" /></a></li>
+    
+    
+   
+    
+    
+    
+  
+  </ul>
+</div>
+            
+           
+
+</div><!--/.container-->
+            
+</div><!---/#wrap-->
+
+
+ <div id="footer">
+	<div class="container">
+		<p> &copy; All Rights reserved 2013 | NTT Data</p>
+	</div>
+</div><!--/#footer-->
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="offcanvas.js"></script>
+  </body>
+</html>

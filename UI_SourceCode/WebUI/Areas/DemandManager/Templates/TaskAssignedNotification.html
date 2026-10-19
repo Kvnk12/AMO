@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <style>
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+            color: #ffffff;
+            background-color: rgb(91,121,171);
+            border-color: rgb(91,121,171);
+        }
+
+        cite {
+            font-style: italic;
+            color: red;
+        }
+
+        .btn:hover, .btn:focus {
+            color: rgb(91,121,171);
+            text-decoration: none;
+        }
+
+        a:hover, a:focus {
+            color: rgb(91,121,171);
+            text-decoration: none;
+        }
+
+        a:active, a:hover {
+            outline: 0;
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background-color: #428bca;
+            border-color: #357ebd;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 4px 4px 4px;
+            margin-bottom: 0;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+            width: 150px;
+            font-size: 16px;
+            background-color: rgb(91,121,171);
+        }
+       
+        r {
+            color: white;
+            text-decoration: none;
+            padding-right: 20px;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        .mainDiv {
+            background-color: #0079A1;
+            font-family: Arial;
+            font-size: 14px;
+            padding-left: 2em;
+        }
+        .emailHeader {
+            height: 80px;
+            margin-left: 5em;
+            padding-top: 4em;
+        }
+        .emailContent {
+            background-color: white;
+            margin: 1.5em 4em 2em 4em;
+            padding: 2em 2em 1em 2em;
+            line-height: 2em;
+            font-size: 18px;
+        }
+        .emailFooter {
+            color: white;
+            line-height: 1.5em;
+            font-size: 15px;
+            padding-left: 5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="mainDiv">
+            <div class="emailHeader" >
+                <r style=" border-right: 2px solid #fff;">
+                    <img alt="ntt logo" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/nttdata_logo.png">
+
+                </r>
+                <r >
+                    <span> <img style="height:30px;" alt="demand manager icon" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/demand_manager_white.png"> &nbsp;Demand Manager -  {clientname}</span>
+                </r>
+                
+            </div>
+            <div class="emailContent">
+                <p>Dear <t style="color:Highlight;">User</t>, </p>
+                
+                <p>
+                    <b>{clientname}</b> – Demand <u>{Demandname}</u> – below task has been assigned to you by <b>{username}</b> and waiting for your updates.
+                    <br />
+                    <br />
+                    <b>Demand Name:</b> {Demandname}
+                    <br />
+                    <b>Operational lead:</b> {OpLead}
+                    <br />
+                    <b>Demand Task:</b> {task}
+                    <br />
+                    <b>Task Start date:</b> {taskStDate}
+                    <br />
+                    <b>Task Description:</b> {taskDesc}
+                    <br />
+                    <br />
+                
+                    <!--<a href="{CancelTaskLink}" class="btn btn-primary"><b>Cancelled</b></a>
+                    <a href="{CompleteTaskLink}" class="btn btn-primary"><b>Completed</b></a>-->
+                   <a style="color:white;text-decoration: none;" href="{TaskUpdateLink}" class="btn btn-primary"><b>UPDATE TASK</b></a> 
+                     <i style="font-size:15px;">- Click here to update Task Status</i>
+                
+
+                <br /><br />
+                If you have any question regarding the tool please contact us at <i style="color:#38ACEC;">AMSsupport@nttdata.com</i> <br />
+                
+                <br /><i style="line-height:1em;">Thank you, <br />
+                <b>{OpLead}</b> <br /></i>
+
+               
+                </p>
+                
+            </div>
+            <p class="emailFooter">
+
+                <i>Please Join us at Social Media</i>  
+                <a style="font-size: 15px;color:white;text-decoration:none"href="https://www.yammer.com/nttdata.com/groups/14905730?trk_event=dd_groupheader_click&allow_app_redirect=1" >
+                    &nbsp;<img style="height:30px;vertical-align: bottom;" alt="yammer logo" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/yammar_logo.png"> 
+                </a>
+            </p><br />
+        </div>
+
+</body>
+</html>

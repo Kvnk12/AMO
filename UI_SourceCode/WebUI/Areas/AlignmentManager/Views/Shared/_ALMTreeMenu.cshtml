@@ -1,0 +1,39 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@model VariableModel
+
+
+@{
+    IList<Variable> variables = Model.GetChildren();
+    IList<VariableType> rootLevelItems = Model.GetRootLevelTypes();
+}
+
+
+<div class="treemenu">
+    <div class="hdr">
+        <h3>Alignment Manager</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <!-- add the tree menu here-->
+    <div style="float: left; margin-left: -220px; width: 200px; background-color: rgb(240, 240, 240); overflow-y: scroll; height: 410px">
+        <ul id="navigation">
+            @foreach (var Item in Model.VariableTypes)
+                {
+                var items = Model.VwAlmTreeViewCategoryItems(Model.ClientId,  Convert.ToInt32(Item.Value));
+                <li>@Item.Text 
+                    @if (items.Any())
+                        {
+                        <ul>
+                            @foreach (vwAlmTreeView vwitem in items)
+                                {
+                                Html.RenderPartial("_TreeViewItems", new ALMTreeInput(vwitem, Model.ClientId, vwitem.VariableLabelId));
+                                }
+                        </ul>
+                        }
+                </li>
+                }
+        </ul>
+    </div>
+
+</div>

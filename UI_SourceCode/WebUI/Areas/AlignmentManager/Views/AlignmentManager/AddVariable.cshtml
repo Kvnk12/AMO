@@ -1,0 +1,55 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Objects
+@model WebUI.Areas.AlignmentManager.Models.VariableModel
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string form_name = "frmSaveItemDetails";
+}
+@using (Html.BeginForm("SaveItemDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+{
+    @Html.HiddenFor(m => m.ParentId)
+    @Html.HiddenFor(m => m.VariableLabelId)
+
+    if (Model.VariableId != 0)
+    {
+        Html.HiddenFor(m => m.VariableId);
+    }
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent" style="min-height: 700px">
+            <div class="amgrcontentLeft">
+                <div class="well well-sm"><strong>Value Chain Details</strong></div>
+                <div class="valchainContent">
+                    <div style="width: 50%">
+                        <div style="display: block; width: inherit">
+                            <span>Name</span>
+                            <div>
+                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", width = "100%" })
+                            </div>
+                        </div>
+                        <div style="display: block; width: 100%; margin-top: 1em;">
+                            <label>Description</label>
+                            <div>
+                                @Html.TextAreaFor(m => m.Description, new { @class = "form-control valdesc", tabindex = "", placeholder = "", name = "valdesc", rows = "6" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="addvalaction">
+                        <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+                        @Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new {ClientId = null}, new { @class = "btn btn-default" })
+                    </div>
+                </div>
+                <!--.valchainContent-->
+            </div>
+            <!--/.amgrcontentLeft-->
+            <div class="amgrcontentRight">
+                    @Html.Partial("valuechainrightpane")
+            </div>
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+}

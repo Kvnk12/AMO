@@ -1,0 +1,73 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+
+<div class="container">
+
+    <div class="form-group">
+        <table>
+            <tr>
+                <td style="background-color:#47a3da;color:white">
+                    Analysis
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="hideAnalysis">
+                        @(Html.Kendo().EditorFor(m => m.Analysis)
+.Name("Analysis")
+.Tools(tools => tools.Clear())
+
+.HtmlAttributes(new { style = "height:350px; width:97%;" })
+.Resizable(resizable => resizable.Content(true).Toolbar(false)
+))</div>
+                    <div id="pdfAnalysis" class="hide">
+                        <p id="Analys" class="k-editor-toolbar-wrap"></p>
+                       @*// @Html.TextAreaFor(m => m.Analysis, 11, 140, new { @class = "textAreaBox",id="Analys" })*@
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color:#47a3da;color:white">
+                    Recommendation
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="hideRecom">
+                    @(Html.Kendo().EditorFor(m => m.Reccommendation)
+.Name("Recommendation")
+.HtmlAttributes(new { style = "height:350px; width:97%;" })
+.Tools(tools => tools.Clear())
+.Resizable(resizable => resizable.Content(true).Toolbar(false)
+))
+    </div>
+                    <div id="pdfRecom"  class="hide">
+                        <p id="Reccoms" class="k-editor-toolbar-wrap"></p>
+                        @*@Html.TextAreaFor(m => m.Reccommendation, 11, 140, new { @class = "textAreaBox",id="Reccoms"})*@
+                    </div>               
+    </td>
+    </tr>
+    </table>
+</div>
+</div>
+
+<style>
+    #Analys {
+        min-height: 300px;
+        border-style: groove;
+        border-width: 0.2px 0.2px 0.2px 0.1px;
+        border-color: #ccc;
+    }
+
+    #Reccoms {
+        min-height: 300px;
+        border-style: groove;
+        border-width: 0.2px 0.2px 0.2px 0.1px;
+        border-color: #ccc;
+    }
+</style>

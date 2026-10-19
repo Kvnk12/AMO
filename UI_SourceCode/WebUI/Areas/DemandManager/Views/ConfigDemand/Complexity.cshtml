@@ -1,0 +1,498 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DMAuthoriseRolesModel
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+
+
+}
+<div class="content-main dark-bg im-metadata-screen">
+    <div>
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">Meta Data</li>
+        </ol>
+    </div>
+   <div class="custom-kendo-tabstrip im-metadata-tab">
+        @(Html.Kendo().TabStrip()
+                          .Name("IMtabstrip")
+                          .Items(tabstrip => 
+                          {
+                              tabstrip.Add().Text("Demand Type")
+                                  .Selected(true)
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                              @(Html.Kendo().Grid<DMDemandTypeModel>()
+                                                  .Name("DMDemandType")
+                                                  .Columns(columns =>
+                                                  {
+                                                     columns.Bound(e => e.DemandType).Title("DemandType");
+                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                  })
+                                                  .Sortable()
+                                                  .Scrollable()
+                                                  //.Pageable()
+                                                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                  .ToolBar(toolbar => toolbar.Create().Text("New Demand Type"))
+                                                  //.HtmlAttributes(new { style = "height:550px;" })
+                                                  .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    //.PageSize(10)
+                                                    .Model(model => model.Id(f => f.Id))
+                                                    .Read(read => read.Action("GetDemandType", "ConfigDemand"))
+                                                    .Create(create => create.Action("AddDemandType", "ConfigDemand"))
+                                                    .Update(update => update.Action("EditDemandType", "ConfigDemand"))
+                                                    .Destroy(destroy => destroy.Action("DeleteDemandType", "ConfigDemand"))
+                                                  )
+                                                  .Events(events => events
+                                                    .Save("SaveDemandType"))
+                                              )
+                                           </div>
+                                         </text>
+                                   );
+
+                              tabstrip.Add().Text("Workstream")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<DMLOBModel>()
+                                                    .Name("DMLOBModel")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(e => e.LOB).Title("Workstream");
+                                                        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                    })
+                                                    .Sortable()
+                                                    .Scrollable()
+                                                    //.Pageable()
+                                                    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                    .ToolBar(toolbar => toolbar.Create().Text("Add New Workstream"))
+                                                    //.HtmlAttributes(new { style = "height:100%;" })
+                                                    .DataSource(dataSource => dataSource
+                                                      .Ajax()
+                                                      //.PageSize(10)
+                                                      .Model(model => model.Id(f => f.Id))
+                                                      .Read(read => read.Action("GetLOB", "ConfigDemand"))
+                                                      .Create(create => create.Action("AddLOB", "ConfigDemand"))
+                                                      .Update(update => update.Action("EditLOB", "ConfigDemand"))
+                                                      .Destroy(destroy => destroy.Action("DeleteLOB", "ConfigDemand"))
+                                                    )
+                                                    .Events(events => events
+                                                        .Save("SaveLOB"))
+                                                )
+                                           </div>
+                                        </text>
+                                  );
+
+                              tabstrip.Add().Text("Size/Complexity")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<DMComplexityModel>()
+                                                    .Name("DMComplexity")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(e => e.Complexity).Title("Size/Complexity");
+                                                        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                    })
+                                                    .Sortable()
+                                                    .Scrollable()
+                                                    //.Pageable()
+                                                    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                    .ToolBar(toolbar => toolbar.Create().Text("Add New Size/Complexity"))
+                                                    .DataSource(dataSource => dataSource
+                                                      .Ajax()
+                                                      //.PageSize(10)
+                                                      .Model(model => model.Id(f => f.Id))
+                                                      .Read(read => read.Action("GetComplexity", "ConfigDemand"))
+                                                      .Create(create => create.Action("AddComplexity", "ConfigDemand"))
+                                                      .Update(update => update.Action("EditComplexity", "ConfigDemand"))
+                                                      .Destroy(destroy => destroy.Action("DeleteComplexity", "ConfigDemand"))
+                                                    )
+                                                    .Events(events => events
+                                                        .Save("SaveComplexity"))
+                                                )
+                                           </div>
+                                        </text>
+                                  );
+
+                              tabstrip.Add().Text("Classification/Category")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<DMClassificationModel>()
+                                                    .Name("ClassificationGrid")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(e => e.CalId).Hidden();
+                                                        columns.Bound(e => e.Classification).Title("Classification").Width(150);
+                                                        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                    })
+                                                    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                    //.Pageable()
+                                                    .ToolBar(toolbar => toolbar.Create().Text("Add New Classification"))
+                                                    .Scrollable()
+                                                    //.HtmlAttributes(new { style = "height:650px" })
+                                                    .DataSource(dataSource => dataSource
+                                                     .Ajax()
+                                                     //.PageSize(10)
+                                                     .Model(model => { model.Id(f => f.CalId); model.Field(f => f.CalId).Editable(false); })
+                                                     .Read(read => read.Action("GetClassification", "ConfigDemand"))
+                                                     .Create(create => create.Action("AddClassification", "ConfigDemand"))
+                                                     .Update(update => update.Action("EditClassification", "ConfigDemand"))
+                                                     .Destroy(destroy => destroy.Action("DeleteClassification", "ConfigDemand"))
+                                                    )
+                                                    .Events(events => events.Save("SaveClassification"))
+                                                    .ClientDetailTemplateId("CatGridTemplate")
+                                                 )
+                                           </div>
+                                        </text>
+                                  );
+
+                              tabstrip.Add().Text("Configurations Type/Name")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                                @(Html.Kendo().Grid<DMConfigTypeModel>()
+                                                    .Name("ConfigurationtypeGrid")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(e => e.CTId).Hidden();
+                                                        columns.Bound(e => e.ConfigType ).Title("Configuration Type").Width(150);
+                                                        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                    })
+                                                    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                    //.Pageable()
+                                                    .ToolBar(toolbar => toolbar.Create().Text("Add New Configuration Type"))
+                                                    .Scrollable()
+                                                    //.HtmlAttributes(new { style = "height:550px" })
+                                                    .DataSource(dataSource => dataSource
+                                                      .Ajax()
+                                                      //.PageSize(10)
+                                                      .Model(model => { model.Id(f => f.CTId); model.Field(f => f.CTId).Editable(false); })
+                                                      .Read(read => read.Action("GetConfigurationtype", "ConfigDemand"))
+                                                      .Create(create => create.Action("AddConfigurationtype", "ConfigDemand"))
+                                                      .Update(update => update.Action("EditConfigurationtype", "ConfigDemand"))
+                                                      .Destroy(destroy => destroy.Action("DeleteConfigurationtype", "ConfigDemand"))
+                                                    )
+                                                    .Events(events => events.Save("SaveConfigurationtype"))
+                                                    .ClientDetailTemplateId("ConfigNameGridTemplate")
+                                                )
+                                           </div>
+                                         </text>
+                                  );
+
+                              tabstrip.Add().Text("Task")
+                                  .Content(@<text>
+                                             <div class="custom-kendo-grid im-metadata-grid">
+                                                 @(Html.Kendo().Grid<DMDemandTaskModel>()
+                                                      .Name("DMDemandTask")
+                                                      .Columns(columns =>
+                                                      {
+                                                          columns.Bound(e => e.DemandTask).Title("Demand Task");
+                                                          columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                      })
+                                                      .Sortable()
+                                                      .Scrollable()
+                                                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                      .ToolBar(toolbar => toolbar.Create().Text("New Demand Task"))
+                                                      .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .Model(model => model.Id(f => f.Id))
+                                                        .Read(read => read.Action("GetDemandTask", "ConfigDemand"))
+                                                        .Create(create => create.Action("AddDemandTask", "ConfigDemand"))
+                                                        .Update(update => update.Action("EditDemandTask", "ConfigDemand"))
+                                                        .Destroy(destroy => destroy.Action("DeleteDemandTask", "ConfigDemand"))
+                                                      )
+                                                      .Events(events => events
+                                                          .Save("SaveDemandTask"))
+                                                 )
+                                             </div>
+                                           </text>
+                                  );
+                                tabstrip.Add().Text("Stage")
+                                  .Content(@<text>
+                                             <div class="custom-kendo-grid im-metadata-grid">
+                                                  @(Html.Kendo().Grid<DMDemandStageModel>()
+                                                        .Name("DMDemandStage")
+                                                        .Columns(columns =>
+                                                        {
+                                                            columns.Bound(e => e.DemandStage).Title("Demand Stage");
+                                                            columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                        })
+                                                        .Sortable()
+                                                        .Scrollable()
+                                                        .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                        .ToolBar(toolbar => toolbar.Create().Text("New Demand Stage"))
+                                                        .DataSource(dataSource => dataSource
+                                                          .Ajax()
+                                                          .Model(model => model.Id(f => f.Id))
+                                                          .Read(read => read.Action("GetDemandStage", "ConfigDemand"))
+                                                          .Create(create => create.Action("AddDemandStage", "ConfigDemand"))
+                                                          .Update(update => update.Action("EditDemandStage", "ConfigDemand"))
+                                                          .Destroy(destroy => destroy.Action("DeleteDemandStage", "ConfigDemand"))
+                                                        )
+                                                        .Events(events => events
+                                                            .Save("SaveDemandStage"))
+                                                   )
+                                             </div>
+                                          </text>
+                                  );
+                                 tabstrip.Add().Text("Document Type")
+                                  .Content(@<text>
+                                             <div class="custom-kendo-grid im-metadata-grid">
+                                                 @(Html.Kendo().Grid<DMDemandDocumentTypeModel>()
+                                                        .Name("DMDemandDocumentType")
+                                                        .Columns(columns =>
+                                                        {
+                                                            columns.Bound(e => e.DocumentType).Title("Demand Document Type");
+                                                            columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                        })
+                                                        .Sortable()
+                                                        .Scrollable()
+                                                        .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                        .ToolBar(toolbar => toolbar.Create().Text("New Demand Document Type"))
+                                                        .DataSource(dataSource => dataSource
+                                                          .Ajax()
+                                                          .Model(model => model.Id(f => f.Id))
+                                                          .Read(read => read.Action("GetDemandDocumentType", "ConfigDemand"))
+                                                          .Create(create => create.Action("AddDemandDocumentType", "ConfigDemand"))
+                                                          .Update(update => update.Action("EditDemandDocumentType", "ConfigDemand"))
+                                                          .Destroy(destroy => destroy.Action("DeleteDemandDocumentType", "ConfigDemand"))
+                                                        )
+                                                        .Events(events => events
+                                                            .Save("SaveDemandDocumentType"))
+                                                     )
+                                             </div>
+                                           </text>
+                                  );
+
+                          })
+                        )
+    </div>
+
+</div>
+
+<script id="CatGridTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<DMCategoryModel>()
+            .Name("CatGrid#=CalId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.CaId).Hidden();
+                columns.Bound(e => e.Category).Title("Category");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    //.HtmlAttributes(new { style = "height:450px;" })
+    .Pageable()
+    .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add New Category");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.CaId);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetCategory", "ConfigDemand", new { CattId = "#=CalId#" }))
+        .Create(create => create.Action("AddCategory", "ConfigDemand", new { Id = "#=CalId#" }))
+        .Update(update => update.Action("EditCategory", "ConfigDemand"))
+        .Destroy(delete => delete.Action("DeleteCategory", "ConfigDemand"))
+    )
+    .Events(events => events.Save("SaveCategory"))
+    .ToClientTemplate())
+</script>
+<script id="ConfigNameGridTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<DMConfigItemModel>()
+            .Name("CItemGrid#=CTId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.CIId).Hidden();
+                columns.Bound(e => e.ConfigItem).Title("Configuration Item");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    //.HtmlAttributes(new { style = "height:350px;" })
+    //.Pageable()
+    .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("New Config Item");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.CIId);
+        })
+        //.PageSize(10)
+        .Read(read => read.Action("GetConfigurationitem", "ConfigDemand", new { ConId = "#=CTId#" }))
+        .Create(create => create.Action("AddConfigurationitem", "ConfigDemand", new { Id = "#=CTId#" }))
+        .Update(update => update.Action("EditConfigurationitem", "ConfigDemand"))
+        .Destroy(delete => delete.Action("DeleteConfigurationitem", "ConfigDemand"))
+    )
+    //.Events(events => events.Save("SaveConfigurationitem"))
+    .ToClientTemplate())
+</script>
+
+<script>
+    function SaveClassification(e) {
+        var Classification = e.model.Classification.toUpperCase().replaceAll(' ', '');
+        var CalId = e.model.CalId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Classification.toUpperCase().replaceAll(' ', '') === Classification && data[i].CalId != CalId) {
+                e.preventDefault();
+                alert("Classification Already Exists. Please Enter Unique Name!");
+            }
+        }
+
+    }
+
+    function SaveCategory(e) {
+        var Category = e.model.Category.toUpperCase().replaceAll(' ', '');
+        var CaId = e.model.CaId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Category.toUpperCase().replaceAll(' ', '') === Category && data[i].CaId != CaId) {
+                e.preventDefault();
+                alert('Category '+'"' + Category + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+
+        function SaveComplexity(e) {
+            var Complexity = e.model.Complexity.toUpperCase().replaceAll(' ', '');
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].Complexity.toUpperCase().replaceAll(' ', '') === Complexity && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('Complexity ' + '"' + Complexity + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+    function SaveDemandType(e) {
+        var DemandType = e.model.DemandType.toUpperCase().replaceAll(' ', '');
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].DemandType.toUpperCase().replaceAll(' ', '') === DemandType && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('Demand Type ' + '"' + DemandType + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+    function SaveDemandSource(e) {
+        var DemandSource = e.model.DemandSource.toUpperCase().replaceAll(' ', '');
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].DemandSource.toUpperCase().replaceAll(' ', '') === DemandSource && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('Demand Source  ' + '"' + DemandSource + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveLOB(e) {
+            var LOB = e.model.LOB.toUpperCase().replaceAll(' ', '');
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].LOB.toUpperCase().replaceAll(' ', '') === LOB && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('LOB' + '"' + LOB + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveConfigurationtype(e) {
+            var Configurationtype = e.model.ConfigType.toUpperCase().replaceAll(' ', '');
+            var CTId = e.model.CTId;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].ConfigType.toUpperCase().replaceAll(' ', '') === Configurationtype && data[i].CTId != CTId) {
+                    e.preventDefault();
+                    alert('Configuration Type ' + '"' + Configurationtype + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+   
+    function SaveDemandTask(e) {
+        var DemandTask = e.model.DemandTask.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].DemandTask.toUpperCase().replaceAll(' ', '') === DemandTask && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Demand Task ' + '"' + DemandTask + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+    }
+    function SaveDemandStage(e) {
+        var DemandStage = e.model.DemandStage.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].DemandStage.toUpperCase().replaceAll(' ', '') === DemandStage && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Demand Stage ' + '"' + DemandStage + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+    }
+    function SaveDemandDocumentType(e) {
+        var DocumentType = e.model.DocumentType.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].DocumentType.toUpperCase().replaceAll(' ', '') === DocumentType && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Demand DocumentType ' + '"' + DocumentType + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+    }
+    
+
+</script>
+
+
+
+    
+   

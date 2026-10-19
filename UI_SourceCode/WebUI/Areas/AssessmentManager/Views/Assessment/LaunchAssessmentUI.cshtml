@@ -1,0 +1,1419 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+
+@model A3MMModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+@*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+}
+
+<html>
+<head>
+    <style>
+        body {
+            font-size: 1vw;
+        }
+
+        .dg-header {
+            background-color: #5876AA;
+            height: 5vh;
+            width: 75vw;
+            text-align: left;
+            margin-top: 1em;
+        }
+
+        .first-column .all-fields {
+            padding-left: 2em;
+            padding-top: 1.3em;
+            margin-left: 1em;
+            display: flex;
+        }
+        .second-column .all-fields {
+            padding-left: 2em;
+            padding-top: 1em;
+            margin-left: 1em;
+            display: flex;
+        }
+
+        .custom-blue-label {
+            font-size: 1vw !important;
+        }
+
+        .Datagathering-main {
+            background-color: white;
+            height: 28vw;
+            width: 75vw;
+            text-align: left;
+        }
+
+        .first-column {
+            height: 48vh;
+            width: 37vw;
+        }
+
+        .second-column {
+            height: 48vh;
+            width: 37vw;
+        }
+
+        .k-input {
+            width: 12.5vw;
+            border: unset;
+            border-bottom: 1px solid #ccc;
+            border-radius: unset;
+            height: 2em;
+            font-family: HelveticaNeue;
+        }
+
+        .k-calendar .k-footer {
+            padding: 0.5em;
+            text-align: center;
+            position: relative;
+            clear: both;
+            display: none !important;
+        }
+
+        .confirmText {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #btnConfirmNo {
+            float: right;
+            width: 2.5vw;
+            height: 1.5em;
+            font-weight: 100;
+            font-size: 1vw;
+            background-color: lightgrey;
+            padding-top: 0em;
+            margin-left: 0em !important;
+            margin-top: 0em !important;
+            margin-right: 5px;
+        }
+
+        #btnConfirmYes {
+            float: right;
+            width: 2.5vw;
+            height: 1.5em;
+            font-weight: 100;
+            font-size: 1vw;
+            padding: 0em;
+            margin-left: 0em !important;
+            margin-top: 0em !important;
+        }
+
+        #warningIcon {
+            background-image: url(/Content/images/Warning.png);
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-size: 1em;
+            padding: 0.5em;
+            margin-right: 5px;
+        }
+
+        .k-widget.k-picker, .k-widget.k-picker:hover {
+            font-size: unset !important;
+        }
+        
+        #btnConfirmNo:hover .NoTooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    #btnConfirmYes:hover .YesTooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .NoTooltip {
+            visibility: hidden;
+            width: 6vw;
+            background-color: #d3d3d3;
+            color: #fff;
+            text-align: center;
+            border-radius: 3px;
+            padding: 2px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 2%;
+            left: 35.5%;
+            font-size: 0.7vw;
+            transition: opacity 0.3s;
+        }
+        .YesTooltip {
+            visibility: hidden;
+            width: 7vw;
+            background-color: rgb(91,121,171);
+            color: #fff;
+            text-align: center;
+            border-radius: 3px;
+            padding: 2px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 2%;
+            left: 42.5%;
+            font-size: 0.7vw;
+            transition: opacity 0.3s;
+        }
+            .NoTooltip::after{
+                content: "";
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                margin-left: -5px;
+                margin-bottom: -4px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: #d3d3d3 transparent transparent transparent;
+            }
+             .YesTooltip::after {
+                content: "";
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                margin-left: -5px;
+                margin-bottom: -4px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: rgb(91,121,171) transparent transparent transparent;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="content-main dark-bg launchAssess" style="overflow:hidden">
+        <ol class="breadcrumb" style="margin-bottom:0px">
+            <li>Assessment Manager</li>
+            <li class="active">Launch Assessment</li>
+        </ol>
+        <h5 style="color: white; margin-left:1em;">Launch Assessment </h5>
+        <div style="text-align: -webkit-center;">
+            <div class="dg-header">
+                <div style="color:white;padding-top:5px;margin-left:1em;font-size:1.2vw">
+                    Launch Assessment
+                </div>
+            </div>
+            <div class="Datagathering-main">
+                <div style="display:flex;height: 26vw;">
+                    <div class="first-column">
+                        @*Assessment Type*@
+                        <div class="all-fields">
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Assessment Type :</div>
+                            <div class="custom-dropdown AssessmentType" style=" width: 9.3vw;">
+                                @(Html.Kendo().DropDownListFor(m => m.AssessmentID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .OptionLabel("Select Type...")
+                              .BindTo(Model.AssessmentList)
+                               .Name("AssessmentID_Launch")
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectType");
+                               })
+                               .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;" })
+                               )
+                                <label id="AssessmentTypeList_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+
+                            </div>
+                        </div>
+
+                        @*Account Dropdown*@
+                        <div class="all-fields">
+
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Account :</div>
+
+                            <div class="custom-dropdown Account" style="width: 9.3vw; ">
+
+                                @(Html.Kendo().DropDownList()
+                               .Name("AccountNamesList")
+                               .DataTextField("Text")
+                               .DataValueField("Value")
+                               .Enable(false)
+                               .Value("1")
+                               //.OptionLabel("Select Account...")
+                               .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;" })
+                               .BindTo(Model.AccountNamesList)
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectAccount");
+                               })
+                               )
+                                <label id="AccountList_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+
+                            </div>
+                        </div>
+
+                        @*Contract Dropdown*@
+                        <div class="all-fields">
+
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Contract :</div>
+
+                            <div class="custom-dropdown contract" style=" width: 9.5vw;">
+                                @(Html.Kendo().DropDownList()
+                                .Name("ContractList")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                 .Value("1")
+                                .Enable(false)
+                                .BindTo(Model.ContractList)
+                              // .OptionLabel("Select contract...")
+                              //.Value("1")
+                              //.SelectedIndex(0)
+                              //.DataSource(source => {
+                              //source.Read(read =>
+                              //{
+                              // read.Action("getContractId", "Assessment").Data("GetAccId");
+                              // });
+                              //})
+                              //.AutoBind(false)
+                              .Events(e =>
+                              {
+                                  e.Change("onSelectContract");
+                              })
+                                .HtmlAttributes(new { style = "width: 162%;margin-right:4em;" })
+                               )
+                                @*<label id="ContractList_alert"><span class="mandate" style="font-size:12px"> required!</span></label>*@
+
+
+                            </div>
+                        </div>
+
+                        @*Question Set Number*@
+                        <div class="all-fields">
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Question set # :</div>
+                            <div class="custom-textbox question-version" style=" width: 12.3vw;">
+                                @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox_Launch")
+                             .Value("Ver - 0.1")
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15.3vw;" })
+                            )
+                            </div>
+                        </div>
+
+                        @*Assessment Name dropdown*@
+                        <div class="all-fields">
+                            @*<div class="custom-dropdown AssessmentName" style=" width: 11em; margin-left: 11em; margin-top: -2em;">
+                                    @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                                          .DataTextField("Text")
+                                          .DataValueField("Value")
+                                          .BindTo(Model.AssessmentNameList)
+                                          .Name("AssessmentName")
+                                          .Events(e =>
+                                          {
+                                           e.Select("onSelectAssessmentName");
+                                          })
+                                          .HtmlAttributes(new { style = "width: 15em;border:none;font-size: 100%;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+                                           )
+                                </div>*@
+
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Assessment Name :</div>
+                            <div class="custom-textbox" style=" width: 13.7vw;">
+                                @(Html.Kendo().TextBox()
+                             .Name("AssessmentName_Launch")
+                             .Value("")
+                              //.Enable(false)
+                             .HtmlAttributes(new { style = "width: 111.5%;" })
+                            )
+                            </div>
+                        </div>
+
+
+
+                        @*Status*@
+                        <div class="all-fields">
+
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Assessment Status :</div>
+                            <div class="custom-textbox question-version" style=" width: 15.3vw;">
+                                @(Html.Kendo().TextBox()
+                             .Name("Status")
+                             .Value(Model.Status)
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15.3vw;" })
+                            )
+                            </div>
+                        </div>
+                        <div class="all-fields">
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Assessment Team :</div>
+                            <div class="custom-textbox AssessmentTeam" style="  width: 12.1vw;">
+                                @(Html.Kendo().DropDownListFor(m => m.AssessmentName)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                           //.OptionLabel("Select...")
+                           .Value("1")
+                           .Enable(false)
+                              .BindTo(Model.AssessmentTeamNameList)
+                               .Name("AssessmentTeam")
+                               .HtmlAttributes(new { style = "width: 128.5%;margin-top: 0.2em;" })
+                               )
+                                <label id="AssessmentTeam_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="second-column">
+                        <div class="all-fields">
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Engagement Team Point of Contact :</div>
+                            <div class="custom-textbox AssessmentTeam" style=" width: 12.1vw;">
+                                @(Html.Kendo().DropDownListFor(m => m.EngagementPocID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                                .OptionLabel("Select...")
+                              .BindTo(Model.EngagementPOCList)
+                               .Name("EnagagementPOC")
+                               .HtmlAttributes(new { style = "width: 171.5%;margin-top: 1.2em;" })
+                               )
+                                <label id="EnagagementPOC_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                            </div>
+                        </div>
+
+                        <div class="all-fields" style="margin-top: -0.5vw;">
+                            <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Engagement Team to Communicate :</div>
+                            <div class="custom-textbox AssessmentTeam" style="width: 14.8vw; ">
+                                @(Html.Kendo().DropDownListFor(m => m.EngagementComID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                               .OptionLabel("Select...")
+                              .BindTo(Model.EngagementTeamToCommunicateList)
+                               .Name("EngagementTC")
+                               .HtmlAttributes(new { style = "width: 139.5%;" })
+                               )
+                                <label id="EngagementTC_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                            </div>
+                        </div>
+                        <div style="border: 1px solid rgb(91,121,171); margin-top: 1vw; margin-left: 1vw; padding-bottom: 1vw; height: 15.3vw;">
+                            <div style="color: rgb(91,121,171); margin-left: 1.3vw; padding-left: 0.7vw; width: 15vw; margin-top: 0.5vw; border-bottom: 1px solid;">Planned Assessment Schedule:</div>
+                            <div class="all-fields" style="margin-left:0;padding-top: 0.5vw;">
+                                <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Start Date :</div>
+                                <div class="custom-datepicker StartDate" style="width:21.2vw">
+
+                                    @(Html.Kendo().DatePicker()
+                                 .Name("StartDate_Launch")
+                                 .Value(DateTime.Now)
+                                 .Format("MM/dd/yyyy")
+                                 .Events(e=>e.Change("onStartDateChange"))
+                                 .Min(DateTime.Today)
+                                 .MonthTemplate(m => m
+                                 .Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Select Start Date" })
+                                )
+                                </div>
+                            </div>
+
+
+                            <div class="all-fields"style="margin-left:0">
+                                <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Analysis End Date :</div>
+                                <div class="custom-datepicker PCDate" style="width:21.2vw">
+
+                                    @(Html.Kendo().DatePicker()
+                                 .Name("AnalysisDate_Launch")
+                                 .Enable(false)  
+                                 .Value(DateTime.Now.AddDays(14))
+                                 .Format("MM/dd/yyyy")
+                                 //.Events(e=>e.Change("onAnalysDateChange"))
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Analysis  Date" })
+                                )
+                                </div>
+                            </div>
+                            <div class="all-fields"style="margin-left:0">
+                                <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Review End Date :</div>
+                                <div class="custom-datepicker PCDate" style="width:21.2vw">
+
+                                    @(Html.Kendo().DatePicker()
+                                 .Name("ReviewDate_Launch")
+                                 .Enable(false)
+                                 .Value(DateTime.Now.AddDays(35))
+                                 .Format("MM/dd/yyyy")
+                                 //.Events(e=>e.Change("onReviewDateChange"))
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                // .Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Review Date" })
+                                )
+                                </div>
+                            </div>
+                            <div class="all-fields"style="margin-left:0">
+                                <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Completion Date :</div>
+                                <div class="custom-datepicker PCDate" style="width:21.2vw">
+
+                                    @(Html.Kendo().DatePicker()
+                                 .Name("PCDate_Launch")
+                                 .Value(DateTime.Now.AddDays(56))
+                                 .Format("MM/dd/yyyy")
+                                 .Enable(false)
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;"})
+                                )
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="actionButtons" style="display: flex; justify-content: flex-end; align-items: center; margin-top: -0.2em;margin-right:0.5em;">
+
+                    <button style=" width: 5vw;  font-weight: 100; margin: 0 1.5em 0 0; height:2em;" class="custom-button" type="button" onclick="onLaunchClick()" id="btnLaunch">LAUNCH</button>
+                    <button style=" width: 5vw;  margin-right: 1em; background-color: LIGHTGREY; height:2em; font-weight: 100; margin: 0 1em 0 0; " class="custom-button" type="button" id="btnAdd" onclick="onCancelClick()">CANCEL</button>
+
+                </div>
+
+                
+            </div>
+        </div>
+    </div>
+    <div class="modal fade launch-dialog-popup" id="launchAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="transform: translate(13%, 85%);">
+            <div class="modal-content" style=" width: 33em; height: 10em;">
+                <div class="modal-header" style="height:3vw;background-color: rgb(91,121,171); color: #fff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <h6 class="modal-title" style="font-weight: 600;">Confirm Launch</h6>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style="background: transparent; border: unset; font-size: 22px;color:white">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="padding-top: 0 !important;">
+                    
+                    <div id="confirmLaunch" class="confirmLaunch" style=" margin-top: 1em;">
+                        <div class="confirmText">
+                            <span id="warningIcon"></span>
+                            <p style="margin-bottom:0em;margin-right: 5px;font-size: 1vw;">Are you sure? you want to launch this Assessment?</p>
+                        </div>
+                        <div class="confirmButtons" style="display: flex; margin-top: 1vw; margin-left: 12vw;">
+                            <div>
+                                <button class="custom-button" type="button" id="btnConfirmNo" onclick="onConfirmLaunchNo()">NO
+                                    <span class="NoTooltip">Preparation State</span>
+                                </button>
+                            </div>
+                            <div>
+                                <button class="custom-button" type="button" id="btnConfirmYes" onclick="onConfirmLaunchYes()">YES
+                                    <span class="YesTooltip">Initiated State</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body">
+                <div class="alert alert-danger" id="lblErr1" style="display:none">
+                    <div style="display:flex">
+                        <label id="labelError" style="width: 18em; margin-top: 4px; margin-left: 1em; ">Error while saving Question.</label>
+                        <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                    <div style="display:flex">
+                        <label id="labelSuccess" style="width: 29em; margin-top: 4px; margin-left: 1em;">Question Added Successfully.</label>
+                        <button style="margin-top: -5px; margin-left: -1.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(window).on("load", function () {
+
+            $('#ContractList_alert').hide();
+            $('#AssessmentTypeList_alert').hide();
+            $('#AccountList_alert').hide();
+            $('#EngagementTC_alert').hide();
+            $('#EnagagementPOC_alert').hide();
+            $('#AssessmentTeam_alert').hide();
+
+            //document.getElementById("confirmLaunch").style.display = "none";
+        });
+
+
+
+
+
+
+
+
+        function onSelectType() {
+            var TypeID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+            var mod = {
+                TypeID: TypeID
+            }
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/AssessmentManager/Assessment/getLatestFinalizedVersionForAssessmentType")'
+
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    console.log(response);
+
+                    $("#QVerTxtBox_Launch").data("kendoTextBox").value(response);
+                    //onCancelClick();
+
+                   // $("#AccountNamesList").data("kendoDropDownList").select(0);
+                    $("#EnagagementPOC").data("kendoDropDownList").select(0);
+                    //$("#ContractList").data("kendoDropDownList").select(0);
+                    $("#EngagementTC").data("kendoDropDownList").select(0);
+                    //$("#AssessmentTeam").data("kendoDropDownList").select(0);
+                    //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+                    $("#Status").data("kendoTextBox").value("");
+                    $("#AssessmentName_Launch").data("kendoTextBox").value("");
+                    $('#StartDate_Launch').data("kendoDatePicker").value(new Date());
+                    //console.log(today);
+                    //$('.k-window-title').text("Add KEDB");
+                    $("#AssessmentID_Launch").data("kendoDropDownList").enable(true);
+                    //$("#AccountNamesList").data("kendoDropDownList").enable(true);
+                    $("#ContractList").data("kendoDropDownList").enable(false);
+                    $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+                    $("#EngagementTC").data("kendoDropDownList").enable(true);
+                    $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                    //$("#AssessmentTeam").data("kendoTextBox").enable(true);
+                    $("#StartDate_Launch").data("kendoDatePicker").enable(true);
+                    //document.getElementById("confirmLaunch").style.display = "none";
+
+                },
+                error: function (err, response) {
+
+                }
+            });
+
+            var ddl = $("#AssessmentTeam").data("kendoDropDownList");
+            var len = ddl.dataSource.data().length;
+            console.log(len);
+            if (len == 2) {
+                var oldData = ddl.dataSource.data();
+                ddl.dataSource.remove(oldData[0]); //remove first item
+            }
+            $("#AssessmentTeam").data("kendoDropDownList").select(0);
+
+
+            afterAccountSelection();
+
+        }
+
+        function onSelectAccount(e) {
+            //$("#Contract").data("kendoMultiSelect").dataSource.read(); //for multi select
+            //$("#ContractList").data("kendoDropDownList").dataSource.read();
+
+            //var contract = contractDropdown.value();
+            //var oldSel = contractDropdown.selectedIndex;
+            //contractDropdown.dataSource.read();
+            //setTimeout(function () {
+            //    contractDropdown.selectedIndex = 0;
+            //}, 500);
+
+           // $("#ContractList").data("kendoDropDownList").select(1);
+
+            var contractDropdown = $("#ContractList").data("kendoDropDownList");
+            contractDropdown.dataSource.read();
+            setTimeout(function () {
+                //contractDropdown.selectedIndex = 1;
+                contractDropdown.select(0);
+                var contractval = $("#ContractList").data("kendoDropDownList").value();
+                console.log("contract value in line 500 : " + contractval);
+                console.log("contract value in line 501 : " + $("#ContractList").data("kendoDropDownList").text());
+
+            }, 500);
+            //contractDropdown.select(1);
+            //console.log("Contract value at select(1) : ");
+
+
+
+
+            //On select contract functions
+
+            console.log("before afterAccountSelection() ");
+
+
+            setTimeout(function () {
+                afterAccountSelection();
+            }, 1500);
+
+
+        }
+
+
+
+        var tempAssessmentTeam = "";
+
+        function afterAccountSelection() {
+            console.log("at afterAccountSelection() ");
+             var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+            datepicker.setOptions({
+                min: new Date()
+            });
+
+
+            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+            $("#EngagementTC").data("kendoDropDownList").enable(true);
+           // $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+           // $("#Status").data("kendoTextBox").enable(true); ////commented by Dp on jun26
+            $('#StartDate_Launch').data("kendoDatePicker").enable(true);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").value("");
+            $("#Status").data("kendoTextBox").value("");
+            $("#EnagagementPOC").data("kendoDropDownList").select(0);
+            $("#EngagementTC").data("kendoDropDownList").select(0);
+            //$("#AssessmentTeam").data("kendoDropDownList").select(0);
+            //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+            $('#StartDate_Launch').data("kendoDatePicker").value(new Date());
+
+            //$('#StartDate_Launch').data("kendoDatePicker").value("");
+
+
+
+
+            var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+            if (AssessmentType == 'Select Type...') {
+                $('#AssessmentTypeList_alert').show();
+
+                setTimeout(function () {
+                    $('#AssessmentTypeList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+            var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+            if (AccountName == 'Select Account...') {
+                $('#AccountList_alert').show();
+                setTimeout(function () {
+                    $('#AccountList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+
+
+            var ContractName = $("#ContractList").data("kendoDropDownList").text();
+            console.log("contract name 551" + $("#ContractList").data("kendoDropDownList").value());
+            const date = new Date();
+            var quarter = Math.floor((date.getMonth() + 3) / 3);
+            let year = date.getFullYear();
+
+            //setTimeout(function () {
+            //    var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+
+
+            //}, 500);
+
+            var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+
+            console.log("AssessmentNameLogic is " + AssessmentNameLogic);
+            $("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+
+
+            var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+            var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+            var ContractID = $("#ContractList").data("kendoDropDownList").value();
+            var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+
+
+
+
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                AccountID: AccountID,
+                ContractID: ContractID,
+                AssessmentName: AssessmentName,
+                quarter: quarter,
+                year: year
+            }
+
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/AssessmentManager/Assessment/ValidateAssessmentNameForLA")';
+
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    console.log("Success");
+                    $("#QVerTxtBox_Launch").data("kendoTextBox").value(response.QuestionaireVersion);
+                    console.log(response);
+
+                    if (response.Id != 0) {
+                        $('#PCDate_Launch').data("kendoDatePicker").value(response.Planned_CompletionDate);
+                        $('#PCDate_Launch').data("kendoDatePicker").value(response.AnalysisDate);
+                        $('#PCDate_Launch').data("kendoDatePicker").value(response.ReviewDate);
+
+                        $("#Status").data("kendoTextBox").value(response.Status);
+                        $("#EnagagementPOC").data("kendoDropDownList").value(response.EngagementTeamPointOfContact);
+                        $("#EngagementTC").data("kendoDropDownList").value(response.EngagementTeamtoCommunicate);
+
+                        //Adding new element to dropdown list
+                        $("#AssessmentTeam").getKendoDropDownList().dataSource.insert({
+                            Text: response.AssessmentTeam,
+                            Value: response.AssessmentTeam
+                        })
+
+                        tempAssessmentTeam = response.AssessmentTeam;
+
+                        $("#AssessmentTeam").data("kendoDropDownList").value(response.AssessmentTeam);
+                        //$("#AssessmentTeam").data("kendoTextBox").value(response.AssessmentTeam);
+                        $("#QVerTxtBox_Launch").data("kendoTextBox").value(response.QuestionaireVersion);
+
+                        var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+                        datepicker.setOptions({
+                            min: "10/10/2011"
+                        });
+
+                        $('#StartDate_Launch').data("kendoDatePicker").value(response.StartDate);
+                        console.log(response.StartDate);
+                        console.log(response.Planned_CompletionDate);
+
+                        if (response.Status == 'Preparation') {
+
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnLaunch').disabled = false;
+                            document.getElementById('btnConfirmYes').disabled = false;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+                            $("#EngagementTC").data("kendoDropDownList").enable(true);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(true);
+
+                            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+                            datepicker.setOptions({
+                                min: new Date()
+                            });
+                        }
+                        else if (response.Status == 'Initiated') {
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnConfirmYes').disabled = true;
+                            document.getElementById('btnLaunch').disabled = true;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+                            $("#EngagementTC").data("kendoDropDownList").enable(false);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(false);
+                        }
+                        else {
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnConfirmYes').disabled = true;
+                            document.getElementById('btnLaunch').disabled = true;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+                            $("#EngagementTC").data("kendoDropDownList").enable(false);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(false);
+                        }
+                    }
+                },
+                error: function (err, response) {
+
+                }
+            });
+        }
+
+
+        function GetAccId() {
+
+            var app = $("#AccountNamesList").data("kendoDropDownList");
+            return {
+                Accid: app.value()
+            }
+        }
+
+        function onSelectContract() {
+            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+            datepicker.setOptions({
+                min: new Date()
+            });
+
+            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+            $("#EngagementTC").data("kendoDropDownList").enable(true);
+            $("#AssessmentTeam").data("kendoDropDownList").enable(true);
+           // $("#Status").data("kendoTextBox").enable(true); ////commented by Dp on jun26
+            $('#StartDate_Launch').data("kendoDatePicker").enable(true);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").value("");
+            $("#Status").data("kendoTextBox").value("");
+            $("#EnagagementPOC").data("kendoDropDownList").select(0);
+            $("#EngagementTC").data("kendoDropDownList").select(0);
+            $("#AssessmentTeam").data("kendoDropDownList").select(0);
+            //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+            $('#StartDate_Launch').data("kendoDatePicker").value(new Date());
+
+            //$('#StartDate_Launch').data("kendoDatePicker").value("");
+
+
+
+
+            var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+            if (AssessmentType == 'Select Type...') {
+                $('#AssessmentTypeList_alert').show();
+
+                setTimeout(function () {
+                    $('#AssessmentTypeList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+            var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+            if (AccountName == 'Select Account...') {
+                $('#AccountList_alert').show();
+                setTimeout(function () {
+                    $('#AccountList_alert').hide();
+                }, 4000);
+                return false;
+            }
+            var ContractName = $("#ContractList").data("kendoDropDownList").text();
+            const date = new Date();
+            var quarter = Math.floor((date.getMonth() + 3) / 3);
+            let year = date.getFullYear();
+            var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+            console.log("AssessmentNameLogic is " + AssessmentNameLogic);
+            $("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+
+
+            var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+            var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+            var ContractID = $("#ContractList").data("kendoDropDownList").value();
+            var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+
+
+
+
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                AccountID: AccountID,
+                ContractID: ContractID,
+                AssessmentName: AssessmentName,
+            }
+
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/AssessmentManager/Assessment/ValidateAssessmentNameForLA")';
+
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    console.log("Success");
+                    $("#QVerTxtBox_Launch").data("kendoTextBox").value(response.QuestionaireVersion);
+                    console.log(response);
+
+                    if (response.Id != 0) {
+                        $('#PCDate_Launch').data("kendoDatePicker").value(response.Planned_CompletionDate);
+
+                        $("#Status").data("kendoTextBox").value(response.Status);
+                        $("#EnagagementPOC").data("kendoDropDownList").value(response.EngagementTeamPointOfContact);
+                        $("#EngagementTC").data("kendoDropDownList").value(response.EngagementTeamtoCommunicate);
+                        $("#AssessmentTeam").data("kendoDropDownList").value(response.AssessmentTeam);
+                        //$("#AssessmentTeam").data("kendoTextBox").value(response.AssessmentTeam);
+                        $("#QVerTxtBox_Launch").data("kendoTextBox").value(response.QuestionaireVersion);
+
+                        var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+                        datepicker.setOptions({
+                            min: "10/10/2011"
+                        });
+
+                        $('#StartDate_Launch').data("kendoDatePicker").value(response.StartDate);
+                        console.log(response.StartDate);
+                        console.log(response.Planned_CompletionDate);
+
+                        if (response.Status == 'Preparation') {
+
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnLaunch').disabled = false;
+                            document.getElementById('btnConfirmYes').disabled = false;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+                            $("#EngagementTC").data("kendoDropDownList").enable(true);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(true);
+
+                            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+                            datepicker.setOptions({
+                                min: new Date()
+                            });
+                        }
+                        else if (response.Status == 'Initiated') {
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnConfirmYes').disabled = true;
+                            document.getElementById('btnLaunch').disabled = true;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+                            $("#EngagementTC").data("kendoDropDownList").enable(false);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(false);
+                        }
+                        else {
+                            document.getElementById('btnConfirmNo').disabled = true;
+                            document.getElementById('btnConfirmYes').disabled = true;
+                            document.getElementById('btnLaunch').disabled = true;
+                            $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+                            $("#EngagementTC").data("kendoDropDownList").enable(false);
+                            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+                            $("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+                            $('#StartDate_Launch').data("kendoDatePicker").enable(false);
+                        }
+                    }
+                },
+                error: function (err, response) {
+
+                }
+            });
+        }
+
+
+
+
+        function onLaunchClick() {
+
+            var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+            var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+            var ContractName = $("#ContractList").data("kendoDropDownList").text();
+            const date = new Date();
+            var quarter = Math.floor((date.getMonth() + 3) / 3);
+            let year = date.getFullYear();
+            var AssessmentNameLogic = AccountName + "-" + ContractName.slice(0, 5) + "-" + AssessmentType + "-" + year + "-Q" + quarter;
+            console.log("AssessmentNameLogic is " + AssessmentNameLogic);
+            $("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+
+            console.log("Inside onLaunchClick()");
+
+            var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+            document.getElementById("btnConfirmNo").style.marginLeft = "44.5em";
+            document.getElementById("btnConfirmNo").style.marginTop = "-3.25em";
+            document.getElementById("btnConfirmYes").style.marginTop = "-3.25em";
+
+
+
+            var AssessmentType = $("#AssessmentID_Launch").data("kendoDropDownList").text();
+            if (AssessmentType == 'Select Type...') {
+                $('#AssessmentTypeList_alert').show();
+
+                setTimeout(function () {
+                    $('#AssessmentTypeList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+            var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+            if (AccountName == 'Select Account...') {
+                $('#AccountList_alert').show();
+                setTimeout(function () {
+                    $('#AccountList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+            var ContractName = $("#ContractList").data("kendoDropDownList").text();
+            if (ContractName == 'Select contract...') {
+                $('#ContractList_alert').show();
+                setTimeout(function () {
+                    $('#ContractList_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+
+            var AssessmentTeam = $("#AssessmentTeam").data("kendoDropDownList").text();
+            if (AssessmentTeam == 'Select...') {
+                $('#AssessmentTeam_alert').show();
+                setTimeout(function () {
+                    $('#AssessmentTeam_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+
+            var EnagagementPOC = $("#EnagagementPOC").data("kendoDropDownList").text();
+            if (EnagagementPOC == 'Select...') {
+                $('#EnagagementPOC_alert').show();
+                setTimeout(function () {
+                    $('#EnagagementPOC_alert').hide();
+                }, 4000);
+                return false;
+            }
+            var EngagementTC = $("#EngagementTC").data("kendoDropDownList").text();
+            if (EngagementTC == 'Select...') {
+                $('#EngagementTC_alert').show();
+                setTimeout(function () {
+                    $('#EngagementTC_alert').hide();
+                }, 4000);
+                return false;
+            }
+
+            //$("#AssessmentName_Launch").data("kendoTextBox").value(AssessmentNameLogic);
+            $("#AssessmentID_Launch").data("kendoDropDownList").enable(false);
+            $("#AccountNamesList").data("kendoDropDownList").enable(false);
+            $("#ContractList").data("kendoDropDownList").enable(false);
+            $("#EnagagementPOC").data("kendoDropDownList").enable(false);
+            $("#EngagementTC").data("kendoDropDownList").enable(false);
+            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+            //$("#AssessmentTeam").data("kendoTextBox").enable(false);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").enable(false);
+            $("#StartDate_Launch").data("kendoDatePicker").enable(false);
+            //$("#AssessmentName_Launch").data("kendoTextBox").enable(false);
+
+            //Pass the Assessment Name generated in ajax and check if AssessmentName already exists, if exists then display the status
+
+            //document.getElementById("confirmLaunch").style.display = "block";
+             
+
+            $('#launchAlertModal').modal('show');
+
+
+
+           }
+
+
+        function onConfirmLaunchYes() {
+        var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var ContractID = $("#ContractList").data("kendoDropDownList").value();
+           //if (ContractID == '') {
+        //    $('#ContractList_alert').show();
+        //    return false;
+        //}
+        var EngagementPocID = $("#EnagagementPOC").data("kendoDropDownList").value();
+
+        var EngagementComID = $("#EngagementTC").data("kendoDropDownList").value();
+            var VersionID = $("#QVerTxtBox_Launch").data("kendoTextBox").value();
+            var AssessmentTeam = $("#AssessmentTeam").data("kendoDropDownList").text();
+        var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+        //var StartDate = kendo.toString($("#StartDate_Launch").data("kendoDatePicker").value(), 'dd/MM/yyyy');
+            var StartDate = $("#StartDate_Launch").val().toString();
+            var AnalysisDate = $("#AnalysisDate_Launch").val().toString();
+            var ReviewDate = $("#ReviewDate_Launch").val().toString();
+            var Planned_CompletionDate = $("#PCDate_Launch").val().toString();
+        var Status = "Initiated";
+            console.log(AssessmentID + " " + AccountID + " " + EngagementPocID + " " + ContractID + " " + EngagementComID + " " + VersionID + " " + AssessmentTeam + " " + AssessmentName + " " + StartDate + " " + AnalysisDate + " " + ReviewDate + " " + Planned_CompletionDate)
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              AccountID: AccountID,
+              EngagementPocID: EngagementPocID,
+              ContractID: ContractID,
+              EngagementComID: EngagementComID,
+              VersionID: VersionID,
+              AssessmentTeam: AssessmentTeam,
+              AssessmentName: AssessmentName,
+              startDateIgnore: StartDate,
+              PCDateIgnore: Planned_CompletionDate,
+              Status: Status,
+              analysisDateIgnore: AnalysisDate,
+              reviewDateIgnore: ReviewDate
+              }
+
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/AssessmentManager/Assessment/LaunchAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+                console.log("Success");
+                console.log(response);
+                //var popup = $("#LaunchAssessmentpopUp").data("kendoWindow");
+                //popup.close();
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#labelSuccess').text("Assessment Launched Successfully with status 'Initiated'");
+                $('#lblSuccess1').show();
+                $('#launchAlertModal').modal('hide');
+            },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#labelError').text("Error while Launching Assessment");
+
+                $('#lblErr').show();
+            }
+        });
+            $("#AssessmentID_Launch").data("kendoDropDownList").select(0);
+            $("#AccountNamesList").data("kendoDropDownList").select(0);
+            $("#EnagagementPOC").data("kendoDropDownList").select(0);
+            $("#ContractList").data("kendoDropDownList").select(0);
+            $("#EngagementTC").data("kendoDropDownList").select(0);
+            //$("#AssessmentTeam").data("kendoDropDownList").select(0);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").value("Ver - 0.1");
+            //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+            $("#AssessmentName_Launch").data("kendoTextBox").value("");
+            $("#Status").data("kendoTextBox").value("");
+            /*$('#StartDate_Launch').data("kendoDatePicker").value('10/10/2022');*/
+            //$('.k-window-title').text("Add KEDB");
+            $("#AssessmentID_Launch").data("kendoDropDownList").enable(true);
+            $("#AccountNamesList").data("kendoDropDownList").enable(true);
+            $("#ContractList").data("kendoDropDownList").enable(true);
+            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+            $("#EngagementTC").data("kendoDropDownList").enable(true);
+            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").enable(false);
+            $("#StartDate_Launch").data("kendoDatePicker").enable(true);
+            $('#StartDate_Launch').data("kendoDatePicker").value(new Date())
+           // document.getElementById("confirmLaunch").style.display = "none";
+            var myDate = new Date();
+            console.log("old myDate", +myDate);
+            myDate.setDate(myDate.getDate() + 56);
+            console.log("new mydate", +myDate);
+            $('#PCDate_Launch').data("kendoDatePicker").value(myDate);
+            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+            datepicker.setOptions({
+                min: new Date()
+            });
+    }
+
+
+        function onConfirmLaunchNo() {
+        console.log("In onConfirmLaunchNo");
+        var AssessmentID = $("#AssessmentID_Launch").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var EngagementPocID = $("#EnagagementPOC").data("kendoDropDownList").value();
+        var ContractID = $("#ContractList").data("kendoDropDownList").value();
+        //if (ContractID == '') {
+        //    $('#ContractList_alert').show();
+        //    return false;
+        //}
+            var EngagementComID = $("#EngagementTC").data("kendoDropDownList").value();
+            var VersionID = $("#QVerTxtBox_Launch").data("kendoTextBox").value();
+            var AssessmentTeam = $("#AssessmentTeam").data("kendoDropDownList").text();
+        //var AssessmentTeam = $("#AssessmentTeam").data("kendoTextBox").value();
+        var AssessmentName = $("#AssessmentName_Launch").data("kendoTextBox").value();
+        //var StartDate = kendo.toString($("#StartDate_Launch").data("kendoDatePicker").value(), 'dd/MM/yyyy');
+        var StartDate = $("#StartDate_Launch").val().toString();
+            var AnalysisDate = $("#AnalysisDate_Launch").val().toString();
+            var ReviewDate = $("#ReviewDate_Launch").val().toString();
+            var EndDate = $("#PCDate_Launch").val().toString();
+
+        var Status = "Preparation";
+            console.log(AssessmentID + " " + AccountID + " " + EngagementPocID + " " + ContractID + " " + EngagementComID + " " + VersionID + " " + AssessmentTeam + " " + AssessmentName + " " + StartDate + " " + AnalysisDate + " " + ReviewDate + " " + EndDate);
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              AccountID: AccountID,
+              EngagementPocID: EngagementPocID,
+              ContractID: ContractID,
+              EngagementComID: EngagementComID,
+              VersionID: VersionID,
+              AssessmentTeam: AssessmentTeam,
+              AssessmentName: AssessmentName,
+              startDateIgnore: StartDate,
+              Status: Status,
+              analysisDateIgnore: AnalysisDate,
+              reviewDateIgnore: ReviewDate
+             // PCDateIgnore: EndDate
+              }
+
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/LaunchAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+                console.log("Success onConfirmLaunchNo");
+                console.log(response);
+                //var popup = $("#LaunchAssessmentpopUp").data("kendoWindow");
+                //popup.close();
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#labelSuccess').text("Assessment Launched Successfully with status 'Preparation'");
+                $('#lblSuccess1').show();
+                $('#launchAlertModal').modal('hide');
+
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#labelError').text("Error while Launching Assessment");
+
+                $('#lblErr').show();
+                Console.log("Error In onConfirmLaunchNo");
+            }
+        });
+
+
+
+            $("#AssessmentID_Launch").data("kendoDropDownList").select(0);
+            $("#AccountNamesList").data("kendoDropDownList").select(0);
+            $("#EnagagementPOC").data("kendoDropDownList").select(0);
+            $("#ContractList").data("kendoDropDownList").select(0);
+            $("#EngagementTC").data("kendoDropDownList").select(0);
+            //$("#AssessmentTeam").data("kendoDropDownList").select(0);
+           $("#QVerTxtBox_Launch").data("kendoTextBox").value("Ver - 0.1");
+            $("#Status").data("kendoTextBox").value("");
+            //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+            $("#AssessmentName_Launch").data("kendoTextBox").value("");
+          /*$('#StartDate_Launch').data("kendoDatePicker").value('10/10/2022');*/
+            //$('.k-window-title').text("Add KEDB");
+            $("#AssessmentID_Launch").data("kendoDropDownList").enable(true);
+            $("#AccountNamesList").data("kendoDropDownList").enable(false);
+            $("#ContractList").data("kendoDropDownList").enable(false);
+            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+            $("#EngagementTC").data("kendoDropDownList").enable(true);
+           // $("#AssessmentTeam").data("kendoDropDownList").enable(true);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").enable(false);
+
+            $("#StartDate_Launch").data("kendoDatePicker").enable(true);
+
+            var myDate = new Date();
+            console.log("old myDate", +myDate);
+            myDate.setDate(myDate.getDate() + 56);
+            console.log("new mydate", +myDate);
+            $('#PCDate_Launch').data("kendoDatePicker").value(myDate);
+
+            //document.getElementById("confirmLaunch").style.display = "none";
+            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+            datepicker.setOptions({
+                min: new Date()
+            });
+        }
+
+
+        function onCancelClick() {
+
+
+
+
+
+            var ddl = $("#AssessmentTeam").data("kendoDropDownList");
+            var len = ddl.dataSource.data().length;
+            console.log(len);
+            if (len == 2) {
+                var oldData = ddl.dataSource.data();
+                ddl.dataSource.remove(oldData[0]); //remove first item
+            }
+
+
+
+            $("#AssessmentID_Launch").data("kendoDropDownList").select(0);
+            //$("#AccountNamesList").data("kendoDropDownList").select(0);
+            $("#EnagagementPOC").data("kendoDropDownList").select(0);
+            //$("#ContractList").data("kendoDropDownList").select(0);
+            $("#EngagementTC").data("kendoDropDownList").select(0);
+            $("#AssessmentTeam").data("kendoDropDownList").select(0);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").value("Ver - 0.1");
+            //$("#AssessmentTeam").data("kendoTextBox").value("Assessment Team 1");
+            $("#Status").data("kendoTextBox").value("");
+            $("#AssessmentName_Launch").data("kendoTextBox").value("");
+            $('#StartDate_Launch').data("kendoDatePicker").value(new Date());
+            console.log(new Date());
+            //$('.k-window-title').text("Add KEDB");
+            $("#AssessmentID_Launch").data("kendoDropDownList").enable(true);
+            $("#AccountNamesList").data("kendoDropDownList").enable(false);
+            $("#ContractList").data("kendoDropDownList").enable(false);
+            $("#EnagagementPOC").data("kendoDropDownList").enable(true);
+            $("#EngagementTC").data("kendoDropDownList").enable(true);
+            $("#AssessmentTeam").data("kendoDropDownList").enable(false);
+            $("#QVerTxtBox_Launch").data("kendoTextBox").enable(false);
+            $("#StartDate_Launch").data("kendoDatePicker").enable(true);
+            //document.getElementById("confirmLaunch").style.display = "none";
+            document.getElementById('btnLaunch').disabled = false;
+            var datepicker = $('#StartDate_Launch').data("kendoDatePicker");
+            datepicker.setOptions({
+                min: new Date()
+            });
+            var myDate = new Date();
+            console.log("old myDate", +myDate);
+            myDate.setDate(myDate.getDate() + 56);
+            console.log("new mydate", +myDate);
+            $('#PCDate_Launch').data("kendoDatePicker").value(myDate);
+
+
+
+        }
+
+
+
+        function onStartDateChange(e) {
+            console.log("Start date change");
+
+            var startDateString = $('#StartDate_Launch').val().toString();
+            console.log("startDateString", +startDateString);
+
+            var myDate = new Date(startDateString);
+            console.log("old myDate", +myDate);
+            myDate.setDate(myDate.getDate() + 14);
+            console.log("new mydate", +myDate);
+            var datepickerAnalysis = $("#AnalysisDate_Launch").data("kendoDatePicker");
+            datepickerAnalysis.value(new Date(myDate));
+            console.log($('#AnalysisDate_Launch').val().toString());
+
+            myDate.setDate(myDate.getDate() + 21);
+            var datepickerReview = $("#ReviewDate_Launch").data("kendoDatePicker");
+            datepickerReview.value(new Date(myDate));
+            console.log($('#ReviewDate_Launch').val().toString());
+
+            myDate.setDate(myDate.getDate() + 21);
+            var datepicker = $("#PCDate_Launch").data("kendoDatePicker");
+            datepicker.value(new Date(myDate));
+            console.log($('#PCDate_Launch').val().toString());
+
+
+         
+
+            
+
+        }
+
+
+
+    </script>
+
+</body>
+
+
+</html>

@@ -1,0 +1,141 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<style>
+    .textAreaBox {
+        box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2), 0 5px 15px 0 rgba(0, 0, 0, 0.19);
+        border-radius: 5px;
+    }
+
+    textarea {
+        resize: none;
+    }
+</style>
+
+<div style="margin:5px;">
+    <div>
+        <h5 style="text-align:center">Disposition Recommendations</h5><br /><br />
+        <div style="padding-left:10px;">
+            <label> Replacement Scope : </label>&nbsp;&nbsp;
+            @(Html.Kendo().RadioButton().Label("Full").Name("ReplacementScope").Value((int)ReplacementScope.Full)
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Full" })
+            )
+            @(Html.Kendo().RadioButton().Label("Partial").Name("ReplacementScope").Value((int)ReplacementScope.Partial)
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Partial" })
+            )
+            @(Html.Kendo().RadioButton().Label("Obsolete").Name("ReplacementScope").Value((int)ReplacementScope.Obsolete)
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Obsolete" })
+            )
+            @(Html.Kendo().RadioButton().Label("Replaced").Name("ReplacementScope").Value((int)ReplacementScope.Replaced)
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Replaced" })
+            )
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            @(Html.Kendo().CheckBox().Name("ArchiveData").Checked(false).Label("Archive Data"))
+            &nbsp;&nbsp;
+            @(Html.Kendo().CheckBox().Name("IsDeCommissioned").Checked(false).Label("Decommission"))
+            &nbsp;&nbsp;
+
+
+        </div>
+        <div style="margin-right:10px;display:flex;justify-content:end">
+            <button type="submit" class="btn btn-primary" id="SaveDisposition" onclick="SaveDetails()" style="width:auto;" value="Submit">Save</button>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="reset" id="CancelDisposition" class="btn btn-primary" style="width:auto;">Cancel</button>
+        </div>
+    </div>
+    <hr style="width:100%; margin-top:9px; align-self:center; color:black;" />
+    <br />
+    <div>
+        <div style="width:30%;display:inline-block; margin:7px;">
+            <label>Replacement Recommendations:</label><br />
+            @*@(Html.Kendo().Editor()
+                     .Name("ReplaceEditor")
+                     .HtmlAttributes(new { style = "height:200px; width:30%;", aria_label = "editors" })
+                     .Resizable(resizable => resizable.Content(true).Toolbar(false))
+                .HtmlAttributes(new { @style = "height:100px;" })
+                )*@
+
+            @Html.TextArea("ReplaceEditor", new { @class = "textAreaBox", id = "ReplaceEditor", disabled = "disabled", style = "height:200px; width:300px;" })
+
+            <br /><br />
+            <label>Action:	</label>
+            @(Html.Kendo().RadioButton().Label("Execute").Name("ReplaceAction").Value("Execute")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Full" })
+            )
+            @(Html.Kendo().RadioButton().Label("Investigate").Name("ReplaceAction").Value("Investigate")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Investigate" })
+            )
+            @(Html.Kendo().RadioButton().Label("Monitor").Name("ReplaceAction").Value("Monitor")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Monitor" })
+            ) &nbsp;&nbsp;&nbsp;&nbsp;
+            <br />
+            <label>Replacement Estimate (hrs):	</label>
+
+            @(Html.Kendo().NumericTextBox().Name("ReplaceEstimate").Enable(false))
+
+        </div>
+
+        <div style="width:30%;display:inline-block; margin:7px;">
+            <label>Archival Recommendations:</label><br />
+            @*@(Html.Kendo().Editor()
+                .Name("ArchivalEditor")
+                .HtmlAttributes(new { style = "height:200px; width:300%;", aria_label = "editors" })
+                .Resizable(resizable => resizable.Content(true).Toolbar(false))
+                .HtmlAttributes(new { @style = "height:100px;" })
+                )*@
+            @Html.TextArea("ArchivalEditor", new { @class = "textAreaBox", id = "ArchivalEditor", disabled = "disabled", style = "height:200px; width:300px;" })
+            <br /><br />
+            <label>Action:	</label>
+            @(Html.Kendo().RadioButton().Label("Execute").Name("ArchivalAction").Value("Execute")
+
+            )
+            @(Html.Kendo().RadioButton().Label("Investigate").Name("ArchivalAction").Value("Investigate")
+
+            )
+            @(Html.Kendo().RadioButton().Label("Monitor").Name("ArchivalAction").Value("Monitor")
+
+            )
+            <br />
+            <label>Archival Estimate (hrs):	</label> @(Html.Kendo().NumericTextBox().Name("ArchivalEstimate").Enable(false))
+
+        </div>
+
+        <div style="width:30%;display:inline-block; margin:7px;">
+            <label>Decommission Recommendations:</label><br />
+
+            @*@(Html.Kendo().Editor()
+                 .Name("DecommEditor")
+                 .HtmlAttributes(new { style = "height:200px; width:30%;", aria_label = "editors" })
+                 .Resizable(resizable => resizable.Content(true).Toolbar(false))
+                 .HtmlAttributes(new { @style = "height:100px;" })
+                )*@
+            @Html.TextArea("DecommEditor", new { @class = "textAreaBox", id = "DecommEditor", disabled = "disabled", style = "height:200px; width:300px;" })
+            <br />
+            <br />
+            <label>Action:	</label>
+            @(Html.Kendo().RadioButton().Label("Execute").Name("DecommAction").Value("Execute")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Full" })
+            )
+            @(Html.Kendo().RadioButton().Label("Investigate").Name("DecommAction").Value("Investigate")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Investigate" })
+            )
+            @(Html.Kendo().RadioButton().Label("Monitor").Name("DecommAction").Value("Monitor")
+            //.HtmlAttributes(new { @class = "k-button radBut", id = "Monitor" })
+            )
+            <br />
+            <label>Decommission Estimate (hrs):	</label> @(Html.Kendo().NumericTextBox().Name("DecommEstimate").Enable(false))
+
+        </div>
+
+    </div>
+</div>
+

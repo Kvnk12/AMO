@@ -1,0 +1,368 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model ClusterManagementInput
+@{
+    ViewBag.Title = "Incident Navigator";
+   
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared/GenericLayout.cshtml";
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li >Incident Navigator</li>
+            <li class="active">Cluster Management</li>
+        </ol>
+    </div>
+  
+    <div class="selectappArea" style="background-color:transparent;margin-top:2em;margin-bottom:2em;">
+        <!-- Wrap all page content here -->
+        @Html.Partial("_INHeaderFilters")
+
+
+    </div>
+
+        <div>
+            <table style="background-color:transparent">
+                <tr>
+               <td style="color:white;" > 
+                    
+                        <label>Cluster Name: </label>
+                        @(Html.Kendo().ComboBox()
+              .Name("ClusterSource")
+              .Placeholder("Select Cluster")
+              .HtmlAttributes(new { style = "width: 250px;" })
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .Filter(FilterType.Contains)
+               .Events(e => e
+
+            .Change("ClusterSource_change")
+
+        )
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetClustersList", "AjaxService").Data("LoadCluster");
+
+                  })
+                  .ServerFiltering(true);
+              })
+                        )
+                    </td>
+                    @*<td>
+                                        <label>Move to:</label>
+
+                                            @(Html.Kendo().ComboBox()
+                          .Name("ConfigItemDestination")
+                          .Filter("contains")
+                          .Placeholder("Select Config Item")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                         //.BindTo(clientlist)
+                         .Events(e => e
+
+                            .Change("ConfigItemDestination_change")
+
+                        )
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetCascadeConfigItem", "AjaxService")
+                                    .Data("filterProducts");
+                            })
+                            .ServerFiltering(true);
+                        })
+                              .Enable(false)
+                              .AutoBind(false)
+                              .CascadeFrom("fabric")
+                               .HtmlAttributes(new { style = "width:250px;" })
+                                            )
+
+
+
+                                    </td>*@
+               <td style=" color:white;" >
+                   
+                        <label>Move to Destination Cluster: </label>
+                        @(Html.Kendo().ComboBox()
+              .Name("ClusterDestination")
+              .Placeholder("Select Cluster")
+              .HtmlAttributes(new { style = "width: 250px;" })
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .Filter(FilterType.Contains)
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetClustersList", "AjaxService").Data("LoadDestinationCluster");
+
+                  })
+                  .ServerFiltering(true);
+              })
+                        )
+                    </td>
+                    <td>
+                        @(Html.Kendo().Button()
+        .Name("UpdateButton")
+        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+        .Content("Save")
+
+          .Events(e => e
+
+            .Click("onClick")
+
+        )
+        )
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <div class="custom-kendo-grid">
+                @(Html.Kendo().Grid<IncidentsClusterlistModel>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+        columns.Select().Width(50);
+        columns.Bound(p => p.Incidentid).Title("Incident ID");
+        columns.Bound(p => p.ClosureCategory).Title("Cause");
+        columns.Bound(p => p.Severity).Title("Severity");
+        columns.Bound(p => p.DescriptionfromIncident).Title("Description");
+        columns.Bound(p => p.AffectedItemName).Title("Affected Item Name");
+    })
+    .HtmlAttributes(new { style = "height: 500px;width:100%" })
+    .Pageable(pageable => pageable
+       .Input(true)
+       .Numeric(false)
+     )
+    .Sortable()
+    .Pageable()
+    .PersistSelection()
+      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("IncidentsCluster.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+     .Events(e => e
+
+            .Change("gridselection_change")
+        )
+.Scrollable(scr => scr.Height(430))
+.AutoBind(false)
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+      .Model(model => model.Id(p => p.PrimaryKeyIncidentId))
+      .Read(read => read.Action("GetIncidentClustersList", "AjaxService").Data("ParameterData"))
+ )
+                )
+            </div>
+        </div>
+
+        <!--END OF LEFTAREA-->
+
+    </div><!--/.treeMenuContent container-->
+
+
+<script type="text/javascript">
+
+    function ConfigItemChange() {
+
+        updateBody();
+
+    }
+
+    function TicketTypeChange() {
+
+       updateBody();
+    }
+   
+    function updateBody() {
+        var Clusterdropdown = $("#ClusterSource").data("kendoComboBox");
+        var clustername = $("#ClusterSource").val;
+            Clusterdropdown.dataSource.read();
+       
+
+        var ClusterDestination = $("#ClusterDestination").data("kendoComboBox");   
+        var clusterdest = $("#ClusterDestination").val;
+            ClusterDestination.dataSource.read();
+
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+
+        Clusterdropdown.value(clustername);
+        ClusterDestination.value(clusterdest);
+    }
+    //function ConfigItem_change() {
+
+    //    var ddlItem = $("#ConfigItem").data("kendoComboBox").value();
+       
+    //    $("#ConfigItemDestination").data("kendoComboBox").value(ddlItem);
+
+    //    var Clusterdropdown = $("#ClusterSource").data("kendoComboBox");
+    //    Clusterdropdown.dataSource.read();
+
+    //    var grid = $("#Grid").data("kendoGrid");
+
+    //    if ($("#Grid .k-state-selected").length > 0) {
+    //        grid.clearSelection();
+    //    }
+    //    grid.dataSource.read();
+    //}
+
+    //function TicketType_change() {
+    //    var Clusterdropdown = $("#ClusterSource").data("kendoComboBox");
+    //    Clusterdropdown.dataSource.read();
+
+
+    //    }
+
+        function LoadCluster() {
+            var ticketType = $("#TicketType").data("kendoMultiSelect");
+
+            return {
+
+                ConfigItemName: $("#ConfigItem").val(),
+                TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+
+            };
+        }
+
+
+        //function filterProducts() {
+          
+        //    return {
+        //        ClientID: $("#fabric").val()
+                   
+        //        };
+        //}
+
+        //function filterTypes(e) {
+
+        //    return {
+        //        ClientID: $("#fabric").val(),
+        //    ConfigItem: $("#ConfigItem").val()
+        //    };
+        //}
+
+        function ClusterSource_change() {
+            var grid = $("#Grid").data("kendoGrid");
+          
+            if ($("#Grid .k-state-selected").length > 0) {
+                grid.clearSelection();
+            }
+            grid.dataSource.read();
+
+        }
+
+        function ParameterData(e) {
+            var ticketType = $("#TicketType").data("kendoMultiSelect");
+            return {
+                ClientId: $("#fabric").val(),
+                ConfigItemName: $("#ConfigItem").val(),
+                TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+                ClusterId: $("#ClusterSource").val()
+            }
+        }
+        //function ConfigItemDestination_change() {
+        //    var ClusterDestination = $("#ClusterDestination").data("kendoComboBox");
+        //    ClusterDestination.dataSource.read();
+           
+        //}
+
+        function LoadDestinationCluster() {
+            var ticketType = $("#TicketType").data("kendoMultiSelect");
+
+            return {
+
+                ConfigItemName: $("#ConfigItem").val(),
+                TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+
+            };
+        }
+
+        function onClick(e) {
+            var DestinationCluster = $("#ClusterDestination").val();
+            var myArray = Array();
+            var grid = $('#Grid').data('kendoGrid');
+            var rows = grid.select();
+            var RootUrl = '@Url.Content("~/IncidentNavigator/ClusterManagement/INIncidentClusteredUpdate")';
+            rows.each(
+                function () {
+                    var dataItem = grid.dataItem($(this));
+                    id = dataItem.PrimaryKeyIncidentId;
+                    //IncidentID = dataItem.Incidentid;
+                    //alert('Selected : ' + IncidentID);
+                    myArray.push({ id: id, value: DestinationCluster});
+                }
+            )
+            //alert(myArray[0].id + " ," + myArray[0].value);
+            var data1 = { 'listObject': myArray };
+            var data = JSON.stringify(data1)
+            $.ajax({
+                type: 'post',
+                url: RootUrl,
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    var grid = $("#Grid").data("kendoGrid");
+
+                    if ($("#Grid .k-state-selected").length > 0) {
+                        grid.clearSelection();
+                    }
+                    grid.dataSource.read();
+                    alert("Ticket(s) moved successfully");
+                },
+                error: function (response) {
+                   // alert("error occured");
+                }
+            });
+        }
+</script>
+
+<script>
+    function gridselection_change(arg) {
+     //alert("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+    }
+</script>
+
+
+

@@ -1,0 +1,45 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.BusinessCapabilitiesLevelsInput 
+
+<div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Business Capabilities<br>
+                        <span>Group:  @{
+                             if(Model.InExValue=="Internal")
+                            {
+                            @Model.Level1Name
+                        }
+                        }</span> </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLevel2">Add</button>
+                      </div>
+                    </div>
+    <form>
+    <input hidden id="level1Id" value="@Model.Level1Id.ToString()"  />
+
+     <input hidden id="level1Name" value="@Model.Level1Name.ToString()"   />
+
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   />  
+
+        <input hidden id="subvid" value="@Model.subVId.ToString()"  />
+     </form>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                         <tr>
+                          <th scope="col">Business Capabilities</th>
+                        </tr>
+                        @{
+                            if (Model.Level1Id > 0 && Model.InExValue == "Internal")
+                            {
+                                foreach(var item in Model.BusinessCapabilitiesLevel2List)
+                                {
+                                 <tr>
+                                <td>@Html.ActionLink(@item.Level2,"DisplayBusinessCapabilitiesLevels",new {Level2Id=item.Id,Level2Name=item.Level2, Level1Id=item.Level1Id,Level1Name=@Model.Level1Name,InExValue=@Model.InExValue,subVId=@Model.subVId})</td>   
+
+                                      
+                                 </tr>   
+                                }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

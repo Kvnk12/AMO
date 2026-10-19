@@ -1,0 +1,195 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions
+@using WebUI.Dto;
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+   // var cl = (Client)Session["Client"];
+    ClientDetail cl = (ClientDetail)Session["SessionClient"];
+    var ClientName = cl.ClientName;
+
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+</style>
+
+<div style="height:1000px">
+   <div style="margin:10px; margin-left:15px;margin-right:15px;">
+       <div>
+           <!--start of breadcrumb-->
+           <ol class="breadcrumb">
+               <li><a href="#">Portfolio Analyzer</a></li>
+               <li><a href="#">MetaData</a></li>
+               <li class="active"><a href="#">Client Access Control</a></li>
+           </ol>
+       </div>
+       <div style="margin:auto; align-content:center; margin-left:30%; margin-right:30%;">
+           <div>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Client Name : @ClientName</strong>
+           </div>
+           <br />
+
+           <label>
+               <strong>Add New Client :</strong>
+           </label>
+          
+           @(Html.Kendo().DropDownList()
+          .Name("clients")
+          //.HtmlAttributes(new { style = "width: 100%;" })
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .Filter("contains")
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("ServerFiltering_GetClients", "ClientAccess");
+              })
+              .ServerFiltering(false);
+          })
+           )
+           &nbsp;&nbsp;&nbsp;
+           <button class="btn btn-primary" onclick="AddClientClick()">
+               Add
+           </button>
+           <div style="margin-top:15px;">
+               <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="SuccessMsg" hidden>
+                   <ul>
+                       <li>Successfully linked the Client.</li>
+                   </ul>
+               </div>              
+               <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="ErrorMsg" hidden>
+                   <ul>
+                       <li>Error while assigning.</li>
+                   </ul>
+               </div>
+
+               <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedClient" hidden>
+                   <ul>
+                       <li>Please select the Client.</li>
+                   </ul>
+               </div>
+               <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="AlreadyExists" hidden>
+                   <ul>
+                       <li>This Client already has been Linked!.</li>
+                   </ul>
+               </div>
+           </div>
+
+
+
+       </div>
+       <br />
+       <div style="margin-left:15%; margin-right:15%;">
+           @(Html.Kendo().Grid<ClientAccessModel>()
+       .Name("clientAccess")
+       .Columns(columns =>
+       {
+
+           columns.Bound(e => e.Client).Title("Client Name");
+           columns.Bound(e => e.CreatedBy).Title("Added By");
+           columns.Bound(e => e.CreatedDt).Title("Date Time").Format("{0:d}");
+           columns.Command(command => { command.Destroy(); }).Width(180);
+       })
+       .Sortable()
+       .Editable(editable => editable.ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delate?"))
+
+       .Scrollable()
+       .DataSource(dataSource => dataSource
+           .Ajax()
+           .Read(read => read.Action("GetSubClients", "ClientAccess").Type(HttpVerbs.Get))
+           .Model(model => {
+               model.Id(e => e.Id);
+               model.Field(e => e.Client).Editable(false);
+               model.Field(e => e.CreatedBy).Editable(false);
+               model.Field(e => e.CreatedDt).Editable(false);
+           })
+           .Destroy(update => update.Action("DeleteClientLink", "ClientAccess"))
+
+       )
+           )
+       </div>
+   </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+ 
+    function AddClientClick() {
+
+        $("#ErrorMsg").hide();
+        $("#SelectedClient").hide();
+        $("#AlreadyExists").hide();
+        $("#SuccessMsg").hide();
+        var cl = $("#clients").data("kendoDropDownList");
+        var ClientId = cl.value();
+        var mod = {
+            SCId: ClientId
+            
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PortfolioAnalyzer/ClientAccess/AddSubClient")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    // SuccessMsg ErrorMsg SelectedClient AlreadyExists
+                    if (data === 1) {
+                        $("#SuccessMsg").show();
+                    }
+                    if (data === 2) {
+
+                        $("#AlreadyExists").show();
+                    }
+                    if (data === 0) {
+
+                        $("#SelectedClient").show();
+                    }
+                    var caccess = $('#clientAccess').data('kendoGrid');
+                    caccess.dataSource.read();
+                },
+                error: function (e) {
+                    $("#ErrorMsg").show();
+                }
+            });
+    }
+</script>
+
+
+
+
+

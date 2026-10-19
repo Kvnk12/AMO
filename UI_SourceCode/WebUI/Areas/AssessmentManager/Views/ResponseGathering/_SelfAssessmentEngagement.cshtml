@@ -1,0 +1,113 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+
+@model A3MMModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+<style>
+</style>
+
+<html>
+<body>
+    <div class="engagementSelfAssessmentPopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("engagementSelfAssessmentpopUp")
+    .Title("Self Assessment")
+    .Content(@<text>
+
+        <div class="eng-dg-SA" style=" display: flex; flex-direction: column;">
+
+                   <p>Thank you for submitting a response. How would you rate this interaction?</p>
+
+                   <div class="eng-dg-SA-ratingButtons" style="display: flex;">
+
+                       @*<button id="engrt2" class="eng-ratingButton" style="background-color: #FF8E15;"onclick="engagementRatingSelection(2)">2</button>
+                       <button id="engrt3" class="eng-ratingButton" style="background-color: #FAB733;"onclick="engagementRatingSelection(3)">3</button>
+                       <button id="engrt4" class="eng-ratingButton" style="background-color: #ACB334;"onclick="engagementRatingSelection(4)">4</button>
+                       <button id="engrt5" class="eng-ratingButton" style="background-color: #69B34C;"onclick="engagementRatingSelection(5)">5</button>*@
+
+                   </div>
+                   <input type= "hidden" id="engagementRatingSelected"  />
+                   @*<label hidden id="engagementRatingSelected" ></label>*@
+
+                   <div id="matContentInfo" style="display: flex; visibility: hidden;  width: 100%; margin-top: 1vw;">
+                     <p id="matContent"></p>
+                   </div>
+
+                   <div id="ratingSelectedInfo" style="display: flex; visibility: hidden; margin-top: 1vw;" >
+                        <img id="ratingImg" src="~/Content/images/info_red.svg" />
+                        <p id="ratingSelected">   You selected <span id="ratingNo">"4"</span> Rating.</p>
+                    </div>
+
+
+                    <p style="color: #5876AA";font-weight: 400;>Comment for your Rating.</p>
+
+                    <div class=" eng-comments">
+                        @Html.TextAreaFor(m => m.engagementComments, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "EngagementSAComments", rows = 2, cols = 10, @placeholder = "Type your comments here...", style = "width:42em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+                    </div>
+
+
+                    <div class="mark-as-complete" style="display:flex; justify-content:space-between" >
+                        <div>
+
+
+                        @(Html.Kendo().CheckBox().Name("markAsComplete").Checked(false).Label("Mark this question as Responded"))
+                            </div>
+                        <p id="ratingValidation" style="visibility: hidden;text-align:right; color:red;"> Please select rating to submit </p>
+
+                    </div>
+
+
+
+
+
+
+
+                    <div class="SelfAssessment-save-cancel-buttons">
+                       <div style="margin: 0 1em 0 0;">
+                         <button class="custom-button" type="button" id="btnCancelSelfAssessment" onclick="onCancelSelfAssessment()">CANCEL</button>
+                       </div>
+                       <div style="margin: 0 0 0 0;">
+                         <button class="custom-button" type="button" id="btnSaveSelfAssessment" onclick="onSaveSelfAssessment()" >SUBMIT</button>
+                       </div>
+                    </div>
+
+        </div>
+
+
+
+         </text>)
+    .Visible(false)
+    .Draggable()
+    .Width(600)
+    .Height(390)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    //.Actions(actions => actions.Close())
+
+    )
+    </div>
+
+
+
+</body>
+
+</html>
+

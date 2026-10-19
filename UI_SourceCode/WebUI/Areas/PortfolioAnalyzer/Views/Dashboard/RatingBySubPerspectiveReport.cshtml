@@ -1,0 +1,590 @@
+@*@{
+    ViewBag.Title = "RatingBySubPerspectiveReport";
+}
+
+<h2>RatingBySubPerspectiveReport</h2>*@
+
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model RatingBySubperspective
+@{
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new DashboardController();
+    var LOBlist = v.GetPortfoliolistbyClient(client.ClientId);
+    string[] array = LOBlist.Select(x=>x.Id).ToArray();
+    string joined = string.Join(",", array.ToArray());
+    IEnumerable<TreeViewItemModel> Applist = null;
+    if (Model.PortfolioIdlist == null)
+    {
+        Applist = v.GetAppsByPortfolio(joined);
+    }
+    else
+    {
+        Applist = v.GetAppsByPortfolio(Model.PortfolioIdlist);
+    }
+    var surveyList = v.surveyList(client.ClientId);
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Portfolio Analyzer";
+    //var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    //var client = (Client)Session["Client"];
+    //var v = new DashboardController();
+    //var PortfolioNameList = v.portfolioNameList(client.Id);
+    //var PerspectiveTypeList = v.perspectiveTypeList(client.Id);
+    //var surveyList = v.surveyList(client.Id);
+    ////var HintList = v.hintList(client.Id);f
+    <style>
+        .Surveydropdown-section{
+            display:flex;
+        }
+        .selectionsection{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom : 1em;
+        }
+        .mainsection{
+            display:flex;
+        }
+        .graphsection{
+            height:100%;
+            width:80%;
+            margin-left: 2em;
+        }
+    </style>
+    <div class="content-main" id="wrap">
+
+    
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Portfolio Analyzer</li>
+
+                <li class="active">Dashboard</li>
+            </ol>
+        </div>
+        <style="padding: 3em;">
+            <div class="Surveydropdown-section">
+
+                
+                <div style=" padding-left: 2em">
+
+                </div>
+            </div>
+           <table>
+               <tr>
+                   <td><Label><b>Survey Name : </b> </Label>@(Html.Kendo().ComboBox()
+.Name("surveyName")
+.Filter("contains")
+.DataTextField("Text")
+.DataValueField("Value")
+.SelectedIndex(0)
+.BindTo(surveyList)
+.Events(e => e
+   .Change("SurveyChange")
+)
+//.Value("All")
+.Enable(true)
+.AutoBind(true)
+.HtmlAttributes(new { style = "width:250px;" })
+                )</td>
+                   
+                   
+                   <td>
+                       <div class="apply-sec"></div>
+                       @(Html.Kendo().Button()
+        .Name("btnReport")
+        .Content("Apply")
+        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+       
+            
+
+                       )
+                      
+                   </td>
+               </tr>
+           </table>
+           <div class="content-wrapper" style="width:100%;height:100%;">
+               <div class="mainsection">
+                   <div class="selectionsection">
+                      @*//<table style="align-content:center">*@
+
+                           <tr>
+
+                               <td>
+                                   <table>
+                                       <tr>
+                                           <td>
+
+                                               <div style="padding:1em;">
+                                                   <b>Portfolio :</b>
+                                               </div>
+                                               @(Html.Kendo().TreeView()
+            .Name("treeviewLOB")
+            .Checkboxes(checkboxes => checkboxes
+                .Name("LOBlist")
+                .CheckChildren(true)
+            )
+                         .Events(events => events
+                            .Check("onCheck")
+                        )
+                         .ItemAction(item =>
+                         {
+
+                                 item.Checked = true;
+                         })
+
+                        .BindTo(LOBlist)
+                            .AutoScroll(true)
+
+                            .HtmlAttributes(new { style = "width: 250px;max-Height:120px; overflow: auto;color:black;" })
+                        )
+                                           </td>
+
+                                       <tr>
+                                           <td>
+                                               <div id="divApplist" style="padding:1em;">
+
+                                                   <b>Applications :</b>
+                                                   <input @*onkeyup="SearchApplicationFunc()"*@ type="text" id="searchTree" placeholder="Search TreeView..." />
+
+                                                   @(Html.Kendo().TreeView()
+                            .Name("treeviewApps")
+                            .DataTextField("ApplicationName")
+
+                            .Checkboxes(checkboxes => checkboxes
+                            .Name("Applist")
+                            .CheckChildren(true)
+
+                            )
+                            .ItemAction(item =>
+                            {
+
+                                item.Checked = true;
+                            })
+
+
+                            .Events(events => events
+                         //   .Check("onCheckApps")
+                            .DataBound("DataboundAppslist")
+                            )
+
+                            //.BindTo(Applist)
+                            .DataSource(dataSource => dataSource
+                            .Read(read => read
+                            .Action("GetApplistForPortfolioClient", "APRAjaxService").Data("ParameterData")
+                            )
+                            .Model(m =>
+                            {
+                                m.Id("AppId");
+                                //m.Field("ApplicationName", typeof(bool));
+                            })
+
+                                    )
+
+
+
+                            .AutoScroll(true)
+
+                            .HtmlAttributes(new { style = "width: 250px;max-Height:150px; overflow: auto;color:black;" })
+                            )
+                                               </div>
+
+
+                                           </td>
+
+                                       </tr>
+                                   </table>
+
+
+                   </div>
+               </div>
+
+
+
+               <table style="padding:2em;">
+                   
+                   <tr>
+                       <td>
+                           @*<label><b>Y :</b></label>*@
+                           @(Html.Kendo().DropDownList()
+              .Name("YperspectiveTypes")
+              .HtmlAttributes(new { style = "width:70px" })
+              //.OptionLabel("Select product...")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .SelectedIndex(1)
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetPerspectiveTypelist", "Dashboard")
+                          .Data("filterPerspectiveTypes");
+                  })
+                  .ServerFiltering(true);
+              })
+              .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("surveyName")
+                        )
+                       </td>
+                       <td>
+                           @*<div id="divChart" >*@
+                           @(Html.Kendo().Chart<RatingPerspReport>()
+        .Name("chartRating")
+        .Title("Rating By Sub-Perspective")
+
+        .Legend(legend => legend
+            .Visible(false)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetPerspectivesReport", "APRAjaxService").Data("ChartParameter")))
+        .Series(series =>
+        {
+            series.Scatter(model => model.Xrating, model => model.Yrating);
+        })
+        .XAxis(x => x
+            .Numeric()
+            .Title(title => title.Text(Model.Xvalue))
+            .Crosshair(crosshair => crosshair.Visible(true))
+         .Labels(labels => labels.Format("{0}")).Max(6)
+
+        )
+
+        .YAxis(y => y
+
+            .Numeric()
+            .Title(title => title.Text(Model.YperspectiveTypes))
+            .Crosshair(crosshair => crosshair.Visible(true))
+       .Labels(labels => labels.Format("{0}")).Max(6)
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= '<b>' + value.x + ' / ' + dataItem.ApplicationName  + ': ' + value.y + '</b>' #")
+        )
+                // .HtmlAttributes(new { @style = "height:350px;width:250px;" })
+                            )
+                           @*</div>*@
+
+                      
+                   
+                   
+                    
+                            <td align="center">
+                           @*<label><b>X :</b></label>*@
+                           
+
+                           @(Html.Kendo().DropDownList()
+              .Name("XperspectiveTypes")
+              .HtmlAttributes(new { style = "width:70px" })
+              //.OptionLabel("Select product...")
+              .DataTextField("Text")
+              .DataValueField("Value")
+
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("GetPerspectiveTypelist", "Dashboard")
+                          .Data("filterPerspectiveTypes");
+                  })
+                  .ServerFiltering(true);
+              })
+              .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("surveyName")
+                        )
+                     
+                       
+                      </td>
+                  </td>
+                    
+                   </tr>
+                   
+               </table>
+
+           
+               
+              
+            </div>
+          
+    </div>
+    
+           
+           
+          
+        
+
+    
+    @*@Html.HiddenFor(model => model.PortfolioIdlist)*@
+    <input type="hidden" name="PortfolioIdlist" id="PortfolioIdlist">
+    @Html.HiddenFor(x => x.Xvalue, new { id = "Xvalue" })
+    @*@Html.HiddenFor(x => x.Yvalue, new { id = "Yvalue" })*@
+}
+
+
+@*<input type="hidden" name="PortfolioIdlist" id="PortfolioIdlist">*@
+
+
+<script type="text/javascript">
+    //function SearchApplicationFunc() {
+    //    var query = document.getElementById('searchTree').value.toLowerCase();
+    //    var dataSource = $("#treeview").data("kendoTreeView").dataSource;
+
+    //    var hasVisibleChildren = false;
+    //    var data = dataSource instanceof kendo.data.HierarchicalDataSource && dataSource.data();
+    //    console.log(data)
+    //    for (var i = 0; i < data.length; i++) {
+    //        var item = data[i];
+    //        var text = item.text.toLowerCase();
+    //        var itemVisible =
+    //            query === true // parent already matches
+    //            || query === "" // query is empty
+    //            || text.indexOf(query) >= 0; // item text matches query
+
+    //        var anyVisibleChildren = filter(item.children, itemVisible || query); // pass true if parent matches
+
+    //        hasVisibleChildren = hasVisibleChildren || anyVisibleChildren || itemVisible;
+
+    //        item.hidden = !itemVisible && !anyVisibleChildren;
+    //    }
+
+    //    if (data) {
+    //        // Re-apply the filter on the children.
+    //        dataSource.filter({ field: "hidden", operator: "neq", value: true });
+    //    }
+
+    //    console.log(hasVisibleChildren)
+    //    return hasVisibleChildren;
+
+    //}
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+    //$(document).ready(function () {
+      
+    //    displayLoading("#divChart");
+    //    //var chartRating = $("#chartRating").data("kendoChart");
+
+
+    //    //chartRating.dataSource.read();
+    //    //chartRating.refresh();
+       
+    //});
+    function checkboxtrue()
+    {
+        $("#divApplist input:checkbox").each(function () {
+            this.checked = true;
+        });
+    }
+
+    $(window).load(function () {
+      //  setTimeout(checkboxtrue, 500);
+        checkboxtrue();
+        //displayLoading("#divChart");
+        //var chartRating = $("#chartRating").data("kendoChart");
+
+
+        //    chartRating.dataSource.read();
+        //    chartRating.refresh();
+
+    });
+    function filterPerspectiveTypes(e) {
+                return {
+                    surveyId: $("#surveyName").val()
+                };
+    }
+
+
+    function ChartParameter(e) {
+
+        //setTimeout(checkboxtrue, 500);
+        //$("#divApplist input:checkbox").each(function () {
+        //    this.checked = true;
+        //});
+     
+        var surveyId = $("#surveyName").val()
+
+        
+        var checkedNodes = [],
+             treeviewApps = $("#treeviewApps").data("kendoTreeView");
+
+        checkedNodeIds(treeviewApps.dataSource.view(), checkedNodes);
+         //alert(checkedNodes.length);
+        var AppsId;
+        //if (checkedNodes.length > 0) {
+
+            AppsId = checkedNodes.join(",");
+       // }
+      
+        //else {
+        //    //alert("Please Select atleast one client.");
+        //    return;
+        //}
+            //$("#Xvalue").val($("#XperspectiveTypes").val());
+            //$("#Yvalue").val($("#YperspectiveTypes").val());
+     //AppsId = encodeURIComponent('1,12,39')
+     // alert(AppsId);
+        return {
+            surveyId: $("#surveyName").val(),
+            PerspectiveX: $("#XperspectiveTypes").val(),
+            PerspectiveY: $("#YperspectiveTypes").val(),
+            ApplicationID: AppsId
+        };
+    }
+
+    function SurveyChange() {
+     
+
+    }
+
+
+
+    function ParameterData(e) {
+
+       
+
+        var checkedNodes = [],
+           treeView = $("#treeviewLOB").data("kendoTreeView");
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+        //if (checkedNodes.length > 0) {
+
+            PortfolioIds = checkedNodes.join(","); //encodeURIComponent(checkedNodes.join(","))
+        //} else {
+        //    //alert("Please Select atleast one client.");
+        //    return;
+        //}
+      //  alert(PortfolioIds);
+        return {
+            PortfolioIds: PortfolioIds,
+          
+        }
+    }
+
+        // function that gathers IDs of checked nodes
+        function checkedNodeIds(nodes, checkedNodes) {
+            for (var i = 0; i < nodes.length; i++) {
+                if (nodes[i].checked) {
+                    checkedNodes.push(nodes[i].id);
+                }
+
+                if (nodes[i].hasChildren) {
+                    checkedNodeIds(nodes[i].children.view(), checkedNodes);
+                }
+            }
+        }
+
+      
+        // show checked node IDs on datasource change
+        function onCheck(e) {
+            var checkedNodes = [],
+               treeView = $("#treeviewLOB").data("kendoTreeView");
+
+            checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+            //if (checkedNodes.length > 0) {
+
+                PortfolioIds =checkedNodes.join(",")
+            //} else {
+            //    //alert("Please Select atleast one client.");
+            //    return;
+            //}
+            $('#PortfolioIdlist').val(PortfolioIds);
+           // alert($('#PortfolioIdlist').val());
+            treeView1 = $("#treeviewApps").data("kendoTreeView");
+            treeView1.dataSource.read();
+            treeView1.refresh();
+            $("#divApplist input:checkbox").each(function () {
+                this.checked = true;
+            });
+        }
+
+        //function onCheckApps() {
+        //    var checkedNodes = [],
+        //        treeView = $("#treeviewApps").data("kendoTreeView"),
+        //        message;
+
+        //    checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+        //    if (checkedNodes.length > 0) {
+        //        message = "IDs of checked nodes: " + checkedNodes.join(",");
+        //       // $("#RegionNames").val(checkedNodes.join(","))
+        //    } else {
+        //        message = "No nodes checked.";
+        //    }
+        //    alert(message);        //$("#result").html(message);
+           
+        //}
+        function DataboundAppslist(e)
+        {
+            
+            //$("#divApplist input:checkbox").each(function () {
+            //    this.checked = true;
+            //});
+          //  alert("databound Apps");
+            var checkedNodes = [],
+              treeviewApps = $("#treeviewApps").data("kendoTreeView");
+
+            checkedNodeIds(treeviewApps.dataSource.view(), checkedNodes);
+            // alert(checkedNodes.length);
+            var AppsId;
+            //if (checkedNodes.length > 0) {
+
+            AppsId = checkedNodes.join(",");
+            
+         //   alert(AppsId);
+
+            var chartRating = $("#chartRating").data("kendoChart");
+
+
+            chartRating.dataSource.read();
+            chartRating.refresh();
+
+        }
+
+        $('#btnReport').on("click", function (e) {
+            
+            var v = $("#XperspectiveTypes").val();
+         //   alert(v);
+            $("#Xvalue").val(v);
+        //    alert($('input[name=Xvalue]').val($("#XperspectiveTypes").val()));
+            //$("#Yvalue").val($("#YperspectiveTypes").val());
+            //alert("button clicked");
+            var chartRating = $("#chartRating").data("kendoChart");
+
+
+            chartRating.dataSource.read();
+            chartRating.refresh();
+        });
+
+       
+   
+    
+</script>
+
+

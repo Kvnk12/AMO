@@ -1,0 +1,39 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model WebUI.Areas.AlignmentManager.Dto.PPTreeView
+
+               
+@{if(Model.TreeViewItems.Count > 0)
+      {
+      
+   
+
+ <ul id="navigation"  class="treeview" ><li class="open">@Model.VariableName
+                    @Html.Partial("_HeatMapTreeViewItems", Model)
+                    </li>
+                    </ul>
+    }
+    }
+    
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $("#navigation").treeview({
+                persist: "location",
+                collapsed: false,
+                unique: true
+            });
+        });
+    </script>
+
+
+
+}

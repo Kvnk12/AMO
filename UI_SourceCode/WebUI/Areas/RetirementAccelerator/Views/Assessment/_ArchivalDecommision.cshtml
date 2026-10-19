@@ -1,0 +1,73 @@
+﻿
+@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<div>
+    <div>
+        @*<div style="margin-left:10px;">
+            <button class="btn btn-default" onclick="setFinalAndOriginalRating()">Save Changes</button>
+        </div>*@
+        <div style="margin:5px;" class="custom-kendo-grid">
+            @(Html.Kendo().Grid<ArchivalDecommissionModel>()
+    .Name("ROMEstimatorGrid")
+    //.Events(e=>e.SaveChanges("setFinalAndOriginalRating"))
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.subPerspective);
+        columns.Bound(p => p.FinalRating);
+        columns.Bound(p => p.FinalRatingFactorValue);
+        columns.Bound(p => p.EstimateType);
+        columns.Bound(p => p.EstimateAssumption);
+        columns.Bound(p => p.FinalRatingROMEstimate);
+        columns.Bound(p => p.AdjROMEstimate);
+        columns.Bound(p => p.AdjRationale).Width(200);
+        columns.Bound(p => p.TotalROMEstimate);
+
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Save();
+
+    })
+    .Resizable(r=>r.Columns(true))
+    .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Navigatable()
+    .Sortable()
+    .HtmlAttributes(new { @style = "height:550px" })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .ServerOperation(false)
+        //.Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(r => r.subPerspective).Editable(false);
+            model.Field(r => r.FinalRatingFactorValue).Editable(false);
+            model.Field(r => r.FinalRatingROMEstimate).Editable(false);
+            model.Field(r => r.EstimateAssumption).Editable(false);
+            model.Field(r => r.FinalRating).Editable(false);
+            model.Field(r => r.EstimateType).Editable(false);
+            model.Field(r => r.TotalROMEstimate).Editable(false);
+        })
+        .Read(read => read.Action("EstimateRead", "Assessment").Data("GetAppId2"))
+        .Update(up => up.Action("EstimateSave", "Assessment"))
+    )
+            )
+        </div>
+    </div>
+</div>
+
+
+
+
+
+

@@ -1,0 +1,1374 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@model  KEDBInstanceModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+@*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+@*@model KEDBInstanceModel*@
+
+@{
+                ViewBag.Title = "Incident Navigator";
+                ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+
+                Layout = "~/Views/Shared//GenericLayout.cshtml";
+                // var cont = new KEDBController();
+                ClientDetail client = (ClientDetail)Session["SessionClient"];
+                HomeInput input = (HomeInput)Session["MenuItemsInput"];
+                var uid = (int)Session["UserId"];
+
+                //var userRole =  IsKedbManagerOrSup(input.UserRole.ToLower(), client.ClientId, uid);
+                var userRole = (Helper.HasRole((int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.KEDBManager)|| Helper.HasRole((int)Helper.AMOApplicationName.KnowledgeManager, (int)Helper.AMOUserRoles.KEDBManager)).ToString();
+
+            }
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+    /*.fixed-header {
+            top: 0;
+            position: fixed;
+            width: auto;
+            z-index: 1;
+        }*/
+    .k-tooltip, .k-tooltip.k-popup, .k-tooltip.k-widget {
+        /*// .k-tooltip {*/
+        border-radius: 4px;
+        border-color: #fff;
+        color: #000;
+        background-color: #fff;
+        max-width: 250px;
+    }
+
+    .forTooltips {
+    width: 90%;
+    height: 100%;
+    overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid .k-grid-content-locked {
+        background-color: white;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid {
+        background-color: white;
+    }
+</style>
+
+@using (Html.BeginForm("SaveKEDBNumber", "KEDB", FormMethod.Post))
+{
+
+    <div class="content-main dark-bg ">
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li class="active">KEDB</li>
+        </ol>
+
+        <div style="margin-top:1em;">
+            @Html.Partial("_kedbSearchPanel")
+        </div>
+
+        <div class="kedb-buttons" style="display: flex; justify-content: flex-end; margin-top: 2em; margin-bottom:1em;">
+
+            <div id="addbutton">
+                <button class="custom-button" type="button" onclick="buttonAdd()" id="btnAddNew">  ADD TICKETS TO KEDB</button>
+            </div>
+            <div id="editbutton">
+                <button class="custom-button" type="button" onclick="onEditBtnClickEntry()" id="btnEdit">EDIT </button>
+            </div>
+            <div id="genbutton">
+                <button class="custom-button" type="button" onclick="buttonGen()" id="btnGen">GENERATE NEW KEDB</button>
+            </div>
+            <div id="deLinkbutton">
+                <button class="custom-button" type="button" onclick="buttonDeLink()" id="btnDeLink" style="margin-left:0.5em">DELINK</button>
+            </div>
+            <div id="assignbutton">
+                <button class="custom-button" type="button" onclick="buttonAssign()" id="btnAssign">ASSIGN/REASSIGN</button>
+            </div>
+            <div id="assignbutton1" style=" margin-left: -0.5em;">
+                <button class="custom-button" type="button" onclick="buttonAssign()" id="btnAssign1">ASSIGN/REASSIGN</button>
+            </div>
+            <div id="confirmbutton" style=" margin-left: -0.5em;">
+                <button class="custom-button" type="button" onclick="buttonConfirm()" id="btnConfirm">CONFIRM</button>
+            </div>
+            <div id="confirmbuttonMult">
+                <button class="custom-button" type="button" onclick="buttonConfirmMult()" id="btnConfirmMult">CONFIRM</button>
+            </div>
+        </div>
+
+        <p id="clauseMod" hidden>@Model.Clause</p>
+
+
+        <div class="kedb-indexGrid">
+            <div class="custom-kendo-grid ">
+                @* ---------------------------------------------------------------------------------------------------------------------------------------*@
+                @(Html.Kendo().Grid<KEDBInstanceModel>()
+                         .Name("kedbGrid")
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(p => p.Id).Title("ID").Width(100).Locked(true).Lockable(false).Hidden();
+                             columns.Select().Width(50);
+                             columns.Bound(p => p.Id).Hidden();
+                             columns.Bound(p => p.KEDBID).Hidden();
+                             columns.Bound(p => p.isAutoIdentifiedVal).Hidden();
+                             columns.Bound(p => p.KEDBNumber).Title("KEDB#").Width(150).Filterable(ftb => ftb.Multi(true))
+                              .ClientTemplate("#if(data.KEDBNumber!=null){#<div style='display:flex;'> #=KEDBNumber# <div style = 'background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-repeat: no-repeat; width:1.5em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='showKedb1(#:KEDBID#);' ></ div ></div>#}#");
+                             columns.Bound(p => p.TicketId).Title("Ticket Id").Width(120).Filterable(ftb => ftb.Multi(true))
+    .ClientTemplate("# if (data.TicketId!=null) { #" + "<div style='display:flex;'>" + "# if(data.isAutoIdentifiedVal=='True') { #" + "<div class=\"forTooltips1\" style = 'background-image: url(" + @Url.Content("~/Content/images/marked_to_kedb.svg") + ");background-repeat: no-repeat; width:1.3em;height:2em;margin-top: 2px;margin-right: 7px;cursor:pointer;'> </div>" + "# } #" + "# if(data.isAutoIdentifiedVal=='False') { #" + " <div class=\"forTooltips1\" style = 'background-image: url(" + @Url.Content("~/Content/images/added_automation.svg") + ");background-repeat: no-repeat; width:1.3em;height:2em;margin-top: 2px;margin-right: 7px;cursor:pointer;'> </div>" + "# } #" + "# if(data.KEDBNumber==null) { #" + " <div class=\"forTooltips1\" style = 'background-image: url(" + @Url.Content("~/Content/images/not_marked_to_kedb.svg") + ");background-repeat: no-repeat; width:1.3em;height:2em;margin-top: 2px;margin-right: 7px;cursor:pointer;'></div>" + "# } #" + " <div>#=TicketId#</div></div>" + "# } #");
+                             columns.Bound(p => p.Description).Title("Issue Description").Width(150).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                  .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>"); ;
+                             columns.Bound(p => p.KedbIssueType).Title("Issue Type").Width(150).Filterable(ftb => ftb.Multi(true));
+                             columns.Bound(p => p.Cause).Title("Cause").Width(150);
+                             columns.Bound(p => p.Tower).Title("Tower").Width(120).Filterable(ftb => ftb.Multi(true));
+                             // columns.Bound(p => p.CIName).Title("Application").Width(150);
+                             columns.Bound(p => p.SolStatus).Title("Solution Status").Width(150).Filterable(ftb => ftb.Multi(true));
+                             columns.Bound(p => p.CIName).Title("CIName").Width(150).Filterable(ftb => ftb.Multi(true));
+                             //columns.Bound(p => p.ResolutionSteps).Title("ResolutionSteps").Width(150);
+                             //columns.Bound(p => p.ResolutionSteps).Title("ResolutionSteps").Width(150);
+                             //columns.Bound(p => p.ResolutionSteps).Title("ResolutionSteps").Width(150);
+                             //columns.Bound(p => p.ResolutionSteps).Title("ResolutionSteps").Width(150);
+                             //columns.Bound(p => p.Cause).Title("Cause").Width(150);
+                         })
+                            .Pageable()
+                            .Filterable()
+                            .Sortable()
+                            .Scrollable(e => e.Endless(false))
+                            .Groupable()
+                          //.Editable(editable => editable.Mode(GridEditMode.InCell))
+                          //.Excel(excel => excel.FileName("Ticket_Data_Repository.xlsx")
+                          //.Filterable(true)
+                          //.AllPages(true)
+                          //.ProxyURL(Url.Action("Export_Tickets_Save", "Tickets"))
+                          //)
+                          //.Reorderable(r => r.Columns(true))
+                          //.Resizable(r => r.Columns(true))
+                          // .HtmlAttributes(new { @style = "height:480px" })
+                          //.ColumnMenu()
+                          //.Filterable()
+                          //.Pageable()
+                          .Events(ev => ev.Change("onChange"))
+                          .AutoBind(false)
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Model(model =>
+                          {
+                              model.Id(f => f.Id);
+                          })
+                          .PageSize(100)
+                          .Batch(true)
+                              //.Filter(filters =>
+                              //{
+                              //    filters
+                              //    .Add(f => f.LastUpdatedDateTime)
+                              //    .IsGreaterThanOrEqualTo(DateTime.Today.AddMonths(-1).Date);
+                              //})
+                              .Read(read => read.Action("GetKEDB", "kedb").Data("getWhereClause"))
+                           // .Update(update => update.Action("UpdateTickets", "ConfigureReport"))
+                           )
+        )
+                @(Html.Kendo().Tooltip()
+          .For("#kedbGrid")
+          .Filter(".forTooltips")
+          .ContentHandler("getDescriptionToolTip")
+          .Position(TooltipPosition.Right)
+          .AutoHide(true)
+        )
+                @(Html.Kendo().Tooltip()
+      .For("#kedbGrid")
+      .Filter(".forTooltips1")
+      .ContentHandler("getTooltipcontent1")
+      .Position(TooltipPosition.Bottom)
+      .AutoHide(true)
+)
+            </div>
+            @*@Html.Partial("_AddKedb", Model)*@
+            @Html.Partial("_ViewKEDB")
+            @Html.Partial("_EditKedb")
+            @Html.Partial("_DeLinkKedb")
+        </div>
+        @Html.Partial("_AddKedb", Model)
+    </div>
+    <div id="addTicketAlertModal" class="modal fade add-ticket-alert" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Tickets got added to  KEDB "<span id="addedkedb" class="added-kedb"></span>"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+<script>
+
+    var kedbForEdit = null;
+    function onChange(e, args) {
+
+        //console.log("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+        //var grid = $("#kedbGrid").data("kendoGrid");
+        //var selectedItem = grid.dataItem(grid.select());
+        //console.log(selectedItem);
+        //alert("unchecked");
+        var SelectedCount = 0;
+        var firstKedb = "";
+        var canEdit = false;
+        var canAdd = false;
+      var canGen = false;
+        var canAssign = false;
+        var confirmMult = false;
+        var selectRowCount = 0;
+        var isautoassigned = '';
+        var selassignrow = 0;
+        var selectconfirmrow = 0;
+        //fetching all selected rows
+        var rows = e.sender.select();
+        console.log("rows" + e);
+        rows.each(function (e) {
+            var grid = $("#kedbGrid").data("kendoGrid");
+            var dataItem = grid.dataItem(this);
+            selectRowCount += 1;
+
+            //console.log(dataItem);
+            //console.log(dataItem.ConfigItemName);
+
+        })
+
+        //alert(selectRowCount);
+        if (selectRowCount != 0) {
+            rows.each(function (e) {
+                var grid = $("#kedbGrid").data("kendoGrid");
+                var dataItem = grid.dataItem(this);
+                //alert(dataItem.KEDBNumber);
+                console.log(dataItem);
+                //console.log(dataItem.ConfigItemName);
+                isautoassigned = dataItem.isAutoIdentifiedVal;
+
+                if (dataItem.KEDBNumber != null) {
+                    if (firstKedb == "") {
+                        if (SelectedCount > 0) {
+                            canAdd = true;
+                            canGen = false;
+                            canEdit = false;
+                            canAssign = false;
+                            confirmMult = false;
+                            firstKedb = dataItem.KEDBNumber;
+                        } else {
+                            canEdit = true;
+                            SelectedCount += 1;
+                            selassignrow++;
+                            selectconfirmrow++;
+                            firstKedb = dataItem.KEDBNumber;
+                        }
+                    }
+                    else if (dataItem.KEDBNumber != firstKedb) {
+                        canEdit = false;
+                        SelectedCount += 1;
+                        canAdd = false;
+                        canAssign = false;
+                        confirmMult = false;
+                    } else if (dataItem.KEDBNumber == firstKedb) {
+                        canEdit = false;
+                        SelectedCount += 1;
+                        canAdd = false;
+                        canAssign = true;
+                        selassignrow++;
+                        if (dataItem.isAutoIdentifiedVal == 'True') {
+                            confirmMult = true;
+                            selectconfirmrow++;
+                        }
+                        else {
+                            confirmMult = false;
+                        }
+                    }
+                }
+                else if (firstKedb != "") {
+                    canAdd = true;
+                    canEdit = false;
+                    SelectedCount += 1;
+                    canAssign = false;
+                    confirmMult = false;
+                }
+                else if (dataItem.KEDBNumber == null && selectRowCount != 0) {
+                    canGen = true;
+                    SelectedCount += 1;
+                    canAssign = false;
+                    confirmMult = false;
+                }
+
+                if (dataItem.KEDBNumber != null) {
+                    kedbForEdit = dataItem.KEDBID;
+                }
+
+            })
+        } else if (selectRowCount == 0) {
+            //alert("Count 0 canEdit false");
+            canEdit = false;
+            document.getElementById("btnEdit").disabled = true;
+            document.getElementById("editbutton").style.display = 'none';
+            document.getElementById("btnDeLink").disabled = true;
+            document.getElementById("deLinkbutton").style.display = 'none';
+        }
+        if (selectRowCount == 0) {
+            canEdit = false;
+            canAdd = false;
+            canGen = false;
+        }
+        if (canAdd == true) {
+            document.getElementById("btnAddNew").disabled = false;
+            document.getElementById("addbutton").style.display = 'block';
+        } else {
+            document.getElementById("btnAddNew").disabled = true;
+            document.getElementById("addbutton").style.display = 'none';
+        }
+        if (canEdit == true) {
+            document.getElementById("btnEdit").disabled = false;
+            document.getElementById("editbutton").style.display = 'block';
+            document.getElementById("btnDeLink").disabled = false;
+            document.getElementById("deLinkbutton").style.display = 'block';
+            document.getElementById("btnAssign1").disabled = false;
+            document.getElementById("btnAssign1").style.display = 'block';
+            console.log(isautoassigned);
+            console.log('@userRole');
+            if (isautoassigned == 'True' && '@userRole' == 'True') {
+                document.getElementById("btnConfirm").disabled = false;
+                document.getElementById("confirmbutton").style.display = 'block';
+            }
+        } else {
+            document.getElementById("btnEdit").disabled = true;
+            document.getElementById("editbutton").style.display = 'none';
+            document.getElementById("btnDeLink").disabled = true;
+            document.getElementById("deLinkbutton").style.display = 'none';
+            document.getElementById("btnAssign1").disabled = true;
+            document.getElementById("btnAssign1").style.display = 'none';
+
+            document.getElementById("btnConfirm").disabled = true;
+            document.getElementById("confirmbutton").style.display = 'none';
+        }
+        if (canGen == true) {
+            document.getElementById("btnGen").disabled = false;
+            document.getElementById("genbutton").style.display = 'block';
+        } else {
+            document.getElementById("btnGen").disabled = true;
+            document.getElementById("genbutton").style.display = 'none';
+        }
+        if (canAssign == true && selassignrow == selectRowCount) {
+          document.getElementById("btnAssign").disabled = false;
+          document.getElementById("btnAssign").style.display = 'block';
+      } else {
+          document.getElementById("btnAssign").disabled = true;
+          document.getElementById("btnAssign").style.display = 'none';
+        }
+        if (confirmMult == true && '@userRole' == 'True' && selectconfirmrow == selectRowCount) {
+              console.log("confirm multiple");
+              document.getElementById("btnConfirmMult").disabled = false;
+              document.getElementById("btnConfirmMult").style.display = 'block';
+        } else {
+          document.getElementById("btnConfirmMult").disabled = true;
+          document.getElementById("btnConfirmMult").style.display = 'none';
+        }
+
+    };
+    function buttonAdd() {
+        //alert("button add /View yet to be provided");
+        console.log(kedbForEdit);
+        var grid = $("#kedbGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        console.log(selectedIDs);
+        var selectedRow = grid.select();
+        var kednum = "";
+        for (var i = 0; i < selectedRow.length; i++) {
+            var dataItem = grid.dataItem(selectedRow[i]);
+            if (dataItem.KEDBNumber != null) {
+                console.log(dataItem.KEDBNumber);
+                kednum = dataItem.KEDBNumber;
+            }
+        }
+
+        var Ids = JSON.stringify(selectedIDs);
+
+        var mod = {
+            Ids: Ids,
+            kedbID: kedbForEdit
+        };
+        baseurl1 = '@Url.Content("~/KEDB/AddTicketsToKEDB")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'get',
+            data: {
+                Ids: Ids,
+                KEDBID: kedbForEdit
+            },
+            async: false,
+                contentType: 'application/json; charset=utf-8',
+                error: function (response) {
+
+                    alert('Error');
+                },
+                success: function (data) {
+
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    console.log("success");
+                    document.getElementById('addedkedb').innerHTML = kednum;
+                    $('#addTicketAlertModal').modal('show');
+                }
+       })
+    }
+    //button.disabled = true;
+    function buttonGen() {
+        var grid = $("#kedbGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join("-");
+        //var totalFile = document.getElementById("FileToUpload").files[0];
+        //console.log(totalFile);
+        console.log(selectedIDs);
+        var mod = {
+            Ids: selectedIDs
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/GenerateKedbId")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#KEDB").data("kendoTextBox").readonly(true);
+                    $("#KEDB").val(data.KEDBNumber);
+                    $("#Id").val(data.Id);
+                    $("#Incid").val(data.Incid);
+                    console.log(data.KEDBNumber);
+                    $("#IssueTypeId").data("kendoDropDownList").value("")
+                    $("#BusinessFunctionId").data("kendoDropDownList").value("")
+                    $("#SolutionCategoryId").data("kendoDropDownList").value("");
+                    $("#KnowledgeArticle").data("kendoTextBox").value("");
+                    $("#PointOfContact").data("kendoTextBox").value("");
+                    $("#Description").val("");
+                    $("#ResStepss").val("");
+                    document.getElementById('view-ticket-detail').innerHTML = 'View Ticket ID and Issue Description';
+                    document.getElementById('viewTicketdetail').style.display = 'none';
+                    $("#view-icon-detail").removeClass("hide-eye-icon");
+                    $('#IssueType_alert').hide();
+                    $('#KnowledgeArticle_alert').hide();
+                    var popup = $("#AddKEDBpopUp").data("kendoWindow");
+                    $('.k-window-title').text("Add KEDB");
+                    popup.open();
+                    popup.center();
+                    $("#viewTicketgrid").data("kendoGrid").dataSource.data(data.klist);
+            }
+
+
+       })
+    }
+    var oldsolutionStatusId = 0;
+    var show = '0';
+    function onEditBtnClickEntry() {
+        if ('@userRole' == 'false') {
+            var grid = $("#kedbGrid").getKendoGrid();
+            var selectedRow = grid.select();
+            var dataItem = grid.dataItem(selectedRow);
+            var KEDBID = dataItem.KEDBID;
+            var Status = dataItem.SolStatus;
+            console.log(Status);
+            if (Status != 'Draft') {
+                show
+                $("#editalert").text("! KEDB Manager can edit the Approved KEDB");
+                $("#editalert").show();
+                show = '1';
+                showKedb1(KEDBID);
+            } else {
+                buttonEdit();
+            }
+        } else {
+            buttonEdit();
+        }
+
+    }
+    function buttonEdit() {
+        var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+       // console.log(dataItem.KEDBID);
+        var mod = {
+            KEDBID: KEDBID
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/EditKedbId")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#edit_Id").val(data.Id);
+                   // console.log(data.Id);
+                    $("#edit_KEDB").val(data.KEDBNumber);
+                    $('#edit_KEDB').prop("disabled", "disabled")
+                    var Issuedropdown = $("#edit_IssueTypeId").data("kendoDropDownList");
+                    Issuedropdown.value(data.IssueTypeId);
+                    var Businessdropdown = $("#edit_BusinessFunctionId").data("kendoDropDownList");
+                    Businessdropdown.value(data.BusinessFunctionId);
+                    $('#edit_Description').val(data.Description);
+                    console.log(data.Description);
+                    var Solutiondropdown = $("#edit_SolutionCategoryId").data("kendoDropDownList");
+                    Solutiondropdown.value(data.SolutionCategoryId);
+                    $('#edit_KnowledgeArticle').val(data.KnowledgeArticle);
+                    $('#ResStepss_Edit').val(data.ResolutionSteps);
+                   // console.log(data.KnowledgeArticle);
+                    var SolStatusdropdown = $("#edit_SolutionStatusId").data("kendoDropDownList");
+                    SolStatusdropdown.value(data.SolutionStatusId);
+                    SolStatusdropdown.text(data.SolStatus);
+                    oldsolutionStatusId = data.SolutionStatusId;
+                    //$('#edit_SolutionStatusId').val(data.SolutionStatusId).attr("selected", "selected");
+                    $("#edit_PointOfContact").val(data.PointOfContact);
+                    $("#edit_user").val(data.UpdatedUser);
+                    $('#edit_user').prop("disabled", "disabled")
+                    $("#edit_date").val(data.UpdatedDateTime);
+                    $('#edit_date').prop("disabled", "disabled")
+                    if (data.SolStatus != null) {
+                        $("#statusname1").text(data.SolStatus);
+                        $("#statusname2").text(data.SolStatus);
+                    }
+
+                    var editgrid = $("#editViewTicketgrid").data("kendoGrid");
+                    editgrid.dataSource.read();
+                    var editpopup = $("#EditKEDBpopUp").data("kendoWindow");
+                    $('.k-window-title').text("Edit KEDB");
+                    console.log(editpopup);
+                    editpopup.open();
+                    //win.open().center();
+                }
+
+
+            }
+        )
+    }
+    function onEditSaveClick() {
+         $('#editIssueType_alert').hide();
+         $('#editSolutionStatus_alert').hide();
+         $('#editKnowledgeArticle_alert').hide();
+        var Id = $("#edit_Id").val();
+         var IssueTypeId = $("#edit_IssueTypeId").data("kendoDropDownList").value();
+         if (IssueTypeId == '') {
+             $('#editIssueType_alert').show();
+             return false;
+         }
+        var BusinessFunctionId = $("#edit_BusinessFunctionId").data("kendoDropDownList").value();
+         var SolutionCategoryId = $("#edit_SolutionCategoryId").data("kendoDropDownList").value();
+         var KEDBNum = $("#edit_KEDB").val();
+         var SolutionStatusId = $("#edit_SolutionStatusId").data("kendoDropDownList").value();
+        if (SolutionStatusId == '') {
+            SolutionStatusId = oldsolutionStatusId;
+            if (SolutionStatusId == 0) {
+                $('#editSolutionStatus_alert').show();
+                return false;
+            }
+         }
+         var KnowledgeArticle = $("#edit_KnowledgeArticle").val();
+        if (KnowledgeArticle.trim() == '') {
+            KnowledgeArticle = " ";
+             //$('#editKnowledgeArticle_alert').show();
+             //return false;
+         }
+         var PointOfContact = $("#edit_PointOfContact").val();
+         if (PointOfContact.trim() == '') {
+             PointOfContact = " ";
+         }
+         var Description = $("#edit_Description").val();
+         if (Description.trim() == '') {
+             Description = " ";
+        }
+
+        var ResolutionSteps_Edit = $("#ResStepss_Edit").val();
+        if (ResolutionSteps_Edit.trim() == '') {
+            ResolutionSteps_Edit = " ";
+        }
+
+        var SolStatusdropdown = $("#edit_SolutionStatusId").data("kendoDropDownList").text();
+        if (SolutionStatusId != oldsolutionStatusId && SolStatusdropdown.toUpperCase() === "RETIRED") {
+            document.getElementById('kedbnum').innerHTML = KEDBNum;
+            console.log("Retiring");
+            $('#kedbRetireConfirmModal').modal('show');
+        }
+         else {
+             var mod ={
+              Id: Id,
+              KEDBNumber: KEDBNum,
+              BusinessFunctionId: BusinessFunctionId,
+              SolutionCategoryId: SolutionCategoryId,
+              IssueTypeId: IssueTypeId,
+              SolutionStatusId: SolutionStatusId,
+              KnowledgeArticle: KnowledgeArticle,
+              Description: Description,
+                 PointOfContact: PointOfContact,
+                 SolStatus: SolStatusdropdown,
+                 ResolutionSteps: ResolutionSteps_Edit
+                      }
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/KEDB/SaveEditedKEDBDetails")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    document.getElementById("btnEdit").disabled = true;
+                    document.getElementById("editbutton").style.display = 'none';
+                    document.getElementById("btnAssign").style.display = 'none';
+                    document.getElementById("btnConfirmMult").style.display = 'none';
+                    document.getElementById("btnAssign1").style.display = 'none';
+                    document.getElementById("btnConfirm").disabled = true;
+                    document.getElementById("confirmbutton").style.display = 'none';
+                    document.getElementById("btnDeLink").disabled = true;
+                    document.getElementById("deLinkbutton").style.display = 'none';
+                    var popup = $("#EditKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+         }
+
+    }
+    $(".kedb-retireconfirm-modal").click(function () {
+
+         var Id = $("#edit_Id").val();
+         var IssueTypeId = $("#edit_IssueTypeId").data("kendoDropDownList").value();
+        var BusinessFunctionId = $("#edit_BusinessFunctionId").data("kendoDropDownList").value();
+         var SolutionCategoryId = $("#edit_SolutionCategoryId").data("kendoDropDownList").value();
+         var KEDBNum = $("#edit_KEDB").val();
+         var SolutionStatusId = $("#edit_SolutionStatusId").data("kendoDropDownList").value();
+        var KnowledgeArticle = $("#edit_KnowledgeArticle").val();
+        var SolStatusdropdown = $("#edit_SolutionStatusId").data("kendoDropDownList").text();
+         var PointOfContact = $("#edit_PointOfContact").val();
+        if (PointOfContact.trim() == '') {
+            PointOfContact = " ";
+        }
+         var Description = $("#edit_Description").val();
+        if (Description.trim() == '') {
+            Description = " ";
+        }
+
+          var mod ={
+              Id: Id,
+              KEDBNumber: KEDBNum,
+              BusinessFunctionId: BusinessFunctionId,
+              SolutionCategoryId: SolutionCategoryId,
+              IssueTypeId: IssueTypeId,
+              SolutionStatusId: SolutionStatusId,
+              KnowledgeArticle: KnowledgeArticle,
+              Description: Description,
+              PointOfContact: PointOfContact,
+              SolStatus: SolStatusdropdown
+                      }
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/KEDB/SaveEditedKEDBDetails")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    var popup = $("#EditKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+    });
+    function onEditCancelClick() {
+        var popup = $("#EditKEDBpopUp").data("kendoWindow");
+        popup.close();
+    }
+    function buttonView() {
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        $('.k-window-title').text("View KEDB");
+        document.getElementById("Selected_TicketID").value = null;
+        document.getElementById("confirmMultBtn").style.display = 'none';
+        document.getElementById("btnViewCancel").style.display = 'block';
+        popup.open();
+        popup.center();
+    }
+    function onCancelClick() {
+        DeleteKEDB();
+        var popup = $("#AddKEDBpopUp").data("kendoWindow");
+        popup.close();
+    }
+    function showKedb1(KEDBID) {
+        document.getElementById('view-ticket-detail_view').innerHTML = 'View Ticket ID and Issue Description';
+        document.getElementById('viewTicketdetail_view').style.display = 'none';
+        $("#view-icon-detail_view").removeClass("hide-eye-icon");
+        console.log(Id);
+        console.log(KEDBID);
+        if (show != '1') {
+            $("#editalert").hide();
+        }
+        show = '0';
+        document.getElementById("View_KEDBID").value = KEDBID;
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        $('.k-window-title').text("View KEDB");
+        document.getElementById("Selected_TicketID").value = null;
+
+        document.getElementById("confirmMultBtn").style.display = 'none';
+        document.getElementById("btnViewCancel").style.display = 'block';
+        //var TicketIDTextbox = $("#Ticket_view").data("kendoTextBox");
+        //TicketIDTextbox.readonly(true);
+
+        $.ajax({
+            url: 'KEDB/viewKEDBDetails',
+            type: "GET",
+
+            data: {
+                KEDBID: KEDBID
+            },
+            error: function (response) {
+
+                alert('Error');
+            },
+            success: function (data) {
+                $("#Kedb_view").val(data.KEDBNumber);
+                $("#IssueType_view").val(data.KedbIssueType);
+                $("#SolutionCategory_view").val(data.SolutionCategory);
+                $("#Solutionstatus_view").val(data.SolStatus);
+                $("#BusinessFunction_view").val(data.BusinessFunction);
+                $("#Pointofcontact_view").val(data.PointOfContact);
+                $("#KnowledgeArticle_view").val(data.KnowledgeArticle);
+                $("#ResStep").val(data.ResolutionSteps);
+                $("#FileName_view").val(data.FileName);
+                $("#kedbDesc_view").val(data.Description);
+                $("#view_user").val(data.UpdatedUser);
+                $("#view_date").val(data.UpdatedDateTime);
+
+                $('#Kedb_view').prop("disabled", "disabled")
+                $('#IssueType_view').prop("disabled", "disabled")
+                $('#SolutionCategory_view').prop("disabled", "disabled")
+                $('#Solutionstatus_view').prop("disabled", "disabled")
+                $('#BusinessFunction_view').prop("disabled", "disabled")
+                $('#Pointofcontact_view').prop("disabled", "disabled")
+                $('#KnowledgeArticle_view').prop("disabled", "disabled")
+                $('#kedbDesc_view').prop("disabled", "disabled")
+                $('#view_user').prop("disabled", "disabled")
+                $('#view_date').prop("disabled", "disabled")
+                $('#ResStep').prop("disabled", "disabled")
+                $('#FileName_view').prop("disabled", "disabled")
+                $("#statusname1").text(data.SolStatus);
+                $("#statusname2").text(data.SolStatus);
+                popup.open();
+                popup.center();
+                $("#Ticket-viewgrid").data("kendoGrid").dataSource.read();
+
+            }
+        });
+
+
+ }
+    function showKedb(Id) {
+
+        $('.kedb-view').on('click', function () {
+
+            var kedbnum = 2;
+            console.log(Id.value);
+            /*  console.log("aaa");*/
+
+        });
+    };
+    function buttonAssign() {
+
+        var grid = $("#kedbGrid").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join("-");
+        var filter = $("#filter").data("kendoFilter");
+        var whereclause = filter._previewContainer.text();
+        console.log(whereclause);
+        console.log(selectedIDs);
+        var approvalurl = '@Url.Content("~/IncidentNavigator/KEDB/AssignKEDB")?incids=' + selectedIDs + '&kid=' + kedbForEdit + '&Clause=' + whereclause;
+        document.getElementById("clauseMod").innerHTML = "";
+        window.location.href = approvalurl;
+
+
+    }
+    function onSaveClick() {
+        //var upload = $("#httpPostedKAFile").getKendoUpload();
+        //var upload = $("#httpPostedKAFile").data("kendoUpload");
+        //var upload = document.getElementById("FileToUpload").files[0];
+
+        //console.log("File");
+        //console.log(upload);
+        //console.log(upload.name);
+        //var files = upload.getFiles();
+        //formData.append('files', files[0].rawFile);
+        //var fileData = files[0].rawFile;
+        //console.log("File");
+        //console.log(fileData);
+        $('#IssueType_alert').hide();
+        $('#KnowledgeArticle_alert').hide();
+        var Id = $("#Id").val();
+        var IssueTypeId = $("#IssueTypeId").data("kendoDropDownList").value();
+        if (IssueTypeId == '') {
+            $('#IssueType_alert').show();
+            return false;
+        }
+        var BusinessFunctionId = $("#BusinessFunctionId").data("kendoDropDownList").value();
+        var SolutionCategoryId = $("#SolutionCategoryId").data("kendoDropDownList").value();
+
+        var KnowledgeArticle = $("#KnowledgeArticle").data("kendoTextBox").value();
+        if (KnowledgeArticle.trim() == '') {
+            //$('#KnowledgeArticle_alert').show();
+            //return false;
+            KnowledgeArticle = " ";
+        }
+        var PointOfContact = $("#PointOfContact").data("kendoTextBox").value();
+        if (PointOfContact.trim() == '') {
+            PointOfContact = " ";
+        }
+        var Description = $("#Description").val();
+        if (Description.trim() == '') {
+            Description = " ";
+        }
+        var ResolutionSteps = $("#ResStepss").val();
+        if (ResolutionSteps.trim() == '') {
+            ResolutionSteps = " ";
+        }
+        //console.log(Description);
+        //console.log(IssueTypeId + " " + BusinessFunctionId + " " + SolutionCategoryId + " " + SolutionStatusId + " " + KnowledgeArticle)
+        var kedbid = $("#Incid").val();
+          var mod ={
+              Id: Id,
+              BusinessFunctionId: BusinessFunctionId,
+              SolutionCategoryId: SolutionCategoryId,
+              IssueTypeId: IssueTypeId,
+              KnowledgeArticle: KnowledgeArticle,
+              Description: Description,
+              PointOfContact: PointOfContact,
+              Incid: kedbid,
+              ResolutionSteps: ResolutionSteps
+             }
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/KEDB/SaveKEDBNumber")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    var popup = $("#AddKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+    }
+    function onWinClose() {
+       DeleteKEDB();
+    }
+    function DeleteKEDB() {
+        var delId = $("#Id").val();
+        var mod = {
+            delId: delId
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/DeleteKedbNumber")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+
+            }
+
+
+       })
+
+    }
+    function onSearchClick() {
+
+        //var grid = $("#kedbGrid").data("kendoGrid");
+        //grid.read();
+
+        var filter = $("#filter").data("kendoFilter");
+        var whereclause = filter._previewContainer.text();
+        console.log(whereclause);
+        var clauseModel = document.getElementById("clauseMod").innerHTML;
+        console.log("In Search " + clauseModel)
+        if (clauseModel != null && clauseModel && '' && clauseModel != undefined) {
+            whereclause = clauseModel;
+        }
+
+        if (whereclause != null && whereclause != '') {
+            $("#kedbGrid").getKendoGrid().dataSource.read();
+        }
+       /* $("#kedbGrid").getKendoGrid().dataSource.read();*/
+
+        var x = document.getElementById("search-query");
+        var y = document.getElementById("search-text");
+        document.getElementById('search-criteria').innerHTML = 'View Search Criteria';
+        document.getElementById('arrow-bg').style.display = "block";
+        document.getElementById('arrowdown-bg').style.display = "none";
+        document.getElementById('eye-icon').style.display = "block";
+        document.getElementById('hide-icon').style.display = "none";
+        x.style.display = "none";
+        //var filter = $("#filter").data("kendoFilter");
+        var whereclause = filter._previewContainer.text();
+        $("#search-text").text(whereclause);
+        y.style.display = "block";
+
+        //var kendoOptions = kendo.stringify(filter.getOptions());
+        localStorage["kendo-filter-options"] = kendo.stringify(filter.getOptions());
+        console.log("In Search click SAVE");
+        console.log(localStorage["kendo-filter-options"]);
+
+
+
+
+    }
+    function getWhereClause() {
+        var filter = $("#filter").data("kendoFilter");
+        var whereclause = filter._previewContainer.text();
+        var clauseModel = document.getElementById("clauseMod").innerHTML;
+
+        console.log("clauseModel in getWhereClause " + clauseModel);
+        if (clauseModel != undefined && clauseModel != null && clauseModel != "" ) {
+            whereclause = clauseModel;
+            document.getElementById("clauseMod").innerHTML = "";
+        }
+        return {
+            clause: whereclause
+        };
+
+    }
+    function getDescriptionToolTip(e) {
+        var dataItem = $("#kedbGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+    function buttonViewClose() {
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        popup.close();
+        document.getElementById("View_KEDBID").value = null;
+        document.getElementById("Selected_TicketID").value = null;
+        document.getElementById("confirmMultBtn").style.display = 'none';
+        document.getElementById("btnViewCancel").style.display = 'block';
+
+    }
+    $(document).ready(function () {
+        document.getElementById("btnAddNew").disabled = true;
+        document.getElementById("addbutton").style.display = 'none';
+        document.getElementById("btnGen").disabled = true;
+        document.getElementById("genbutton").style.display = 'none';
+        document.getElementById("btnEdit").disabled = true;
+        document.getElementById("editbutton").style.display = 'none';
+        document.getElementById("btnAssign").style.display = 'none';
+        document.getElementById("btnAssign1").style.display = 'none';
+        document.getElementById("btnDeLink").disabled = true;
+        document.getElementById("deLinkbutton").style.display = 'none';
+        document.getElementById("btnConfirm").disabled = true;
+        document.getElementById("confirmbutton").style.display = 'none';
+        document.getElementById("btnConfirmMult").style.display = 'none';
+        var clauseModel = document.getElementById("clauseMod").innerHTML;
+        console.log("In doc " + clauseModel);
+        if (clauseModel != undefined && clauseModel != null && clauseModel !="") {
+            $("#kedbGrid").getKendoGrid().dataSource.read();
+            var filter = $("#filter").getKendoFilter();
+            var options = localStorage["kendo-filter-options"];
+            console.log("in ready");
+            console.log(localStorage["kendo-filter-options"]);
+            if (options) {
+                options = JSON.parse(options);
+                //options.dataSource = dataSource1;
+                filter.setOptions(options);
+                filter.applyFilter();
+            }
+            document.getElementById("clauseMod").innerHTML = "";
+
+        }
+
+
+});
+
+    function buttonDeLink() {
+        var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+        var Id = dataItem.Id;
+
+        $.ajax(
+            {
+                url: 'KEDB/viewDelinkKEDBDetails',
+                type: "GET",
+
+                data: {
+                    Id: Id,
+                    KEDBID: KEDBID
+                },
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data);
+                    $("#delink_TicketId").val(data.TicketId);
+                    $("#delink_TicketDesc").val(data.TicketDescription);
+                    $("#delink_Id").val(data.Id);
+                    $("#delink_IncidentId").val(data.IncidentId);
+                    $("#delink_KEDB").val(data.KEDBNumber);
+                    $("#delink_IssueType").val(data.KedbIssueType);
+                    $("#delink_BusinessFunction").val(data.BusinessFunction);
+                    $("#delink_Description").val(data.Description);
+                    $("#delink_SolutionCategory").val(data.SolutionCategory);
+                    $("#delink_SolutionStatus").val(data.SolStatus);
+                    $("#delink_KnowledgeArticle").val(data.KnowledgeArticle);
+                    $("#delink_PointOfContact").val(data.PointOfContact);
+                    $("#delink_user").val(data.UpdatedUser);
+                    $("#delink_date").val(data.UpdatedDateTime);
+                    $("#FileName_delink").val(data.FileName);
+                    $("#ResStep_delink").val(data.ResolutionSteps);
+
+                    $('#delink_TicketId').prop("disabled", "disabled")
+                    $('#delink_TicketDesc').prop("disabled", "disabled")
+                    $('#delink_Id').prop("disabled", "disabled")
+                    $('#delink_IncidentId').prop("disabled", "disabled")
+                    $('#edit_KEDB').prop("disabled", "disabled")
+                    $('#delink_IssueType').prop("disabled", "disabled")
+                    $('#delink_BusinessFunction').prop("disabled", "disabled")
+                    $('#delink_Description').prop("disabled", "disabled")
+                    $('#delink_SolutionCategory').prop("disabled", "disabled")
+                    $('#delink_SolutionStatus').prop("disabled", "disabled")
+                    $('#delink_KnowledgeArticle').prop("disabled", "disabled")
+                    $('#delink_PointOfContact').prop("disabled", "disabled")
+                    $('#delink_user').prop("disabled", "disabled")
+                    $('#delink_date').prop("disabled", "disabled")
+                    $('#FileName_delink').prop("disabled", "disabled")
+                    $('#ResStep_delink').prop("disabled", "disabled")
+                    document.getElementById("confirmdiv").style.display = 'none';
+                    document.getElementById("delinkdiv").style.display = 'block';
+                    document.getElementById("ambernote").innerHTML = "On click of 'DELINK',removes the link between Ticket ID and KEDB ID";
+
+                    var delinkpopup = $("#DelinkKEDBpopUp").data("kendoWindow");
+                    $('.k-window-title').text("Delink KEDB");
+                    delinkpopup.open();
+                    delinkpopup.center();
+                }
+
+
+            }
+        )
+    }
+    function onDelinkClick() {
+        var kedbId = $("#delink_Id").val();
+        var ticketid = $("#delink_IncidentId").val();
+        console.log(ticketid);
+        console.log(kedbId);
+          var mod ={
+              kedbId: kedbId,
+              ticketid: ticketid
+        }
+
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/KEDB/DelinkKEDBDetails")';
+            $.ajax({
+                type: 'post',
+                url: 'KEDB/DelinkKEDBDetails',
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    document.getElementById("btnEdit").disabled = true;
+                    document.getElementById("editbutton").style.display = 'none';
+                    document.getElementById("btnAssign").style.display = 'none';
+                    document.getElementById("btnAssign1").style.display = 'none';
+                    document.getElementById("btnDeLink").disabled = true;
+                    document.getElementById("deLinkbutton").style.display = 'none';
+                    document.getElementById("btnConfirm").disabled = true;
+                    document.getElementById("confirmbutton").style.display = 'none';
+                    document.getElementById("btnConfirmMult").style.display = 'none';
+
+                    var popup = $("#DelinkKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+    }
+
+    function onDelinkCancelClick() {
+        var popup = $("#DelinkKEDBpopUp").data("kendoWindow");
+        popup.close();
+    }
+    function buttonConfirm() {
+        var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+        var Id = dataItem.Id;
+
+        $.ajax(
+            {
+                url: 'KEDB/viewDelinkKEDBDetails',
+                type: "GET",
+
+                data: {
+                    Id: Id,
+                    KEDBID: KEDBID
+                },
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data);
+                    $("#delink_TicketId").val(data.TicketId);
+                    $("#delink_TicketDesc").val(data.TicketDescription);
+                    $("#delink_Id").val(data.Id);
+                    $("#delink_IncidentId").val(data.IncidentId);
+                    $("#delink_KEDB").val(data.KEDBNumber);
+                    $("#delink_IssueType").val(data.KedbIssueType);
+                    $("#delink_BusinessFunction").val(data.BusinessFunction);
+                    $("#delink_Description").val(data.Description);
+                    $("#delink_SolutionCategory").val(data.SolutionCategory);
+                    $("#delink_SolutionStatus").val(data.SolStatus);
+                    $("#delink_KnowledgeArticle").val(data.KnowledgeArticle);
+                    $("#delink_PointOfContact").val(data.PointOfContact);
+                    $("#delink_user").val(data.UpdatedUser);
+                    $("#delink_date").val(data.UpdatedDateTime);
+                    $("#FileName_delink").val(data.FileName);
+                    $("#ResStep_delink").val(data.ResolutionSteps);
+
+                    $('#delink_TicketId').prop("disabled", "disabled")
+                    $('#delink_TicketDesc').prop("disabled", "disabled")
+                    $('#delink_Id').prop("disabled", "disabled")
+                    $('#delink_IncidentId').prop("disabled", "disabled")
+                    $('#edit_KEDB').prop("disabled", "disabled")
+                    $('#delink_IssueType').prop("disabled", "disabled")
+                    $('#delink_BusinessFunction').prop("disabled", "disabled")
+                    $('#delink_Description').prop("disabled", "disabled")
+                    $('#delink_SolutionCategory').prop("disabled", "disabled")
+                    $('#delink_SolutionStatus').prop("disabled", "disabled")
+                    $('#delink_KnowledgeArticle').prop("disabled", "disabled")
+                    $('#delink_PointOfContact').prop("disabled", "disabled")
+                    $('#delink_user').prop("disabled", "disabled")
+                    $('#delink_date').prop("disabled", "disabled")
+                    $('#FileName_delink').prop("disabled", "disabled")
+                    $('#ResStep_delink').prop("disabled", "disabled")
+                    document.getElementById("confirmdiv").style.display = 'block';
+                    document.getElementById("delinkdiv").style.display = 'none';
+                    document.getElementById("ambernote").innerHTML = "On confirming, ticket will be mapped to the KEDB " + data.KEDBNumber;
+
+                    var delinkpopup = $("#DelinkKEDBpopUp").data("kendoWindow");
+                    $('.k-window-title').text("Confirm KEDB");
+                    delinkpopup.open();
+                    delinkpopup.center();
+                }
+
+
+            }
+        )
+    }
+    function onConfirmClick() {
+        var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+        var IncidentId = dataItem.Id;
+        var mod = {
+            KEDBID: KEDBID,
+            IncidentId: IncidentId
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/ConfirmKEDBAutoAssignment")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    document.getElementById("btnEdit").disabled = true;
+                    document.getElementById("editbutton").style.display = 'none';
+                    document.getElementById("btnAssign").style.display = 'none';
+                    document.getElementById("btnAssign1").style.display = 'none';
+                    document.getElementById("btnDeLink").disabled = true;
+                    document.getElementById("deLinkbutton").style.display = 'none';
+                    document.getElementById("btnConfirm").disabled = true;
+                    document.getElementById("confirmbutton").style.display = 'none';
+                    document.getElementById("btnConfirmMult").style.display = 'none';
+                    document.getElementById("confirmdiv").style.display = 'none';
+                    document.getElementById("delinkdiv").style.display = 'block';
+                    var popup = $("#DelinkKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                }
+
+            }
+        )
+    }
+    function buttonConfirmMult() {
+        var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+        document.getElementById("View_KEDBID").value = KEDBID;
+        var selectedIDs = grid.selectedKeyNames().join("-");
+        document.getElementById("Selected_TicketID").value = selectedIDs;
+
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        $('.k-window-title').text("Confirm KEDB");
+
+        $.ajax({
+            url: 'KEDB/viewKEDBDetails',
+            type: "GET",
+
+            data: {
+                KEDBID: KEDBID
+            },
+            error: function (response) {
+
+                alert('Error');
+            },
+            success: function (data) {
+                $("#Kedb_view").val(data.KEDBNumber);
+                $("#IssueType_view").val(data.KedbIssueType);
+                $("#SolutionCategory_view").val(data.SolutionCategory);
+                $("#Solutionstatus_view").val(data.SolStatus);
+                $("#BusinessFunction_view").val(data.BusinessFunction);
+                $("#Pointofcontact_view").val(data.PointOfContact);
+                $("#KnowledgeArticle_view").val(data.KnowledgeArticle);
+                $("#ResStep").val(data.ResolutionSteps);
+                $("#FileName_view").val(data.FileName);
+                $("#kedbDesc_view").val(data.Description);
+                $("#view_user").val(data.UpdatedUser);
+                $("#view_date").val(data.UpdatedDateTime);
+
+                $('#Kedb_view').prop("disabled", "disabled")
+                $('#IssueType_view').prop("disabled", "disabled")
+                $('#SolutionCategory_view').prop("disabled", "disabled")
+                $('#Solutionstatus_view').prop("disabled", "disabled")
+                $('#BusinessFunction_view').prop("disabled", "disabled")
+                $('#Pointofcontact_view').prop("disabled", "disabled")
+                $('#KnowledgeArticle_view').prop("disabled", "disabled")
+                $('#kedbDesc_view').prop("disabled", "disabled")
+                $('#view_user').prop("disabled", "disabled")
+                $('#view_date').prop("disabled", "disabled")
+                $('#ResStep').prop("disabled", "disabled")
+                $('#FileName_view').prop("disabled", "disabled")
+                $("#statusname1").text(data.SolStatus);
+                $("#statusname2").text(data.SolStatus);
+                document.getElementById("confirmambernote").innerHTML = "On confirming, ticket will be mapped to the KEDB " + data.KEDBNumber;
+                document.getElementById("confirmMultBtn").style.display = 'flex';
+                document.getElementById("btnViewCancel").style.display = 'none';
+                popup.open();
+                popup.center();
+                $("#Ticket-viewgrid").data("kendoGrid").dataSource.read();
+
+            }
+        });
+    }
+    function onConfirmMultClick() {
+          var grid = $("#kedbGrid").getKendoGrid();
+        var selectedRow = grid.select();
+        var dataItem = grid.dataItem(selectedRow);
+        var KEDBID = dataItem.KEDBID;
+        var selectedIDs = grid.selectedKeyNames().join("-");
+        var mod = {
+            KEDBID: KEDBID,
+            selectedIDs: selectedIDs
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/ConfirmMultKEDBAutoAssignment")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#kedbGrid").data("kendoGrid").dataSource.read();
+                    document.getElementById("btnEdit").disabled = true;
+                    document.getElementById("editbutton").style.display = 'none';
+                    document.getElementById("btnAssign").style.display = 'none';
+                    document.getElementById("btnAssign1").style.display = 'none';
+                    document.getElementById("btnDeLink").disabled = true;
+                    document.getElementById("deLinkbutton").style.display = 'none';
+                    document.getElementById("btnConfirm").disabled = true;
+                    document.getElementById("confirmbutton").style.display = 'none';
+                    document.getElementById("btnConfirmMult").style.display = 'none';
+                    document.getElementById("delinkdiv").style.display = 'block';
+                    var popup = $("#viewKEDBpopUp").data("kendoWindow");
+                    popup.close();
+                    document.getElementById("View_KEDBID").value = null;
+                    document.getElementById("Selected_TicketID").value = null;
+                }
+
+            }
+        )
+    }
+
+
+    function getTooltipcontent1(e) {
+        var dataItem = $("#kedbGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var isassigned = dataItem.isAutoIdentifiedVal;
+        var content = "";
+        if (isassigned == "True") {
+            content = "Item Added through Automation";
+        }
+        if (isassigned == "False") {
+            content = "Item Mapped to KEDB";
+        }
+        if (dataItem.KEDBNumber == null) {
+            content = "Item not Mapped to KEDB";
+        }
+        return content;
+    }
+</script>

@@ -1,0 +1,31 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+@*<input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Group </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLevel1">Add</button>
+                      </div>
+                    </div>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Group Name</th>
+                             <th scope="col">Importance</th>
+                        </tr>
+                        @{
+                            if (Model.ClientBClevel1InternalList.Count() > 0 && Model.ClientBClevel1InternalList.Count() != null)
+                            {
+                                foreach (var item in Model.ClientBClevel1InternalList)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.ClientLevel1Name,"DisplayClientBClevels","ClientBClevels", new {ClientID=item.ClientId,CLevel1Id=item.Id,CLevel1Name = @item.ClientLevel1Name,InExValue = @item.ClientInternalExternal}, null)</td>
+                                   <td>@item.ClientLevel1Importance</td>
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

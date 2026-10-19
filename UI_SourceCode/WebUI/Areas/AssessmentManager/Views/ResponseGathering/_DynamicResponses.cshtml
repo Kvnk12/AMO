@@ -1,0 +1,152 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+
+
+@if (Model.MultipleResponses.Count != 0)
+{
+    int i = 0;
+    <div class="ques-eng-detail" id="idresponsetxt">
+
+
+        @foreach (var Ritem in Model.MultipleResponses)
+        {
+            if (Ritem.SubResponse != null)
+            {
+                <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                    @if (i == 0)
+                    {
+                        <div>
+                            <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Engagement Response</label>
+                            <label class="hide" id="responselabel_@Ritem.Id" style="color:red;font-size:10px">* Please enter response</label>
+                        </div>
+                    }
+                    else
+                    {
+                <div>
+                    <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Follow up Question @i-Response</label>
+                    <label class="hide" id="responselabel_@Ritem.Id" style="color:red;font-size:10px">* Please enter response</label>
+
+                </div>
+                    }
+                    <button class="btn-eng-save  hide" id="btn-edi-save-@Ritem.Id" onclick="updateEngagementResponse(@Ritem.Id)"></button>
+                    <button class="btn-eng-edit editdisablebtn" id="btn-edi-edit-@Ritem.Id" onclick="editEngagementRes(@Ritem.Id)"></button>
+
+                </div>
+                if (i == 0)
+                {
+                    <div id="Id-Editor-@Ritem.Id" class="ques-eng-editor editor-disabled main-response">
+                        @(Html.Kendo().Editor()
+        .Name("EngagementResponseEditor"+Ritem.Id)
+        .HtmlAttributes(new { @class = "eng-res-texteditor", style = "width: 99%;color:#ffffff", aria_label = "editor",})
+        .Value(@<text>@Ritem.SubResponse
+        </text>)
+        .Events(events => events
+         .Change("onEditorchange")
+          )
+        .Resizable(resizable => resizable.Content(false).Toolbar(true))
+        .Tools(tools => tools
+        .Clear()
+        .Bold().Italic().Underline()
+        .InsertUnorderedList().InsertOrderedList()
+        //.Outdent().Indent()
+        //.FontColor().BackColor()
+        )
+        )
+                    </div>
+
+                }
+                else
+                {
+                    <div id="Id-Editor-@Ritem.Id" class="ques-eng-editor editor-disabled">
+                        @(Html.Kendo().Editor()
+        .Name("EngagementResponseEditor"+Ritem.Id)
+        .HtmlAttributes(new { @class = "eng-res-texteditor", style = "width: 99%;color:#ffffff", aria_label = "editor",})
+        .Value(@<text>@Ritem.SubResponse
+        </text>)
+        .Resizable(resizable => resizable.Content(false).Toolbar(true))
+           .Events(events => events
+           .Change("onEditorchange")
+        )
+        .Tools(tools => tools
+        .Clear()
+        .Bold().Italic().Underline()
+        .InsertUnorderedList().InsertOrderedList()
+        //.Outdent().Indent()
+        //.FontColor().BackColor()
+        )
+        )
+                    </div>
+
+                }
+
+                if (Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id) != null)
+                {
+                    foreach (var Fitem in Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id))
+                    {
+                        if (Fitem.SubFollowUpQuestion != null)
+                        {
+                            <div class="ques-follow-detail">
+
+                                <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                                    <label class="ques-label-1"><span class="circle-fp">AT</span>Follow up Question @Ritem.SubResponseOrder</label>
+                                    @if (i == (Model.MultipleResponses.Count-1))
+                                    {
+                                        <button class="btn-eng-return editdisablebtn" id="followupreturn+@Fitem.Id" onclick="returnEngagementRes(@Ritem.SubResponseOrder, SQNo.value)"></button>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                </div>
+
+                                <div class="ques-follow-detailcontext">
+                                    <div class="ques-display-followtextarea">
+                                        <label>@Fitem.SubFollowUpQuestion</label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    }
+                }
+            }
+            i++;
+        }
+
+    </div>
+
+}
+else
+{
+<div style="display: flex; justify-content: space-between; align-items:flex-end">
+    <div>
+        <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Engagement Response</label>
+        <label class="hide" id="responsenulllabel" style="color:red;font-size:10px">* Please enter response</label>
+    </div>
+    <button class="btn-eng-save" id="idfirstbtnsave" onclick="saveEngagementResponse(AssessmentID.value,SQNo.value)"></button>
+    <button class="btn-eng-save hide" id="idfirstbtnupdate" onclick="updateEngagementResforFirst()"></button>
+    <button class="btn-eng-edit editdisablebtn hide" id="idfirstbtnedit" onclick="editEngagementResforFirst()"></button>
+</div>
+
+    <div class="ques-eng-editor main-response firstresponseclass " id="firstresponse">
+        @(Html.Kendo().Editor()
+           .Name("EngagementResponseEditor")
+           .HtmlAttributes(new { style = "width: 99%;color:#fff !important", aria_label = "editor",/* @class = "eng-res-texteditor"*/ })
+           .Resizable(resizable => resizable.Content(false).Toolbar(true))
+              .Events(events => events
+              .Change("onEditorchange")             
+           )
+           .Tools(tools => tools
+           .Clear()
+           .Bold().Italic().Underline()
+           .InsertUnorderedList().InsertOrderedList()
+           //  .Outdent().Indent()
+           // .FontColor().BackColor()
+           )
+           )
+    </div>
+}
+<div id="idNewResponse" class="">
+   
+</div>

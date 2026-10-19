@@ -1,0 +1,178 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@model ActionItemTrackerModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+
+    .k-input.k-textarea {
+        width: 29em !important;
+        resize: none;
+        height: 5em;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="addoreditActionItempopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("AddoreditpopUp")
+    .Title("Add or Edit Action Item")
+    .Content(@<text>
+        <div class="actionItemLevel1">
+            <div class="actionItemFields">
+                <div class="actionItemField1" style="display: flex; margin-left: 1em;">
+                  <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Owner :</span>
+                          <div class="custom-dropdown Assessment" style="width:9em;margin-left: -2.5em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.OwnerID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.EngagementPOCList)
+                               .Name("Owner")
+                               .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;margin-left: -2em;" })
+                               )
+                          </div>
+                </div>
+
+                <div class="actionItemField1" style="display: flex; margin-left: 2em; margin-top: 1em; }">
+                    <span class="custom-blue-label" style="margin-right: -1.8em; width: 8em; margin-left: -1em;">Planned Completion Date :</span>
+                        <div class="custom-datepicker StartDate" style="margin-left: 3.6em; margin-top: 0.9em; width: 15.7em;">
+
+                            @(Html.Kendo().DatePicker()
+                                 .Name("PlannedCompletionDate")
+                                 .Value(DateTime.Now)
+                                 .Format("MM/dd/yyyy")
+                                 .Min(DateTime.Today)
+                                 .MonthTemplate(m => m
+                                 .Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Select Planned Completion Date" })
+                                )
+
+                              </div>
+
+                </div>
+
+                        <div class="actionItemField1" style="display: flex; margin-left: 1em; margin-top: 1em; }">
+                      <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em;">Status :</span>
+                    <div class="custom-dropdown Status" style=" width: 10em; margin-left: -0.9em; margin-top: 0em;">
+                        @(Html.Kendo().DropDownList()
+.Name("Status")
+.DataTextField("Text")
+.Enable(false)
+.DataValueField("Value")
+.BindTo(new List<SelectListItem>() {
+                     new SelectListItem() {
+                     Text = "Defined",
+                     Value = "Defined"
+                     },
+                     new SelectListItem() {
+                     Text = "In Progress",
+                     Value = "In Progress"
+                     },
+                     new SelectListItem() {
+                     Text = "Hold",
+                     Value = "Hold"
+                     },
+                      new SelectListItem() {
+                     Text = "Completed",
+                     Value = "Completed"
+                     },
+                       new SelectListItem() {
+                     Text = "Cancelled",
+                     Value = "Cancelled"
+                     }
+})
+.Value("Defined") //may add Model.MaturityLevelInt.ToString()
+                  .Events(e =>
+                  {
+                      e.Change("onChangeActionStatus");
+                  })
+.HtmlAttributes(new { style = "width: 15em;border:none;font-size: 100%;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+		)
+                    </div>
+                </div>
+
+
+                <div class="actionItemField1" style="display: flex; margin-left: 1em; margin-top: 1em; }">
+                     <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em;">Comments :</span>
+                    <div class="textBoxScroll" style="margin-left: -10em; margin-top: 2.5em; }">
+                        @Html.TextAreaFor(m => m.Comments, new { @class = "k-textbox scrollbar-rail", id = "Comments", rows = 5, cols = 10, @placeholder = "Enter Comments here", @style = " width:20em;resize: none;height: 4em;overflow: auto;box-shadow: none;margin-left: 9em;margin-top: -1.5em; " })
+                    </div>
+                 </div>
+
+                <div class="actionItemField1" style="display: flex; margin-left: 1em; margin-top: 1em; }">
+                     <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em;">Benefits :</span>
+                    <div class="textBoxScroll" style="margin-left: -10em; margin-top: 2.5em; }">
+                        @Html.TextAreaFor(m => m.Benefits, new { @class = "k-textbox scrollbar-rail", id = "Benefits", rows = 5, cols = 10, @placeholder = "Enter Benefits here", @style = " width:20em;resize: none;height: 4em;overflow: auto;box-shadow: none;margin-left: 9em;margin-top: -1.5em; " })
+                    </div>
+                 </div>
+
+                <p hidden id="temp"></p>
+                <p hidden id="status"></p>
+                <p hidden id="AsName"></p>
+
+
+
+            </div>
+
+
+             <div class="actionButtons" style="margin-top: 2em;">
+                    <div style="margin: 0 1em 0 0;">
+                       <button style="float: right; width: 5em;" class="custom-button" type="button" id="btncancel" onclick="onCancelClick()">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style="float: right; width: 5em; margin-right: 1em;" class="custom-button" type="button" onclick="onSaveClick()" id="btnAdd">SAVE</button>
+                     </div>
+               </div>
+
+        </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(900)
+    .Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+
+</body>
+</html>

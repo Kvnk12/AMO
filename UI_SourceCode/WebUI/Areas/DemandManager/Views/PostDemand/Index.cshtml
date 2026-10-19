@@ -1,0 +1,1020 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model DemandViewModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+@{
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+}
+
+<style>
+    /*----------------Tabs-------------------*/
+    .tab {
+        /*overflow: hidden;*/
+        width: 100%;
+        /*height:250px;*/
+        display: inline-flex;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+        /* Style the buttons inside the tab */
+        .tab button {
+            background-color: inherit;
+            /*float: left;*/
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 12px 14px;
+            transition: 0.3s;
+            font-size: 17px;
+            width: auto;
+            /*display:inline-flex;*/
+            text-overflow: ellipsis;
+        }
+
+            /* Change background color of buttons on hover */
+            .tab button:hover {
+                background-color: #ddd;
+            }
+            /* Create an active/current tablink class */
+            .tab button.active {
+                background-color: #ccc;
+                text-decoration: underline;
+            }
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+        /*height: 200px;*/
+        padding-top: 1%;
+    }
+
+    .tablinks {
+        width: auto;
+        margin: auto;
+        /*text-overflow:ellipsis;*/
+    }
+
+
+    /*Tree View Disabling class*/
+    .treedivDisable {
+        pointer-events: none;
+        cursor: no-drop;
+        color: #c2c2c2 !important;
+        background-color: #f5f5f5;
+        border-radius: 3px;
+    }
+    .k-tabstrip-top > .k-tabstrip-items-wrapper {
+        margin:unset !important;
+    }
+</style>
+
+<div class="content-main dark-bg idea-manager-postidea">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li>View Demand</li>
+            <li class="active">Post Demand</li>
+        </ol>
+    </div>
+
+    <div>
+
+        @if (MenuItemsInput.UserRole.ToLower() == "sysadmin")
+        {
+            if (Model.DemandId != 0 && Model.DemandStatusID != (int)DMStatus.SubmitForReview)
+            {
+                <button id="EditDemand" class="btn btn-primary" style="width:150px" onclick="SysAdminEditClick()">Edit</button>
+            }
+            if (Model.DemandStatusID == (int)DMStatus.SubmitForRevision)
+            {
+                <button style="width:10%" ; type="submit" class="btn btn-primary" title="Click here If Demand has been Revised!" onclick="ReviseDemand()">Revised</button>
+            }
+            if ((Model.DemandStatusID == (int)DMStatus.SubmitForReview || Model.DemandStatusID == (int)DMStatus.SubmitForApproval) && Model.IsSysAdmin == true)
+            {
+                <button id="EditDemand" class="btn btn-default" style="width:150px; cursor:not-allowed;" title="Demand cannot be edited in this Status.">Edit</button>
+                <button style="width:10%" ; class="btn btn-primary" onclick="location.href='@Url.Action("Index","DemandApproval")';return false;" style="width:150px;" title="Go to Approval Page to perform action on the Demands submitted for Review to you.">Next Steps</button>
+            }
+        }
+        else
+        {
+            if (Model.IsDeleted == false)
+            {
+                if (Model.PostNewDemand == false)
+                {
+                    //if () { }
+                    <!--Read Only Mode :  Edit Button Visible only to [CreatedUser] and [Admin/SysAdmin]-->
+                    if ((Model.DemandStatusID == (int)DMStatus.SubmitForReview || Model.DemandStatusID == (int)DMStatus.SubmitForApproval || Model.DemandStatusID == (int)DMStatus.Declined || Model.DemandStatusID == (int)DMStatus.Cancelled || Model.ImpDemandStatusID == (int)DMStatus.Implemented) && (Model.IsDemandMine == true || Model.IsSysAdmin == true))
+                    {
+                        <!--Button will be visible but not Enabled [Id Admin or CreatedUser] -->
+                        <button id="EditDemand" class="btn btn-default" style="width:150px; cursor:not-allowed;" title="Demand cannot be edited in this Status.">Edit</button>
+
+                        if ((Model.DemandStatusID == (int)DMStatus.SubmitForReview || Model.DemandStatusID == (int)DMStatus.SubmitForApproval) && Model.IsSysAdmin == true)
+                        {
+                            <button style="width:10%" ; class="btn btn-primary" onclick="location.href='@Url.Action("Index","DemandApproval")';return false;" style="width:150px;" title="Go to Approval Page to perform action on the Demands submitted for Review to you.">Next Steps</button>
+                        }
+
+                    }
+
+                    else
+                    { <!--If Demand is not in the Statuses above mentioned.-->
+                        <!--   -->
+                        if ((Model.DemandStatusID != (int)DMStatus.SubmitForReview || Model.DemandStatusID != (int)DMStatus.SubmitForApproval || Model.DemandStatusID != (int)DMStatus.Declined || Model.DemandStatusID != (int)DMStatus.Cancelled || Model.ImpDemandStatusID != (int)DMStatus.Implemented) && (Model.IsDemandMine == true || Model.IsSysAdmin == true || Model.IsImplementationManager == true))
+                        {
+                            //If Status is Approved--- [Pre-Approval details cannot be edited]
+                            if ((Model.DemandStatusID == (int)DMStatus.Approved || Model.ImpDemandStatusID == (int)DMStatus.SubmitForPlanning || Model.ImpDemandStatusID == (int)DMStatus.Planned || Model.ImpDemandStatusID == (int)DMStatus.Initiated))
+                            {
+                                if ((Model.IsImplementationManager == true || Model.IsSysAdmin == true) && (Model.DemandStatusID != (int)DMStatus.Cancelled || Model.ImpDemandStatusID != (int)DMStatus.Implemented))
+                                {
+                                    //Editing Details Post Approval -- [Only for Admins/Sysadmin, Implementation Manager]
+
+                                    <button id="EditDemand" class="btn btn-primary" style="width:150px" onclick="AdminEditClick()">Edit</button>
+
+
+                                }
+                            }
+                            //Edit Demand Completely
+                            if ((Model.DemandStatusID == (int)DMStatus.Created || Model.DemandStatusID == (int)DMStatus.SubmitForRevision || Model.DemandStatusID == (int)DMStatus.Revised) && Model.IsDemandMine == true)
+                            {
+
+                                <button id="EditDemand" class="btn btn-primary" style="width:150px" onclick="UserEditClick()">Edit</button>
+                                if (Model.DemandStatusID == (int)DMStatus.SubmitForRevision)
+                                {
+                                    <button style="width:10%" ; type="submit" class="btn btn-primary" title="Click here If Demand has been Revised!" onclick="ReviseDemand()">Revised</button>
+                                }
+                            }
+                        }
+                        else if (Model.IsDemandMine == false || Model.IsSysAdmin == false)
+                        {
+                            //Do not display..
+                        }
+                    }
+                }
+                else
+                {
+                    <!--If it is PostNewDemand-->
+                    <!--Do Not display any Button-->
+                }
+            }
+        }
+
+        <button style="width:15%" ; type="submit" class="btn btn-primary" onclick="location.href='@Url.Action("Index","ViewDemand")';return false;">Return to View Demand</button>
+
+        @if (Model.IsDeleted == false)
+        {
+
+
+            if (Model.PostNewDemand == false && ((Model.DemandStatusID != null) && (Model.IsDemandMine == true || Model.IsSysAdmin == true)))
+            {
+
+                //<div style="width:100%;height:3%">
+                <button type="submit" onclick="DetailDemand()" class="im-custom-button im-btn-print" style="float:right;display:inline-block;">Print View</button>
+                // </div>
+
+            }
+        }
+
+        <!----------------------------------------Button to view Demand ----------------------------------------------->
+
+
+    </div>
+    <div class="im-postidea-header">
+        <h5 style="width:40%" ;>Demand Name : <label class="custom-white-label">@Model.DemandName</label></h5>
+        <h5 style="width:30%" ;>Demand Status : <label class="custom-white-label"> @Model.DemandStatus</label></h5>
+        <h5 style="width:25%" ;>Demand Number : <label class="custom-white-label">@Model.DemandNumber</label></h5>
+    </div>
+
+    <div class="tab-container im-postidea-tab custom-kendo-tabstrip">
+        <!--Kendo Tab-->
+        @(Html.Kendo().TabStrip()
+                                         .Name("demandtabstrip")
+                                         .Items(tabstrip =>
+                                         {
+                                             tabstrip.Add().Text("Home")
+                                                 .Selected(true)
+
+                                                 .Content(m => Html.Partial("_Home", Model));
+                                             //tabstrip.Add().Text("Approver(s)")
+                                             //tabstrip.Add().Text("Submit For Review")
+                                             //               .Enabled(false)
+                                             //                .Content(m => Html.Partial("_Approvers", Model));
+
+                                             tabstrip.Add().Text("Classification")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_ClassificationAndCategory", Model));
+
+                                             //tabstrip.Add().Text("Business Benefits")
+                                             //    .Enabled(false)
+                                             //    .Content(m => Html.Partial("_BusinessBenefits", Model));
+
+                                             //tabstrip.Add().Text("IT Savings")
+                                             //    .Enabled(false)
+                                             //    .Content(m => Html.Partial("_ITSavings", Model));
+
+                                             //tabstrip.Add().Text("Config Items")
+                                             //    .Enabled(false)
+                                             //    .Content(m => Html.Partial("_ConfigItems", Model));
+
+                                             //tabstrip.Add().Text("Analysis/ Root Cause")
+                                             //    .Enabled(false)
+                                             //    .Content(m => Html.Partial("_Analysis", Model));
+
+                                             tabstrip.Add().Text("Solution")
+                                               .Enabled(false)
+                                               .Content(m => Html.Partial("_Solution", Model));
+
+                                             //tabstrip.Add().Text("Risk Mitigation")
+                                             //    .Enabled(false)
+
+                                             //    .Content(m => Html.Partial("_RiskMitigation", Model));
+
+                                             //tabstrip.Add().Text("Metrics")
+                                             //    .Enabled(false)
+
+                                             //    .Content(m => Html.Partial("_Metrics", Model));
+
+                                             tabstrip.Add().Text("Comments")
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_Comments", Model));
+
+                                             tabstrip.Add().Text("Implementation").HtmlAttributes(new { @title = "Only Implementation Managers can edit this section after Demands gets Approved/Submitted for Planning." })
+                                                 .Enabled(false)
+                                                 .Content(m => Html.Partial("_Implementation", Model));
+
+                                             tabstrip.Add().Text("Log")
+                                                 .Enabled(false)
+
+                                                 .Content(m => Html.Partial("_Log", Model));
+                                         })
+
+    )
+    </div>
+</div>
+
+
+
+
+
+@Html.HiddenFor(m => m.DemandId)
+@Html.HiddenFor(m => m.ClientId)
+@Html.HiddenFor(m => m.ViewDemand)
+@Html.HiddenFor(m => m.PostNewDemand)
+@Html.HiddenFor(m => m.IsSysAdmin)
+@Html.HiddenFor(m => m.IsImplementationManager)
+@Html.HiddenFor(m => m.IsDemandMine)
+@Html.HiddenFor(m => m.IsCusUser)
+@Html.HiddenFor(m => m.EditDemand)
+@Html.HiddenFor(m => m.TabName)
+@Html.HiddenFor(m => m.DemandStatusID)
+@Html.HiddenFor(m => m.ImpDemandStatusID)
+
+<script type="text/javascript">
+    $(document).ready(function() {
+    var grid = $('#DMuserGrid').data('kendoGrid');
+    grid.bind('dataBound', function (e) {
+        $.each(grid.tbody.find('tr'), function ()
+        {
+            var model = grid.dataItem(this);
+            //var cells = this;
+            if (model.DemandApproverId != '' && model.DemandApproverId!=null) {
+                 $('[data-uid=' + model.uid + ']').addClass('k-state-selected')
+                .find('[type=checkbox]')
+                .attr("checked", "checked");
+                 grid.select("tr[data-uid='" + model.uid + "']");
+
+            }
+        });
+    });
+    });
+    $(window).on('load', function () {
+        //Document load --> Disable
+        if ('@Model.PostNewDemand'.toLowerCase() == 'true') {
+            //alert('Inside');
+
+        }
+        else {
+
+            //------------
+            $('#DemandName').attr('disabled', true);
+            $("#DemandtypeId").data("kendoDropDownList").enable(false);
+            $("#DemandSourceId").data("kendoDropDownList").enable(false);
+            $("#LOBId").data("kendoDropDownList").enable(false);
+            $("#DemandPlatformLead").data("kendoTextBox").enable(false);
+            $("#Approved_Arch").data("kendoDropDownList").enable(false);
+
+            $("#InternalInit").attr("disabled", true);
+            //$("#Description").data("").enable();
+            $('#btnSave').attr('disabled', true);
+            $('#cancelDemand').attr('disabled', true);
+            console.log("HomeTab Disabling");
+            //$('#AnalysisSave').attr('disabled', true);
+            $('#SolutionSave').attr('disabled', true);
+            $('#ImplementationSave').attr('disabled', true);
+            $('#ImplementationSave').hide();
+            $('#SelectApprovers').attr('disabled', true);
+            $('#ApproverSave').attr('disabled', true);
+            $($('#Description').data().kendoEditor.body).attr('contenteditable', false);
+            $($('#ImprovementTheme').data().kendoEditor.body).attr('contenteditable', false);
+
+            $(".k-grid-edit").addClass("k-state-disabled");
+            $(".k-grid-delete").addClass("k-state-disabled");
+
+            var ec = $(".k-grid-edit");
+            var ec2 = $(".k-grid-delete");
+
+            ec.prop("disabled", true);
+            ec2.prop("disabled", true);
+            $(".k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+            $(".k-grid-add").removeAttr("href");
+
+            //$($('#AnalysisEditor').data().kendoEditor.body).attr('contenteditable', false);
+            $($('#SolutionEditor').data().kendoEditor.body).attr('contenteditable', false);
+           // $($('#StatusComment').data().kendoEditor.body).attr('contenteditable', false);
+            //enabling all kendo tabs
+
+            var tabStrip = $("#demandtabstrip").kendoTabStrip().data("kendoTabStrip");
+            //tabStrip.enable(tabStrip.tabGroup.children().eq(0), false);
+            tabStrip.enable(tabStrip.tabGroup.children(), true);
+
+
+            //treeview disabling
+            //Classification and Category
+            $('#classandcatDiv').addClass("treedivDisable");
+            $('#classandcatDiv > .k-treeview .k-item .k-in').addClass("treedivDisable");
+            $('#saveClassification').attr('disabled', true);
+
+            //ConfigItem
+            $('#configitemDiv').addClass("treedivDisable");
+            $('#configitemDiv > .k-treeview .k-item .k-in').addClass("treedivDisable");
+            $('#saveConfigItems').attr('disabled', true);
+
+            $('#resetbuttoncancel').attr('disabled', true);
+            $('#resetbuttoncancel1').attr('disabled', true);
+
+            //Approver tab Disable
+            $("#selectApproverGridDiv > .k-grid > .k-grid-content > table").addClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").addClass("treedivDisable");
+
+        }
+    });
+
+    function ReviseDemand() {
+        var mod = {
+            DemandId: '@Model.DemandId'
+        };
+        var data = JSON.stringify(mod);
+        var indexurl = '@Url.Content("~/DemandManager/PostDemand")';
+        var ReviseDemandURl = '@Url.Content("~/DemandManager/PostDemand/ReviseDemand")';
+        $.ajax(
+            {
+                url: ReviseDemandURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    window.location.href = indexurl +'?DemandId='+@Model.DemandId;
+                }
+            })
+    }
+
+
+    function DetailDemand() {
+
+        var indexurl = '@Url.Content("~/DemandManager/DetailDemand")';
+        if(@Model.DemandId==0){
+            alert("No Demand is selected");
+        }else
+            window.location.href = indexurl +'?DemandId='+@Model.DemandId;
+
+    }
+
+    //Implementation Tab Validations
+
+    $('input[type=radio][name=ImpDemandStatusID]').change(function (e) {
+        if ('@Model.ImpDemandStatusID' == '@((int)DMStatus.SubmitForPlanning)'||'@Model.ImpDemandStatusID' == '@((int)DMStatus.Planned)'||'@Model.ImpDemandStatusID' == '@((int)DMStatus.Initiated)'||'@Model.DemandStatusID' == '@((int)DMStatus.Approved)')
+        {
+            $('#ImplementationSave').removeAttr('disabled');
+        }
+    });
+
+    $('#ImplementationSave').click(function (e) {
+        //Radio Button -- Status Check
+        var DemandStat = $('input[name=ImpDemandStatusID]:checked').val();
+        console.log(DemandStat);
+        if (DemandStat) {
+
+            //alert('inside');
+            var psdt = new Date();
+            psdt = '@Model.PlannedStartDt';
+            console.log(psdt);
+            var asdt = $("#ActualStartDt").data("kendoDatePicker");
+            var dat_asdt = new Date(asdt.value());
+           // console.log(dat_asdt);
+
+            var pedt = $("#PlannedEndDt").data("kendoDatePicker");
+            var dat_pedt = new Date(pedt.value());
+           // console.log(dat_pedt);
+
+            var Priority = $("#PriorityId").data("kendoDropDownList");
+            var impManager = $("#ImpManager").data("kendoDropDownList");
+            $('#PlannedEndDt_alert').hide();
+
+            $("#P_EndDate_Alert").hide();
+            $("#PriorityId_alert").hide();
+            $('#ImpManager_alert').hide();
+
+            if (dat_asdt > dat_pedt) {
+                $("#P_EndDate_Alert").show();
+                return false;
+            }
+            if (DemandStat == '@((int)DMStatus.Planned)') {
+                var dat_psdt = psdt;
+                var dat_pedt = new Date(pedt.value());
+
+                if (Priority.value() == '' || pedt.value() == null  || dat_pedt < dat_psdt || impManager.value()=='') {
+
+                    if (impManager.value()=='') {
+                        $('#ImpManager_alert').show();
+                    }
+                    if (pedt.value() == null) {
+                        $('#PlannedEndDt_alert').show();
+                    }
+                    //if (oneMetric === false && oneComment === false)
+                    //{
+                    //    $('#MetricAndCommentRequired_alert').show();
+                    //} else
+                    //{
+                    //    if (oneMetric === false) {
+                    //        $('#MetricRequired_alert').show();
+                    //    }
+                    //    if (oneComment === false) {
+                    //        $('#CommentRequired_alert').show();
+                    //    }
+                    //}
+                    //if (oneComment === false) {
+                    //       $('#CommentRequired_alert').show();
+                    // }
+                    if (dat_pedt < dat_psdt && psdt != null && pedt.value() != null) {
+                        $("#P_EndDate_Alert").show();
+                    }
+                    if (Priority.value() == '') {
+                        $("#PriorityId_alert").show();
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            if (DemandStat == '@((int)DMStatus.Initiated)') {
+                var dat_psdt = psdt;
+                var dat_pedt = new Date(pedt.value());
+
+                if (actualProg == 0 || impManager.value() == '' || pedt.value() == null  || dat_pedt < dat_psdt || Priority.value() == '') {
+
+                    if (Manager.value() == '') {
+                        $('#ImpManager_alert').show();
+                    }
+                    if (Priority.value() == '') {
+                        $("#PriorityId_alert").show();
+                    }
+                    if (pedt.value() == null) {
+                        $('#PlannedEndDt_alert').show();
+                    }
+                    //if (asdt.value() == null) {
+                    //    $('#ActualStartDt_alert').show();
+                    //}
+                    //if (oneMetric === false && oneComment === false) {
+                    //    $('#MetricAndCommentRequired_alert').show();
+                    //} else {
+                    //    if (oneMetric === false) {
+                    //        $('#MetricRequired_alert').show();
+                    //    }
+                    //    if (oneComment === false) {
+                    //        $('#CommentRequired_alert').show();
+                    //    }
+                    //}
+                    //if (oneComment === false) {
+                    //       $('#CommentRequired_alert').show();
+                    //}
+                    //if (actualProg == 0) {
+                    //    $('#ActualProgress_alert').show();
+                    //}
+                    if (dat_pedt < dat_psdt && psdt != null && pedt.value() != null) {
+                        $("#P_EndDate_Alert").show();
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            if (DemandStat == '@((int)DMStatus.Implemented)') {
+                //var dat_asdt = new Date(asdt.value());
+               // var dat_aedt = new Date(aedt.value());
+               // var dat_psdt = new Date(psdt.value());
+                var dat_pedt = new Date(pedt.value());
+
+                if (impManager.value() == '' || pedt.value() == null || psdt == null || Priority.value() == '') {
+
+                    if (Priority.value() == '') {
+                        $("#PriorityId_alert").show();
+                    }
+                    if (impManager.value() == '') {
+                        $('#ImpManager_alert').show();
+                    }
+                    if (pedt.value() == null) {
+                        $('#PlannedEndDt_alert').show();
+                    }
+                    //if (asdt.value() == null) {
+                    //    $('#ActualStartDt_alert').show();
+                    //}
+                    //if (aedt.value() == null) {
+                    //    $('#ActualEndDt_alert').show();
+                    //}
+                    //if (oneMetric === false && oneComment === false) {
+                    //    $('#MetricAndCommentRequired_alert').show();
+                    //} else {
+                    //    if (oneMetric === false) {
+                    //        $('#MetricRequired_alert').show();
+                    //    }
+                    //    if (oneComment === false) {
+                    //        $('#CommentRequired_alert').show();
+                    //    }
+                    //}
+                    //if (oneComment === false) {
+                    //    $('#CommentRequired_alert').show();
+                    //}
+                    if (dat_pedt < dat_psdt && psdt != null && pedt.value() != null) {
+                        $("#P_EndDate_Alert").show();
+                    }
+                    if (dat_aedt < dat_asdt && asdt.value() != null && aedt.value() != null) {
+                        $("#A_EndDate_Alert").show();
+                    }
+                    return false;
+                }
+                return true;
+            }
+            if (DemandStat == '@((int)DMStatus.Hold)' || DemandStat == '@((int)DMStatus.Cancelled)') {
+                return true;
+            }
+            return true;
+
+        }
+        else {
+            alert('Please select one of the Status above before saving.');
+            return false;
+            //e.preventDefault();
+        }
+
+
+    });
+
+
+    //Checking Required Fields
+    $('#btnSave').click(function (e) {
+        var DemandName = $('#DemandName').val();
+        var DemandSource = $('#DemandSourceId').data("kendoDropDownList");
+        var Approved_Arch = $('#Approved_Arch').data("kendoDropDownList");
+        var desc = $('#Description').val();
+        var Demandexists = ItemNameExists(DemandName);
+
+        if (DemandName.trim() == '' || DemandSource.value() == ''|| Approved_Arch.value()==''|| desc.trim() == '' || team.value() == '' || Demandexists === true) {
+            if (DemandName.trim() == '') {
+                $('#DemandName_alert').show();
+            }
+            if (DemandSource.value() == '') {
+                $('#DemandSourceId_alert').show();
+             }
+            if (Approved_Arch.value() == '') {
+                $('#Approved_Arch_alert').show();
+            }
+            if (desc.trim() == '') {
+                $('#Description_alert').show();
+            }
+
+            if (Demandexists === true) {
+                $("#DemandNameExists_alert").show();
+            }
+            e.preventDefault();
+            //return false;
+        }
+        //return true;
+    })
+
+    function GetDemandId() {
+         return {
+            DemandId: '@Model.DemandId'
+        }
+    }
+
+    //Analysis and Solutions
+    function saveAnalysis() {
+        var editor = $("#AnalysisEditor").data("kendoEditor");
+        var content = editor.value();
+        if (content.trim() != '') {
+            var mod = {
+                DemandId: '@Model.DemandId',
+                analysis:content
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/DemandManager/PostDemand/UpdateAnalysis")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+        }
+        else {
+            alert('This should not be left Empty');
+        }
+    }
+
+    function saveSolution() {
+        var editor = $("#SolutionEditor").data("kendoEditor");
+        var content = editor.value();
+        if (content.trim() != '') {
+             var mod = {
+                DemandId: '@Model.DemandId',
+                solution:content
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/DemandManager/PostDemand/UpdateSolution")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+        }
+        else {
+            alert('This should not be left Empty');
+        }
+    }
+
+    function AdminEditClick() {
+        console.log("1");
+        //Changing button content and Background
+        var bto = document.getElementById("EditDemand");
+        bto.innerText = "Editing...";
+        bto.style.backgroundColor = '#3276b1';
+        bto.style.color= "white";
+        bto.style.fontWeight = "700";
+        console.log("2");
+        $("#demandtabstrip-tab-1").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-2").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-3").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-4").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-5").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-6").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-1").addClass("k-state-default");
+        $("#demandtabstrip-tab-2").addClass("k-state-default");
+        $("#demandtabstrip-tab-3").addClass("k-state-default");
+        $("#demandtabstrip-tab-4").addClass("k-state-default");
+        $("#demandtabstrip-tab-5").addClass("k-state-default");
+        $("#demandtabstrip-tab-6").addClass("k-state-default");
+        //Controls
+        $("#PlannedEndDt").data("kendoDatePicker").enable();
+       // $("#ActualStartDt").data("kendoDatePicker").enable();
+       // $("#ActualProgress").data("kendoNumericTextBox").enable();
+       // $("#ActualEndDt").data("kendoDatePicker").enable();
+        //$("#LastReviewDt").data("kendoDatePicker").enable();
+
+        $("#ComplexityId").data("kendoDropDownList").enable();
+        $("#PriorityId").data("kendoDropDownList").enable();
+        $("#DocumentTypeId").data("kendoDropDownList").enable();
+        $("#DocumentNo").data("kendoTextBox").enable();
+        $("#EstimatedCost").data("kendoTextBox").enable();
+        $("#ImpManager").data("kendoDropDownList").enable();
+        $('#ImplementationSave').show();
+        $('#ImplementationSave').removeAttr('disabled');
+
+        $('input[type=radio][name=ImpDemandStatusID]').removeAttr('disabled');
+       // $($('#StatusComment').data().kendoEditor.body).attr('contenteditable', true);
+        //$($('#AnalysisEditor').data().kendoEditor.body).attr('contenteditable', true);
+        $($('#SolutionEditor').data().kendoEditor.body).attr('contenteditable', true);
+
+        // Rich Text Editors
+        //$('#AnalysisSave').removeAttr('disabled');
+        $('#SolutionSave').removeAttr('disabled');
+        $('#cancelDemand').removeAttr('disabled');
+
+        //.removeClass()
+        $(".k-grid-edit").removeClass("k-state-disabled");
+        $(".k-grid-delete").removeClass("k-state-disabled");
+        $(".k-grid-add").removeClass("k-state-disabled");
+        $(".k-grid-edit").addClass("k-state-enabled");
+        $(".k-grid-delete").addClass("k-state-enabled");
+        var ec = $(".k-grid-edit");
+        var ec2 = $(".k-grid-delete");
+        ec.prop("disabled", false);
+        ec2.prop("disabled", false);
+        $(".k-grid-add").addClass("k-state-enabled").prop("disabled", false);
+        $(".k-grid-add").attr("href");//Need to Check
+
+        //treeview enabling
+        //Classification
+        $('#classandcatDiv').removeClass("treedivDisable");
+        $('#classandcatDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveClassification').removeAttr('disabled');
+        //Configitem,Type------ Id = [ "#configitemDiv" ]
+        $('#configitemDiv').removeClass("treedivDisable");
+        $('#configitemDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveConfigItems').removeAttr('disabled');
+        //Common
+        $('#resetbuttoncancel').removeAttr('disabled');
+        $('#resetbuttoncancel1').removeAttr('disabled');
+
+       // alert('Inside');
+
+        if ('@Model.DemandStatusID' == '@((int)DMStatus.Created)'||'@Model.DemandStatusID' == '@((int)DMStatus.Revised)'||'@Model.DemandStatusID' == '@((int)DMStatus.SubmitForReview)' ||'@Model.DemandStatusID' == '@((int)DMStatus.SubmitForRevision)' ||'@Model.DemandStatusID' == '@((int)DMStatus.SubmitForApproval)')
+        {
+            //alert('Inside');
+            $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit").addClass("k-state-disabled");
+            $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete").addClass("k-state-disabled");
+
+            var ec1 = $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit");
+            var ec12 = $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete");
+
+            ec1.prop("disabled", true);
+            ec12.prop("disabled", true);
+            $("#DMCompletedAndNextStepsGrid > .k-header .k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+            $("#DMCompletedAndNextStepsGrid > .k-header .k-grid-add").removeAttr("href");
+        }
+        console.log("2end");
+
+    }
+
+    function UserEditClick() {
+
+        console.log("userInside");
+
+        //Changing button content and Background
+        var bto = document.getElementById("EditDemand");
+        bto.innerText = "Editing...";
+        bto.style.backgroundColor = '#3276b1';
+        bto.style.color = "white";
+        bto.style.fontWeight = "700";
+        $("#demandtabstrip-tab-1").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-2").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-3").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-4").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-5").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-6").removeClass("k-state-disabled");
+        $("#demandtabstrip-tab-1").addClass("k-state-default");
+        $("#demandtabstrip-tab-2").addClass("k-state-default");
+        $("#demandtabstrip-tab-3").addClass("k-state-default");
+        $("#demandtabstrip-tab-4").addClass("k-state-default");
+        $("#demandtabstrip-tab-5").addClass("k-state-default");
+        $("#demandtabstrip-tab-6").addClass("k-state-default");
+        //Controls
+        $('#DemandName').removeAttr('disabled');
+        $("#DemandtypeId").data("kendoDropDownList").enable();
+        $("#DemandSourceId").data("kendoDropDownList").enable();
+        $("#LOBId").data("kendoDropDownList").enable();
+        $("#DemandPlatformLead").data("kendoTextBox").enable();
+        $("#Approved_Arch").data("kendoDropDownList").enable();
+        $($('#Description').data().kendoEditor.body).attr('contenteditable', true)
+        $($('#ImprovementTheme').data().kendoEditor.body).attr('contenteditable', true)
+
+        $("#InternalInit").removeAttr("disabled");
+        console.log("AfterHomeTab");
+        //$("#Description").data("").enable();
+        $('#btnSave').removeAttr('disabled');
+        //$($('#AnalysisEditor').data().kendoEditor.body).attr('contenteditable', true);
+        $($('#SolutionEditor').data().kendoEditor.body).attr('contenteditable', true);
+        //$('#AnalysisSave').removeAttr('disabled');
+        $('#SolutionSave').removeAttr('disabled');
+        $('#cancelDemand').removeAttr('disabled');
+
+        $('#SelectApprovers').removeAttr('disabled');
+        $('#ApproverSave').removeAttr('disabled');
+
+        $(".k-grid-edit").removeClass("k-state-disabled");
+        $(".k-grid-delete").removeClass("k-state-disabled");
+        $(".k-grid-add").removeClass("k-state-disabled")
+        $(".k-grid-edit").addClass("k-state-enabled");
+        $(".k-grid-delete").addClass("k-state-enabled");
+        var ec = $(".k-grid-edit");
+        var ec2 = $(".k-grid-delete");
+        ec.prop("disabled", false);
+        ec2.prop("disabled", false);
+        $(".k-grid-add").addClass("k-state-enabled").prop("disabled", false);
+        //$(".k-grid-add").attr("href");//Need to Check
+
+        //disabling--[DMCompletedAndNextStepsGrid]
+        $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit").addClass("k-state-disabled");
+        $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete").addClass("k-state-disabled");
+
+        var ec1 = $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-edit");
+        var ec12 = $("#DMCompletedAndNextStepsGrid > .k-grid-content .k-grid-delete");
+
+        ec1.prop("disabled", true);
+        ec12.prop("disabled", true);
+        $("#DMCompletedAndNextStepsGrid > .k-header .k-grid-add").addClass("k-state-disabled").prop("disabled", true);
+        $("#DMCompletedAndNextStepsGrid > .k-header .k-grid-add").removeAttr("href");
+
+
+        //treeview enabling
+        //Classification
+        $('#classandcatDiv').removeClass("treedivDisable");
+        $('#classandcatDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveClassification').removeAttr('disabled');
+        //Configitem,Type------ Id = [ "#configitemDiv" ]
+        $('#configitemDiv').removeClass("treedivDisable");
+        $('#configitemDiv > .k-treeview .k-item .k-in').removeClass("treedivDisable");
+        $('#saveConfigItems').removeAttr('disabled');
+        //Common
+        $('#resetbuttoncancel').removeAttr('disabled');
+        $('#resetbuttoncancel1').removeAttr('disabled');
+
+        //Approver tab Disable
+        if ('@Model.DemandStatusID' == '@((int)DMStatus.Created)' || '@Model.DemandStatusID' == '@((int)DMStatus.SubmitForRevision)' || '@Model.DemandStatusID' == '@((int)DMStatus.Revised)') {
+            $("#selectApproverGridDiv  > .k-grid > .k-grid-content > table").removeClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").removeClass("treedivDisable");
+        }
+
+    }
+
+    // function that gathers IDs of checked nodes
+    function checkedNodeIds(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked) {
+                checkedNodes.push(nodes[i].id);
+            }
+
+            if (nodes[i].hasChildren) {
+                checkedNodeIds(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+    // show checked node IDs on datasource change
+    function saveClassCategory(e) {
+        var checkedNodes = [],
+            treeView = $("#ClassAndCatView").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+        var CatgIds = '';
+        if (checkedNodes.length > 0) {
+            CatgIds = checkedNodes.join(",");
+        }
+
+            var mod = {
+                DemandId: '@Model.DemandId',
+                CatIds: CatgIds
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/DemandManager/PostDemand/SaveClassificationCategory")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+
+    }
+
+    function saveConfigItems(e) {
+        var checkedNodes = [],
+            treeView = $("#ConfigItemsView").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+        var ConfIds = '';
+        if (checkedNodes.length > 0) {
+            ConfIds = checkedNodes.join(",");
+        }
+            var mod = {
+                DemandId: '@Model.DemandId',
+                ConfigIds: ConfIds
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/DemandManager/PostDemand/SaveConfigItems")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+                        //alert("Participants Successfully Added");
+                    }
+                })
+
+    }
+
+    function ItemNameExists(ItemName) {
+
+    var res;
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3].toLowerCase() == 'demandmanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'DemandManager/PostDemand/CheckItemName';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'DemandManager/PostDemand/CheckItemName';
+        }
+
+        {
+            $.ajax({
+                url: baseurl,
+                type: 'POST',
+                async: false,
+                data: { ItemName: ItemName, ItemId: '@Model.DemandId'},
+                success: function (data) {
+                    $("#DemandNameExists_alert").hide();
+                    if (data == true) {
+                        $("#DemandNameExists_alert").show();
+                        res= true;
+                    }
+                    else{
+                        res= false;
+                    }
+                }
+
+            })
+        }
+        return res;
+
+    }
+
+
+
+    $("#DemandName").change(function () {
+        var item = $("#DemandName").val();
+        //alert(item);
+        ItemNameExists(item);
+    });
+
+    function SysAdminEditClick() {
+         //Approver tab Disable
+            $("#selectApproverGridDiv  > .k-grid > .k-grid-content > table").removeClass("treedivDisable");
+            $("#selectApproverGridDiv > .k-grid > .k-grid-header").removeClass("treedivDisable");
+
+        UserEditClick();
+        AdminEditClick();
+    }
+    function errorFunct(e) {
+        console.log(e.errors["TaskId"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span class='alert alert-danger'>" + e.errors["TaskId"].errors + " </span>";
+
+    }
+    function onEdit(e) {
+
+        document.getElementById("errorlabel").innerHTML = "";
+    }
+     
+</script>

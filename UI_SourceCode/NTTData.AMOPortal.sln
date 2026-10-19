@@ -1,0 +1,146 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12} = {1DE460E0-AF08-436C-BAE0-0F2C92145F12}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{1DE460E0-AF08-436C-BAE0-0F2C92145F12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{5C56FBCA-3B58-42EB-B907-CE4DB70D672E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145} = {4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12} = {1DE460E0-AF08-436C-BAE0-0F2C92145F12}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI", "WebUI\WebUI.csproj", "{E3C5D4B1-6EEC-4000-A068-D37F7AA34580}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145} = {4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}
+		{5C56FBCA-3B58-42EB-B907-CE4DB70D672E} = {5C56FBCA-3B58-42EB-B907-CE4DB70D672E}
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12} = {1DE460E0-AF08-436C-BAE0-0F2C92145F12}
+		{0E8AE0EA-AC19-4A5F-B464-FC551534DC39} = {0E8AE0EA-AC19-4A5F-B464-FC551534DC39}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{0E8AE0EA-AC19-4A5F-B464-FC551534DC39}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DBScripts", "DBScripts", "{3B52475A-15B2-4EB0-9D13-543A8DE1AD2F}"
+	ProjectSection(SolutionItems) = preProject
+		DBScripts\Clientprofilemanager_TicketInfo.sql = DBScripts\Clientprofilemanager_TicketInfo.sql
+		DBScripts\DataMapping_AllTables.sql = DBScripts\DataMapping_AllTables.sql
+		DBScripts\UserProfile.sql = DBScripts\UserProfile.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{3331F21A-9D59-4E83-889E-4293F32FE454}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{BACB25EC-C1A4-4A15-8CB1-29EECD66A947}"
+	ProjectSection(SolutionItems) = preProject
+		lib\shared\Kendo.Mvc.dll = lib\shared\Kendo.Mvc.dll
+		..\..\..\Program Files (x86)\Progress\Telerik UI for ASP.NET MVC R3 2017\wrappers\aspnetmvc\Examples\VS2015\Kendo.Mvc.Examples\bin\Kendo.Mvc.Export.dll = ..\..\..\Program Files (x86)\Progress\Telerik UI for ASP.NET MVC R3 2017\wrappers\aspnetmvc\Examples\VS2015\Kendo.Mvc.Examples\bin\Kendo.Mvc.Export.dll
+		lib\shared\Omu.ValueInjecter.dll = lib\shared\Omu.ValueInjecter.dll
+		lib\shared\RouteDebug.dll = lib\shared\RouteDebug.dll
+		lib\shared\Telerik.Reporting.dll = lib\shared\Telerik.Reporting.dll
+		lib\shared\Telerik.ReportViewer.Mvc.dll = lib\shared\Telerik.ReportViewer.Mvc.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NttDataOptimizationToolServices", "NttDataOptimizationToolServices\NttDataOptimizationToolServices.csproj", "{5CCB9256-712C-4A27-8C53-43388ED5C57F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMOReportJOBCreationSVC", "AMOReportJOBCreationSVC\AMOReportJOBCreationSVC.csproj", "{BF4C7C52-06F8-472F-9C95-C0BE5A55F014}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMOReportsJOBProcessorSVC", "AMOReportsJOBProcessorSVC\AMOReportsJOBProcessorSVC.csproj", "{6091C6CE-0485-4120-9932-80C479BCDA81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingDB", "TestingDB\TestingDB.csproj", "{9E8E3C1C-D7C5-44CF-AA3B-3668EDB57679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportJobLibrary", "ReportJobLibrary\ReportJobLibrary.csproj", "{8511554E-A67F-4F18-B5D8-E17AF5F22257}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMaskingLib", "DataMaskingLib\DataMaskingLib.csproj", "{1466A0E0-EB8F-4270-AAF0-8823DB6D0755}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNK", "SNK", "{44DF9157-D575-4E3A-97AF-EF42096ADCB8}"
+	ProjectSection(SolutionItems) = preProject
+		SNK\NTTDataMaskingToolSNK.snk = SNK\NTTDataMaskingToolSNK.snk
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaskAndSFTP", "MaskAndSFTP\MaskAndSFTP.csproj", "{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMaskingUtility", "DataMaskingUtility\DataMaskingUtility.csproj", "{DBC42D69-8D2E-44EC-A104-FE9751E4D2AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "okta-aspnet-mvc-example", "okta-aspnet-mvc-example\okta-aspnet-mvc-example.csproj", "{B9ADBD69-487E-4CAB-9065-49D3CB49FCCE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "okta-multiple-login-example", "okta-multiple-login-example\okta-multiple-login-example.csproj", "{CB50806B-B1E3-42DF-86D3-C31A96C4C263}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EEF4396-93BC-4E11-B4A0-EF9C2B55D145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DE460E0-AF08-436C-BAE0-0F2C92145F12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C56FBCA-3B58-42EB-B907-CE4DB70D672E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C56FBCA-3B58-42EB-B907-CE4DB70D672E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C56FBCA-3B58-42EB-B907-CE4DB70D672E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C56FBCA-3B58-42EB-B907-CE4DB70D672E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3C5D4B1-6EEC-4000-A068-D37F7AA34580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3C5D4B1-6EEC-4000-A068-D37F7AA34580}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3C5D4B1-6EEC-4000-A068-D37F7AA34580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3C5D4B1-6EEC-4000-A068-D37F7AA34580}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E8AE0EA-AC19-4A5F-B464-FC551534DC39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E8AE0EA-AC19-4A5F-B464-FC551534DC39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E8AE0EA-AC19-4A5F-B464-FC551534DC39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E8AE0EA-AC19-4A5F-B464-FC551534DC39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CCB9256-712C-4A27-8C53-43388ED5C57F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CCB9256-712C-4A27-8C53-43388ED5C57F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF4C7C52-06F8-472F-9C95-C0BE5A55F014}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF4C7C52-06F8-472F-9C95-C0BE5A55F014}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF4C7C52-06F8-472F-9C95-C0BE5A55F014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF4C7C52-06F8-472F-9C95-C0BE5A55F014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6091C6CE-0485-4120-9932-80C479BCDA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6091C6CE-0485-4120-9932-80C479BCDA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6091C6CE-0485-4120-9932-80C479BCDA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6091C6CE-0485-4120-9932-80C479BCDA81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E8E3C1C-D7C5-44CF-AA3B-3668EDB57679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E8E3C1C-D7C5-44CF-AA3B-3668EDB57679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E8E3C1C-D7C5-44CF-AA3B-3668EDB57679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8511554E-A67F-4F18-B5D8-E17AF5F22257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8511554E-A67F-4F18-B5D8-E17AF5F22257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8511554E-A67F-4F18-B5D8-E17AF5F22257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8511554E-A67F-4F18-B5D8-E17AF5F22257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1466A0E0-EB8F-4270-AAF0-8823DB6D0755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1466A0E0-EB8F-4270-AAF0-8823DB6D0755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1466A0E0-EB8F-4270-AAF0-8823DB6D0755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1466A0E0-EB8F-4270-AAF0-8823DB6D0755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B72EA94-ECB8-47DB-9FD8-B2598EA54F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBC42D69-8D2E-44EC-A104-FE9751E4D2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBC42D69-8D2E-44EC-A104-FE9751E4D2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBC42D69-8D2E-44EC-A104-FE9751E4D2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBC42D69-8D2E-44EC-A104-FE9751E4D2AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9ADBD69-487E-4CAB-9065-49D3CB49FCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9ADBD69-487E-4CAB-9065-49D3CB49FCCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9ADBD69-487E-4CAB-9065-49D3CB49FCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9ADBD69-487E-4CAB-9065-49D3CB49FCCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB50806B-B1E3-42DF-86D3-C31A96C4C263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB50806B-B1E3-42DF-86D3-C31A96C4C263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB50806B-B1E3-42DF-86D3-C31A96C4C263}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB50806B-B1E3-42DF-86D3-C31A96C4C263}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BACB25EC-C1A4-4A15-8CB1-29EECD66A947} = {3331F21A-9D59-4E83-889E-4293F32FE454}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E30CA215-CA08-42C8-B45B-CFE0794DC3C8}
+	EndGlobalSection
+EndGlobal

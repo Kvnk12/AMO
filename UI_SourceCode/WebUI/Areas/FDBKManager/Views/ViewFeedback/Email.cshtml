@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+
+
+    <!-- <link href="../Content/css/bootstrap.css" rel="stylesheet" />
+     <link href="../Content/css/style.css" rel="stylesheet"/>
+     <link href="../Content/css/bootstrap-select.css" rel="stylesheet"/>-->
+    <style>
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+            color: #ffffff;
+            background-color: #0079A1;
+            border-color: #285e8e;
+        }
+
+
+        .btn:hover, .btn:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        a:hover, a:focus {
+            color: #ffff;
+            text-decoration: none;
+        }
+
+        a:active, a:hover {
+            outline: 0;
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background-color: #0079A1;
+            border-color: #357ebd;
+        }
+
+        .btn {
+            color: #ffffff;
+            display: inline-block;
+            padding: 6px 25px;
+            margin-bottom: 0;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+        }
+
+        a {
+            border-radius: 4px;
+            color: #ffffff;
+            background-color: #428bca;
+            border-color: #357ebd;
+            text-align: center;
+            padding: 6px 12px;
+            text-decoration: none;
+        }
+
+        .fdbk-email-content {
+            color: #404041;
+            margin: 5em;
+            background-color: #fff;
+            text-align: center;
+            border: #EEEEEE;
+            width: 70%;
+        }
+
+            .fdbk-email-content .fdbk-email-head {
+                padding: 1em 2em 1em 2em;
+                color: #404041;
+                font-size: 16px;
+                font-family: 'Segoe UI';
+                word-wrap: normal;
+                text-align: center;
+                width: fit-content;
+                margin: auto;
+            }
+
+            .fdbk-email-content .fdbk-email-detail {
+                padding: 1em 3em 1em 3em;
+                color: #404041;
+                font-size: 13px;
+                font-family: 'Segoe UI';
+                word-wrap: normal;
+                width: fit-content;
+                margin: auto;
+            }
+    </style>
+
+</head>
+
+
+<body style="background-color:#F9FAFB">
+
+    <div class="fdbk-email-content">
+        <img alt="Feedback Submitted" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/NotifyApprover.png" style="display:block; width:100%; height:auto; min-width:100%;" align="middle" />
+        <div class="fdbk-email-head">
+            Hey <b>{creator}</b>, thank you for taking the time to submit your idea. Unfortunately, at this time we believe your idea is not viable.
+        </div>
+        <div class="fdbk-email-detail">
+            Please find Product Manager response on your feedback by clicking the below button. We truly-appreciate your valuable time to share your ideas to improvise the application
+        </div>
+        <br />
+        <p></p>
+        <center>
+            <img alt="Submitted" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/Rejected.png" style="display:block; height:auto;width:15% " align="middle" />
+        </center>
+        <p></p>
+        <a href="{feedbacklink}" class="btn btn-primary"><b>Review my feedback</b></a>
+        <br />
+        <br />
+        <p></p>
+        <div style="background-color:#F9FAFB;padding:1em 0">
+            <img alt="NccLogo" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/nucleus-transparent-bg-logo-1-color.png" style="display:block;width:15%;height:auto;float:left" />
+            <img alt="NccfeedbackLogo" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/Nucleus_logo.png" style="display:block;width:15%;height:auto;float:right" />
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,431 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+<style>
+    .RatingBtn {
+        background-color: rgb(91,121,171);
+        color: white;
+    }
+
+        .RatingBtn:hover {
+            color: white;
+        }
+</style>
+<div class="content-main dark-bg">
+    <ol class="breadcrumb">
+        <li>Portfolio Analyzer</li>
+        <li class="active">Dynamic Survey with export</li>
+    </ol>
+    <div style="margin-bottom:10px;">
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectSurvey" hidden>
+            <ul>
+                <li>Select Survey</li>
+            </ul>
+        </div>
+        <div style="background-color:white;margin-top:1em;padding:1em 0">
+            <label style="margin-left:10px;">Surveys:</label>
+            @(Html.Kendo().DropDownList().Name("SurveyName").DataTextField("Text").DataValueField("Value").OptionLabel("Select Survey...")
+            .Events(e => e.Change("OnAppDropDownChange"))
+            .AutoBind(true)
+            .SelectedIndex(0)
+            .DataSource(d => d
+            .Read(read => read.Action("GetDynamicSurveyList", "Rating"))
+            )
+            .HtmlAttributes(new { style = "width: 200px;padding-left: 7px", @class= "custom-dropdown" }))
+            &nbsp;&nbsp;&nbsp;
+            <input hidden id="surveyTypeHolder" value="apr" />
+        </div>
+    </div>
+    <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="AssessSaveSuccess" hidden>
+        <ul>
+            <li>Assessment recorded sucessfully.</li>
+        </ul>
+    </div>
+    <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="AssessSaveFailure" hidden>
+        <ul>
+            <li>Error while assigning.</li>
+        </ul>
+    </div>
+  
+    <div class="custom-kendo-grid report-drilldowm" style="margin:10px;" id="starRatingDiv">
+        @(Html.Kendo().Grid<AssessmentModel>
+    ()
+    .Name("AssessGrid")
+    .Columns(columns =>
+    {
+    columns.Bound(p => p.subPerspective).Title("Sub Perspective").Width(150);
+    columns.Bound(p => p.ApplicationName).Title("Application").Width(150);
+    columns.Bound(p => p.PersonnelName).Title("User").Width(150);
+    columns.Bound(p => p.Question);
+    columns.Bound(p => p.Answer).Title("Answer").Width(250);
+    //   columns.Bound(p => p.OriginalRating).Hidden(true);
+    //   columns.Bound(p => p.FinalRating).Hidden(true);
+    //   columns.Bound(p => p.OR).Width(170).ClientTemplate("#= OriginalRatingTemplate(data) #").Title("Original ");
+    //   columns.Bound(p => p.FR).Width(170).ClientTemplate("#= FinalRatingTemplate(data) #").Title("Final ");
+    columns.Bound(p => p.Comments).Width(300);
+    })
+    .ToolBar(toolbar =>
+    {
+    //toolbar.Save();
+    // toolbar.Excel();
+    })
+
+ //   .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Navigatable()
+    .Sortable()
+    //.Excel(excel => excel
+    //.FileName("Survey_Responses.xlsx")
+    //.Filterable(true)
+    ////.ProxyURL(Url.Action("Excel_Export_Save", "Rating"))
+    //)
+    .HtmlAttributes(new { @style = "height:550px" })
+    .Scrollable()
+    // Export changes start
+    .Sortable()
+    // .Pageable()
+    .Groupable()
+    .Scrollable(scr => scr.Height(430))
+    .Resizable(resize => resize.Columns(true))
+    .Filterable()
+    .ColumnMenu()
+    .AutoBind(true)
+    .ToolBar(
+    tools =>
+    {
+    tools.Excel();
+    tools.Pdf();
+
+    })
+    .Excel(excel => excel
+    .FileName("DynamicSurveyExports.xlsx")
+    .Filterable(true)
+    .AllPages(true)
+    .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+    .Pdf(pdf => pdf
+    .AllPages()
+    .AvoidLinks()
+    .PaperSize("A4")
+    .Scale(0.8)
+    .Margin("2cm", "1cm", "1cm", "1cm")
+    .Landscape()
+    .RepeatHeaders()
+    .TemplateId("page-template")
+    .FileName("DynamicSurveyExports.pdf")
+    .ProxyURL(Url.Action("Pdf_Export_Save", "APRAjaxService"))
+    )
+    // Export changes end
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Batch(true)
+    .ServerOperation(false)
+    .Events(events => events.Error("error_handler"))
+    .Model(model =>
+    {
+    model.Id(p => p.Id);
+    model.Field(r => r.Question).Editable(false);
+    model.Field(r => r.subPerspective).Editable(false);
+    model.Field(r => r.OR).Editable(false);
+    model.Field(r => r.FR).Editable(false);
+    //model.Field(r => r.OriginalRating);
+    //model.Field(r => r.FinalRating);
+    })
+    .Read(read => read.Action("DynamicAssessRead", "Rating").Data("GetAppId"))
+   // .Update(up => up.Action("AssessSave", "Rating"))
+    )
+    )
+</div>
+
+</div>
+
+
+
+
+<script>
+
+    //function OnAppDropDownChange() {
+
+    //    var name = $("#ApplicationName").data("kendoDropDownList");
+    //    name.dataSource.read();
+    //    var tre = $("#AssessGrid").data("kendoGrid");
+    //    tre.dataSource.read();
+    //}
+
+    function OnAppDropDownChange() {
+        var sur = $("#SurveyName").data("kendoDropDownList");
+        var SurveyId = sur.value();
+        //Do check with Database Ajax Call- What type of Survey it is
+        //-- Some Method
+        checkSurveyTypeFromServer(SurveyId);
+//        var name = $("#ApplicationName").data("kendoDropDownList");
+ //       name.dataSource.read();
+
+        var surtype = $("#surveyTypeHolder").val();
+            var tre = $("#AssessGrid").data("kendoGrid");
+            tre.dataSource.read();
+
+    }
+
+
+    function checkSurveyTypeFromServer(surveyId) {
+        var mod = {
+            SurveyId: surveyId
+        }
+        var basetUrl = '@Url.Content("~/PortfolioAnalyzer/Rating/CheckSurveyType")';
+        var data = JSON.stringify(mod);
+        $.ajax({
+            type: 'post',
+            url: basetUrl,
+            async: false,
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                if (response.success) {
+                    console.log(response.success);
+                    $("#surveyTypeHolder").val(response.success);
+                }
+
+            },
+            error: function (err, response) {
+                alert(err.responseText);
+            }
+        });
+    }
+
+
+    //Data read for Kendo read
+
+    function GetAppId() {
+//        var name = $("#ApplicationName").data("kendoDropDownList");
+        var sur = $("#SurveyName").data("kendoDropDownList");
+        return {
+ //           ApplicationId: name.value(),
+            SurveyId: sur.value()
+        }
+    }
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+
+
+    function OriginalRatingTemplate(data) {
+        var template = "<div class='ParentDiv'><div class='rate'>";
+        for (var i = 0; i < data.QuestionOptions.length; i++) {
+            var option = data.QuestionOptions[i];
+            var uniqId = 'Original' + String(data.Id) + String(data.QuestionOptions[i].Id);
+            var OrgUniqName = 'OriginalRating' + String(data.Id);
+            var rowUid = data.uid;
+            if (data.OriginalRating == option.Id) {
+                template += kendo.format("<input  data-rowuid='{4}' type='radio' checked  id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, OrgUniqName, rowUid);
+            }
+            else {
+                template += kendo.format("<input  data-rowuid='{4}' type='radio' id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, OrgUniqName, rowUid);
+            }
+        }
+        template += "</div></div>";
+        return template;
+    }
+
+    function FinalRatingTemplate(data) {
+        var template = "<div class='ParentDiv'><div class='rate'>";
+        for (var i = 0; i < data.QuestionOptions.length; i++) {
+            var option = data.QuestionOptions[i];
+            var uniqId = 'Final' + String(data.Id) + String(data.QuestionOptions[i].Id);
+            var FinUniqName = 'FinalRating' + String(data.Id);
+            if (data.FinalRating == option.Id) {
+                template += kendo.format("<input  type='radio' id='{0}' checked name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, FinUniqName);
+            }
+            else {
+                template += kendo.format("<input type='radio' id='{0}' name='{3}' value='{1}' /><label for='{0}' title='{2}'>{2}</label>", uniqId, option.Id, option.Rating, FinUniqName);
+            }
+        }
+        template += "</div></div>";
+        return template;
+    }
+
+    function FinRatingDropDownEditor_2(data) {
+        var templat = "<div><select class='k-dropdown-wrap k-state-default k-input' id=" + data.uid + "><option value=''>Select</option>";
+        for (var i = 0; i < data.QuestionOptions.length; i++) {
+            var option = data.QuestionOptions[i];
+            var uniqId = 'Original' + String(data.Id) + String(data.QuestionOptions[i].Id);
+            var OrgUniqName = 'OriginalRating' + String(data.Id);
+            var rowUid = data.uid;
+            if (data.FinalRating == option.Id) {
+                templat += kendo.format("<option title='{3}' selected='selected' value='{1}'>{2}</option> ", uniqId, option.Id, option.Rating, option.RatingContext);
+            }
+            else {
+                templat += kendo.format("<option title='{3}' value='{1}'>{2}</option> ", uniqId, option.Id, option.Rating, option.RatingContext);
+            }
+        }
+
+        templat += "</select></div>";
+        return templat;
+    }
+
+
+    function DropdownsetFinalRating() {
+        $('#AssessSaveFailure').hide();
+        $('#AssessSaveSuccess').hide();
+        // item.PreventDefault();
+        var RatingsList = [];
+        var grid = $("#DropdownAssessGrid").data("kendoGrid");
+        var dataSource = grid.dataSource;
+        var allData = dataSource.data();
+        for (i = 0; i < allData.length; i++) {
+            var uid = allData[i].uid;
+
+            var finalRatingVal = $("#" + uid).children("option:selected").val();
+            console.log(finalRatingVal);
+            var AnswersCollection = {};
+            AnswersCollection.RowId = allData[i].Id;
+            AnswersCollection.FinalRating = finalRatingVal;
+            AnswersCollection.Comments = allData[i].Comments;
+
+            RatingsList.push(AnswersCollection);
+
+        }
+        //ajax call to controller
+        sendDataToController(RatingsList);
+    }
+
+
+    function sendDataToController(data) {
+            var surtype = $("#surveyTypeHolder").val();
+            var ReadURl = '@Url.Content("~/PortfolioAnalyzer/Rating/AssessAjaxSave")';
+        var ApplicationDD = null;//$("#ApplicationName").data("kendoDropDownList");
+            var AppId = ApplicationDD.value();
+            var mod = {};
+            mod.ApplicationId = AppId;
+            mod.RatingsList = data;
+            mod.url = ReadURl;
+            mod.type = "POST";
+            mod.dataType = "json";
+            mod.async = false;
+            mod.data = JSON.stringify(mod);
+            mod.contentType = "application/json";
+            mod.success = function (response) {
+                //alert("success");
+                $('#AssessSaveSuccess').show();
+                if (surtype == "apr") {
+                    var tre = $("#AssessGrid").data("kendoGrid");
+                    tre.dataSource.read();
+                }
+                else {
+                    var tre = $("#DropdownAssessGrid").data("kendoGrid");
+                    tre.dataSource.read();
+                }
+            };
+            mod.error = function (response) {
+                $('#AssessSaveFailure').show();
+            };
+            $.ajax(mod);
+
+    }
+
+
+ 
+</script>
+<style>
+    /*.k-edit-cell>.k-textbox, .k-edit-cell>.k-widget, .k-grid-edit-row>td>.k-textbox, .k-grid-edit-row>td>.k-widget, .k-grid-edit-row>td>.text-box {
+        width: 100%;
+        height:100%;
+        margin-left: 3px;
+        border-radius: 5px;
+    }*/
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+
+
+    .ParentDiv {
+        margin: 0;
+        padding: 0;
+    }
+
+    .rate {
+        float: left;
+        height: 26px;
+        padding: 0 10px;
+    }
+
+        .rate:not(:checked) > input {
+            position: absolute;
+            /*top: -9999px;*/
+            display: none;
+        }
+
+        .rate:not(:checked) > label {
+            float: right;
+            width: 1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 20px;
+            color: #ccc;
+        }
+
+            .rate:not(:checked) > label:before {
+                content: ' ★ ';
+            }
+
+        .rate > input:checked ~ label {
+            color: #ffc700;
+        }
+
+        .rate:not(:checked) > label:hover,
+        .rate:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+
+        .rate > input:checked + label:hover,
+        .rate > input:checked + label:hover ~ label,
+        .rate > input:checked ~ label:hover,
+        .rate > input:checked ~ label:hover ~ label,
+        .rate > label:hover ~ input:checked ~ label {
+            color: #c59b08;
+        }
+
+    .k-input {
+        max-width: 450px;
+    }
+</style>

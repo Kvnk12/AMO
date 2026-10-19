@@ -1,0 +1,30 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+
+@model string
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                        .Name("Operator")
+                                        //.OptionLabel("Select Operator.")
+                                        .DataTextField("Text")
+                                        .DataValueField("Value")
+                                        .ValuePrimitive(true)
+                                        .BindTo(new List<SelectListItem>() {
+
+                                            new SelectListItem() {
+Text = "",
+Value = ""
+},
+                                            new SelectListItem() {
+Text = "AND",
+Value = "AND"
+},
+new SelectListItem() {
+Text = "OR",
+Value = "OR"
+}
+                      })
+
+                          .AutoBind(true)
+)

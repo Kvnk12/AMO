@@ -1,0 +1,128 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+@{
+
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOutWithoutFooter.cshtml";
+    var clientlist = GetDropDownListItems.ClientList;
+}
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+    td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>
+
+    <div>
+       
+        <div class="content-main custom-grid">
+            <div style="width:100%">
+                <!--start of breadcrumb-->
+                <ol class="breadcrumb" style="margin-bottom:8px">
+                    <li><a href="#">Demand Manager</a></li>
+                    <li class="active">Dashboard</li>
+                    <li class="active">All Demands</li>
+                </ol>
+            </div>
+            <div class="content-wrapper">
+
+                @(Html.Kendo().Grid<DemandDashboardModel>()
+                                                            .Name("DemandGrid")
+                                                            .Columns(columns =>
+                                                            {
+                                                                columns.Bound(p => p.DemandNumber).Title("Demand Number").Width(120);
+                                                                columns.Bound(p => p.ItemName).Title("Demand Name").Width(120);
+                                                                columns.Bound(p => p.ImplementationPriority).Title("Implementation Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Priority).Title("Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Problem).Width(120);
+                                                                columns.Bound(p => p.Goal).Title("Requirements").Width(120);
+                                                                columns.Bound(p => p.Solution).Width(120);
+                                                                columns.Bound(p => p.PlannedStartDate).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ActualStartDate).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.PlannedEndDate).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ActualEndDate).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ImplementationStatus).Title("Implementation Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Status).Title("Demand Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.CreatedDate).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.CompletedDt).Title("Completed Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.DemandType).Title("Demand Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.DemandSource).Title("Demand Source").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.InternalInitiative).Title("Internal Initiative").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Complexity).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.CreatedBy).Title("Created By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.SubmittedForReviewDt).Title("Review Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ApprovedDate).Title("Approved Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ApprovedBy).Title("Approved By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.ImplementationManager).Title("Implementation Manager").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.LOBDepartment).Title("Workstream").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Comments).Width(120);
+                                                                columns.Bound(p => p.ImpComments).Title("OverAll Status/ Updates").Width(120);
+                                                                columns.Bound(p => p.Classification).Title("Classification").Width(225);
+                                                                columns.Bound(p => p.DocumentNo).Title("Document Number ").Width(120);
+                                                                columns.Bound(p => p.EstimatedCost).Title("EstimatedCost").Width(120);
+                                                                columns.Bound(p => p.DocumentType).Title("Document Type ").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.DemandPlatformLead).Title("Demand Platform Lead").Width(120);
+                                                                columns.Bound(p => p.Approved_Arch).Title("Approved_Arch").Width(225);
+
+                                                            })
+                                                            .ToolBar(tools => tools.Excel())
+                                                            .Pageable()
+                                                              .Filterable()
+                                                            .Sortable()
+                                                            .Scrollable(e => e.Endless(true))
+                                                            .Groupable()
+                                                            .Excel(excel => excel.FileName("Demands Export.xlsx")
+                                                            .Filterable(true)
+                                                            .AllPages(true)
+                                                            .ProxyURL(Url.Action("Export_Demands_Save", "DemandDashboard"))
+                                                            )
+                                                            .Reorderable(r => r.Columns(true))
+                                                            .Resizable(r => r.Columns(true))
+                                                            .ColumnMenu()
+                                                            .DataSource(dataSource => dataSource.Ajax()
+                                                            .PageSize(50)
+                                                            .Read(read => read.Action("ReadAllDemands", "DemandDashboard"))
+                                                            )
+                )
+
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+
+
+
+
+</script>

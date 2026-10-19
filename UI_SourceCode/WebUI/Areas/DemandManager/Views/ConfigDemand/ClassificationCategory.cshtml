@@ -1,0 +1,140 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DMAuthoriseRolesModel
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+</style>
+
+<div class="content-main"id="wrap">
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">Classification/Category</li>
+        </ol>
+    </div>
+
+
+    <div class="treeMenuContent">     
+        @(Html.Kendo().Grid<DMClassificationModel>()
+             .Name("ClassificationGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.CalId).Hidden();
+                 columns.Bound(e => e.Classification).Title("Classification").Width(150);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             .Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add New Classification"))
+             .Scrollable()
+             .HtmlAttributes(new { style = "height:750px;margin-left:-30px;" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(10)
+              .Model(model => { model.Id(f => f.CalId); model.Field(f => f.CalId).Editable(false); })
+              .Read(read => read.Action("GetClassification", "ConfigDemand"))
+              .Create(create => create.Action("AddClassification", "ConfigDemand"))
+              .Update(update => update.Action("EditClassification", "ConfigDemand"))
+              .Destroy(destroy => destroy.Action("DeleteClassification", "ConfigDemand"))
+               )
+               .Events(events => events.Save("SaveClassification"))
+               .ClientDetailTemplateId("CatGridTemplate")
+        )
+    </div>
+ </div>
+
+<script id="CatGridTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<DMCategoryModel>()
+            .Name("CatGrid#=CalId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.CaId).Hidden();
+                columns.Bound(e => e.Category).Title("Category");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .HtmlAttributes(new { style = "height:350px;" })
+    .Pageable()
+    .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add New Category");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.CaId);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetCategory", "ConfigDemand", new { CattId = "#=CalId#" }))
+        .Create(create => create.Action("AddCategory", "ConfigDemand", new { Id = "#=CalId#" }))
+        .Update(update => update.Action("EditCategory", "ConfigDemand"))
+        .Destroy(delete => delete.Action("DeleteCategory", "ConfigDemand"))
+    )
+    .Events(events => events.Save("SaveCategory"))
+    .ToClientTemplate())
+
+</script>
+
+<script>
+    function SaveClassification(e) {
+        var Classification = e.model.Classification.toUpperCase();
+        var CalId = e.model.CalId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Classification.toUpperCase() === Classification && data[i].CalId != CalId) {
+                e.preventDefault();
+                alert("Classification Already Exists. Please Select Unique Name!");
+            }
+        }
+
+    }
+
+    function SaveCategory(e) {
+        var Category = e.model.Category.toUpperCase();
+        var CaId = e.model.CaId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Category.toUpperCase() === Category && data[i].CaId != CaId) {
+                e.preventDefault();
+                alert("Category Already Exists. Please Select Unique Name!");
+            }
+        }
+
+    }
+  </script>

@@ -1,0 +1,762 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+@using (Html.BeginForm("SaveHeatMapAlgorithmReport", "HeatMapSetUpBuilder", new { ClientId = Model.ClientId, ReportId = Model.ReportId, ReportType = Model.HeatMapReportStatus}, FormMethod.Post))
+    {
+    
+      
+    
+    <div class="treeMenuContent" style="min-height: 700px">
+
+        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+            {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+                }
+
+        @if (ViewData.ModelState.ContainsKey("Success"))
+            {                        
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+        else
+            {
+            }
+        <div>
+
+            <div class="form-horizontal" style="float: left" data-intro="Select a Algorithm from the List" data-step="1">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-8 control-label">Heat Map Algorithms</label>
+                    <div class="col-sm-5">
+                        @*@Html.DropDownListFor(m => m.reportAlgorithmInput.AlgorithmSolution, new SelectList(Model.reportAlgorithmInput.GetDefnAlgorithms(), "value", "text", Model.reportAlgorithmInput.GetDefnAlgorithms()),"", new { @class = "selectpicker", @id = "algorId", @name = "algorId", required = "required" })*@
+                        @Html.DropDownList("algorId", Model.reportAlgorithmInput.GetDefnAlgorithms(Model.reportAlgorithmInput.AlgorithmSolution),"",  new { @class = "selectpicker", @id = "algorId", @name = "algorId", required = "required"})
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <div class="clearfix"></div>
+
+            @Html.HiddenFor(m => Model.reportAlgorithmInput.ReportConfigId)
+            <div class="clearfix"></div>
+
+            
+            @*<div data-intro="Select Columns from the List for Algorithm to use" data-step="2" style="margin-top: 25px">
+                <table style='width: 370px;'>
+                    <thead>
+                        <tr>
+                            <td><span class="mandate">*</span><b>Select Columns</b></td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td style='width: 760px;'>
+                            <b>Available Columns</b><br />
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.key, new SelectList(Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "SelectedColumn"), "value", "text", Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "SelectedColumn")), new { id = "lstBox1_1", name = "lstBox1", multiple = "multiple", style = "width:350px;height:350px" })
+                        </td>
+                        <td style='width: 150px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnRight1" tabindex="" type="button">></button>
+                            <br />
+                            <button class="btn btn-default" id="btnLeft1" tabindex="" type="button"><</button>
+                        </td>
+                        <td style='width: 160px;'>
+                            <b>Selected Columns</b><br />
+
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.Values, new SelectList(Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "SelectedColumn"), "value", "text", Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "SelectedColumn")), new { id = "lstBox1_2", name = "lstBox1_2", multiple = "multiple", style = "width:350px;height:350px" })
+
+
+                        </td>
+                        <td style='width: 50px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnUp1" tabindex="" value="^" type="button">^</button>
+                            <br />
+                            <button class="btn btn-default" id="btnDown1" tabindex="" value="v" type="button">v</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div data-intro="Select Columns from the List for Algorithm Partition By" data-step="2" style="margin-top: 25px">
+                <table style='width: 370px;'>
+                    <thead>
+                        <tr>
+                            <td><b>Select Columns for Partition By</b></td>
+                        </tr>
+                    </thead>
+
+                    <tr>
+                        <td style='width: 760px;'>
+                            <b>Available Columns</b><br />
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.Partitionkey, new SelectList(Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "PartitionBy"), "value", "text", Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "PartitionBy")), new { id = "lstBox2_1", name = "lstBox2_1", multiple = "multiple", style = "width:350px;height:350px" })
+                        </td>
+                        <td style='width: 150px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnRight2" tabindex="" type="button">></button>
+                            <br />
+                            <button class="btn btn-default" id="btnLeft2" tabindex="" type="button"><</button>
+                        </td>
+                        <td style='width: 160px;'>
+                            <b>Selected Columns</b><br />
+
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.PartitionValues, new SelectList(Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "PartitionBy"), "value", "text", Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "PartitionBy")), new { id = "lstBox2_2", name = "lstBox2_2", multiple = "multiple", style = "width:350px;height:350px" })
+
+
+                        </td>
+                        <td style='width: 50px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnUp2" tabindex="" value="^" type="button">^</button>
+                            <br />
+                            <button class="btn btn-default" id="btnDown2" tabindex="" value="v" type="button">v</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div data-intro="Select Columns from the List for Algorithm Partition By" data-step="3" style="margin-top: 25px; margin-bottom: 25px">
+                <table style='width: 370px;'>
+                    <thead>
+                        <tr>
+                            <td><b>Select Columns for Partition Date</b></td>
+                        </tr>
+                    </thead>
+
+                    <tr>
+                        <td style='width: 760px;'>
+                            <b>Available Columns</b><br />
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.PartitionDatekey, new SelectList(Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "PartitionDate"), "value", "text", Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId, "PartitionDate")), new { id = "lstBox3_1", name = "lstBox3_1", multiple = "multiple", style = "width:350px;height:350px" })
+                        </td>
+                        <td style='width: 150px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnRight3" tabindex="" type="button">></button>
+                            <br />
+                            <button class="btn btn-default" id="btnLeft3" tabindex="" type="button"><</button>
+                        </td>
+                        <td style='width: 160px;'>
+                            <b>Selected Columns</b><br />
+                            @Html.ListBoxFor(m => m.reportAlgorithmInput.PartitionDateValues, new SelectList(Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "PartitionDate"), "value", "text", Model.reportAlgorithmInput.GetValuesforReportKey(Model.ReportId, "PartitionDate")), new { id = "lstBox3_2", name = "lstBox3_2", multiple = "multiple", style = "width:350px;height:350px" })
+                        </td>
+                        <td style='width: 50px; text-align: center; vertical-align: middle;'>
+
+                            <button class="btn btn-default" id="btnUp3" tabindex="" value="^" type="button">^</button>
+                            <br />
+                            <button class="btn btn-default" id="btnDown3" tabindex="" value="v" type="button">v</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>*@
+
+
+            <div class="clearfix"></div>
+
+            @*Chart Configuration Input*@
+
+
+
+            <div class="leftarea form-horizontal">
+               @{
+                   var counter = 0;
+                   foreach(ReportDefnKeyInput item in Model.reportAlgorithmInput.GetReportDefnKeys(Model.ReportId,  Model.reportAlgorithmInput.NewAlgorithmSolution))
+                       {
+                        
+                <div class="form-group" data-intro="Select a Chart Template" data-step="@(counter+3)" >
+                    <label id="@item.DisplayName" class="col-sm-5 control-label" for="accname"><span class="mandate">@(item.Type.ToLower() == "filter" ? "": "*")</span>@item.DisplayName</label>
+                    <div class="col-sm-5">
+                        @*@Html.DropDownListFor(m => item.AssignedValue, new SelectList(Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId), "value", "text", Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId)), "", new { @class = "selectpicker", id =  @item.Type + "_" + @item.Order+"_" + @item.DisplayName,  required = "required" })*@
+                        @*@Html.DropDownList("@item.Type_@item.Order_@item.DisplayName", Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ReportId)),  Model.reportAlgorithmInput.AlgorithmName, new { @class = "selectpicker", @id = "algorId", @name = "algorId", required = "required" })*@
+                        @*@Html.DropDownList("algorId", Model.reportAlgorithmInput.GetDefnAlgorithms(), Model.reportAlgorithmInput.AlgorithmName,new { @class = "selectpicker", @id = "algorId", @name = "algorId", required = "required" })*@
+                        @if (Model.reportAlgorithmInput.NewAlgorithmSolution.ToLower() != "getcustomsql")
+                            {
+                                @Html.DropDownList(@item.Type + "_" + @item.Order + "_" + @item.DisplayName, Model.reportAlgorithmInput.GetColumnsForAlgorithm(Model.ClientId,  Model.ReportId, item.AssignedValue, item.DisplayName, item.Type, item.PredefinedValues), "", new { @class = "selectpicker", required="required", algorfieldName=item.DisplayName,   algorfields= (item.Type.ToLower() != "filter" ? "requried": null) })
+                            }
+                        else
+                        {
+                            @Html.TextArea(@item.Type + "_" + @item.Order + "_" + @item.DisplayName, item.AssignedValue, new {  @class = "form-control", required="required", Rows="15",  myproperty= (item.Type.ToLower() != "filter" ? "requried": null) })
+                        }
+                        
+                        
+                    </div>
+                </div>
+                       counter++;
+                   }
+                   }
+            </div>
+
+            <div class="rightarea form-horizontal">
+                <div class="form-group" data-intro="Select a Chart Template" data-step="3">
+                    <label id="id1" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Chart Type</label>
+                    <div class="col-sm-5">
+                        @*@Html.TextBoxFor(m => m.reportAlgorithmInput.reportGraphConfigurationInput.SSRSTemplateFile, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtChart" })*@
+                        @Html.DropDownListFor(m => m.reportAlgorithmInput.reportGraphConfigurationInput.SSRSTemplateFileID, new SelectList(Model.reportAlgorithmInput.GetChartTemplates(), "value", "text", Model.reportAlgorithmInput.GetChartTemplates()), "", new { @class = "selectpicker", id = "txtChart", name = "txtChart", required = "required" })
+                    </div>
+                </div>
+
+                <div class="form-group" data-intro="Select a Column for X-axis" data-step="4">
+                    <label id="id6" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>X-Axis 1 </label>
+                    <div class="col-sm-5">
+                        @*@Html.TextBoxFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Xaxis1, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtXaxis1" })*@
+                        @Html.DropDownListFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Xaxis1, new SelectList(Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId), "value", "text", Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId)), "", new { @class = "selectpicker", id = "txtXaxis1", name = "txtXaxis1", required = "required" })
+
+                    </div>
+                </div>
+
+                <div class="form-group" data-intro="Select a Column for second X-axis" data-step="5">
+                    <label id="id7" class="col-sm-5 control-label" for="accname"><span class="mandate"></span>X-Axis 2 </label>
+                    <div class="col-sm-5">
+                        @*@Html.TextBoxFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Xaxis2, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtXaxis2" })*@
+                        @Html.DropDownListFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Xaxis2, new SelectList(Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId), "value", "text", Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId)), "", new { @class = "selectpicker", id = "txtXaxis2", name = "txtXaxis2", required = "required" })
+                    </div>
+                </div>
+
+
+                <div class="form-group" data-intro="Select a Column for Y-axis" data-step="6">
+                    <label id="id8" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Y-Axis 1 </label>
+                    <div class="col-sm-5">
+                        @*@Html.TextBoxFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Yaxis1, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtYaxis1" })*@
+                        @Html.DropDownListFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Yaxis1, new SelectList(Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId), "value", "text", Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId)), "", new { @class = "selectpicker", id = "txtYaxis1", name = "txtYaxis1", required = "required" })
+                    </div>
+                </div>
+
+                <div class="form-group" data-intro="Select a Column for second Y-axis" data-step="7">
+                    <label id="id9" class="col-sm-5 control-label" for="accname"><span class="mandate"></span>Y-Axis 2 </label>
+                    <div class="col-sm-5">
+                        @*@Html.TextBoxFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Yaxis2, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtYaxis2" })*@
+                        @Html.DropDownListFor(m => m.reportAlgorithmInput.reportConfigurationMDInput.Yaxis2, new SelectList(Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId), "value", "text", Model.reportAlgorithmInput.GetColumnsForTrendChart(Model.ReportId, Model.ClientId)), "", new { @class = "selectpicker", id = "txtYaxis2", name = "txtYaxis2", required = "required" })
+                    </div>
+                </div>
+
+
+
+                <div class="form-group" data-intro="Enter Chart Title to Display" data-step="8">
+                    <label id="id2" class="col-sm-5 control-label" for="accname"><span class="mandate"></span>Chart Title</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.reportAlgorithmInput.reportGraphConfigurationInput.ChartTitle, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtaccname" })
+                    </div>
+                </div>
+
+
+                <div class="form-group" data-intro="Enter Caption for X-axis" data-step="9">
+                    <label id="id3" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>X-axis Caption</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.reportAlgorithmInput.reportGraphConfigurationInput.XColCaption, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtaccname" })
+                    </div>
+                </div>
+
+                <div class="form-group" data-intro="Enter Caption for Y-axis" data-step="10">
+                    <label id="id4" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Y-axis Caption</label>
+                    <div class="col-sm-5">
+                        @Html.TextBoxFor(m => m.reportAlgorithmInput.reportGraphConfigurationInput.YcolCaption, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtaccname" })
+                    </div>
+                </div>
+
+            </div>
+
+
+            @*</div>*@
+
+
+
+            @Html.Hidden("ReportId", @Model.ReportId)
+            @Html.Hidden("ReportType", @Model.HeatMapReportStatus)
+            @Html.Hidden("SelectedColumns", @Model.reportAlgorithmInput.SelectedColumns)
+            @Html.Hidden("SelectedPartionByColumns", @Model.reportAlgorithmInput.SelectedPartionByColumns)
+            @Html.Hidden("SelectedPartionDateColumns", @Model.reportAlgorithmInput.SelectedPartionDateColumns)
+
+
+        </div>
+
+
+        <div class="addvalaction" data-intro="Click Next to save data and move to Threshold UI or Click cancel to save" data-step="10">
+            <button type="Submit" tabindex="30" class="btn btn-primary" id="btnSave">Next</button>
+            <button class="btn btn-default" id="cancelregDataSetMap" tabindex="" type="submit">Cancel</button>
+
+        </div>
+    </div>
+    }
+         
+
+<script>
+    var NoOfColumnsRequired = 0;
+    $(document).ready(function () {
+
+
+        $('select#algorId').change(function () {
+            var SelectedAlogId = $('#algorId :selected').val();
+            if(SelectedAlogId != "")
+            //if (SelectedclientId != 0) 
+            {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/GetHeatMapAlgorithmSetup/?ClientId=@Model.ClientId&algorId={algorId}&ReportId=@Model.ReportId';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/GetHeatMapAlgorithmSetup/?ClientId=@Model.ClientId&algorId={algorId}&ReportId=@Model.ReportId';
+                }
+
+                baseurl = baseurl.replace("{algorId}", SelectedAlogId);
+                window.location = baseurl;
+                return false;
+
+
+@*                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/GetHeatMapAlgorithmSetup/?ClientId=@Model.ClientId&algorId={algorId}&ReportId=@Model.ReportId");
+
+                //window.location = strUrl;
+
+                strUrl = strUrl.replace("{algorId}", SelectedAlogId);
+                window.location = strUrl;
+                return false;*@
+            }
+
+        });
+
+
+
+
+        $('#cancelregDataSetMap').click(function () {
+
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+
+            window.location = baseurl;
+            return false;
+
+@*                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;*@
+            }
+            else { return false; }
+
+        });
+
+
+        $('#btnBack').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+
+            window.location = baseurl;
+            return false;
+
+
+@*            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+            window.location = strUrl;
+            return false;*@
+
+        });
+
+        $('#btnSave').click(function (e) {
+
+
+            
+
+            var dboject = $('#algorId :selected').val();
+            if (dboject == "" || dboject == "0") {
+                alert('Please select Heat Map Algorithm');
+                return false;
+            }
+
+            var formChildren = $(":input");
+            var error = false;
+            
+            for(var i=0;i< formChildren.length; i++)
+            {
+                var item = formChildren[i];
+                if ($(item).attr("algorfields") == "requried")
+                {
+                    //if ($(item)[0].nodeName == "SELECT")
+                    {
+                        if ($(item).val() == "")
+                        {
+                            alert('select values for algorithm for ' + $(item).attr("algorfieldName"));
+                            error = true;
+                            break;
+                        }
+                    }
+                }
+
+            }
+            if(error)
+                return false;
+
+            //$.each(formChildren, function (index)
+            //{
+            //    if ($(this).attr("algorfields") != "")
+            //    {
+            //        if ($(this)[0].nodeName == "SELECT")
+            //        {
+            //            var obj =  $(this)[0];
+            //            if (obj.value == "")
+            //            {
+            //                alert('select values for algorithm for ' + $(this).attr("algorfieldName"));
+            //                e.preventDefault();
+            //                break;
+            //                return;
+            //            }
+            //        }
+            //    }
+                //alert($(this).attr("myproperty"));
+
+            //});
+            
+           
+
+            dboject = $('#txtChart :selected').val();
+            if (dboject == "" || dboject == "0") {
+                alert('Please select Chart Template');
+                return false;
+            }
+
+
+            dboject = $('#txtXaxis1 :selected').val();
+            if (dboject == "" || dboject == "0") {
+                alert('Please select columns for X-Axis');
+                return false;
+            }
+
+
+            dboject = $('#txtYaxis1 :selected').val();
+            if (dboject == "" || dboject == "0") {
+                alert('Please select columns for Y-Axis');
+                return false;
+            }
+
+            
+            //var SelectedColumns = $('#lstBox1_2 option').size();
+            
+            //if (SelectedColumns == 0)
+            //{
+            //    alert('Please select Columns from the list of Available Columns grid  and move them to Selected Columns grid');
+            //        return false;
+            //}
+
+
+            //NoOfColumnsSelect($('#algoId :selected').text());
+            //    if(NoOfColumnsRequired != SelectedColumns)
+            //    {
+            //        alert('Please select ' + NoOfColumnsRequired + ' columns  for the selected Heat Map Algorithm ' + $('#algoId :selected').text());
+            //        return false;
+
+            //    }
+            
+
+            
+            //var dboject = $('#algoId :selected').val();
+            //var AlgolRequirednoOfColumns = dboject.split("~");
+            //if (AlgolRequirednoOfColumns.length = 2)
+            //{
+            //    var noOfColumns = AlgolRequirednoOfColumns[1];
+            //    if (SelectedColumns !=  noOfColumns)
+            //    {
+            //        alert('Please select ' + noOfColumns + ' columns  for the selected Heat Map Algorithm ' + $('#algoId :selected').text());
+            //        return false;
+            //    }
+                
+            //}
+
+            //$('#SelectedColumns').val($('#lstBox1_2 option').map(function () {
+            //    return this.value;
+            //}).get().join(','));
+
+
+            //$('#SelectedPartionByColumns').val($('#lstBox2_2 option').map(function () {
+            //    return this.value;
+            //}).get().join(','));
+
+
+            //$('#SelectedPartionDateColumns').val($('#lstBox3_2 option').map(function () {
+            //    return this.value;
+            //}).get().join(','));
+           
+        });
+        
+    });
+
+</script>
+
+
+<script >
+    $(document).ready(function () {
+
+        //Selected Columns Button Clicks
+
+        $('#btnRight1').click(function (e) {
+            var selectedOpts = $('#lstBox1_1 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox1_2').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnLeft1').click(function (e) {
+            var selectedOpts = $('#lstBox1_2 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox1_1').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnDown1').click(function (e) {
+            //function MoveDown() {
+            var selectedOption = $('#lstBox1_2 option:selected');
+
+            var nextOption = $('#lstBox1_2 option:selected').next("option");
+
+            if ($(nextOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(nextOption).after($(selectedOption));
+
+            }
+        });
+
+        $('#btnUp1').click(function (e) {
+            //function MoveUp() {
+            var selectedOption = $('#lstBox1_2 option:selected');
+
+            var prevOption = $('#lstBox1_2  option:selected').prev("option");
+
+            if ($(prevOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(prevOption).before($(selectedOption));
+
+            }
+
+        });
+
+
+        //PartitionBy Columns Button Clicks
+
+
+        $('#btnRight2').click(function (e) {
+            var selectedOpts = $('#lstBox2_1 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox2_2').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnLeft2').click(function (e) {
+            var selectedOpts = $('#lstBox2_2 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox2_1').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnDown2').click(function (e) {
+            //function MoveDown() {
+            var selectedOption = $('#lstBox2_2 option:selected');
+
+            var nextOption = $('#lstBox2_2 option:selected').next("option");
+
+            if ($(nextOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(nextOption).after($(selectedOption));
+
+            }
+        });
+
+        $('#btnUp2').click(function (e) {
+            //function MoveUp() {
+            var selectedOption = $('#lstBox2_2 option:selected');
+
+            var prevOption = $('#lstBox2_2  option:selected').prev("option");
+
+            if ($(prevOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(prevOption).before($(selectedOption));
+
+            }
+
+        });
+
+        //Parition Date Columns Select
+
+        $('#btnRight3').click(function (e) {
+            var selectedOpts = $('#lstBox3_1 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox3_2').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnLeft3').click(function (e) {
+            var selectedOpts = $('#lstBox3_2 option:selected');
+            if (selectedOpts.length == 0) {
+                //alert("Nothing to move.");
+                e.preventDefault();
+            }
+
+            $('#lstBox3_1').append($(selectedOpts).clone());
+            $(selectedOpts).remove();
+            e.preventDefault();
+        });
+
+        $('#btnDown3').click(function (e) {
+            //function MoveDown() {
+            var selectedOption = $('#lstBox3_2 option:selected');
+
+            var nextOption = $('#lstBox3_2 option:selected').next("option");
+
+            if ($(nextOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(nextOption).after($(selectedOption));
+
+            }
+        });
+
+        $('#btnUp3').click(function (e) {
+            //function MoveUp() {
+            var selectedOption = $('#lstBox3_2 option:selected');
+
+            var prevOption = $('#lstBox3_2  option:selected').prev("option");
+
+            if ($(prevOption).text() != "") {
+
+                $(selectedOption).remove();
+
+                $(prevOption).before($(selectedOption));
+
+            }
+
+        });
+
+
+
+
+
+    });
+
+
+    function NoOfColumnsSelect(algorithmName) {
+
+        var localToServer = "/";
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+
+        if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+        }
+
+        var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/CheckColumnCountForAlgorithm");
+
+        {
+            $.ajax({
+                url: strUrl,
+                type: 'POST',
+                data: { algorithmName: algorithmName},
+                success: checkColumnsCount,
+                failure: errorCheckReportName,
+                async: false
+
+            })
+        }
+
+    }
+
+    function checkColumnsCount(noOfColumns) {
+
+
+        NoOfColumnsRequired = parseInt(noOfColumns);
+
+        return;
+    }
+
+    function errorCheckReportName() {
+
+        alert('An error occurred. Please contact administrator');
+    }
+
+</script>
+         

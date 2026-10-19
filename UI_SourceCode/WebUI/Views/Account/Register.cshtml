@@ -1,0 +1,294 @@
+﻿@using Kendo.Mvc.UI;
+@model NTTData.AMOPortal.WebUI.Dto.RegisterModel
+
+@*<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>*@
+
+@{
+    //ViewBag.Title = "Register";
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    //ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+<style>
+    .register-control {
+        border: none;
+        border-bottom: 1px solid #333;
+        border-radius: 0px;
+        width: 200px;
+    }
+
+    .form-control[disabled].register-control {
+        background-color: transparent;
+    }
+</style>
+@(Html.Kendo().Window()
+                .Name("AddTemppopUp")
+                .Title("Register New User")
+                .Content(@<text>
+
+
+    @*<form action="Register" method="post" enctype="multipart/form-data">*@
+          @*@Html.AntiForgeryToken()*@
+          @*<div class="alert alert-success alert-dismissable">
+            <button type="submit" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            User Got Added successfully!
+        </div>*@
+          <div class="register-main">
+              <div class="register-group">
+
+        <div class="custom-group">
+                    <label for="UserName" class="register-label" id=""><span class="mandate">*</span>User Name/Email</label>
+                    <div class="">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "register-control", id = "txtUsrName" })<br />
+                          <label id="UserName_alert" hidden><span class="mandate" style="font-size:small">UserName is required!</span></label>
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+                    @*<label style="margin-left:7em"><span class="mandate">*</span>NTT Data Resource:&nbsp;&nbsp; @Html.CheckBoxFor(m => m.NTTDataResource, new { @style = "height:20px; width:30px; display:inline;" }) </label>*@
+                </div>
+        <div class="custom-group">
+            <label for="FirstName" class="register-label" id=""><span class="mandate">*</span>FirstName</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.FirstName, new { @class = " register-control", id = "txtFrtName" })
+                 <label id="FirstName_alert" hidden><span class="mandate" style="font-size:small">FirstName is required!</span></label>
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="LastName" class="register-label" id=""><span class="mandate">*</span>LastName</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.LastName, new { @class = "register-control", id = "txtLstName" })
+                <label id="LastName_alert" hidden><span class="mandate" style="font-size:small">LastName is required!</span></label>
+            </div>
+        </div>
+        <div class="custom-group">
+             <label for="Country"  style="width:20em" class="register-label" id="">Country</label>
+            @*<strong>@Html.Label("Country", new { @class = "register-label" })</strong>*@
+            <div class="">
+                @Html.DropDownListFor(m => m.CountryCode, new SelectList(Model.CountryList, "Value", "Text", Model.CountryCode), "", new
+            {
+                @class = "register-control",
+                id = "IDCountryCode",
+                style = "border: none; width:100% !important;height: 34px;border-radius: 0px !important ;border-bottom:1px Solid #333"
+            })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="Phone" class="register-label" id="">Phone</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.Phone, new { @class = "register-control", id = "txtPhone" })
+                @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="JobTitle" class="register-label" id="">JobTitle</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.JobTitle, new { @class = "register-control", id = "txtJobTitle" })
+            </div>
+        </div>
+        <div class="custom-group">
+            <label for="ReportingManager" class="register-label" id="">Reporting Manager</label>
+            <div class="">
+                @Html.TextBoxFor(m => m.ReportingManager, new { @class = "register-control", id = "txtRegisterManager" })
+            </div>
+        </div>
+
+    </div>
+              <div class="register-group">
+          <div class="custom-group">
+            <label for="NTTDataResource" class="register-label" style="margin-left:3em;" id=""><span class="mandate">*</span>NTT Data Resource :</label>
+            <div class="">
+
+               @Html.CheckBoxFor(m => m.NTTDataResource, new { type = "checkbox", id = "NTTDataResource", @style = "height:15px; width:15px; display:inline;" })
+            </div>
+        </div>
+
+    </div>
+          </div>
+
+            <div class="register-buttom">
+            <input type="button" onclick="resetRegister()"  class="custom-button" style="width:fit-content;padding:0.3em 0.4em;background-color:darkgrey;margin-right:1em" value="CANCEL" id="btnCancel" />
+            <input type="button" onclick="submitRegister()" class="custom-button" style="width:fit-content;padding:0.3em 0.4em;" value="SAVE" id="btnSave" />
+            @*<a class="custom-button" style="width:fit-content;padding:0.5em 1em;border:1px solid;color:#333;background-color:transparent" href="@Url.Action("Users", "Account")">User list</a>*@
+            </div>
+
+
+
+         @*</form>*@
+
+     <!--end container-->
+     </text>)
+                .Visible(false)
+                .Draggable()
+                .Resizable()
+                .Width(797)
+                .Height(473)
+                .AutoFocus(false)
+                .Modal(true)
+                .Events(events => events
+            .Close("onCloseRegister")
+        )
+
+
+)
+
+<script>
+
+    $("#txtUsrName").focusout(function () {
+        //alert('jhjjjjh' + $("#txtUsrName").val());
+        var baseurl = '@Url.Content("~/Account/GetUserByUserName")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: { ID: $("#txtUsrName").val() },
+            success: populatedata,
+            failure: errorIn
+        });
+
+    });
+
+    function errorIn(data)
+    {
+        alert('Error occured please try again.');
+        $('#txtFrtName').attr("disabled", false);
+        $('#txtRegisterManager').attr("disabled", false);
+        $('#txtLstName').attr("disabled", false);
+        $('#txtPhone').attr("disabled", false);
+        $('#txtJobTitle').attr("disabled", false);
+        $("#txtFrtName").val("");
+        $("#txtRegisterManager").val("");
+        $("#txtLstName").val("");
+        $("#txtPhone").val("");
+        $("#txtJobTitle").val("");
+    }
+
+    function populatedata(data)
+    {
+        if(data!=null && data.UserName!='')
+        {
+           // alert('if');
+            $("#txtFrtName").val(data.FirstName);
+            $("#txtRegisterManager").val(data.ReportingManager);
+            $("#txtLstName").val(data.LastName);
+            $("#txtPhone").val(data.Phone);
+            $("#txtJobTitle").val(data.JobTitle);
+            $('#txtFrtName').attr("disabled", true);
+            $('#txtRegisterManager').attr("disabled", true);
+            $('#txtLstName').attr("disabled", true);
+            $('#txtPhone').attr("disabled", true);
+            $('#txtJobTitle').attr("disabled", true);
+            $("#IDCountryCode").attr("disabled", true);
+            //$("#IDCountryCode").addClass('dropDownDisable');
+        }
+        else {
+           // alert('else');
+            $('#txtFrtName').attr("disabled", false);
+            $('#txtRegisterManager').attr("disabled", false);
+            $('#txtLstName').attr("disabled", false);
+            $('#txtPhone').attr("disabled", false);
+            $('#txtJobTitle').attr("disabled", false);
+            $("#IDCountryCode").attr("disabled", false);
+            //$("#IDCountryCode").removeClass('dropDownDisable');
+            $("#txtFrtName").val("");
+            $("#txtRegisterManager").val("");
+            $("#txtLstName").val("");
+            $("#txtPhone").val("");
+            $("#txtJobTitle").val("");
+        }
+    }
+    function noaction(data)
+    {
+        alert('User got added to your client.');
+    }
+    $("#btnSave").click(function () {
+
+        //alert('save');
+        var baseurl = '@Url.Content("~/Account/AddDefaultRole")';
+        var disabled = $("#txtFrtName").is(":disabled");
+       // alert(disabled);
+        if (disabled) {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                async: false,
+                data: { userName: $("#txtUsrName").val() },
+                success: noaction,
+                failure: errorIn
+            });
+            return false;
+        }
+        else
+        {
+            //alert('no');
+            return true;
+        }
+    });
+    function noaction(data) {
+        $(".alert").hide().show('medium');
+    }
+    function submitRegister() {
+        var mod = {
+            UserName : $("#txtUsrName").val() ,
+            Email: $("#txtUsrName").val() ,
+            FirstName: $("#txtFrtName").val() ,
+            LastName: $("#txtLstName").val() ,
+            JobTitle: $("#txtJobTitle").val() ,
+            Phone: $("#txtPhone").val() ,
+            CountryCode: $("#IDCountryCode").val(),
+            ReportingManager: $("#txtRegisterManager").val(),
+            NTTDataResource: $("#NTTDataResource").val()
+        };
+        console.log("mod", mod);
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/Account/RegisterUser")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data)
+                    $('#alertModalRegister').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess').show();
+                    var rptpopup = $("#AddTemppopUp").data("kendoWindow");
+                    rptpopup.close();
+                    $("#UserlistDeletion").data("kendoGrid").dataSource.read();
+
+                },
+                error: function (response) {
+                    $('#alertModalRegister').modal('show');
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+                    console.log(response.responseText);
+
+                }
+            })
+
+    }
+    function resetRegister() {
+        $("#txtUsrName").val("");
+        $("#txtFrtName").val("");
+        $("#txtLstName").val("");
+        $("#txtJobTitle").val("");
+        $("#txtPhone").val("");
+        $("#IDCountryCode").val("");
+        $("#txtRegisterManager").val("");
+        $("#NTTDataResource").val("");
+        $('#txtFrtName').attr("disabled", false);
+        $('#txtRegisterManager').attr("disabled", false);
+        $('#txtLstName').attr("disabled", false);
+        $('#txtPhone').attr("disabled", false);
+        $('#IDCountryCode').attr("disabled", false);
+        $('#txtJobTitle').attr("disabled", false);
+    }
+    function onCloseRegister() {
+        resetRegister();
+    }
+</script>

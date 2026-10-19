@@ -1,0 +1,483 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@model A3MMModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+<style>
+    .k-picker-wrap.k-state-default {
+        margin-top: -8px;
+    }
+
+    .k-widget.k-datepicker {
+        width: 365px;
+    }
+
+    .sidebar-wrapper {
+        height: 39.5em;
+    }
+
+    .eye-icon {
+        background-image: url(../../Content/images/view_blue.svg);
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-left: 1.7em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .hide-icon {
+        background-image: url(../../Content/images/hide.svg);
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-left: 1.7em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .arrowdownBG {
+        background-image: url(../../Content/images/arrow_down_blue.svg);
+        background-repeat: no-repeat;
+        background-size: 9px;
+        background-position: left;
+        padding-left: 1em;
+        margin-right: -1em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .arrowBG {
+        background-image: url(../../Content/images/arrow_right_blue.svg);
+        background-repeat: no-repeat;
+        background-size: 6px;
+        background-position: left;
+        padding-left: 1em;
+        margin-right: -1em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .searchPanel {
+        display: flex;
+        width: 100%;
+        border-bottom: 1.5px solid rgb(91,121,171);
+        padding-bottom: 0.4em;
+    }
+
+    .searchCriteria {
+        display: flex;
+        justify-content: space-between;
+        align-items:center;  
+    }
+
+    .breadcrumb {
+        padding-left: 1em;
+        padding-top: 2em;
+    }
+
+    .assessment-search-content {
+        width: 100%;
+        height: auto;
+        background-color: white;
+        border-top: 8px solid rgb(91,121,171);
+    }
+
+    .searchCriteria .collapsible {
+        color: rgb(91,121,171);
+        font-size: 1.1vw;
+        cursor: pointer;
+        padding-top: 10px;
+    }
+
+    #statusQSA{
+        cursor:not-allowed;
+    }
+    .all-fields {
+        width: 28vw;
+        padding-top: 2em;
+        display: flex
+    }
+    .custom-kendo-treelist .k-treelist .k-grid-header .k-grid-header-wrap th.k-header{
+        font-size:0.95vw;
+    }
+    .custom-kendo-treelist .k-treelist .k-grid-content table tr td {
+        font-size: 0.9vw;
+    }
+</style>
+
+<div>
+    <div class="assessment-search">
+        <div class="assessment-search-content">
+            <div class="searchPanel">
+                <div class="arrowBG" onclick="switchVisible();" id="arrow-bg" style="display:none;"></div>
+                <div class="arrowdownBG" onclick="switchVisible();" id="arrowdown-bg"></div>
+                <div class="eye-icon" onclick="switchVisible();" id="eye-icon"></div>
+                <div class="hide-icon" onclick="switchVisible();" id="hide-icon" style="display:none;"></div>
+                <div class="searchCriteria">
+                    <label class="collapsible" id="search-criteria" onclick="switchVisible();"> Question Set Criteria:</label>
+                </div>
+            </div>
+            <div class="searchQueryDiv" id="search-query" style="display: block; height: 7vw;">
+                <div class="searchFilter scrollbar-rail">
+                    <div class="first-row" style="display: flex; margin-left: 2.5em;">
+                        @*1*@
+                        <div class="all-fields">
+                            <div class="custom-blue-label" style=" width: 10vw!important;">Assessment Type :</div>
+                            <div class="custom-dropdown AssessmentType" style=" width: 20vw; margin-top: 1vh;">
+                                @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(Model.AssessmentList)
+                                .Name("AssessmentID_panel")
+                                .Value(Model.SurveyTypeID.ToString())
+                                .HtmlAttributes(new { style = "width: 15vw;border:none;font-size: 1vw;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+                                .Events(e =>
+                                {
+                                    e.Select("onSelectAssessmentType");
+                                    e.Change("onchangeAssessmentType");
+                                })
+                                )
+                            </div>
+                        </div>
+
+
+                        <div class="all-fields" >
+                            <div class="custom-blue-label" style=" width: 10vw!important;">Question Set # :</div>
+                            <div class="custom-dropdown QSetNo" style=" width: 11vw; margin-top: 1vh;">
+                                @(Html.Kendo().DropDownListFor(m => m.QuestionId)
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(Model.QuestionSetNoList)
+                                .Value(Model.VersionID.ToString())
+                                .Name("QuestionVerDrpdown")
+                                .Events(e =>
+                               {
+                                   e.Change("onSelectQVer");
+                               })
+                                .HtmlAttributes(new { style = "width: 15vw;border:none;font-size: 1vw;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+                                )
+                            </div>
+                        </div>
+
+                        <div class="all-fields" >
+                            <div class="custom-blue-label" style=" width: 6vw!important;">Status :</div>
+                            <div id="statusQSA" class="custom-textbox" style=" width: 12.3vw; border-bottom: 1px solid #ccc; padding-top: 8px; ">
+                                @(Html.Kendo().TextBox()
+                             .Name("QsetStatus")
+                             .Value(Model.QSetStatus.ToString())
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15vw;border: none;font-size:1vw!important;padding - top: 0.8vw; " })
+                            //border - bottom: 1px solid #ccc;border-radius: 0em;
+                            )
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="actionButtons" >
+                        <button style="float: right; width: 5vw; font-weight: bold; margin-right: 2em; font-size: 1vw;" class="custom-button" type="button" onclick="onSearchClick()" id="btnLaunch">Search</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchVisible() {
+        var x = document.getElementById("search-criteria");
+        var y = document.getElementById("search-query");
+        if (y.style.display === 'block') {
+            document.getElementById('search-criteria').innerHTML = 'View Assessment Criteria:';
+            document.getElementById('arrow-bg').style.display = "block";
+            document.getElementById('arrowdown-bg').style.display = "none";
+            document.getElementById('eye-icon').style.display = "block";
+            document.getElementById('hide-icon').style.display = "none";
+            x.style.display = "block";
+            y.style.display = "none";
+
+        }
+        else {
+            document.getElementById('search-criteria').innerHTML = 'Hide Assessment Criteria:';
+            document.getElementById('arrow-bg').style.display = "none";
+            document.getElementById('arrowdown-bg').style.display = "block";
+            document.getElementById('eye-icon').style.display = "block";
+            document.getElementById('hide-icon').style.display = "none";
+            x.style.display = "none";
+            //var filter = $("#filter").data("kendoFilter");
+            //var whereclause = filter._previewContainer.text();
+            //$("#search-text").text(whereclause);
+            y.style.display = "block";
+
+        }
+    }
+    function onSearchClick() {
+
+        //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+        $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+
+
+ 
+        var QSetStatus = $("#QsetStatus").data("kendoTextBox").value();
+
+        if (QSetStatus == "Draft") {
+            document.getElementById("btnFinalize").disabled = false;
+            document.getElementById("btn-addPques").disabled = false;
+            document.getElementById("btn-addPques").style.cursor = 'Pointer'
+
+        } else {
+            document.getElementById("btnFinalize").disabled = true;
+            document.getElementById("btn-addPques").disabled = true;
+            document.getElementById("btn-addPques").style.cursor = 'Default'
+
+
+        }
+        setTimeout(function () {
+
+            var treeList = $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.data().length;  
+            console.log("out" + treeList);
+            if (treeList == 0) {
+                console.log("in" + treeList);
+                document.getElementById("btnFinalize").disabled = true;
+            }
+        }, 1000);  
+       
+
+
+
+        //if (QSetStatus == 'Draft') {
+        //    const buttons = document.getElementsByClassName("add");
+        //    for (let i = 0; i < buttons.length; i++) {
+        //        console.log(buttons[i]);
+        //        /*buttons[i].disabled = true;*/
+        //        buttons[i].style.display = 'none';
+        //    }
+        //}
+    }
+    function onSelectQVer(e) {
+        var SurveyTypeID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        var QSetNo = $("#QuestionVerDrpdown").data("kendoDropDownList").text();
+
+        var mod = {
+            SurveyTypeID: SurveyTypeID,
+            QSetNo: QSetNo
+        }
+
+         var data1 = JSON.stringify(mod);
+         baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetQSetStatus")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#QsetStatus").data("kendoTextBox").value(data.Status);
+                    //  $("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                 //   $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+
+                    var status = $("#QsetStatus").data("kendoTextBox").value();
+                    if (status == "Draft") {
+                        document.getElementById("btnFinalize").disabled = false;
+                       // document.getElementById("btn-addPques").disabled = false;
+                    } else {
+                        document.getElementById("btnFinalize").disabled = true;
+                       // document.getElementById("btn-addPques").disabled = true;
+
+                    }
+
+                }
+            })
+
+        }
+    function onchangeAssessmentType(e) {
+        var SurveyTypeID = $("#AssessmentID_panel").data("kendoDropDownList").value();
+        var mod = {
+            SurveyTypeID: SurveyTypeID
+        }
+
+         var data1 = JSON.stringify(mod);
+         baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetLatestVersionstatus")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var dropdownlist = $("#QuestionVerDrpdown").data("kendoDropDownList");
+                    dropdownlist.value(data[0].Value);
+                    $("#QsetStatus").data("kendoTextBox").value(data[0].Text);
+                    //if (data[0].Text == "Draft") {
+                    //    document.getElementById("btnFinalize").disabled = false;
+                    //    document.getElementById("btn-addPques").disabled = false;
+                    //} else {
+                    //    document.getElementById("btnFinalize").disabled = true;
+                    //    document.getElementById("btn-addPques").disabled = true;
+
+                    //}
+
+                }
+            })
+
+    }
+    function onSelectAssessmentType(e) {
+            if (e.item) {
+                var dataItem = this.dataItem(e.item);
+                console.log("event :: select (" + dataItem.Text + " : " + dataItem.Value + ")");
+                var mod = {
+                    AssessmentTypeID: dataItem.Value,
+
+                };
+                var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetVersionList")';
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            console.log(data);
+                            var dropdownlist = $("#QuestionVerDrpdown").data("kendoDropDownList");
+                            dropdownlist.setDataSource(data);
+                            dropdownlist.value(data[0].Value);
+                           // console.log(data);
+
+                           // $("#QsetStatus").data("kendoTextBox").value("");
+
+                        }
+                    })
+
+
+            } else {
+                console.log("event :: select");
+
+            }
+
+    }
+    function onSelectAssessmentName(e) {
+        var datares;
+            if (e.item) {
+                var dataItem = this.dataItem(e.item);
+                console.log("event :: select (" + dataItem.Text + " : " + dataItem.Value + ")");
+                var mod = {
+                    AssessmentID: dataItem.Value,
+
+                };
+
+                var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetVersionAndStatus")';
+
+
+
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            console.log(data);
+                            
+                            var QVersion = $("#QVerTxtBox").data("kendoTextBox");
+                            QVersion.value(data[0].VersionID);
+
+                            var AssessmentStatus = $("#AssessmentStatus").data("kendoTextBox");
+
+                            AssessmentStatus.value(data[0].Status);
+                            if (data[0].Status == 'Analysis') {
+
+                            }
+                            else if (data[0].Status == 'Review') {
+
+                            }
+                            $("#AssessmentOverviewGrid").data("kendoGrid").dataSource.read();
+                        }
+                    })
+
+
+            } else {
+                console.log("event :: select");
+
+            }
+
+        var status = $("#AssessmentStatus").data("kendoTextBox").value();
+        console.log("status : " + status);
+
+        if (status == "Review") {
+            console.log("status : " + status);
+
+            //document.getElementById("btnPublish").style.display = 'block';
+            //document.getElementById("btnReview").style.display = 'none';
+
+            document.getElementById("btnPublish").disabled = false;
+            document.getElementById("btnReview").disabled = true;
+        }
+        if (status == "Analysis") {
+            //document.getElementById("btnPublish").style.display = 'none';
+            //document.getElementById("btnReview").style.display = 'block';
+
+            document.getElementById("btnPublish").disabled = true;
+            document.getElementById("btnReview").disabled = false;
+        }
+        if (status == "Published") {
+            //document.getElementById("btnPublish").style.display = 'none';
+            //document.getElementById("btnReview").style.display = 'block';
+
+            document.getElementById("btnPublish").disabled = true;
+            document.getElementById("btnReview").disabled = true;
+        }
+    }
+    function switchVisible() {
+        var x = document.getElementById("search-query");
+        var y = document.getElementById("search-text");
+        if (x.style.display === "none") {
+            document.getElementById('search-criteria').innerHTML = 'Hide Search Criteria:';
+            document.getElementById('arrow-bg').style.display = "none";
+            document.getElementById('arrowdown-bg').style.display = "block";
+            document.getElementById('eye-icon').style.display = "none";
+            document.getElementById('hide-icon').style.display = "block";
+            x.style.display = "block";
+            y.style.display = "none";
+        }
+        else {
+            document.getElementById('search-criteria').innerHTML = 'View Search Criteria:';
+            document.getElementById('arrow-bg').style.display = "block";
+            document.getElementById('arrowdown-bg').style.display = "none";
+            document.getElementById('eye-icon').style.display = "block";
+            document.getElementById('hide-icon').style.display = "none";
+            x.style.display = "none";
+            var filter = $("#filter").data("kendoFilter");
+            var whereclause = filter._previewContainer.text();
+            $("#search-text").text(whereclause);
+            y.style.display = "block";
+
+        }
+    }
+</script>

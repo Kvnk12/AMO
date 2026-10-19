@@ -1,0 +1,227 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+    //  //  alert('dadasd');
+    //    var grid=$('#portFolioGrid').data('kendoGrid');
+    //    grid.dataSource.read();
+    //    //gridPortfolio.dataSource.read();
+    //    //alert('dadasd');
+    //});
+</script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    //if (ViewData["ClientApplicationList"] == null)
+    //{
+    //    var client = (Client)Session["Client"];
+    //    var v = new APRAjaxServiceController();
+    //    ViewData["ClientApplicationList"] = v.ApplicationList(client.Id);
+    //}
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<div class="content-main dark-bg">
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Configure</li>
+            <li class="active">Portfolio</li>
+        </ol>
+    </div>
+
+            <div class="custom-white-label"><strong>Portfolio Information</strong></div>
+            <div class="custom-kendo-grid apr-grid-toolbar">
+                @(Html.Kendo().Grid<PortfolioModel>()
+             .Name("portFolioGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.LOBName).Title("Portfolio Name").Width(150);
+                 columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             .Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add new Portfolio"))
+             .Scrollable()
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              .PageSize(10)
+              .Model(model => { model.Id(f => f.LOBId); model.Field(f => f.LOBId).Editable(false); })
+              .Read(read => read.Action("PortfolioInfo", "Portfolio"))
+              .Create(create => create.Action("CreatePortfolio", "Portfolio"))
+              .Update(update => update.Action("UpdatePortfolio", "Portfolio"))
+              .Destroy(destroy => destroy.Action("DestroyPortfolio", "Portfolio"))
+               )
+               .ClientDetailTemplateId("AppsGridTemplate")
+                )
+            </div>
+</div>
+
+<script id="AppsGridTemplate" type="text/kendo-tmpl">
+    
+    @(Html.Kendo().Grid<PortfolioAppModel>()
+            .Name("AppGrid#=LOBId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.AppId).Hidden();//.ClientTemplate("#:ApplicationName#");
+                columns.Bound(e => e.ApplicationName).Title("Application/Service"); //to be worked
+                columns.Bound(e => e.ClientApplicationNumber).Title("Client Application/Service Number")/*.Width(100)*/;
+                columns.Bound(e => e.ApplicationAliasName).Title("Alias Name")/*.Width(100)*/;
+                //columns.Bound(e => e.ApplicationName).Title("Application Name ");
+                columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .Pageable()
+
+     .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add Application/Service");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.LobAppId);
+        })
+        .PageSize(10)
+        .Read(read => read.Action("GetAppsForLOB", "Portfolio", new { Id = "#=LOBId#" }))
+        .Create(create => create.Action("CreateLOBApp", "Portfolio", new { Id = "#=LOBId#" }))
+        .Update(update => update.Action("EditingLOBApp", "Portfolio"))
+        .Destroy(delete => delete.Action("DeleteLOBApp", "Portfolio"))
+    )
+    .Events(events => events
+    .Save("ApplicationGrid_Save"))  
+    .ToClientTemplate())
+
+</script>
+
+
+
+<script>
+
+  
+
+
+        function returnfalse()
+        {
+            return false;
+        }
+       
+
+        function ApplicationGrid_Save(e) {
+
+            var appid = $("#AppId").data().kendoDropDownList.value();
+
+            var appname = $("#AppId").data().kendoDropDownList.text();
+            //alert(appid);
+            // var appid = $("#tempAppId").data().kendoDropDownList.value();        
+            //var appname = $("#tempAppId").data().kendoDropDownList.text();
+          
+           
+            e.model.set("AppId", appid);
+            e.model.set("ApplicationName", appname);
+           
+
+            var mod = {
+                appid: appid
+            };
+            //alert(mod);
+            // var data = JSON.stringify(mod)
+
+            baseurl = '@Url.Content("~/Portfolio/applicationDetails")';
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                async:false,
+
+                data: mod,
+                success: function (data) {
+
+                    e.model.set("ApplicationAliasName", data._appaliasname);
+                    e.model.set("ClientApplicationNumber", data._clientappno);
+                },
+                error: function () {
+                    // alert("error");
+                }
+            }); 
+
+        }
+
+    function refresheditor(e) {
+   
+        var appid1 = $("#AppId").data().kendoDropDownList.value();
+        var appname1 = $("#AppId").data().kendoDropDownList.text();
+
+        // alert(appid1);
+      //var appid1 = $("#tempAppId").data().kendoDropDownList.value();
+     // var appname1 = $("#tempAppId").data().kendoDropDownList.text();
+      // var appname1 = e.data().kendoDropDownList.text();
+   
+
+        //var formObj = $("gfd")
+        var formObj = $(".k-edit-form-container");
+        //e.model.set("AppId", appid1);
+      //  e.model.set("ApplicationName", appname1);
+
+        var mod = {
+            appid: appid1
+        };
+        // var data = JSON.stringify(mod)
+       
+        baseurl = '@Url.Content("~/Portfolio/applicationDetails")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+
+            data: mod,
+            success: function (data) {
+                //formObj.find('#ApplicationName').val(data._appaliasname);
+                formObj.find('#ApplicationName').val(appname1);
+                formObj.find('#ApplicationAliasName').val(data._appaliasname);
+                formObj.find('#ClientApplicationNumber').val(data._clientappno);
+              
+            },
+            error: function () {
+                // alert("error");
+            }
+        });
+
+
+    }
+
+
+</script>
+

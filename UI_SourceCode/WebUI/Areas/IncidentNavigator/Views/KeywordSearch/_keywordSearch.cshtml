@@ -1,0 +1,403 @@
+﻿@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+
+@model  KeywordSearchModel
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+
+}
+<style>
+    .sidebar-wrapper {
+        height: 40em;
+        overflow-x: auto;
+    }
+
+    .sidebarHeader .close {
+        height: 3.7em;
+    }
+
+    .sidebar-wrapper .sidebar-menu .sidebar-dropdown .sidebar-main-submenu {
+        left: 17.5em;
+    }
+</style>
+@using (Html.BeginForm("New_AddKey", "KeywordSearch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="keyword-search-list">
+
+        <div class="in-keyword-search-addkey">
+            <label class="custom-blue-label" style=" padding-right: 0.5em;font-size:14px;">Add New Keyword</label>
+            <div class="keyword-label">
+                @(Html.Kendo().TextBoxFor(m => m.WordValue))
+            </div>
+            <div class="add-tolist-button">
+                <button class="custom-button" type="submit" id="btnAdd1">ADD TO LIST</button>
+            </div>
+        </div>
+
+        <div class="keyword-search-listkey">
+            <span id="listKeyword" class="im-custom-button" style="font-size:14px;"> Keyword List</span>
+        </div>
+
+    </div>
+
+    <div class="letter-wordList">
+        <label class="custom-blue-label" style="font-size:14px;">Letter (Words, Total Tickets)</label>
+        <div style="display:flex;">
+            <div class="clearall-checkbox">
+                <input type="checkbox" onclick="uncheck()" style="opacity:0;">
+                <label class="clearall-label" style="color: rgb(91,121,171);">Clear All&nbsp;&nbsp;</label>&nbsp;
+            </div>
+            <div class="generic-checkbox">
+                <input type="checkbox" class="main-generic-label" name="main-generic-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                <label for="main-generic-label" class="generic-label" style="color:#9603ff;">Generic&nbsp;&nbsp;</label>&nbsp;
+            </div>
+            <div class="customcheckbox">
+                <input type="checkbox" class="main-custom-label" name="main-custom-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                <label for="main-custom-label" class="custom-label" style="color:#ff9100;">Custom&nbsp;&nbsp;</label>&nbsp;
+            </div>
+            <div class="cluster-checkbox">
+                <input type="checkbox" class="main-cluster-label" name="main-cluster-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                <label for="main-cluster-label" class="cluster-label" style="color:#0074ff;">Cluster&nbsp;&nbsp;</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="wordListDiv">
+        <div class="unorderListDiv scrollbar-rail">
+            @{
+                var checkfirstnull = Model.AlphaList;
+                if (checkfirstnull != null || checkfirstnull.Count() != 0)
+                {
+                    int i = 0;
+                    while (i < Model.AlphaList.Count())
+                    {
+                        <ul>
+                            @if (i < Model.AlphaList.Count())
+                            {
+                                <li>
+                                    <div>
+                                        <span class="dropdownlist">
+                                            <span class="arrowBG" id="arrowBG_@i.ToString().Trim()"></span>
+                                            <span class="arrowdownBG" style="visibility:hidden" id="arrowdownBG_@i.ToString().Trim()"></span>
+                                            <input id="checkAll_@i.ToString().Trim()" onclick="mycheck()" type="checkbox" class="Alphacheck checkboxBG" value="@Model.AlphaList[i].A_bet" style="opacity: 0; margin-right: -1.3em;">
+                                            <label class="custom-blue-label"> @Model.AlphaList[i].A_bet.ToUpper() <label class="custom-italic-label">(@Model.AlphaList[i].NoAlphaWords,&nbsp;@Model.AlphaList[i].NoTotAlphaINC)</label></label>
+                                        </span>
+                                    </div>
+                                    <ul id="text_@i.ToString().Trim()" style="display:none;overflow:hidden">
+                                        @{
+                                            if (Model.listofkeywords != null || Model.listofkeywords.Count() != 0)
+                                            {
+                                                foreach (var ii in Model.listofkeywords)
+                                                {
+                                                    var word = ii.keywords.ToString().ToUpper();
+                                                    if (word.Substring(0, 1) == @Model.AlphaList[i].A_bet.ToUpper() && (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom"))
+                                                    {
+                                                        <li class="list-checkbox custom-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i].A_bet" name="custom" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#ff9100">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i].A_bet.ToUpper() && (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER"))
+                                                    {
+                                                        <li class="list-checkbox cluster-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i].A_bet" name="cluster" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#0074ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i].A_bet.ToUpper())
+                                                    {
+                                                        <li class="list-checkbox generic-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i].A_bet" name="generic" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#9603ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    </ul>
+                                </li>
+                            }
+                            @if (i + 1 < Model.AlphaList.Count())
+                            {
+                                var a = i + 1;
+                                <li>
+                                    <div>
+                                        <span class="dropdownlist">
+                                            <span class="arrowBG" id="arrowBG_@a.ToString().Trim()"></span>
+                                            <span class="arrowdownBG" style="visibility:hidden" id="arrowdownBG_@a.ToString().Trim()"></span>
+                                            <input type="checkbox" id="myCheck_@a.ToString().Trim()" onclick="mycheck()" class="Alphacheck" value="@Model.AlphaList[i+1].A_bet" style="opacity: 0; margin-right: -1.3em;">
+                                            <label for="myCheck_@a.ToString().Trim()" class="custom-blue-label"> @Model.AlphaList[i + 1].A_bet.ToUpper() <label class="custom-italic-label"> (@Model.AlphaList[i + 1].NoAlphaWords,&nbsp;@Model.AlphaList[i + 1].NoTotAlphaINC)</label></label>
+                                        </span>
+                                    </div>
+                                    <ul id="text_@a.ToString().Trim()" style="display:none">
+                                        @{
+                                            if (Model.listofkeywords != null || Model.listofkeywords.Count() != 0)
+                                            {
+                                                foreach (var ii in Model.listofkeywords)
+                                                {
+                                                    var word = ii.keywords.ToString().ToUpper();
+                                                    if (word.Substring(0, 1) == @Model.AlphaList[i + 1].A_bet.ToUpper() && (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom"))
+                                                    {
+                                                        <li class="list-checkbox custom-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 1].A_bet" name="custom" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#ff9100">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 1].A_bet.ToUpper() && (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER"))
+                                                    {
+                                                        <li class="list-checkbox cluster-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 1].A_bet" name="cluster" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#0074ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 1].A_bet.ToUpper())
+                                                    {
+                                                        <li class="list-checkbox generic-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 1].A_bet" name="generic" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#9603ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            @if (i + 2 < Model.AlphaList.Count())
+                            {
+                                var a = i + 2;
+                                <li>
+                                    <div>
+                                        <span class="dropdownlist">
+                                            <span class="arrowBG" id="arrowBG_@a.ToString().Trim()"></span>
+                                            <span class="arrowdownBG" style="visibility:hidden" id="arrowdownBG_@a.ToString().Trim()"></span>
+                                            <input type="checkbox" id="myCheck_@a.ToString().Trim()" onclick="mycheck()" class="Alphacheck" value="@Model.AlphaList[i+2].A_bet" style="opacity: 0; margin-right: -1.3em;">
+                                            <label for="myCheck_@a.ToString().Trim()" class="custom-blue-label"> @Model.AlphaList[i + 2].A_bet.ToUpper() <label class="custom-italic-label">(@Model.AlphaList[i + 2].NoAlphaWords,&nbsp;@Model.AlphaList[i + 2].NoTotAlphaINC)</label></label>
+                                        </span>
+                                    </div>
+                                    <ul id="text_@a.ToString().Trim()" style="display:none">
+                                        @{
+                                            if (Model.listofkeywords != null || Model.listofkeywords.Count() != 0)
+                                            {
+                                                foreach (var ii in Model.listofkeywords)
+                                                {
+                                                    var word = ii.keywords.ToString().ToUpper();
+                                                    if (word.Substring(0, 1) == @Model.AlphaList[i + 2].A_bet.ToUpper() && (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom"))
+                                                    {
+                                                        <li class="list-checkbox custom-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 2].A_bet" name="custom" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#ff9100">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 2].A_bet.ToUpper() && (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER"))
+                                                    {
+                                                        <li class="list-checkbox cluster-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 2].A_bet" name="cluster" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#0074ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 2].A_bet.ToUpper())
+                                                    {
+                                                        <li class="list-checkbox generic-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i + 2].A_bet" name="generic" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#9603ff">
+                                                                @ii.keywords  (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            @if (i + 3 < Model.AlphaList.Count())
+                            {
+                                var a = i + 3;
+                                <li>
+                                    <div>
+                                        <span class="dropdownlist">
+                                            <span class="arrowBG" id="arrowBG_@a.ToString().Trim()"></span>
+                                            <span class="arrowdownBG" style="visibility:hidden" id="arrowdownBG_@a.ToString().Trim()"></span>
+                                            <input type="checkbox" class="Alphacheck" id="myCheck_@a.ToString().Trim()" onclick="mycheck()" value="@Model.AlphaList[i+3].A_bet" style="opacity: 0; margin-right: -1.3em;">
+                                            <label for="myCheck_@a.ToString().Trim()" class="custom-blue-label"> @Model.AlphaList[i + 3].A_bet.ToUpper() <label class="custom-italic-label">(@Model.AlphaList[i + 3].NoAlphaWords,&nbsp;@Model.AlphaList[i + 3].NoTotAlphaINC)</label></label>
+                                        </span>
+                                    </div>
+                                    <ul id="text_@a.ToString().Trim()" style="display:none">
+                                        @{
+                                            if (Model.listofkeywords != null || Model.listofkeywords.Count() != 0)
+                                            {
+                                                foreach (var ii in Model.listofkeywords)
+                                                {
+                                                    var word = ii.keywords.ToString().ToUpper();
+                                                    if (word.Substring(0, 1) == @Model.AlphaList[i + 3].A_bet.ToUpper() && (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom"))
+                                                    {
+                                                        <li class="list-checkbox custom-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i+3].A_bet" name="custom" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#ff9100">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 3].A_bet.ToUpper() && (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER"))
+                                                    {
+                                                        <li class="list-checkbox cluster-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i+3].A_bet" name="cluster" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#0074ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                    else if (word.Substring(0, 1) == @Model.AlphaList[i + 3].A_bet.ToUpper())
+                                                    {
+                                                        <li class="list-checkbox generic-label-hidden">
+                                                            <input type="checkbox" class="new_checkbox @Model.AlphaList[i+3].A_bet" name="generic" value=" @ii.keywords" style="opacity:0;">
+                                                            <label class="control-label" style="color:#9603ff">
+                                                                @ii.keywords (&nbsp;@ii.WordTotInc)
+                                                            </label>
+                                                        </li>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        </ul>
+                        i += 4;
+                    }
+                }
+            }
+
+        </div>
+        <div class="run-report-button">
+            <button class="custom-button" type="button" id="btnAdd" onclick="RunReport();">RUN REPORT</button>
+        </div>
+    </div>
+
+
+}
+<div class="modal fade" id="KeywordListModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="listKeywordModalLabel">KeyWordList</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:right; padding-bottom: 1.7em;">
+                    <div style="display:flex;justify-content: flex-end;">
+                        <div class="generic-checkbox">
+                            <input type="checkbox" class="popup-generic-label" name="popup-generic-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                            <label for="popup-generic-label" class="generic-label" style="color:#9603ff;">Generic&nbsp;</label>&nbsp;
+                        </div>
+                        <div class="customcheckbox">
+                            <input type="checkbox" class="popup-custom-label" name="popup-custom-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                            <label for="popup-custom-label" class="custom-label" style="color:#ff9100;">Custom&nbsp;</label>&nbsp;
+                        </div>
+                        <div class="cluster-checkbox">
+                            <input type="checkbox" class="popup-cluster-label" name="popup-cluster-label" value="0" onchange="valueChanged()" style="opacity:0;">
+                            <label for="popup-cluster-label" class="cluster-label" style="color:#0074ff;">Cluster&nbsp;</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="keywordList-popup scrollbar-rail">
+                    @{
+                        if (Model.listofAllkeywords != null || Model.listofAllkeywords.Count() != 0)
+                        {
+                            var count = 1;
+                            foreach (var ii in Model.listofAllkeywords)
+                            {
+                                if (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom")
+                                {
+                                    <label class="control-label popup-custom-label-hidden" style="color:#ff9100; border:1px solid #ff9100; border-radius:3px">
+                                        &nbsp;@count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+
+                                }
+                                else if (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER")
+                                {
+                                    <label class="control-label popup-cluster-label-hidden" style="color:#0074ff; border:1px solid #0074ff; border-radius:3px">
+                                        &nbsp; @count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+                                }
+                                else
+                                {
+                                    <label class="control-label popup-generic-label-hidden" style="color:#9603ff; border:1px solid #9603ff; border-radius:3px">
+                                        &nbsp;@count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+                                }
+                                count++;
+                            }
+                        }
+                    }
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script>
+    $('.keyword-search-listkey').on('click', function () {
+        console.log("Keyword List");
+        $('#KeywordListModal').modal('show');
+
+    });
+
+    $('.arrowBG').click(function () {
+        var spanid = this.id;
+        // console.log(spanid);
+        var spanidfortext = spanid.substring(spanid.indexOf('_') + 1);
+        // console.log(spanid);
+        var checkBox = document.getElementById("myCheck_" + spanidfortext);
+        var text = document.getElementById("text_" + spanidfortext);
+        text.style.display = "block";
+        var showlist = document.getElementById("arrowdownBG_" + spanidfortext);
+        showlist.style.visibility = "visible";
+        var hidearrow = document.getElementById("arrowBG_" + spanidfortext);
+        hidearrow.style.visibility = "hidden";
+    })
+    $('.arrowdownBG').click(function () {
+        var spanid = this.id;
+        // console.log(spanid);
+        var spanidfortext = spanid.substring(spanid.indexOf('_') + 1);
+        // console.log(spanid);
+        var checkBox = document.getElementById("myCheck_" + spanidfortext);
+        var text = document.getElementById("text_" + spanidfortext);
+        text.style.display = "none";
+        var hidelist = document.getElementById("arrowBG_" + spanidfortext);
+        hidelist.style.visibility = "visible";
+        var hidearrow = document.getElementById("arrowdownBG_" + spanidfortext);
+        hidearrow.style.visibility = "hidden";
+    })
+</script>

@@ -1,0 +1,70 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+
+
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    ViewBag.Title = "Portfolio Analyzer";
+    ////var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+   // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+
+<div class="content-main dark-bg">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Configure</li>
+            <li class="active">EcoSystem</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<APREcoSystemModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.EcosystemName);
+        //columns.Bound(p => p.UnitPrice).Width(120);
+        //columns.Bound(p => p.UnitsInStock).Width(120);
+        //columns.Bound(p => p.Discontinued).Width(120);
+        columns.Bound(p => p.InScope).Width(120);
+        columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250);
+    })
+    .ToolBar(toolbar => toolbar.Create())
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("Delete").DisplayDeleteConfirmation("Are you sure you want to delete this record?"))
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+        //.Events(events => events.Error("error_handler"))
+        .Model(model => model.Id(p => p.Id))
+        .Create(update => update.Action("CreateEcosystem", "Configure"))
+        .Read(read => read.Action("GetEcosystems", "Configure"))
+        .Update(update => update.Action("UpdateEcosystem", "Configure"))
+        .Destroy(update => update.Action("DestroyEcosystem", "Configure"))
+    )
+)
+    </div>
+</div>

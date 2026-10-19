@@ -1,0 +1,164 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using WebUI.Models;
+@using NTTData.AMOPortal.Data;
+
+@model List<MetricSpecification>
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+}
+
+<style>
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+
+    ul li:last-child {
+        margin-left: 1em;
+    }
+
+    .child1 {
+        margin-left: 1em;
+    }
+
+    .child2 {
+        margin-left: 2em;
+    }
+</style>
+
+<nav class="metricmenu-wrapper">
+    <div class="metricMenuContent">
+        <p hidden id="tempID">0</p>
+        <p hidden id="tempName">0</p>
+        <div class="metricMenuPanel">
+            <div class="arrowBG" id="arrow-bg"></div>
+            <div class="arrowdownBG" id="arrowdown-bg"></div>
+            <div class="eye-icon" id="eye-icon"></div>
+            <div class="hide-icon" id="hide-icon"></div>
+            <div class="searchMenu">
+                <label class="collapsible" id="metric-menu">Metric Menu</label>
+            </div>
+        </div>
+
+        <div class="metricmenu-menu">
+            <div id="menuList" class="menuListDiv" style="display: none;height:28em;">
+                <label id="metricCat">Metric Catalog</label>
+                <ul id="menuAccordion">
+                    <li class="panel metricmenu-dropdown">
+                        <div class="metricmenu-submenu metricmenu-main-submenu" id="incidentNavigatorSubmenu">
+
+                            <ul>
+                                @foreach (var serviceCat in ViewBag.ServiceCategoryList)
+                                {
+
+                                    <li>
+                                        @*<h3 style="color:red">@serviceCat.Name</h3>*@
+                                        @*First Level*@
+                                        <a href="#incidentSubmenu" data-parent="#subMenuAccordion">@serviceCat.Name</a>
+
+                                        @foreach (var service in ViewBag.ServiceList)
+                                        {
+                                            if (service.ServiceCategoryId == serviceCat.Id)
+                                            {
+                                                <div class="metricmenu-submenu child1" id="incidentSubmenu1">
+                                                    @*<h4 style="color:blue">@service.Name</h4>*@
+                                                    @*Second  Level*@
+                                                    <a class="single-item" href="#incidentSubmenu" data-parent="#subMenuAccordion">@service.Name</a>
+                                                </div>
+                                            }
+
+                                            foreach (var metric in ViewBag.MetricList)
+                                            {
+                                                if (metric.ServiceId == service.Id && serviceCat.Id == metric.ServiceCategoryId)
+                                                {
+                                                    <div class="metricmenu-submenu child2" id="incidentSubmenu2">
+                                                        @*<h5 style="color:yellow">@metric.MetricName</h5>*@
+                                                        @*Third  Level*@
+                                                        @{
+
+                                                            var metCount = (from a in Model
+                                                                                where a.MetricId == metric.Id
+                                                                            select a).Count();
+
+                                                                                                                <a class="last-item" id="bulletList" onclick="getMetric('@metric.Id','@metric.MetricName')" href="#incidentSubmenu" data-parent="#subMenuAccordion">@metric.MetricName (@metCount) </a>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</nav>
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script type="text/javascript">
+    $('.arrowBG').click(function () {
+        $('.arrowdownBG').addClass('show');
+        $('.arrowBG').addClass('hide');
+        $('.eye-icon').addClass('hide');
+        $('.hide-icon').addClass('show');
+        var label = $('#metric-menu').text();
+        var label1 = label.substring(9);
+        if (label1 == "nu") {
+            label1 = " ";
+        }
+        console.log(label1);
+        document.getElementById('metric-menu').innerHTML = "Hide Menu";
+        document.getElementById('metric-menu').insertAdjacentHTML("beforeend",
+            "<label style='margin-left:5em'> </label>" + label1);
+        $('.menuListDiv').addClass('show');
+
+        
+
+   
+
+
+    });
+
+    $('.arrowdownBG').click(function () {
+        $('.arrowdownBG').removeClass('show');
+        $('.arrowBG').removeClass('hide');
+        $('.eye-icon').removeClass('hide');
+        $('.hide-icon').removeClass('show');
+        var label = $('#metric-menu').text();
+        var label1 = label.substring(9);
+        if (label1 == "nu") {
+            label1 = " ";
+        }
+        console.log(label1);
+        document.getElementById('metric-menu').innerHTML = "Show Menu";
+        document.getElementById('metric-menu').insertAdjacentHTML("beforeend",
+            "<label style='margin-left:5em'> </label>" + label1);
+        $('.menuListDiv').removeClass('show');
+
+        
+
+    });
+
+
+</script>

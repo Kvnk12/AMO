@@ -1,0 +1,372 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string form_name = "frmSaveVWItemDetails";
+}
+
+@*@Html.HiddenFor(m => m.VariableCatId)
+    @Html.HiddenFor(m => m.VariableLabelId)*@
+
+
+ 
+
+@*<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @Html.Partial("_ClientList", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>*@
+<div class="clear">
+</div>
+@using (Html.BeginForm("SaveVWMetaDataDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+{
+
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.VariableId)
+    @Html.HiddenFor(m => m.VariableCatId)
+    @Html.HiddenFor(m => m.VariableTypeId)
+    @Html.HiddenFor(m => m.VariableLabelId)
+
+
+    <div class="container" style="padding: 0;">
+        <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            <div class="treemenu">
+                <div class="hdr">
+                    <h3>Performance Predictor</h3>
+                    <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                </div>
+                <!-- add the tree menu here-->
+                @*<div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))</div>*@
+                <div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.PPTreeViewRoot)</div>
+            </div>
+
+
+            @*            <div class="treemenu">
+                    <div class="hdr">
+                        <h3>Alignment Manager</h3>
+                        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                    </div>
+                    <div style="float: left; margin-left: -220px; width: 200px; overflow-y: scroll; height: 500px">
+                        @Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))
+                    </div>
+                </div>*@
+
+
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+                <div class="container" style="padding: 0;">
+                    @*<div class="am">*@
+                        <div class="well well-sm"><strong>Variable  Meta Data  for @ViewData["VarName"]</strong> </div>
+                        <div>
+
+                            <div class="form-group">
+                                <table class="table table-striped" style="width:100%" cellpadding="0">
+                                    <thead>
+
+                                        @*@foreach (var item in Model.getvwVariableMdTypes)
+                    {
+                        var href = "href = \"#collapsebame" + @item.Id + "\"";
+                        var id = "id =\"collapsebame" + @item.Id + "\"";
+
+                        mdmVariableMD itm = Model.GetVariableItems(Model.VariableLabelId, item.Id);
+                        var Values = "";
+                        int Scores = 0;
+                        int Weight = 0;
+                        Values = itm.MetaDataValue;
+                        Scores = itm.MetaDataScore;
+                        Weight = itm.MetaDataWeight;*@
+                                        <tr>
+                                            <th width="33.33%" ; align="left">View Name: @Html.TextBoxFor(m => m.vwname, new { @class = "selectpicker", id = "vwname", tabindex = "6" })</th>
+                                            <th width="33.33%" ; align="left"></th>
+                                            <th width="33.33%" ; align="left">View Status: @Html.TextBoxFor(m => m.vwstatus, new { @class = "selectpicker", id = "vwstatus", tabindex = "6" })</th>
+                                        </tr>
+                                        <tr>
+                                            <th width="33.33%;">Select Table 1: @Html.DropDownListFor(m => m.tblname1, new SelectList(Model.TablesLists, "value", "text", Model.TablesLists), "", new { @class = "selectpicker", id = "tblname1", tabindex = "6" })</th>
+                                            <th width="33.33%;">Select Table 2: @Html.DropDownListFor(m => m.tblname2, new SelectList(Model.TablesLists, "value", "text", Model.TablesLists), "", new { @class = "selectpicker", id = "tblname2", tabindex = "6" })</th>
+                                            <th width="33.33%;">Select Table 3: @Html.DropDownListFor(m => m.tblname3, new SelectList(Model.TablesLists, "value", "text", Model.TablesLists), "", new { @class = "selectpicker", id = "tblname3", tabindex = "6" })</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+
+                                        <tr>
+                                            <td>Table1's Column1: @Html.DropDownListFor(m => m.colname11, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname11", tabindex = "6" })</td>
+                                            <td>Table2's Column1: @Html.DropDownListFor(m => m.colname21, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname21", tabindex = "6" })</td>
+                                            <td>Table3's Column1: @Html.DropDownListFor(m => m.colname31, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname31", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column2: @Html.DropDownListFor(m => m.colname12, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname12", tabindex = "6" })</td>
+                                            <td>Table2's Column2: @Html.DropDownListFor(m => m.colname22, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname22", tabindex = "6" })</td>
+                                            <td>Table3's Column2: @Html.DropDownListFor(m => m.colname32, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname32", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column3: @Html.DropDownListFor(m => m.colname13, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname13", tabindex = "6" })</td>
+                                            <td>Table2's Column3: @Html.DropDownListFor(m => m.colname23, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname23", tabindex = "6" })</td>
+                                            <td>Table3's Column3: @Html.DropDownListFor(m => m.colname33, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname33", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column4: @Html.DropDownListFor(m => m.colname14, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname14", tabindex = "6" })</td>
+                                            <td>Table2's Column4: @Html.DropDownListFor(m => m.colname24, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname24", tabindex = "6" })</td>
+                                            <td>Table3's Column4: @Html.DropDownListFor(m => m.colname34, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname34", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column5: @Html.DropDownListFor(m => m.colname15, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname15", tabindex = "6" })</td>
+                                            <td>Table2's Column5: @Html.DropDownListFor(m => m.colname25, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname25", tabindex = "6" })</td>
+                                            <td>Table3's Column5: @Html.DropDownListFor(m => m.colname35, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname35", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column6: @Html.DropDownListFor(m => m.colname16, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname16", tabindex = "6" })</td>
+                                            <td>Table2's Column6: @Html.DropDownListFor(m => m.colname26, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname26", tabindex = "6" })</td>
+                                            <td>Table3's Column6: @Html.DropDownListFor(m => m.colname36, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname36", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column7: @Html.DropDownListFor(m => m.colname17, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname17", tabindex = "6" })</td>
+                                            <td>Table2's Column7: @Html.DropDownListFor(m => m.colname27, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname27", tabindex = "6" })</td>
+                                            <td>Table3's Column7: @Html.DropDownListFor(m => m.colname37, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname37", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column8: @Html.DropDownListFor(m => m.colname18, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname18", tabindex = "6" })</td>
+                                            <td>Table2's Column8: @Html.DropDownListFor(m => m.colname28, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname28", tabindex = "6" })</td>
+                                            <td>Table3's Column8: @Html.DropDownListFor(m => m.colname38, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname38", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1's Column9: @Html.DropDownListFor(m => m.colname19, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname19", tabindex = "6" })</td>
+                                            <td>Table2's Column9: @Html.DropDownListFor(m => m.colname29, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname29", tabindex = "6" })</td>
+                                            <td>Table3's Column9: @Html.DropDownListFor(m => m.colname39, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname39", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Table1'sColumn10: @Html.DropDownListFor(m => m.colname110, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "colname110", tabindex = "6" })</td>
+                                            <td>Table2'sColumn10: @Html.DropDownListFor(m => m.colname210, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "colname210", tabindex = "6" })</td>
+                                            <td>Table3'sColumn10: @Html.DropDownListFor(m => m.colname310, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "colname310", tabindex = "6" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Joining Column 1: @Html.DropDownListFor(m => m.jcolname1, new SelectList(Model.colList1, "value", "text", Model.colList1), "", new { @class = "selectpicker", id = "jcolname1", tabindex = "6" })</td>
+                                            <td>Joining Column 2: @Html.DropDownListFor(m => m.jcolname2, new SelectList(Model.colList2, "value", "text", Model.colList2), "", new { @class = "selectpicker", id = "jcolname2", tabindex = "6" })</td>
+                                            <td>Joining Column 3: @Html.DropDownListFor(m => m.jcolname3, new SelectList(Model.colList3, "value", "text", Model.colList3), "", new { @class = "selectpicker", id = "jcolname3", tabindex = "6" })</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </div>
+
+
+                    @* </div>*@
+
+                   
+                    <!-- end of right areaa-->
+
+                </div>
+                <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+        </div>
+        <!--/.treeMenuArea-->
+        <div class="addvalaction">
+            @*Html.ActionLink("Save", "AddVariable", "AlignmentManager", new { clientId = Model.ClientId, VariableId = Model.VariableId, varTypeId = Model.VariableTypeId, varCatId = Model.VariableCatId }, new { @class = "btn btn-default" })*@
+            <button class="btn btn-primary" tabindex="" type="submit">Save</button>
+            @Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new { variableId = Model.VariableId, id = Model.ClientId }, new { @class = "btn btn-default" })
+        </div>
+    </div>
+
+    
+}
+    
+
+
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: true,
+                unique: true
+            });
+        });
+    </script>
+}
+
+<script>
+
+    
+    $(document).ready(function () {
+        $("input[name*='score'], input[name*='weight'] ").keypress(function (evt){  
+            return(isNumberKey(evt));
+        });
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (
+           (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $(document).ready(function () {
+        $('#tblname1').change(function () {
+            var list = this;
+            var SelectedclientId = $('#tblname1 :selected').val();
+            var href = window.location.href.split('/');
+            var baseurl = '';
+            if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+            }
+
+            
+            if ($("#tblname1 :selected").val() != "") {
+                $.ajax({
+                    url: baseurl,
+                    type: 'GET',
+                    data: { sercatId: SelectedclientId },
+                    success: getClientsAccountsFunc,
+                    failure: errorInClientAccountsunc
+                });
+            }
+        });
+
+
+        function getClientsAccountsFunc(data, status) {
+            for (var i = 1; i <= 10; i++) {
+            //var i = 1;
+                $("select#colname1"+i).empty();
+                $("select#colname1"+i).selectpicker('refresh');
+                $("select#colname1"+i).append("<option></option>");
+                $.each(data, function (key, value) {
+                    $("select#colname1" + i).append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+                });
+                $("select#colname1" + i).selectpicker('refresh');
+            }
+            $("select#jcolname1").empty();
+            $("select#jcolname1").selectpicker('refresh');
+            $("select#jcolname1").append("<option></option>");
+            $.each(data, function (key, value) {
+                $("select#jcolname1").append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+            });
+            $("select#jcolname1").selectpicker('refresh');
+        }
+            $('#tblname2').change(function () {
+                debugger;
+                var list = this;
+                var SelectedclientId = $('#tblname2 :selected').val();
+                var href = window.location.href.split('/');
+                var baseurl = '';
+                if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+                }
+
+            
+                if ($("#tblname2 :selected").val() != "") {
+                    $.ajax({
+                        url: baseurl,
+                        type: 'GET',
+                        data: { sercatId: SelectedclientId },
+                        success: getClientsAccountsFunc2,
+                        failure: errorInClientAccountsunc
+                    });
+                }
+            });
+
+
+            function getClientsAccountsFunc2(data, status) {
+                for (var i = 1; i <= 10; i++) {
+                    //var i = 1;
+                    $("select#colname2"+i).empty();
+                    $("select#colname2"+i).selectpicker('refresh');
+                    $("select#colname2"+i).append("<option></option>");
+                    $.each(data, function (key, value) {
+                        $("select#colname2" + i).append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+                    });
+                    $("select#colname2" + i).selectpicker('refresh');
+                }
+                $("select#jcolname2").empty();
+                $("select#jcolname2").selectpicker('refresh');
+                $("select#jcolname2").append("<option></option>");
+                $.each(data, function (key, value) {
+                    $("select#jcolname2").append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+                });
+                $("select#jcolname2").selectpicker('refresh');
+            }
+
+                $('#tblname3').change(function () {
+                    debugger;
+                    var list = this;
+                    var SelectedclientId = $('#tblname3 :selected').val();
+                    var href = window.location.href.split('/');
+                    var baseurl = '';
+                    if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                        var baseurl = href[0] + '//' + href[2] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+                    }
+                    else {
+                        var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Alignmentmanager/AlignmentManager/BindService'
+                    }
+
+            
+                    if ($("#tblname3 :selected").val() != "") {
+                        $.ajax({
+                            url: baseurl,
+                            type: 'GET',
+                            data: { sercatId: SelectedclientId },
+                            success: getClientsAccountsFunc3,
+                            failure: errorInClientAccountsunc
+                        });
+                    }
+                });
+            
+
+
+                function getClientsAccountsFunc3(data, status) {
+                    for (var i = 1; i <= 10; i++) {
+                        //var i = 1;
+                        $("select#colname3"+i).empty();
+                        $("select#colname3"+i).selectpicker('refresh');
+                        $("select#colname3"+i).append("<option></option>");
+                        $.each(data, function (key, value) {
+                            $("select#colname3" + i).append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+                        });
+                        $("select#colname3" + i).selectpicker('refresh');
+                    }
+                    $("select#jcolname3").empty();
+                    $("select#jcolname3").selectpicker('refresh');
+                    $("select#jcolname3").append("<option></option>");
+                    $.each(data, function (key, value) {
+                        $("select#jcolname3").append("<option value='" + value.SerId + "'>" + value.SerName + "</option>");
+                    });
+                    $("select#jcolname3").selectpicker('refresh');
+                }
+
+        function errorInClientAccountsunc() {
+            alert('error');
+        }
+    })
+</script>

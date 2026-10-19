@@ -1,0 +1,157 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+
+@model WebUI.Areas.ClientProfileManager.ViewModel.DispositionAutomationModel
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+@{
+
+    var dictionary = new Dictionary<string, string>
+{
+    { "APR", "APR" },
+    { "Cloud Migrator", "Cloud Migrator" },
+    { "RA", "RA" },
+    { "General", "General" },
+    { "APR2","APR2" }
+    };
+}
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<div class="content-main dark-bg" >
+   
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li>Client Administration</li>
+            <li class="active">Disposition Automation Settings</li>
+        </ol>
+   
+        <div style="background-color: white; padding: 1em; margin-top: 1em;">
+
+            <div id="lblErr" hidden>
+                <label class="alert alert-danger" id="lblErr1">Error while saving data.</label>
+            </div>
+            <div id="lblSuccess" hidden>
+                <label class="alert alert-success" id="lblSuccess1">Saved successfully.</label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3" for="IsDisposition">Enable Disposition Automation</label>
+                <div class="col-sm-2 Dispositionsave">
+                    <input type="checkbox" id="IsDisposition" class="col-sm-3 k-checkbox">
+                    <label for="IsDisposition" class="col-sm-2 k-checkbox-label"></label>
+                </div>
+                <br />
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="col-sm-3" for="SurveyType" id="">Select Survey Type:</label>
+                <div class="col-sm-2">
+                    @(Html.Kendo().DropDownListFor(m => m.SurveyType)
+     .Name("SurveyType")
+     .OptionLabel("Select")
+     .DataTextField("Text")
+     .DataValueField("Value")
+     .BindTo(new SelectList(dictionary, "Key", "Value"))
+     .HtmlAttributes(new { @class= "custom-dropdown" })
+                )
+
+                </div>
+
+
+            </div>
+            <div  style="text-align:right;">
+
+                <button type="button" name="btnSave" class="btn" style="background-color:rgb(91,121,171);color:white" onclick="onSaveClick()">Save</button>
+                @*<button type="button" name="btnCancel" class="btn-primary" onclick="onCancelClick()">Back</button>*@
+            </div>
+
+
+        </div>
+</div>
+<script>
+    function onCancelClick() {
+        window.history.back();
+    }
+    function onSaveClick()
+    {
+
+        var EnableDisposition = $('#IsDisposition').prop('checked');
+        var SurveyTyp = $("#SurveyType").data("kendoDropDownList").value();
+        var model = {
+            IsDisposition: EnableDisposition,
+            SurveyType: SurveyTyp,
+        };
+        var data = JSON.stringify(model);
+        var RootUrl = '@Url.Content("~/")';
+      //  window.
+        $.ajax(
+       {
+           type: 'post',
+
+           url: RootUrl + 'DispositionAutomation/SetDispositionDetails',
+           data: data,
+           async: true,
+           contentType: 'application/json; charset=utf-8',
+           success: function (data) {
+               // alert("bc") $("#div1").hide();
+               $('#lblErr').hide();
+               $('#lblSuccess').show(); //='Saved successfully.';
+           },
+           error: function (err, data) {
+               //alert("err");
+               $('#lblErr').show();
+               $('#lblSuccess').hide();
+           }
+
+       });
+    }
+
+
+
+    $(window).on('load', function () {
+        $('[name="IsDisposition"]').removeAttr('checked');
+
+
+        //var data = JSON.stringify(model);
+        var ReadURl = '@Url.Content("~/DispositionAutomation/GetDispositionDetail")';
+        $('#lblErr').hide();
+        $('#lblSuccess').hide();
+        $.ajax(
+            {
+                url: ReadURl,
+                type: 'post',
+                //data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.IsDisposition == true) {
+                        $('#IsDisposition').prop('checked', true);
+                    }
+                    $("#SurveyType").data("kendoDropDownList").value(data.SurveyType);
+
+
+                }
+
+            })
+    });
+
+</script>

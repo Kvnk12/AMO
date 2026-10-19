@@ -1,0 +1,362 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+
+    .k-input.k-textarea {
+        width: 29em !important;
+        resize: none;
+        height: 5em;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+
+    .k-picker.k-dropdown.k-widget.k-picker-solid.k-picker-md.k-rounded-md {
+        width: 100%;
+    }
+    .k-widget.k-window.k-display-inline-flex {
+        width: 60vw;
+        height: 32vw;
+    }
+    .custom-blue-label {
+        font-size: 1vw !important;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="EditViewAssessmentpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("EditViewAssessmentpopUp")
+    .Title("Edit Assessment")
+    .Content(@<text>
+
+
+         <div class="EditViewAssessment">
+             <div class="QuestionDetails">
+                 <p hidden id="refVarforID"></p>
+                  <div class="popUpfirstrow">
+                   <div class="mergeAC" style="display:flex">
+                    <div class="mergeFirstColumn" style="width:50%">
+                       <div class="firstrowFields" style="display: flex;margin-left: 1em; margin-top: 0.5em;">
+
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Type :</span>
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em;width:9.2em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.AssessmentID)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+                               .Name("AssessmentID_EditView")
+                               .HtmlAttributes(new { style = "width: 15.5vw;margin-right:4em;margin-left: -2em;font-size: 0.95vw!important;" })
+                               )
+
+
+                                </div>
+                        </div>
+                        <div class="firstrowFields" style="display: flex;margin-left: 1em; margin-top: 1.2em;">
+
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Account :</span>
+                          <div class="custom-dropdown Account" style="margin-left: -2.5em; width: 9.2em;">
+
+
+
+                              @(Html.Kendo().DropDownList()
+                               .Name("AccountNamesList_EditView")
+                               .DataTextField("Text")
+                               .DataValueField("Value")
+                               .HtmlAttributes(new { style = "width: 15.5vw;margin-right:4em;margin-left: -2em;font-size: 0.95vw!important;" })
+                               .BindTo(Model.AccountNamesList)
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectAccount");
+                               })
+                               )
+
+                                </div>
+                        </div>
+                        <div class="firstrowFields" style="display: flex; margin-left: 1em; margin-top: 1.2em;">
+
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Contract :</span>
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em;width:9em">
+
+                              @(Html.Kendo().DropDownList()
+                                .Name("ContractList_EditView")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .OptionLabel("Select contract...")
+                                .DataSource(source => {
+                                source.Read(read =>
+                                {
+                                 read.Action("getContractId", "Assessment").Data("GetAccId");
+                                 });
+                                })
+                                .AutoBind(true)
+
+                                .HtmlAttributes(new { style = "width: 15.5vw;margin-right:4em;margin-left: -2em;font-size: 0.95vw!important;" })
+                               )
+                                <label id="ContractList_alert_EditView"><span class="mandate" style="font-size:12px"> required!</span></label>
+                           </div>
+                        </div>
+
+                        <div class="firstrowFields" style="display: flex; margin-left: 1em; margin-top: 1.2em; ">
+                        @*<span class="mandate">*</span>*@
+                        <span class="custom-blue-label questAssess" style="margin-right: 2em; width: 9em;">Question Set # :</span>
+                          <div class="custom-textbox" style="margin-left: -0.3em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox_EditView")
+                             .Value("Ver - 0.1")
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                            )
+                              </div>
+                    </div>
+
+                        <div class="firstrowFields" style="display: flex;  margin-left: 1em; margin-top: 1.2em;">
+
+                            <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Name :</span>
+                          <div class="custom-textbox" style="margin-left: -4em; width: 13.3em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("AssessmentName_EditView")
+                             .Value("Loblaw-A3MM-2022Q1")
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                            )
+                           </div>
+                        </div>
+
+
+
+
+                        <div class="firstrowFields" style="display: flex;  margin-left: 1em; margin-top: 1.2em; ">
+                        @*<span class="mandate">*</span>*@
+                        <span class="custom-blue-label questAssess" style="margin-right: 2em; width: 9em;">Assessment Status:</span>
+                          <div class="custom-textbox" style="margin-left: -0.3em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("Status_EditView")
+                             .Value("")
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                            )
+                              </div>
+                    </div>
+
+
+                         <div class="firstrowFields" style="display: flex; margin-left: 1vw; margin-top: 0.3vw; ">
+
+                          <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Team :</span>
+                          <div class="custom-textbox " style="margin-left: -6em; width: 10em; margin-right: 16px; } ">
+
+
+                               @*@(Html.Kendo().TextBox()
+                             .Name("AssessmentTeam_EditView")
+                             .Value("Assessment Team 1")
+                                .HtmlAttributes(new { style = "width: 90.5%;margin-right:4em;margin-left:-1.5px" })
+                            )*@
+
+                              @(Html.Kendo().DropDownListFor(m => m.AssessmentName)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                                .OptionLabel("Select...")
+                              .BindTo(Model.AssessmentTeamNameList)
+                               .Name("AssessmentTeam_EditView")
+                               .HtmlAttributes(new { style = "width: 15.5vw;margin-left: 1.7em;margin-top: 0.2em;font-size: 0.95vw!important;" })
+                               )
+
+                               </div>
+
+                      </div>
+
+
+                    </div>
+                    <div class="mergeSecondColumn">
+
+                        <div class="SecondRowFields" style="display: flex; ">
+                            <span class="custom-blue-label questAssess" style="margin-right: 2em; width: 9em;">Engagement Team to Point of Contact :</span>
+
+                          <div class="custom-dropdown" style="margin-left: -2em; width: 10.2em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.EngagementPocID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.EngagementPOCList)
+                               .Name("EnagagementPOC_EditView")
+                               .HtmlAttributes(new { style = "width:15.5vw;margin-left: 1.7em;margin-top: 1.2em;font-size: 0.95vw!important;" })
+                               )
+
+
+                                </div>
+
+                        </div>
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em;">
+                       <span class="custom-blue-label questAssess2" style="width: 9em; margin-top: -1.5em; ">Engagement Team to Communicate :</span>
+
+                          <div class="custom-dropdown Assessment" style="margin-left: -2.5em; width: 12.6em;">
+
+                               @(Html.Kendo().DropDownListFor(m => m.EngagementComID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.EngagementTeamToCommunicateList)
+                               .Name("EngagementTC_EditView")
+                               .HtmlAttributes(new { style = "width: 15.5vw;margin-left: 4.5em;font-size: 0.95vw!important;" })
+                               )
+
+                           </div>
+
+                      </div>
+
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em; margin-top: 1.2em;">
+
+                                <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Start Date :</span>
+                          <div class="custom-datepicker Assessment" style="margin-left: -4.1em; width: 15.6em;">
+
+                                @*@(Html.Kendo().DatePicker()
+                                 .Name("StartDate_EditView")
+                                 .Value(DateTime.Now)
+                                 .Format("MM/dd/yyyy")
+                                 .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;", title = "Select Start Date" })
+                                )*@
+                              @(Html.Kendo().DatePicker()
+                                 .Name("StartDate_EditView")
+                                 .Value(DateTime.Now)
+                                 .Format("MM/dd/yyyy")
+                                 .Events(e=>e.Change("onStartDateChange"))
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 96%;", title = "Select Start Date" })
+                                 )
+                           </div>
+
+
+                    </div>
+                          <div class="SecondRowFields" style="display: flex; margin-top: 3em; margin-top: 1.2em;">
+                    <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;"> Analysis End Date :</div>
+                       <div class="custom-datepicker PCDate" style=" width: 16.4vw; margin-left: -0.6vw;">
+
+                                @(Html.Kendo().DatePicker()
+                                 .Name("AnalysisDate_EditView")
+                                 //.Value(DateTime.Now.AddDays(56))
+                                 .Format("MM/dd/yyyy")
+                                 .Enable(false)
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                                )
+                            </div>
+                      </div>
+
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em; margin-top: 1.2em;">
+                    <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Review End Date :</div>
+                       <div class="custom-datepicker PCDate" style=" width: 16.4vw; margin-left: -0.6vw;">
+
+                                @(Html.Kendo().DatePicker()
+                                 .Name("ReviewDate_EditView")
+                                 //.Value(DateTime.Now.AddDays(56))
+                                 .Format("MM/dd/yyyy")
+                                 .Enable(false)
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                                )
+                            </div>
+                      </div>
+
+                        <div class="SecondRowFields" style="display: flex; margin-top: 3em; margin-top: 1.2em;">
+                    <div class="custom-blue-label" style="width: 9.5vw; margin-right: 2em;">Planned Completion Date :</div>
+                       <div class="custom-datepicker PCDate" style=" width: 16.4vw; margin-left: -0.6vw;">
+
+                                @(Html.Kendo().DatePicker()
+                                 .Name("PCDate_EditView")
+                                 //.Value(DateTime.Now.AddDays(56))
+                                 .Format("MM/dd/yyyy")
+                                 .Enable(false)
+                                 //.Min(DateTime.Today)
+                                 //.MonthTemplate(m => m
+                                 //.Empty("<div class=\"k-state-disabled\">#= data.value #</div>"))
+                                 .HtmlAttributes(new { style = "width: 15.5vw;font-size: 0.95vw!important;" })
+                                )
+                            </div>
+                      </div>
+
+                   </div>
+
+
+
+                  </div>
+
+
+                  </div>
+             </div>
+              <div class="actionButtons" id="actionButtons" style="margin-top: 2em;">
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style="float: right; width: 5em; font-weight: bold;" class="custom-button" type="button" onclick="onSaveAssessmentClick()" id="btnEdit">SAVE</button>
+                     </div>
+                    <div style="margin: 0 1em 0 0;">
+                       <button style="float: right; width: 5em; margin-right: 1em; background-color: LIGHTGREY; font-weight: bold; " class="custom-button" type="button" id="btncancel" onclick="onCancelEditViewClick()">CANCEL</button>
+                    </div>
+
+               </div>
+
+              <div class="actionButtons" id="closeButton" style="margin-top: 2em;">
+
+                    <div style="margin: 0 1em 0 0;">
+                         <button style="float: right; width: 5em; font-weight: bold;" class="custom-button" type="button" onclick="onCancelEditViewClick()" id="btnClose">CLOSE</button>
+                    </div>
+
+              </div>
+
+             <div id="closeButton">
+
+             </div>
+
+         </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    //.Width(800)
+    //.Height(380)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+)
+    </div>
+</body>
+
+
+</html>

@@ -1,0 +1,121 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.IdeaInput
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+}
+
+@using (Html.BeginForm())
+{
+  <div id="wrap"> 
+    <!-- Fixed navbar -->
+    <!--/nav bar div closes here -->
+        <!--.container-->
+        <div class="selectappArea"> 
+          <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                <div class="col-sm-5">
+                    @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text", Model.ClientId), "", new { @class = "selectpicker", id = "drpClientId", tabindex = "6" })
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal"> 
+            </div>
+            <!--/.selectyearArea--> 
+          </div>
+          <!--/.container--> 
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div> 
+          <!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li class="active">Dashboard</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;"> 
+          <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+             @if(Model.ClientId == 0)
+             {
+              @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+             }
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DBCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div class="leftslarea">
+                  <h4>Completed Idea - Financial Benefit by LOB Trend</h4>
+                  @if(Model.ClientId != 0)
+                  {
+                  <div class="clear clearfix">&nbsp;</div>
+                  <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptIdeaLOBTrend&clientid="+Model.ClientId+"&ideaSub="+Model.IdeaSubmittedToClient+"&ideastatus="+Model.IdeaStatus+"")' border="0" frameborder="0" height="750px" width="750px"></iframe>
+                  }
+                  else
+                  {
+                      <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                  }
+                </div>
+                <!--END OF LEFTAREA-->
+                   <div class="rightcont form-horizontal" style="float:right;width:34%;margin-top:20px">
+                  <div class="panel panel-info">
+                    <div class="panel-heading"><strong>Select Filters</strong></div>
+                    <div class="panel-body">
+                      <div class="form-group">
+                        <label for="Chart" class="col-sm-5 control-label">SubmittedToClient</label>
+                        <div class="col-sm-5">
+                          @Html.DropDownListFor(m => m.IdeaSubmittedToClient, new SelectList(Model.IdeaSubmittedToClientL, "value", "text", Model.IdeaSubmittedToClient), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="Chart" class="col-sm-5 control-label">Idea Status</label>
+                        <div class="col-sm-5">
+                          @Html.DropDownListFor(m => m.IdeaStatus, new SelectList(Model.IdeaStatusL, "value", "text", Model.IdeaStatus), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-primary pull-right mrgnrt30">Submit Filters</button>
+                    </div>
+                    <!--/.panelbody--> 
+                  </div>
+                  <!--/.panel panel-info --> 
+                </div>
+                <!-- end of right areaa--> 
+              </div>
+              <!--/.treeMenuContent container--> 
+            </div>
+            <!--/.treeMenuContent--> 
+          </div>
+          <!--/.treeMenuArea--> 
+        </div>
+        <!--/.container--> 
+
+  </div>
+  <!--.wrap-->
+}
+
+<script>
+    $('select#drpClientId').change(function () {
+        var SelectedclientId = $('#drpClientId :selected').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'IdeaDashboard') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaDashboard/GetIdeaT/?id='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IdeaDashboard/GetIdeaT/?id='
+        }
+
+        window.location = baseurl + SelectedclientId;
+
+    });
+</script>

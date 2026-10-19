@@ -1,0 +1,39 @@
+﻿
+@using WebUI.Areas.AssessmentManager.Models;
+
+
+@model A3MMModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    List<A3MMModel> QuestionSetList = new List<A3MMModel>();
+
+}
+<style>
+    div a {
+        text-decoration: underline;
+        font-style: italic;
+    }
+</style>
+
+<div class="content-main">
+    <div style="font-size: 15px; margin: 1em; color: #000;">
+
+        There is no active assessment to respond , if you would like to view list of assessment please click on following link
+        @Html.ActionLink("Assessment Inventory", "AssessmentInventory", "Assessment", new { area = "AssessmentManager"}, null)
+
+
+    </div>
+</div>

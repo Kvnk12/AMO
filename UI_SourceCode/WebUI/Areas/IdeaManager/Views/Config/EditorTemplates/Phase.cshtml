@@ -1,0 +1,40 @@
+﻿@using Kendo.Mvc.UI;
+@using System.Collections
+@using WebUI.Areas.IdeaManager.Controllers
+@using Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities
+@using System.Data;
+@model int?
+@using WebUI.Dto
+@{ 
+   // var cl = (Client)Session["Client"];
+    var cl = (ClientDetail)Session["SessionClient"];
+    var c = new ConfigController();
+    var list = c.getallPhases(cl.ClientId);
+
+}
+
+    @*<label>Phase :</label> &nbsp;*@
+   @(Html.Kendo().DropDownListFor(m=>m)
+    // .Filter("contains")
+    //.DataSource(dataSource => dataSource
+    //.Read(read => read.Action("getallPhases", "Config",new { cid= cl.Id })))
+    .DataValueField("Value")
+    .DataTextField("Text")
+    //.Name("Phase")
+    .BindTo(list)
+    //.AutoBind(true)
+
+    )
+
+   @*@Html.DropDownListFor(m=>m, new SelectList(list, "value", "text", Model.Value), "", new { @class = "selectpicker", name = "Phase", required = "required" })*@
+     
+    @*<br />
+    <label>Stage :</label> &nbsp;
+    @(Html.Kendo().TextBoxFor(m=>m.Stage)
+    .Name("Stage")
+
+    )*@
+
+
+

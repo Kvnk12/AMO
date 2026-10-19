@@ -1,0 +1,74 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@{
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new AjaxServiceController();
+    var ConfigItemlist = v.ConfigItemlist(client.ClientId);
+    var TicketTypelist = v.TicketTypelist(client.ClientId);
+}
+<style>
+    .k-multiselect-wrap.k-floatwrap
+    {
+        overflow:auto;
+        height:61px;
+    }
+</style>
+<div style="padding: 0;">
+    <table style="background-color:transparent">
+        <tr>
+            <td style=" color:white;"width="30%"> <label for="ConfigItem"> CI Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </label>
+              
+                        @(Html.Kendo().ComboBox()
+.Name("ConfigItem")
+.Filter("contains")
+//.Placeholder("Select Config Item")
+.DataTextField("Text")
+.DataValueField("Value")
+.Events(e => e
+   .Change("ConfigItemChange")
+)
+.Value("All")
+.Enable(true)
+.AutoBind(true)
+//.CascadeFrom("fabric")
+.HtmlAttributes(new { style = "width:200px;" })
+.BindTo(ConfigItemlist)
+                        )
+
+                </td>
+               <td style=" padding-left:11.5em;color:white;display:flex;" > <label for="TicketType" style="padding-top: 1.5em; }"> Ticket Type &nbsp;</label>
+            
+              
+                        @(Html.Kendo().MultiSelect()
+.Name("TicketType")
+.Placeholder("Select Ticket Type")
+.DataTextField("Text")
+.DataValueField("Value")
+.Filter(FilterType.Contains)
+.BindTo(TicketTypelist)
+.Events(e => e
+
+  .Change("TicketTypeChange")
+  )
+.Value(TicketTypelist.ToList())
+.Enable(true)
+.AutoBind(true)
+                //.AutoWidth(true)
+                //.CascadeFrom("ConfigItem")
+                .HtmlAttributes(new { style = "width:400px;" })
+                        
+                        )
+            </td>
+        </tr>
+    </table>
+</div>
+

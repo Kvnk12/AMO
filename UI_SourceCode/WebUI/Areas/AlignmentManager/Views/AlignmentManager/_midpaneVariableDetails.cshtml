@@ -1,0 +1,168 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput
+
+@{
+    vwVariableVariableLabel vwlbl = Model.GetVariableDetails(Model.ClientId, Model.VariableId);
+    IList<vwMetaDataDetails> lstvwMetaDataDetails = Model.GetVariableMetaDataDetails(Model.ClientId, Model.VariableId);
+ }
+
+<div class="well well-sm"><strong>Variable: @vwlbl.VariableLabel</strong> </div>
+                    
+@*<div>
+       <div class="form-group">
+                <label class="col-sm-5 control-label">Variable Type: @vwlbl.VariableType</label>
+                <div class="col-sm-5">
+                    @Html.Label(vwlbl.VariableType, "", new {  @class = "control-label" })
+                </div>
+            </div>
+
+       <div class="form-group">
+                <label class="col-sm-5 control-label">Variable Category: @vwlbl.VariableCategory</label>
+                <div class="col-sm-5">
+                    @Html.Label(vwlbl.VariableCategory, "", new {  @class = "control-label" })
+                </div>
+            </div>
+
+
+       <div class="form-group">
+                <label class="col-sm-5 control-label">Variable Name: @vwlbl.VariableLabel</label>
+                <div class="col-sm-5">
+                    @Html.Label(vwlbl.VariableLabel, "", new {  @class = "control-label" })
+                </div>
+            </div>
+        
+
+    
+
+
+            
+            <div class="form-group">
+                <label class="col-sm-5 control-label">Description: @vwlbl.FullDescription</label>
+                <div class="col-sm-5">
+                    @Html.TextArea(vwlbl.VariableLabel, new { @class = "form-control valdesc"})
+                </div>
+            </div>
+
+
+</div>*@
+
+                  <div style="margin-top:20px"><!--valchainContent-->
+                  <div class="container row">
+                      <div class="col-sm-12">
+                        <div class="form-horizontal">
+                          <div class="form-group">
+                            <label for="ChainName" id="" class="col-sm-5 control-label">Variable Name</label>
+                            <div class="col-sm-8">
+                              @Html.TextBox("txtvarname", vwlbl.VariableLabel, new {  @class = "form-control" , @readonly="readonly"})  
+                              @*<input type="text" class="form-control" name="ChainName" placeholder="Claims Department">*@
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="valClientName" id="" class="col-sm-5 control-label">Variable Type</label>
+                            <div class="col-sm-8">
+                                @Html.TextBox("txttype", vwlbl.VariableType, new { @class = "form-control", @readonly="readonly" })
+                              @*<input type="text" class="form-control" name="valClientName" placeholder="Sales and Marketing">*@
+                            </div>
+                          </div>
+
+<div class="form-group">
+                            <label for="valClientName" id="" class="col-sm-5 control-label">Variable Category</label>
+                            <div class="col-sm-8">
+                                @Html.TextBox("txtCat", vwlbl.VariableCategory, new {  @class = "form-control", @readonly="readonly" })
+                              @*<input type="text" class="form-control" name="valClientName" placeholder="Sales and Marketing">*@
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="desc" id="" class="col-sm-5 control-label">Description</label>
+                            <div class="col-sm-8">
+                                @*@Html.Label("",vwlbl.FullDescription, new {@class ="form-control"})*@
+                                @Html.TextArea("txtDesc", vwlbl.FullDescription, new { @class = "form-control valdesc", @readonly = "readonly" })
+@*                              <textarea class="form-control" placeholder="" name="desc" rows="4">Marketing ensures that the product is
+targeted towards the correct customer group.</textarea>*@
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!--end of col--> 
+                      
+                    </div>
+                    <!--./row-->
+                    
+                 
+
+
+                  
+                    <!--end of first panel-->
+                    
+                    </div>
+                    
+@*<div class="bam60midpane">*@
+    <!-- required content added here-->
+    <div class="panel-group" id="accordionbam">
+         @foreach (vwMetaDataDetails item in lstvwMetaDataDetails)
+         {
+             var href = "href = \"#collapsebame" + @item.Id +"\"";
+             var  id  = "id =\"collapsebame"+@item.Id + "\"";
+             
+             //mdmVariableMD itm = Model.GetVariableItems(Model.VariableLabelId, item.Id);
+             //var Values = "";
+             //int Scores = 0;
+             //int Weight = 0;
+             //Values = itm.MetaDataValue;
+             //Scores = itm.MetaDataScore;
+             //Weight = itm.MetaDataWeight;
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"><a class="accordion-toggle" data-toggle="collapse" data-parent="#accordionbam" @Html.Raw(@href) ><span class="accord-plus"></span>@item.TypeName</a></h4>
+            </div>
+            <div  @Html.Raw(@id) class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Value</label>
+                                <div class="col-lg-6">
+                                    @*@Html.Label((item.MetaDataValue==null ||item.MetaDataValue=="" ?"  " :item.MetaDataValue) , new {@class ="form-control"})*@
+                                    @Html.Label("item.id",  item.MetaDataValue.ToString(), new {@class ="form-control"})
+                                    @*@Html.TextBox(@item.Id.ToString() + "_value","","", new { @Value = Values, @class = "form-control value, tabindex="+@item.Id.ToString()}) *@
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Score</label>
+                                <div class="col-lg-6">
+                                    @Html.Label(item.MetaDataScore.ToString(), new {@class ="form-control"})
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 form-horizontal">
+                            <div class="form-group">
+                                <label class="col-lg-4 control-label" for="val">Weight</label>
+                                <div class="col-lg-6">
+                                    @Html.Label(item.MetaDataWeight.ToString(), new {@class ="form-control"})
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/.row-->
+                </div>
+                <!--end of panelbodyone-->
+            </div>
+            <!--end of collapsebamone-->
+        </div>
+             
+             
+         }
+        <!--end of first panel-->
+
+      
+    </div>
+    <!-- end of panelGroup--> 
+
+
+
+     @*</div>*@

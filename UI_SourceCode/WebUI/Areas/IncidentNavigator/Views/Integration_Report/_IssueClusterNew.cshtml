@@ -1,0 +1,190 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model Integration_ReportListModel
+<div class="dashbord-issue-cluster">
+    <div style="display: flex;" class="d-issue-cluster-head">
+        <div style="padding-left:6px; padding-top: 6px;"> Cluster Report By :</div> &nbsp;&nbsp;
+        <div class="custom-dropdown">
+            @(Html.Kendo().DropDownList()
+                                .Name("SearchListNew")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                //   .HtmlAttributes(new { style = "width: 100%" })
+                                .SelectedIndex(2)
+                                .BindTo(new List<SelectListItem>
+                                    ()
+                                    {
+                                    new SelectListItem() {
+                                    Text = "Description", Value ="1"
+                                    },
+                                    new SelectListItem() {
+                                    Text = "ShortDescription", Value ="2"
+                                    },
+                                    new SelectListItem() {
+                                    Text = "Resolutiondescription", Value ="3"
+                                    },
+
+                                    new SelectListItem() {
+                                    Text = "Token", Value ="4"
+                                    },
+                                    })
+                                    )
+
+        </div>
+
+        <div style="margin-left: 6px; width: 55px; padding-top: 6px;"> Length :</div> &nbsp;&nbsp;
+        <div class="custom-numeric-textbox">
+            @(Html.Kendo().NumericTextBox()
+          .Name("DescLengthNew") // The name of the NumericTextBox is mandatory. It specifies the "id" attribute of the widget.
+          .Min(50) // Set the min value of the NumericTextBox.
+          .Max(200) // Set the min value of the NumericTextBox.
+          .Value(200) // Set the value of the NumericTextBox.
+          .Decimals(0)
+          .Format("#")
+          .Step(25)
+            )
+
+        </div> &nbsp;&nbsp;
+        @(Html.Kendo().Button()
+
+                                                                                .Name("btnApply")
+                                                                                .Content("Apply")
+                                                                                .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                    )
+
+
+
+
+
+    </div>
+
+    <div class="top-content-heading">
+        <label id="CategoryChartlabelNew">Issue Cluster</label>
+
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="IssueClusterNew">Table/Graph</p>
+          
+
+        </div>
+    </div>
+    <div class="chart-content" style="height:500px" >
+        <div class="chart-area">
+            @(Html.Kendo().Chart<Integration_ReportModel>
+    ()
+    .Name("ChartIssueClusterNew")
+    //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+    .Legend(legend => legend
+    .Visible(true)
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    //.Offset(1, 1)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    .Width(1250)
+    .Height(530)
+    )
+    .DataSource(ds => ds.Read(read => read.Action("GetIssueClusterReportNew", "Integration_Report").Data("GetICRN")))
+    //   .SeriesDefaults(seriesDefaults => seriesDefaults
+    //.Column().Overlay(ChartBarGradient.None)
+    //  )
+    .AutoBind(true)
+   // .SeriesDefaults(seriesDefaults => seriesDefaults
+   // .Bar().Visual("LabelVisualIntegrated")
+    //)
+    .Series(series =>
+    {
+
+    series.Bar(model => model.IncidentCount).Name("Issue Cluster Count").Spacing(0).CategoryField("LongCategory")
+    .Labels(labels => labels.Template("#= category #: #= value#").Font("17px Arial,Helvetica,sans-serif").Color("Black").Position(ChartBarLabelsPosition.InsideBase).Background("transparent").Visible(true))
+    .Tooltip(tooltip => tooltip.Visible(false).Color("#000000").Template("#= category #: #= value#")).Color("#75B5F9");
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(11)
+    .Categories(model =>model.LongCategory)
+    .Line(line => line.Visible(false))
+    //.AxisCrossingValue(0)
+      .Labels(labels => labels.Visible(false).Font("bold 41px Arial,Helvetica,sans-serif").Color("Black").Mirror(true).Position(ChartAxisLabelsPosition.Start)/*.Mirror(true)*/)
+    //  .MajorGridLines(0, "#D7DBDD", ChartDashType.Solid).Visible(true)
+    //.MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+    )
+    .Pannable(p => p.Lock(ChartAxisLock.X))
+    .Zoomable(zoomable => zoomable
+    .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+    .Selection(selection => selection.Lock(ChartAxisLock.X))
+    )
+
+    .ValueAxis(axis => axis
+
+    .Numeric("Cate").Visible(true)
+
+    // .AxisCrossingValue(0)
+    .Line(line => line.Visible(false))
+    .Labels(labels => labels.Rotation("auto").Visible(true))
+    .MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+    )
+    .ValueAxis(axis => axis
+    .Numeric("%").Visible(true)
+    .Min(0).Max(100)
+    .Labels(labels => labels.Format("{0}%").Visible(false))
+    .Line(line => line.Visible(false))
+    .MajorGridLines(lines => lines.Visible(false))
+    )
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    // .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+    )
+            .Events(events => events
+            .DataBound("onDataBound")
+             .SeriesClick("onChartIssueClusterSeriesClick")
+        )
+
+    )
+</div>
+    </div>
+    <div class="table-content fix-grid-head hide" style="height:500px">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 100.55%; padding: 2px 0 0 4px ">
+            <div style="width:750px" onclick="kendoGridHeaderSort('IssueClusterTable', 'LongCategory')">Description</div>
+            <div style="width:275px" onclick="kendoGridHeaderSort('IssueClusterTable', 'IncidentCount')">Ticket Count</div>
+            <div style="width:50px" onclick="kendoGridHeaderSort('IssueClusterTable', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<Integration_ReportModel>
+                                    ()
+                                    .Name("IssueClusterTableNew")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(e => e.LongCategory).Title("Description").ClientFooterTemplate("Total").Width(750);
+                                        columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(275);
+                                        columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                                    })
+                                    .AutoBind(false)
+                                    .HtmlAttributes(new { style = "height:235px;" })
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                     .Aggregates(agg =>
+                                                {
+                                                    agg.Add(p => p.IncidentCount).Sum();
+                                                    agg.Add(p => p.Percent).Sum();
+                                                })
+                                        .Read(read => read.Action("GetIssueClusterReportforGridNew", "Integration_Report").Data("GetICRN"))
+                                        )
+        )
+
+    </div>
+</div>

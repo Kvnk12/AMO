@@ -1,0 +1,144 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model ClusterAuditModel
+@{
+    ViewBag.Title = "Incident Navigator";
+    var clientlist = GetDropDownListItems.ClientList;
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+ Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    <style>
+        .custom-kendo-grid .k-widget.k-grid .k-grid-content {
+            overflow-y: auto;
+            height: 560px !important;
+            background-color: #fff;
+        }
+        .k-grouping-header {
+            background-color: #5876AA;
+            border-bottom: 2px dashed white;
+            border-top: 2px dashed white;
+            color: #ffeb3b;
+            font-size: 11px;
+            line-height: 2;
+        }
+        .custom-kendo-grid .k-widget.k-grid .k-header.k-grid-toolbar{
+            border:unset;
+        }
+        .k-grid-header .k-link:link, .k-grid-header .k-link:visited, .k-grouping-header .k-link {
+            color: white;
+        }
+        .k-group-indicator .k-button.k-flat {
+            color: white;
+        }
+    </style>
+}
+
+<div class="content-main dark-bg">
+   
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li>Incident Navigator</li>
+            <li class="active">Cluster Audit</li>
+        </ol>
+    </div>
+
+        <div class="custom-kendo-grid" style="margin-top:2em;">
+            @(Html.Kendo().Grid<ClusterAuditModel>()
+       
+                .Name("Grid")
+
+                .Columns(columns =>
+                {
+
+                columns.Bound(p => p.IncidentId).Title("Incident Id");
+                columns.Bound(p => p.ColumnName).Title("Data Element");
+                columns.Bound(p => p.OldValue).Title("Old Value");
+                columns.Bound(p => p.NewValue).Title("New Value");
+                columns.Bound(p => p.Action).Title("Action");
+                columns.Bound(p => p.UserName).Title("User Name");
+                columns.Bound(p => p.IPAddress).Title("IP Address");
+                columns.Bound(p => p.Timestamp).Title("Time Stamp").Format("{0:dd/MM/yyyy HH:mm:ss}");
+                })
+                .HtmlAttributes(new { style = "height: 450px;width:100%" })
+                .Pageable(pageable => pageable
+                .Input(true)
+                .Numeric(false)
+                )
+                .Sortable()
+                .Groupable()
+                .Pageable()
+                .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                .Excel(excel => excel
+                .FileName("ClusterAudit.xlsx")
+                .Filterable(true)
+                .AllPages(true)
+                .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+                )
+                .Scrollable(scr => scr.Height(430))
+                .Filterable()
+                .AutoBind(true)
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                 
+                .PageSize(20)
+                //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+                .Read(read => read.Action("GetINClusterAudit", "AjaxService"))
+                )
+                )
+        </div>
+
+
+        <!--END OF LEFTAREA-->
+        <!--/.slarightpane -->
+    <!--/.treeMenuContent container-->
+    <!--/.container-->
+   </div>
+
+    <script type="text/javascript">
+
+
+        function combobox_change() {
+
+            var grid = $("#Grid").data("kendoGrid");
+            grid.dataSource.read();
+
+        }
+
+        function additionalData(e) {
+            var ddlItem = $("#fabric").data("kendoComboBox").value();
+            //alert(ddlItem);
+            return { ClientID: ddlItem }
+        }
+    </script>
+    <script>
+        $(".download").click(function () {
+            var grid = $("#Grid").data("kendoGrid");
+            var ClientId = $("#fabric").data("kendoComboBox").value();
+            var options = {
+                format: $(this).data("format"),
+                title: "ClusterAuditExport"
+            }
+            $("#export-data").val(encodeURIComponent(JSON.stringify(options)));
+            $("#export-model").val(encodeURIComponent(JSON.stringify(grid.columns)));
+            $("#export-clientid").val(encodeURIComponent(JSON.stringify(ClientId)));
+
+        });
+    </script>

@@ -1,0 +1,847 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IdeaManager.Dto;
+
+@{
+    ViewBag.Title = "Idea Manager";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Scripts/jquery-3.6.0.js"></script>
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var ClientId = client.ClientName;
+
+
+}
+<style>
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .incident-dashboard-container .dashboard-content .top-content-heading .top-content-head {
+        justify-content: unset;
+    }
+
+    @@media only screen and (min-width: 1750px) and (max-width: 1920px) {
+        .head-div {
+            width: 561.5px !important;
+        }
+    }
+</style>
+<div class="content-main custom-grid dark-bg">
+    <div>
+
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb ">
+                <li>Idea Manager</li>
+                <li class="active">Dashboard</li>
+            </ol>
+        </div>
+        <!-- Wrap all page content here -->
+
+
+    </div>
+    <input type="hidden" id="category" name="category">
+    <input type="hidden" id="InflowOutFlowType" name="InflowOutFlowType">
+    <input type="hidden" id="DateField" name="DateField">
+    <input type="hidden" id="categoryseries" name="categoryseries">
+    <input type="hidden" id="D2StartDate" name="D2StartDate">
+    <input type="hidden" id="D2EndDate" name="D2EndDate">
+
+    <div class="content-wrapper incident-dashboard-container">
+
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <span class="parameter-filter-icon"></span>
+            </div>
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+                        <li>
+                            Start Date :
+                            @(Html.Kendo().DatePicker()
+                                                                                .Name("start")
+                                                .Value(DateTime.Today.AddMonths(-1))
+                                                .Format("MM/dd/yyyy")
+                            )
+                        </li>
+                        <li>
+                            End Date :
+                            @(Html.Kendo().DatePicker()
+                                                                                .Name("end")
+                                                .Value(DateTime.Today)
+                                                .Format("MM/dd/yyyy")
+                            )
+
+
+                        </li>
+                        <li>
+                            Idea Source :
+                            @(Html.Kendo().DropDownList()
+                                    .Name("IdeaSourceId")
+                                    .DataTextField("Text")
+                                    .Enable(true)
+                                    //.Value("NTT Data")
+                                    .DataValueField("Value")
+
+                                    .DataSource(d => d.Read(r => r.Action("IdeaSourceList", "PostIdea")))
+                                    .AutoBind(true)
+                              )
+
+                        </li>
+
+                        <li>
+                            @(Html.Kendo().Button()
+                                   .Name("btnPreview")
+                                   .Content("Apply")
+                                   .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                            )
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="dashboard1 dashboard-content active" id="dashboardtab1">
+                <div class="top-content">
+
+                    @Html.Partial("_IMDashboardTrend")
+                    @Html.Partial("_IMDashboardPriority")
+                    @Html.Partial("_IMDashboardStatus")
+
+                </div>
+                <div class="bottom-content">
+
+                    @Html.Partial("_IMDashboardChart4")
+                    @Html.Partial("_IMDashboardByYear")
+                    @Html.Partial("_IMDashboardByMonth")
+
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <!--#region windows-->
+        @Html.Partial("_IMPopupDashboard1")
+
+        <!--#endRegion Windows-->
+        @*<input type="text" onkeypress="onKey(event)" onkeydown="offKey(event)">*@
+
+    </div>
+    <div id="chartseriesModal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel1"></label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<IdeaDashboardModel>()
+                                                    .Name("GridIdeas")
+                                                     .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.Id).Hidden();
+                                                        columns.Bound(p => p.IdeaNumber).Title("Idea Number").Width(120);
+                                                        columns.Bound(p => p.ItemName).Title("Idea Name").Width(120);
+                                                        columns.Bound(p => p.Problem).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Problem#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationPriority).Title("Implementation Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Team).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Goal).Title("Goal/Opportunity").Width(120);
+                                                        columns.Bound(p => p.PlannedStartDate).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualStartDate).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.PlannedEndDate).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualEndDate).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ImplementationStatus).Title("Implementation Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Idea Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        //columns.Bound(p => p.TargetProgress).Title("Target Progress").Width(120);
+                                                        columns.Bound(p => p.ImplementationProgress).Title("Actual Progress").Width(120);
+                                                        columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CreatedDate).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CompletedDt).Title("Completed Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.IdeaType).Title("Idea Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.IdeaSource).Title("Idea Source").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.InternalInitiative).Title("Internal Initiative").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Complexity).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedBy).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ApprovedDate).Title("Approved Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ApprovedBy).Title("Approved By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationManager).Title("Implementation Manager").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.LOBDepartment).Title("LOB Department").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Quantification).Title("Quantification").Width(120);
+                                                        columns.Bound(p => p.SystemImpactedService).Title("SystemImpactedService").Width(120);
+                                                        columns.Bound(p => p.ProposedBy).Title("ProposedBy");
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export - ");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Sortable()
+                                                    .Pageable()
+                                                    .AutoBind(false)
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Ideas_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .PageSize(100)
+                                                    //.Batch(true)
+                                                    .Read(read => read.Action("GetIdeasdrilldown", "Dashboard").Data("GetdrilldownTrendParameter"))
+                                                    )
+        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chartseries2Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel2">Titile</label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<IdeaDashboardModel>()
+                                                    .Name("Grid2Ideas")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.Id).Hidden();
+                                                        columns.Bound(p => p.IdeaNumber).Title("Idea Number").Width(120);
+                                                        columns.Bound(p => p.ItemName).Title("Idea Name").Width(120);
+                                                        columns.Bound(p => p.Problem).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Problem#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationPriority).Title("Implementation Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Team).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Goal).Title("Goal/Opportunity").Width(120);
+                                                        columns.Bound(p => p.PlannedStartDate).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualStartDate).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.PlannedEndDate).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualEndDate).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ImplementationStatus).Title("Implementation Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Idea Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        //columns.Bound(p => p.TargetProgress).Title("Target Progress").Width(120);
+                                                        columns.Bound(p => p.ImplementationProgress).Title("Actual Progress").Width(120);
+                                                        columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CreatedDate).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CompletedDt).Title("Completed Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.IdeaType).Title("Idea Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.IdeaSource).Title("Idea Source").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.InternalInitiative).Title("Internal Initiative").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Complexity).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedBy).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ApprovedDate).Title("Approved Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ApprovedBy).Title("Approved By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationManager).Title("Implementation Manager").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.LOBDepartment).Title("LOB Department").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Quantification).Title("Quantification").Width(120);
+                                                        columns.Bound(p => p.SystemImpactedService).Title("SystemImpactedService").Width(120);
+                                                        columns.Bound(p => p.ProposedBy).Title("ProposedBy");
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Groupable()
+                                                    .Pageable()
+                                                    .Filterable()
+                                                    .AutoBind(false)
+                                                    .Sortable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Ideas_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetIMDashboardDataDrilldownGrid", "Dashboard").Data("GetDynamicdrilldownParameter"))
+                                                    )
+        )
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="chartseries3Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel3"></label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<IdeaDashboardModel>()
+                                                    .Name("Grid3Ideas")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.Id).Hidden();
+                                                        columns.Bound(p => p.IdeaNumber).Title("Idea Number").Width(120);
+                                                        columns.Bound(p => p.ItemName).Title("Idea Name").Width(120);
+                                                        columns.Bound(p => p.Problem).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Problem#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationPriority).Title("Implementation Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Team).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Goal).Title("Goal/Opportunity").Width(120);
+                                                        columns.Bound(p => p.PlannedStartDate).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualStartDate).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.PlannedEndDate).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ActualEndDate).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ImplementationStatus).Title("Implementation Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Idea Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        //columns.Bound(p => p.TargetProgress).Title("Target Progress").Width(120);
+                                                        columns.Bound(p => p.ImplementationProgress).Title("Actual Progress").Width(120);
+                                                        columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CreatedDate).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.CompletedDt).Title("Completed Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.IdeaType).Title("Idea Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.IdeaSource).Title("Idea Source").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.InternalInitiative).Title("Internal Initiative").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Complexity).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedBy).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ApprovedDate).Title("Approved Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                        columns.Bound(p => p.ApprovedBy).Title("Approved By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.ImplementationManager).Title("Implementation Manager").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.LOBDepartment).Title("LOB Department").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Quantification).Title("Quantification").Width(120);
+                                                        columns.Bound(p => p.SystemImpactedService).Title("SystemImpactedService").Width(120);
+                                                        columns.Bound(p => p.ProposedBy).Title("ProposedBy");
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Pageable()
+                                                    .AutoBind(false)
+                                                    .Sortable()
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Ideas_Save", "Dashboard"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetDashboardDrilldownGrid", "Dashboard").Data("GetDashboarddrilldownParameter"))
+                                                    )
+        )
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="grid-tooltip">
+        @(Html.Kendo().Tooltip()
+                  .For("#GridIdeas")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip1")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#Grid2Ideas")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip2")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#Grid3Ideas")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip3")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+    </div>
+</div>
+
+<script type="text/javascript">
+    function DrpValTrendChange() {
+        var chart1 = $("#chartTrend").data("kendoChart");
+        chart1.dataSource.read();
+        var grid1 = $("#TrendTable").data("kendoGrid");
+        grid1.dataSource.read();
+    }
+    function Chart4DrpChange() {
+        var chart6 = $("#Chart4").data("kendoChart");
+        chart6.dataSource.read();
+        var gridpriority = $("#Chart4Grid").data("kendoGrid");
+        gridpriority.dataSource.read();
+    }
+    //Maximise Dashboard Chart
+    function maximiseChartTrend() {
+        var ChartTrend = $("#winChartTrend").data("kendoChart");
+        ChartTrend.dataSource.read();
+        var popup = $("#chartTrendWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartStatus() {
+        var chartStatus = $("#winStatusChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#ChartStatusWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartPriority() {
+
+        var chartpriority = $("#winChartPriority").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#ChartPriortyWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChart4() {
+
+        var chartpriority = $("#winChart4").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#Chart4Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyYear() {
+        var chartStatus = $("#winDistributionbyYearChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyYearChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyMonth() {
+        var chartStatus = $("#winDistributionbyMonthChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyMonthChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    $("#d1c1").click(function () {
+        var grid = $("#TrendTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c2").click(function () {
+        var grid = $("#PriorityTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c3").click(function () {
+        var grid = $("#StatusGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c4").click(function () {
+        var gridStatus = $("#Chart4Grid").data("kendoGrid");
+        gridStatus.dataSource.read();
+    });
+    $("#d1c5").click(function () {
+        var grid = $("#Chart5Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c6").click(function () {
+        var grid = $("#Chart6Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function ParameterDataTrend(e) {
+        console.log($("#DrpValTrend").val());
+        return {
+            ChartType: $("#DrpValTrend").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function GetStatusParameter(e) {
+        return {
+            drpval: "Status",
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function GetPriorityParameter(e) {
+        return {
+            drpval: "PriorityId",
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function ParameterDatanew4(e) {
+        return {
+            drpval: $("#DrpValChart4").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+      function GetDistributionYearParameter(e) {
+        return {
+            drpval: "Year",
+            dpnVal: null,
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function GetDistributionYearValParameter(e) {
+        console.log("load grid");
+        return {
+            drpval: "Year",
+            dpnVal: null,
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function GetDistributionMonthParameter(e) {
+        return {
+            drpval: "Month",
+            dpnVal: null,
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(), IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function Inflow_onDataBound(arg) {
+        var ChartTrend = $("#chartTrend").data("kendoChart");
+        var x = $("#approveImpl").is(":checked");
+        if (x) {
+            ChartTrend.options.series[1].visible = true;
+            ChartTrend.options.series[3].visible = true;
+        } else {
+            ChartTrend.options.series[1].visible = false;
+            ChartTrend.options.series[3].visible = false;
+        }
+        ChartTrend.redraw();
+    }
+    function winInflow_onDataBound(arg) {
+        var ChartTrend = $("#winChartTrend").data("kendoChart");
+        var x = $("#approveImpl").is(":checked");
+        if (x) {
+            ChartTrend.options.series[1].visible = true;
+            ChartTrend.options.series[3].visible = true;
+        } else {
+            ChartTrend.options.series[1].visible = false;
+            ChartTrend.options.series[3].visible = false;
+        }
+        ChartTrend.redraw();
+    }
+    function TrendTable_onDataBound(arg) {
+        $("#TrendTable thead [data-field=DrpCategory] .k-link").html($("#DrpValTrend").val());
+    }
+    function onPrioritySeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel2').innerHTML = "Distribution by Priority - " + e.category;
+        document.getElementById("InflowOutFlowType").value = "PriorityId";
+        var gridpriority = $("#Grid2Ideas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        if (e.series.field == "Percent") {
+            $('#chartseries2Modal').modal('hide');
+        } else {
+            $('#chartseries2Modal').modal('show');
+        }
+
+    }
+    function onStatusSeriesClick(e) {
+        console.log(e);
+        console.log(e.dataItem.LongCategory);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel2').innerHTML = "Distribution by Status - " + e.dataItem.LongCategory;
+        document.getElementById("InflowOutFlowType").value = "Status";
+        var gridpriority = $("#Grid2Ideas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries2Modal').modal('show');
+    }
+     function onChangeTitle_onDataBound(arg) {
+        var stockChart = $("#Chart4").data("kendoChart");
+       // console.log(stockChart);
+        stockChart.options.valueAxis[0].title.text = '@ClientId'+" Total Ideas";
+        stockChart.options.categoryAxis.title.text = $("#DrpValChart4").val();
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 8) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 8;
+        }
+        stockChart.redraw();
+        //stockChart.options.series[0].overlay = "None";
+    }
+    function Chart4Grid_onDataBound(arg) {
+        $("#Chart4Grid thead [data-field=DrpCategory] .k-link").html($("#DrpValChart4").val());
+    }
+    function onYearSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel3').innerHTML = "Distribution by Year - " + e.category;
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "Year";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = "01-01-1753";
+        document.getElementById("D2EndDate").value = "12-31-9999";
+        var gridpriority = $("#Grid3Ideas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    function onMonthSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel3').innerHTML = "Distribution by Month - " + e.category;
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "Month";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        var gridpriority = $("#Grid3Ideas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    function GetdrilldownTrendParameter(e) {
+        return {
+            ChartType: $("#DrpValTrend").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Category: document.getElementById("category").value,
+            InflowOutFlowType: document.getElementById("InflowOutFlowType").value,
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function GetDynamicdrilldownParameter(e) {
+        return {
+            drpval: document.getElementById("InflowOutFlowType").value,
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Category: document.getElementById("category").value,
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+
+    }
+    function GetDashboarddrilldownParameter(e) {
+        return {
+            drpval: document.getElementById("DateField").value,
+            dpnVal: document.getElementById("InflowOutFlowType").value,
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Category: document.getElementById("category").value,
+            Categoryseries: document.getElementById("categoryseries").value,
+            IdeaSource: $("#IdeaSourceId").data("kendoDropDownList").value()
+        };
+    }
+    function getDescriptionToolTip1(e) {
+        var dataItem = $("#GridIdeas").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Problem;
+        return content;
+    }
+    function getDescriptionToolTip2(e) {
+        var dataItem = $("#Grid2Ideas").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Problem;
+        return content;
+    }
+    function getDescriptionToolTip3(e) {
+        var dataItem = $("#Grid3Ideas").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Problem;
+        return content;
+    }
+    function onTrendSeriesClick(e) {
+
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel1').innerHTML = "Idea Trend by " + $("#DrpValTrend").val() + " - " + e.category;
+        document.getElementById("InflowOutFlowType").value = e.series.field;
+        console.log(e.category);
+        console.log(e.series.field);
+        var gridpriority = $("#GridIdeas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseriesModal').modal('show');
+    }
+    function onChart4SeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.__proto__.LongCategory;
+        document.getElementById('gridlabel2').innerHTML = "Total Ideas by " + $("#DrpValChart4").val() + " - " + e.dataItem.__proto__.LongCategory;
+        console.log(e.dataItem.__proto__.LongCategory);
+        document.getElementById("InflowOutFlowType").value = $("#DrpValChart4").val();
+        var gridpriority = $("#Grid2Ideas").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries2Modal').modal('show');
+    }
+      function onChangeWinTitle_onDataBound(arg) {
+           var stockChart = $("#winChart4").data("kendoChart");
+       // console.log(stockChart);
+        stockChart.options.valueAxis[0].title.text = '@ClientId' + " Total Ideas";
+           stockChart.options.categoryAxis.title.text = $("#DrpValChart4").val();
+           var Lmax = stockChart.options.series[0].data.length;
+           if (Lmax <= 8) {
+               stockChart.options.categoryAxis.max = Lmax;
+           } else {
+
+               stockChart.options.categoryAxis.max = 8;
+           }
+           stockChart.redraw();
+
+    }
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+        $('.parameter-slider').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+
+    $('.graph-view').on('click', function () {
+        if ($(this).hasClass('graph-view')) {
+            $(this).addClass('table-view');
+            $(this).removeClass('graph-view');
+        }
+        else {
+            $(this).addClass('graph-view');
+            $(this).removeClass('table-view');
+        }
+        $(this).parents('.top-content-heading').siblings('.chart-content').toggleClass('hide');
+        $(this).parents('.top-content-heading').siblings('.table-content').toggleClass('hide');
+    });
+    $('#btnPreview').on("click", function (e) {
+        updateDashboard();
+    });
+    function updateDashboard() {
+        var chartTrend = $("#chartTrend").data("kendoChart");
+        chartTrend.dataSource.read();
+        var chartStatus = $("#StatusChart").data("kendoChart");
+        chartStatus.dataSource.read();
+        var chartpriority = $("#ChartPriority").data("kendoChart");
+        chartpriority.dataSource.read();
+        var chart4 = $("#Chart4").data("kendoChart");
+        chart4.dataSource.read();
+        var chartYear = $("#Chart5").data("kendoChart");
+        chartYear.dataSource.read();
+        var chartMonth = $("#Chart6").data("kendoChart");
+        chartMonth.dataSource.read();
+        var grid = $("#ChaGrid").data("kendoGrid");
+        grid.dataSource.read();
+       // $('#graph3div').html()
+    }
+    function RotateChart3() {
+        var chart6 = $("#StatusChart").data("kendoChart");
+        if (chart6.dataSource._data.length > 0) {
+            if (chart6._sourceSeries[0].startAngle >= 340)
+                chart6._sourceSeries[0].startAngle = 0;
+            else
+                chart6._sourceSeries[0].startAngle += 20;
+
+            chart6.dataSource.read();
+        }
+
+    }
+
+    $('#approveImpl').click(function (e) {
+        var chartStatus = $("#chartTrend").data("kendoChart");
+        var chart1 = $("#winChartTrend").data("kendoChart");
+        if ($(this).is(':checked')) {
+            chartStatus.options.series[1].visible = true;
+            chartStatus.options.series[3].visible = true;
+            chart1.options.series[1].visible = true;
+            chart1.options.series[3].visible = true;
+            chartStatus.redraw();
+            chart1.redraw();
+        } else {
+            chartStatus.options.series[1].visible = false;
+            chartStatus.options.series[3].visible = false;
+            chart1.options.series[1].visible = false;
+            chart1.options.series[3].visible = false;
+            chartStatus.redraw();
+            chart1.redraw();
+        }
+    });
+
+
+
+
+</script>

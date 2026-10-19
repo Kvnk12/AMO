@@ -1,0 +1,17 @@
+﻿
+@(Html.Kendo().DropDownListFor(m => m)
+        //.Name("ApplicationList")
+        .Filter("contains")
+       // .BindTo(Applicationslistx)
+       // .BindTo((System.Collections.IEnumerable)ViewData["ClientApplicationList"])
+       .DataSource(dataSource => dataSource
+                           .Read(read => read.Action("GetClientEcos", "PortfolioEco")))
+        .DataValueField("Value")
+        .DataTextField("Text")
+        .Name("EcosystemName")
+        .AutoBind(true)
+     //.Events(e =>
+     //{
+     //    e.Select("onSelect");
+     //})
+)

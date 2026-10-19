@@ -1,0 +1,45 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using WebUI.Areas.ClientProfileManager;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using NTTData.AMOPortal.Domain.Entities
+
+
+@model SurveyUserModel
+
+@{
+
+
+    if (Model.SurveyForRefId == null)
+    {
+        Model.SurveyForRefId = 0;
+    }
+
+}
+
+
+<div style="margin-left:50px">
+    @Html.HiddenFor(x => x.Id)
+
+    
+
+    <label>Select Application</label>
+    <div>
+     @(Html.Kendo().DropDownListFor(m => m.SurveyForRefId)
+                        //.Name("SurveyForRefId")
+                         .OptionLabel("Select Application")
+                         .DataTextField("Text")
+                         .DataValueField("Value")
+                         .DataSource(dataSource => dataSource
+                           .Read(read => read.Action("GetClientApps", "Survey")))
+                           .AutoBind(true)
+                         //.Events(e=>e.Change("adsasd"))
+                         )
+    </div>
+
+</div>

@@ -1,0 +1,35 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Controllers;
+@using WebUI.Areas.TransformationAccelerator.Model;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+@using WebUI.Areas.TransformationAccelerator;
+
+@model EngagementType
+
+<div class="edit-popup">
+    <div class="edit-popup-item">
+        <label>Engagement Type :</label>
+        @(Html.TextBoxFor(m => m.EngagementTypes, new { @class = "client-input", placeholder = "Renewal", value = "Renewal", disabled = "disabled" }))
+    </div>
+    <div class="edit-popup-item">
+        <label>Start Date :</label>
+        @(Html.Kendo().DatePickerFor(m => m.StartDate).Value(DateTime.Now).Name("StartDate").Format("MM/dd/yyyy"))
+    </div>
+    <div class="edit-popup-item">
+        <label>End Date :</label>
+        @(Html.Kendo().DatePickerFor(m => m.EndDate).Value(DateTime.Now).Name("EndDate").Format("MM/dd/yyyy"))
+    </div>
+</div>

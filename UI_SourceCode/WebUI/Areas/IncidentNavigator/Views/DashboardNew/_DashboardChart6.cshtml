@@ -1,0 +1,149 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+<div class="graph-3">
+    <div class="top-content-heading">
+        <div class="top-content-head">
+            <h6>Distribution by </h6>
+            <div class="chart-type">
+
+                @(Html.Kendo().DropDownListFor(m => m)
+                                        .Name("DrpValChart6")
+                                        .OptionLabel("")
+                                        .DataTextField("Text")
+                                        .DataValueField("Value")
+                                        .Value("Tower")
+                                        .Events(e => e
+                                                .Change("Chart6DrpChange")
+                                                )
+                                           //.BindTo(Model.INMappedColumn)
+                                           .BindTo(new List<SelectListItem>() {
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Assigned Group",
+                                                                                                        Value = "Assignedtosupportgroup"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Config Item Name",
+                                                                                                        Value = "Configitemname"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Category",
+
+                                                                                                        Value = "Servicecategory"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Sub Category",
+                                                                                                        Value = "Servicesubcategory"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Data Source",
+                                                                                                        Value = "Datasource"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Ticket Type",
+                                                                                                        Value = "Type"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Resolved Group",
+                                                                                                        Value = "Resolvedbygroup"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Tower/Track",
+                                                                                                        Value = "Tower"
+                                                                                                        }
+                                            })
+                                        .AutoBind(true)
+                )
+            </div>            
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c6">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChart6()"></span>          
+
+        </div>
+    </div>
+    <div class="chart-content" style="color: #000;padding: 0 18px;">
+        <div class="rotate-icon">
+            <span class="rotate-view" title="Rotate the Chart" onclick="RotateChart6()"></span>
+        </div>
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("pieChart6")
+                                        .Legend(legend => legend.Position(ChartLegendPosition.Bottom).Visible(false)
+                                    )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "DashboardNew").Data("ParameterDatanew6")))
+                                          .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+                                            .Series(series =>
+                                            {
+                                                series.Donut(model => model.IncidentCount, model => model.DrpCategory, null)
+                                                .Labels(labels => labels
+                                                .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                .Background("transparent")
+                                                .Visible(true)
+                                                .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                )
+                                                 .Overlay(ChartPieSeriesOverlay.None)
+                                                 .StartAngle(90);
+
+                                            })
+                                        .Tooltip(tooltip => tooltip
+                                            .Visible(true)
+                                            .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                        )
+                                                .Events(events => events
+                                                         .SeriesClick("onChart6SeriesClick")
+                                                        )
+        )
+
+        </div>       
+    </div>
+    <div class="table-content fix-grid-head hide" style="color: #000;padding: 0 18px 12px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:149px" onclick="kendoGridHeaderSort('Chart6Grid', 'DrpCategory')">Category</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('Chart6Grid', 'IncidentCount')">Ticket Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('Chart6Grid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<INChartDashboardModel>()
+    .Name("Chart6Grid")
+    .Columns(columns =>
+    {
+    columns.Bound(e => e.DrpCategory).Title("Category").ClientFooterTemplate("Total").Width(149);
+    columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(109);
+    columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+    })
+
+    .AutoBind(false)
+    .Sortable()
+    .HtmlAttributes(new { style = "height:235px;" })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Aggregates(agg =>
+    {
+    agg.Add(p => p.IncidentCount).Sum();
+    agg.Add(p => p.Percent).Sum();
+    })
+    .Read(read => read.Action("GetINDashboardDataDynamicGrid", "DashboardNew").Data("ParameterDatanew6")))
+    .Events(events => events
+    .DataBound("Chart6Grid_onDataBound")
+
+)
+    )
+
+
+    </div>
+</div>

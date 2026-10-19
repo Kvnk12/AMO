@@ -1,0 +1,144 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/bam.png");
+    Layout = "~/Views/Shared/_BAMAppLayout.cshtml";
+
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    .k-grid tbody tr.k-treelist-group td:first-child {
+        font-weight: 900;
+    }
+</style>
+
+
+<div id="wrap" style="height:900px">
+    <div class="container" style="padding: 0;">
+        <div>
+            <ol class="breadcrumb container">
+                <li><a href="#">Business Alignment Manager</a></li>
+                <li><a href="#">Business Capability Catalog</a></li>
+                @*<li><a href="#">@Model.titleName</a></li>*@
+                <li class="active">View-Edit Details</li>
+            </ol>
+        </div>
+
+
+
+
+        @model BusinessCapabilitiesModel
+
+        <div>
+            
+            <div class="well well-sm">
+                <label style="display:inline-block"><strong style="font-size:medium; align-content:center;">Business Capabilities</strong></label>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <h5 style="display:inline-block;">Industry Vertical / Sub-Vertical : <strong>@Model.SubverticalName</strong></h5>
+                <button style="display:inline-block; float:right;" 
+                        onclick="location.href='@Url.Action("DisplayVerticalSubVerticals", "VerticalSubVerticalsGrid", new { subVId=Model.SubVerticalId, title= Model.SubverticalName})';return false;">
+                    Back
+                </button>
+            </div>
+
+            @Html.HiddenFor(x => x.SubVerticalId, new { id = "SubVerticalId" })
+
+            @*<input id="SubVerticalId"
+        name="SubVerticalId"
+        type="hidden"
+        />*@
+            @(Html.Kendo().TreeList<BusinessCapabilitiesModel>()
+                                .Name("BusinessCapabilities")
+                    .Toolbar(toolbar => toolbar.Create().Text("Add New Capability"))
+                    .Columns(columns =>
+                    {
+                        columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capabilities");
+                        columns.Add().Title("Edit").Width(350).Command(c =>
+                        {
+                            c.Edit().Text("");
+                            c.Destroy().Text("");
+                            c.CreateChild().Text("Add Sub-Capability");
+                        })
+                        .HtmlAttributes(new
+                        {
+                        // style = "text-align: center;"
+                    });
+                    })
+                    .Editable(e => e.Mode("inline"))
+                    .DataSource(dataSource => dataSource
+                        .Create(create => create.Action("Create", "BusinessCapabilities").Data("ParameterSubVIdData"))
+                        .Read(read => read.Action("GetAllTemplates", "BusinessCapabilities").Data("ParameterData"))
+                        .Update(update => update.Action("Update", "BusinessCapabilities"))
+                        .Destroy(delete => delete.Action("DestroyBCs", "BusinessCapabilities"))
+                        .Model(m =>
+                        {
+                            m.Id(f => f.BCId);
+                            m.ParentId(f => f.BCParentId);
+                            m.Field(f => f.SubVerticalId);
+                            m.Expanded(false);
+                            m.Field(f => f.BusinessCapName);
+
+                        })
+                    )
+                    .Height(600)
+            )
+
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function ParameterData(e) {
+        var mm = '@Model.SubVerticalId';
+        //alert(mm);
+        $("#SubVerticalId").val(mm);
+        return {
+
+            SubVerticalId: mm,
+
+            };
+    }
+
+    function ParameterSubVIdData() {
+        return {
+            SubVertId:'@Model.SubVerticalId'
+        }
+    }
+
+    @*function ParameterData1(e) {
+        var mm = '@Model';
+        alert(mm);
+
+        return {
+
+            template: mm,
+
+        };
+    }*@
+
+</script>

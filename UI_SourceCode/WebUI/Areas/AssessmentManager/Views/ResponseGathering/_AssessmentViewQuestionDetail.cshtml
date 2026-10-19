@@ -1,0 +1,295 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+<style>
+    .txtBoxScroll .k-txtbox::-webkit-input-placeholder {
+        color: #d1d1d1;
+    }
+
+    .engres-rating-display {
+        padding: 1em;
+       /* border-bottom: 1px solid #5876AA;*/
+    }
+    
+</style>
+<div id="Id-dynamicpartial">
+    <div class="custom-scrollbar" style="height:26em;overflow-x:hidden;overflow-y:auto;padding-right:5px">
+        <div class="ques-detail-main">
+            <label id="Idquesno" class="ques-label-2">Question @Model.SQNo:</label>
+            <div class="ques-display">
+                <div class="ques-display-textarea">
+                    <label id="Idquestext">@Model.Question</label>
+                    @Html.HiddenFor(m => m.SQNo)
+                </div>
+            </div>
+        </div>
+        <div style="display:flex">
+            <div style="margin: 4px 4px 4px auto;display:flex">
+                @*<button class="btn-selfassessment" onclick="openSelfAssessment()"></button>*@
+                <input type="hidden" id="Id-Discipline" value=@Model.DisciplineId />
+                <input type="hidden" id="Id-Component" value=@Model.ComponentId />
+                <input type="hidden" id="Id-Aspect" value=@Model.AspectID />
+                <label id="responseIDOnQuesClick" hidden>@Model.QuestionResponseID</label>
+                <label id="responseStatusOnQuestionClick" hidden>@Model.responseStatus</label>
+                <input type="hidden" id="ActiveSQNo" value=@Model.SQNo>
+                @*<button title="self assessment" id="selfAssessmentbtn" onclick="buttonEngagementSelfAssessment()" class="btn-selfassessment"></button>*@
+                <div id="tooltips-exans" style="display:flex">
+                    <span id="tooltips-exans" href="#">
+                        <label>Example Answer</label>
+                        <img src="@Url.Content("~/Content/images/ex_answer.svg")" width="20" height="20" />
+                    </span>
+                </div>
+            </div>
+        </div>
+        @(Html.Kendo().Tooltip()
+.For("#tooltips-exans")
+.Filter("span")
+.Content(@Model.ExampleAnswer)
+.Position(TooltipPosition.Top)
+.Width(250)
+// .Height(50)
+.AutoHide(true)
+)
+        <div class="ques-eng-res">
+            <div>
+                @if (Model.MultipleResponses.Count != 0)
+                {
+                    int i = 0;
+                    <div class="ques-eng-detail" id="idfollowuptxt">
+
+
+                        @foreach (var Ritem in Model.MultipleResponses)
+                        {
+                            if (Ritem.SubResponse != null)
+                            {
+                                <div class="ques-eng-txt">
+
+                                    <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                                        @if (i == 0)
+                                        {
+                                            <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Engagement Response</label>
+                                        }
+                                        else
+                                        {
+                                            <label id="Idquesno" class="ques-label-1"><span class="circle-er">ER</span>Follow up Question @i-Response</label>
+                                        }
+                                    </div>
+
+                                    <div class="ques-follow-detailcontext">
+                                        @if (i == 0)
+                                        {
+                                            <div class="ques-display-main-followtextarea main-response">
+                                                <label>@Ritem.SubResponse</label>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="ques-display-followtextarea">
+                                                <label>@Ritem.SubResponse</label>
+                                            </div>
+
+                                        }
+                                    </div>
+                                </div>
+
+
+
+                                if (Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id).Count() != 0)
+                                {
+                                    foreach (var Fitem in Model.MultipleFollowUpQuestions.Where(e => e.SubResponseId == Ritem.Id))
+                                    {
+                                        if (Fitem.SubFollowUpQuestion != null)
+                                        {
+                                            <div class="ques-followup-editor ">
+
+                                                <div style="display: flex; justify-content: space-between; align-items:flex-end">
+                                                    <label class="ques-label-1"><span class="circle-fp">AT</span>Follow up Question @Ritem.SubResponseOrder</label>
+                                                </div>
+
+                                                <div class="ques-follow-detailcontext">
+                                                    <div class="ques-display-followuptextarea">
+                                                        <label>@Fitem.SubFollowUpQuestion</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    }
+                                }
+                            }
+                            i++;
+                        }
+
+                    </div>
+
+                }
+            </div>
+        </div>
+        @{ 
+            int cont = Model.RespAttachment.Count();
+            if (cont != 0)
+            {
+                <div class="a3mm-ref-material response-view">
+                    <label class="ques-label-1" style="color: #707070">Reference Material : </label>
+                    <div class="demo-section">                         
+                        <button id="autohide-download" class="k-button wider btn-eng-download">@cont Attachments</button>
+                    </div>
+
+                    @(Html.Kendo().Tooltip()
+                        .For("#autohide-download")
+                        .AutoHide(false)
+                        .Position(TooltipPosition.Bottom)
+                        .ContentTemplateId("download-template")
+                        .Width(150)
+                         )
+                </div>
+            }
+          }
+            <div style=" padding-top:1em;">
+
+                <div style="border-top: 1px solid #5876AA;">
+                    <div class="engres-rating-display">
+                        <div style="display:flex;">
+                            <div class="arrow11"></div>
+                            <span class="ques-label-1">Engagement Team Self Assessment:</span>
+
+                        </div>
+                        <div class="content4" style="display:flex;">
+                            @*<label class="ques-label-1">Engagement Team Self Assessment</label>*@
+                            <div style="display:flex;">
+                                @*Rating : @Model.EngagementRating*@
+
+                                <label id="engres-rating-display">Rating:@Model.EngagementRating</label>
+
+                                <label for="ertng" style="text-align: center; padding: 0 1em 0 4em;">comments:</label>
+                                <div class="txtBoxScroll" title="@Model.engagementComments" id="ertng">
+
+                                    @Html.TextAreaFor(m => m.engagementComments, new { @class = "k-txtbox scrollbar-rail", @value = Model.engagementComments, id = "engagementComments", @placeholder = "ET given comments will be dispayed here...", rows = 5, cols = 10, style = "width: 58.8em ;resize: none;height: 4em;overflow: auto;box-shadow: none;font-size:1vw;", disabled = "disabled" })
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div style="border-top: 1px solid #5876AA;">
+                    <div class="engres-rating-display">
+                        <div style="display:flex;">
+                            <div class="arrow22"></div>
+                            <span class="ques-label-1">Assessment Team Rating:</span>
+
+                        </div>
+                        <div class="content5" style="display:flex;">
+                            @*<label class="ques-label-1">Engagement Team Self Assessment</label>*@
+                            <div style="display:flex;">
+                                @*Rating : @Model.EngagementRating*@
+                                <div>
+                                <label id="engres-rating-display">Rating:@Model.MaturityLevel</label>
+                                <div class="ltop" style="display:flex">
+                                    <label>comments:</label>
+
+                                    <div class="txtBoxScroll" style="margin-left:0.8em" title="@Model.AssessmentResponse" id="assrep">
+                                        @Html.TextAreaFor(m => m.AssessmentResponse, new { @class = "k-txtbox scrollbar-rail", @value = Model.AssessmentResponse, id = "AssessmentResponse", @placeholder = "AT given comments will be dispayed here...", rows = 7, cols = 13, style = "width: 32em ;resize: none;height: 4em;overflow: auto;box-shadow: none;font-size:1vw;", disabled = "disabled" })
+                                    </div>
+                                </div>
+                                    </div>
+                                <div class="ltop" style="padding-left: 25px; display:inline-block ">
+                                    <label>AreasofImprovement:</label>
+
+                                    <div class="txtBoxScroll" title="@Model.AreasofImprovement" id="aofi">
+                                        @Html.TextAreaFor(m => m.AreasofImprovement, new { @class = "k-txtbox scrollbar-rail", @value = Model.AreasofImprovement, id = "AreasofImprovement", @placeholder = "AT given Areas of Improvement will be dispayed here...", rows = 7, cols = 13, style = "width: 32em ;resize: none;height: 4em;overflow: auto;box-shadow: none;font-size:1vw;", disabled = "disabled" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="ques-deatil-footer">
+                    @*<button class="custom-button" type="button" id="btnCancel" onclick="onCancelClick(SQNo.value,AssessmentID.value)">CLOSE</button>*@
+                    @*<button class="custom-button" type="button" id="btnrating" onclick="buttonEngagementSelfAssessment()">Rating</button>*@
+
+
+                </div>
+
+
+
+                @*@Html.Partial("_SelfAssessmentEngagement", Model)*@
+            </div>
+
+
+        </div>
+
+</div>
+<script>
+    setTimeout(
+        function () {
+    var arr = document.querySelector('.arrow11');
+    arr.classList.toggle('down');
+    $('.content4').slideToggle().toggleClass('active');
+    if ($('.content4').hasClass('active')) {
+        $('.content4').css('display', 'block')
+    } else {
+        // $('.arrow4').css('display', 'none')
+        // $('.arrow4').style.display = "none";
+    }
+
+     var arr = document.querySelector('.arrow22');
+      arr.classList.toggle('down');
+     $('.content5').slideToggle().toggleClass('active');
+    if ($('.content5').hasClass('active')) {
+     $('.content5').css('display', 'block')
+    } else {
+     // $('.arrow5').css('display', 'none')
+     // $('.arrow5').style.display = "none";
+    }
+
+   }, 10000);
+
+
+    var arr = document.querySelector('.arrow11');
+    arr.addEventListener('click', function (event) {
+        event.target.classList.toggle('down');
+    });
+    $(".arrow11").click(function () {
+        $('.content4').slideToggle().toggleClass('active');
+        if ($('.content4').hasClass('active')) {
+            $('.content4').css('display', 'block')
+        } else {
+
+            // $('.arrow4').css('display', 'none')
+        }
+    });
+
+    var arr = document.querySelector('.arrow22');
+    arr.addEventListener('click', function (event) {
+        event.target.classList.toggle('down');
+    });
+    $(".arrow22").click(function () {
+        $('.content5').slideToggle().toggleClass('active');
+        if ($('.content5').hasClass('active')) {
+            $('.content5').css('display', 'block')
+        } else {
+
+            // $('.arrow5').css('display', 'none')
+        }
+    });
+
+</script>
+<script id="download-template" type="text/x-kendo-template">
+        <div>
+      @{
+      if (Model.RespAttachment != null)
+      {
+          foreach (var files in Model.RespAttachment)
+          {
+                  <ul style="padding:0">
+                   <li> <a class='dwn-file-tag' onclick='Downloaduploadedfile(@files.Id)'>@files.filename </a></li>
+                  </ul>
+          }
+      }
+  }
+        </div>
+</script>

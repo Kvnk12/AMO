@@ -1,0 +1,2715 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IdeaManager.Dto;
+
+@model INNewDashboardModel
+
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    @*<link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />*@
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    @*<link rel="stylesheet" href="~/Content/css/custom-styles.css" />*@
+    @*<script src="~/Content/js/bootstrap.js"></script>*@
+    @*<script src="~/Scripts/jquery-3.6.0.js"></script>*@
+
+
+
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    @*<script src="~/Content/js/bootstrap.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var ClientId = client.ClientName;
+
+    var templateObject = new Integration_ReportListModel();
+
+}
+<style>
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+
+</style>
+<div class="content-main custom-grid dark-bg">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb ">
+            <li>Incident Navigator</li>
+            <li class="active">Dashboard</li>
+        </ol>
+    </div>
+    <!-- Wrap all page content here -->
+
+    <input type="hidden" id="ContractId" name="ContractId" value=@Model.Accid>
+    <input type="hidden" id="category" name="category">
+    <input type="hidden" id="InflowOutFlowType" name="InflowOutFlowType">
+    <input type="hidden" id="DateField" name="DateField">
+    <input type="hidden" id="categoryseries" name="categoryseries">
+    <input type="hidden" id="D2StartDate" name="D2StartDate">
+    <input type="hidden" id="D2EndDate" name="D2EndDate">
+
+    @*<input type="hidden" id="category" name="category">*@
+    <input type="hidden" id="TowerCategory" name="TowerCategory">
+    @*<input type="hidden" id="ContractId" name="ContractId" value=@Model.Accid>*@
+    @*<input type="hidden" id="categoryseries" name="categoryseries">*@
+
+    <input type="hidden" id="TowerSelected" name="TowerSelected">
+    <input type="hidden" id="LeverSelected" name="LeverSelected">
+    <input type="hidden" id="CategorySelected" name="CategorySelected">
+    <input type="hidden" id="TokenSelected" name="TokenSelected">
+
+    <div class="content-wrapper incident-dashboard-container">
+        <div class="change-dashboard">
+            <span class="dashboard-change-icon"></span>
+            <div class="dashboard-name">
+                <span class="active" data-href="dashboard1">Overview</span>
+                <span data-href="dashboard2">Time Series</span>
+                <span data-href="dashboard3">Token</span>
+            </div>
+        </div>
+
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <div id="d3export" class="hide">
+                    <form action="@Url.Action("ExportIRRecords", "Integration_Report")" method="POST">
+                        <button type="submit" id="ExportToExcel" class="custom-button integration-report-export"></button>
+                    </form>
+                </div>
+                <span class="parameter-filter-icon"></span>
+            </div>
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+                        <li>
+                            Account Name :
+                            @( Html.Kendo().DropDownList().Name("AccountNamesList")
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .SelectedIndex(0)
+                                                            .BindTo(Model.AccountNamesList)
+                                                            .Events(e =>
+                                                            {
+                                                            e.Change("onSelectAccount");
+                                                            })
+
+                                                             )
+                        </li>
+                        <li class="custom-multiselect">
+                            Contract Id :
+                            <div class="custom-kendo-multiselect trend">
+                                @(Html.Kendo().MultiSelect()
+                                    .Name("Contract")
+                                    .TagMode(TagMode.Single)
+                                    //.Placeholder("Select")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .DataSource(d => d
+                                    .Read(read => read.Action("getContractId", "DashboardNew").Data("GetAccId"))
+                                      )
+                                      .Events(e =>
+                                       {
+                                           e.DataBound("onDataBoundContract");
+                                       })
+                                    .AutoBind(true)
+                                                )
+                            </div>
+                        </li>
+                        <li>
+                            Date Filter :
+                            @(Html.Kendo().ComboBox()
+                                                .Name("Datefield")
+                                                .DataTextField("Text")
+                                                .DataValueField("Value")
+                                                .Value("Createddatetime")
+                                                .BindTo(new List<SelectListItem>() {
+                                                                        new SelectListItem() {
+                                                                        Text = "Created date",
+                                                                        Value = "Createddatetime"
+                                                                        },
+                                                                        new SelectListItem() {
+                                                                        Text = "Resolved date",
+                                                                        Value = "Resolutiondatetime"
+                                                                        },
+                                                                        new SelectListItem() {
+                                                                        Text = "Closed date",
+                                                                        Value = "Closeddatetime"
+                                                                        },
+                                                                        new SelectListItem() {
+                                                                        Text = "Last updated date",
+                                                                        Value = "Lastupdateddatetime"
+                                                                        }
+                                                })
+
+                                                .Enable(true)
+                                                .AutoBind(true)
+                                                //.CascadeFrom("fabric")
+                                                .HtmlAttributes(new { style = "width:200px;" })
+                                    //.BindTo(ConfigItemlist)
+                            )
+                        </li>
+
+                        <li>
+                            Start Date :
+                            @(Html.Kendo().DatePicker()
+                                                                                .Name("start")
+                                                .Value(DateTime.Today.AddMonths(-1))
+                                                .Format("MM/dd/yyyy")
+                            )
+                        </li>
+                        <li>
+                            End Date :
+                            @(Html.Kendo().DatePicker()
+                                                                                .Name("end")
+                                                .Value(DateTime.Today)
+                                                .Format("MM/dd/yyyy")
+                            )
+
+
+                        </li>
+
+                        <li class="custom-multiselect">
+                            Type :
+                            <select class="custom-multiselect-dropdown" id="Type" multiple="multiple">
+                                @{
+                                    foreach (var item in Model.TypeList)
+                                    {
+                                        var str = item.Text.ToLower();
+                                        if (str.Substring(0, 2) == "in")
+                                        {
+                                            <option value="@item.Value" selected>@item.Text</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                }
+                            </select>
+
+                        </li>
+                        <li class="custom-multiselect">
+                            Status :
+                            <select class="custom-multiselect-dropdown" id="Status" multiple="multiple">
+                                @{
+                                    foreach (var item in Model.StatusList)
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+                        <li class="custom-multiselect">
+                            Priority :
+                            <select class="custom-multiselect-dropdown" id="Priority" multiple="multiple">
+                                @{
+                                    foreach (var item in Model.PriorityList)
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+
+                        <li class="custom-multiselect">
+                            Track :
+                            <select class="custom-multiselect-dropdown" id="Tower" multiple="multiple">
+                                @{
+                                    foreach (var item in Model.TowerList)
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </li>
+
+
+                        <li>
+                            @(Html.Kendo().Button()
+
+                                                                                        .Name("btnPreview")
+                                                                                        .Content("Apply")
+                                                                                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="dashboard1 dashboard-content active" id="dashboardtab1">
+                <div class="top-content">
+
+                    @Html.Partial("_DashboardTrend", Model)
+                    @Html.Partial("_DashboardPriority", Model)
+                    @Html.Partial("_DashboardStatus", Model)
+
+                </div>
+                <div class="bottom-content">
+
+                    @Html.Partial("_DashboardChart4", Model)
+                    @Html.Partial("_DashboardChart5", Model)
+                    @Html.Partial("_DashboardChart6", Model)
+
+
+
+                </div>
+            </div>
+
+            <div class="dashboard2 dashboard-content " id="dashboardtab2">
+                <div class="top-content">
+
+                    @Html.Partial("_DistributionByYear", Model)
+                    @Html.Partial("_DistributionByDay", Model)
+                    @Html.Partial("_DistributionByHour", Model)
+                </div>
+                <div class="bottom-content">
+                    @Html.Partial("_DistributionByMonth", Model)
+                    @Html.Partial("_PriorityDistributionByDay", Model)
+                    @Html.Partial("_TicketCountFlowbyHour", Model)
+
+
+
+
+                </div>
+            </div>
+            <div id="dashboardtab3" class="dashboard3 dashboard-content">
+                <div class="d3-integrated">
+                    <div class="d3-chart-area">
+                        <div class="d3-column1">
+                            <div class="d3-column1-top">
+                                @Html.Partial("_IntegrationReport_ByTower", templateObject)
+                            </div>
+                            <div class="d3-column1-bottom">
+                                @Html.Partial("_IntegrationReport_ByLever", templateObject)
+                            </div>
+                        </div>
+                        <div class="d3-column2">
+                            @Html.Partial("_IntegrationReport_ByCategory", templateObject)
+                        </div>
+                        <div class="d3-column3">
+                            @Html.Partial("_IntegrationReport_ByToken", templateObject)
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+        @*<a href="~/Areas/IncidentNavigator/Views/DashboardNew/Index.cshtml">~/Areas/IncidentNavigator/Views/DashboardNew/Index.cshtml</a>*@
+
+
+
+        <!--#region windows-->
+        @Html.Partial("_PopupDashboard1", Model)
+        @Html.Partial("_PopupIntegrationReportDashboard", templateObject)
+
+
+        <!--#endRegion Windows-->
+        @*<input type="text" onkeypress="onKey(event)" onkeydown="offKey(event)">*@
+
+    </div>
+    <div id="chartseriesModal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel1"></label>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                    @*<button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>*@
+                </div>
+
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("GridTickets")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Tower/Track").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export - ");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Sortable()
+                                                    .Pageable()
+                                                    .AutoBind(true)
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .PageSize(100)
+                                                    //.Batch(true)
+                                                    .Read(read => read.Action("GetTicketsdrilldown", "Dashboard").Data("GetdrilldownTrendParameter"))
+                                                    // .Update(update => update.Action("UpdateTickets", "ConfigureReport"))
+                                                    )
+        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chartseries2Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel2">Titile</label>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("Grid2Tickets")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Track/Tower").Width(100).Filterable(ftb => ftb.Multi(true));
+
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Groupable()
+                                                    .Pageable()
+                                                    .Filterable()
+                                                    .AutoBind(false)
+                                                    .Sortable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetINDashboardDataDrilldownGrid", "Dashboard").Data("GetDynamicdrilldownParameter"))
+                                                    )
+        )
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="chartseries3Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel3"></label>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("Grid3Tickets")
+                                                    .Columns(columns =>
+                                                    {
+
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Track/Tower").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Pageable()
+                                                    .AutoBind(false)
+                                                    .Sortable()
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "Dashboard"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetDashboardDrilldownGrid", "Dashboard").Data("GetDashboarddrilldownParameter"))
+                                                    )
+        )
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="chartIntegrationReportseriesModal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridintlabel1"></label>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<IntegrationReportModel>()
+                                                    .Name("IntegrationReportGridTickets")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy }").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Tower/Track").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Category).Title("Category").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Lever).Title("Lever").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Token).Title("Token").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export - ");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Sortable()
+                                                    .Pageable()
+                                                    .AutoBind(false)
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Integration_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .PageSize(100)
+                                                    //.Batch(true)
+                                                    .Read(read => read.Action("GetIntegrationReport_ByTowerandLever_drilldown", "Integration_Report").Data("GetIRdrilldown"))
+                                                    // .Update(update => update.Action("UpdateTickets", "ConfigureReport"))
+                                                    )
+        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid-tooltip">
+        @(Html.Kendo().Tooltip()
+                  .For("#GridTickets")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip1")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#Grid2Tickets")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip2")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+                  .For("#Grid3Tickets")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip3")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+    </div>
+</div>
+
+<script type="text/javascript">
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+    function ConfigItemChange() {
+
+        updateDashboard();
+
+    }
+    function TicketTypeOnOpen()
+    {
+        var TicketType = $("#TicketType").data("kendoMultiSelect");
+        TicketType.dataSource.read();
+        TicketType.enable(true);
+    }
+    function updateDashboard() {
+        Contarr = $("#Contract").data("kendoMultiSelect").value().toString();
+        Contarr = Contarr.replaceAll(",", "#")
+        var TypectrlSel = $('#Type').val();
+        console.log(TypectrlSel);
+        var TypeDesc = "";
+        for (var i = 0; i < TypectrlSel.length; i++) {
+            if (i > 0) { TypeDesc += "#"; }
+            TypeDesc += $('#Type option:selected')[i].label;
+        }
+        typarr = TypeDesc;
+        console.log(TypeDesc);
+        var StatusctrlSel = $('#Status').val();
+        var StatusDesc = "";
+        for (var i = 0; i < StatusctrlSel.length; i++) {
+            if (i > 0) { StatusDesc += "#"; }
+            StatusDesc += $('#Status option:selected')[i].innerHTML;
+        }
+        if (StatusDesc.indexOf("'") > 0)
+            StatusDesc = StatusDesc.replaceAll("'", "''")
+        Staarr = StatusDesc;
+        console.log(StatusDesc);
+
+        var PriorityctrlSel = $('#Priority').val();
+        var PriorityDesc = "";
+        for (var i = 0; i < PriorityctrlSel.length; i++) {
+            if (i > 0) { PriorityDesc += "#"; }
+            if ($('#Priority option:selected')[i].label.length == 2) {
+                PriorityDesc += $('#Priority option:selected')[i].label.substr(1, 1);
+            } else {
+                PriorityDesc += $('#Priority option:selected')[i].label;
+            }
+        }
+        Priarr = PriorityDesc;
+        console.log(PriorityDesc);
+
+        var TowerctrlSel = $('#Tower').val();
+        var TowerDesc = "";
+        for (var i = 0; i < TowerctrlSel.length; i++) {
+            if (i > 0) { TowerDesc += "#"; }
+            TowerDesc += $('#Tower option:selected')[i].label;
+        }
+        Towarr = TowerDesc;//.split(',');
+        console.log(TowerDesc);
+
+        //var ContractSel = $('#Contract').val();
+        //var ContractDesc = "";
+        //for (var i = 0; i < ContractSel.length; i++) {
+        //    if (i > 0) { ContractDesc += "#"; }
+        //    ContractDesc += $('#Contract option:selected')[i].value;
+        //}
+        //Contarr = ContractDesc;//.split(',');
+
+
+        if (showDashboardLink == "dashboard1") {
+            var chartTrend = $("#chartTrend").data("kendoChart");
+            chartTrend.dataSource.read();
+            var chartStatus = $("#StatusChart").data("kendoChart");
+            chartStatus.dataSource.read();
+            var chartpriority = $("#ChartPriority").data("kendoChart");
+            chartpriority.dataSource.read();
+            var chart4 = $("#Chart4").data("kendoChart");
+            chart4.dataSource.read();
+            var chart5 = $("#Chart5").data("kendoChart");
+            chart5.dataSource.read();
+            var chart6 = $("#pieChart6").data("kendoChart");
+            chart6.dataSource.read();
+
+            //var gridStatus = $("#StatusGrid").data("kendoGrid");
+            //gridStatus.dataSource.read();
+            //var gridpriority = $("#PriorityTable").data("kendoGrid");
+            //gridpriority.dataSource.read();
+            //var gridchart1 = $("#TrendTable").data("kendoGrid");
+            //gridchart1.dataSource.read();
+            //var gridStatus = $("#Chart4Grid").data("kendoGrid");
+            //gridStatus.dataSource.read();
+            //var gridpriority = $("#Chart5Grid").data("kendoGrid");
+            //gridpriority.dataSource.read();
+            //var gridchart6 = $("#Chart6Grid").data("kendoGrid");
+            //gridchart6.dataSource.read();
+        }
+        else if (showDashboardLink == "dashboard2") {
+            var chartTrend = $("#YearlyDistribution").data("kendoChart");
+            chartTrend.dataSource.read();
+            var chartStatus = $("#MonthlyDistribution").data("kendoChart");
+            chartStatus.dataSource.read();
+            var chartpriority = $("#DailyDistribution").data("kendoChart");
+            chartpriority.dataSource.read();
+            var chart4 = $("#HourlyDistributionChart").data("kendoChart");
+            chart4.dataSource.read();
+            var chart5 = $("#PriorityDistributionbyDayChart").data("kendoChart");
+            chart5.dataSource.read();
+            var chart6 = $("#TicketCountFlowbyHour").data("kendoChart");
+            chart6.dataSource.read();
+
+            //var gridStatus = $("#YearlyDistributionGrid").data("kendoGrid");
+            //gridStatus.dataSource.read();
+            //var gridpriority = $("#MonthlyDistributionGrid").data("kendoGrid");
+            //gridpriority.dataSource.read();
+            //var gridchart1 = $("#DailyDistributionGrid").data("kendoGrid");
+            //gridchart1.dataSource.read();
+            //var gridStatus = $("#HourlyDistributionChartGrid").data("kendoGrid");
+            //gridStatus.dataSource.read();
+            //var gridpriority = $("#PriorityDistributionbyDayChartGrid").data("kendoGrid");
+            //gridpriority.dataSource.read();
+            //var gridchart6 = $("#TicketCountFlowbyHourGrid").data("kendoGrid");
+            //gridchart6.dataSource.read();
+        }
+        else if (showDashboardLink == "dashboard3") {
+            document.getElementById("category").value = '';
+            var Tokenchart = $("#ChartToken").data("kendoChart");
+            Tokenchart.dataSource.read();
+            var chart6 = $("#IntegrationReport_ByTower").data("kendoChart");
+            chart6.dataSource.read();
+            var gridchart6 = $("#IntegrationReport_ByTowerandLever").data("kendoChart");
+            gridchart6.dataSource.read();
+            var Categorychart = $("#ChartCategory").data("kendoChart");
+            Categorychart.dataSource.read();
+            SaveReportParameters(TypectrlSel, StatusctrlSel, PriorityctrlSel, '', TowerctrlSel, '');
+
+        }
+
+    }
+    function DrpValTrendChange() {
+        var chart1 = $("#chartTrend").data("kendoChart");
+        chart1.dataSource.read();
+        //var x = $("#inflowOutflow").is(":checked");
+        //if (x) {
+        //    $("#inflowOutflow").prop("checked", false);
+        //}
+        //else {
+
+        //}
+        var grid1 = $("#TrendTable").data("kendoGrid");
+        grid1.dataSource.read();
+
+    }
+    function Chart6DrpChange() {
+        var chart6 = $("#pieChart6").data("kendoChart");
+        chart6.dataSource.read();
+        var gridchart6 = $("#Chart6Grid").data("kendoGrid");
+        gridchart6.dataSource.read();
+    }
+    function Chart4DrpChange() {
+        var chart6 = $("#Chart4").data("kendoChart");
+        chart6.dataSource.read();
+        var gridStatus = $("#Chart4Grid").data("kendoGrid");
+        gridStatus.dataSource.read();
+    }
+    function Chart5DrpChange() {
+        var chart6 = $("#Chart5").data("kendoChart");
+        chart6.dataSource.read();
+        var gridpriority = $("#Chart5Grid").data("kendoGrid");
+        gridpriority.dataSource.read();
+    }
+    function D2_DrpValChart6Change() {
+        var chart6 = $("#TicketCountFlowbyHour").data("kendoChart");
+        chart6.dataSource.read();
+        var gridchart6 = $("#TicketCountFlowbyHourGrid").data("kendoGrid");
+        gridchart6.dataSource.read();
+    }
+    function D2_DrpValChart5Change() {
+        var chart6 = $("#PriorityDistributionbyDayChart").data("kendoChart");
+        chart6.dataSource.read();
+        var gridchart6 = $("#PriorityDistributionbyDayChartGrid").data("kendoGrid");
+        gridchart6.dataSource.read();
+    }
+    function ParameterDataTrend(e) {
+        console.log($("#DrpValTrend").val());
+        //Contarr = $("#Contract").data("kendoDropDownList").value();
+        //alert(Contarr);
+        return {
+
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            ChartType: $("#DrpValTrend").val(),
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function ParameterDatanew(e) {
+
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function GetPriorityParameter(e) {
+
+        return {
+            drpval: "Priority",
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function GetStatusParameter(e) {
+        return {
+            drpval: "Status",
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function GetParameter(e) {
+        return {
+            drpval: $("#DrpValChart4").val(),
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function ParameterDatanew5(e) {
+        return {
+            drpval: $("#DrpValChart5").val(),
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function ParameterDatanew6(e) {
+        return {
+            drpval: $("#DrpValChart6").val(),
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function ParameterData(e) {
+        var ticketType = $("#TicketType").data("kendoMultiSelect");
+
+        return {
+
+            ConfigItemName: $("#ConfigItem").val(),
+            TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+
+            };
+    }
+    function GetDistributionYearParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Year",
+            dpnVal: null,
+            Datetype: $("#Datefield").val(),
+            StartDate: "01/01/2020",
+            EndDate: "12/31/2030",
+            Contract: Contarr
+        };
+    }
+    function GetDistributionMonthParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Month",
+            dpnVal: null,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function GetDistributionDayParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Date",
+            dpnVal:null,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+    }
+    function GetDistributionHourParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Hour",
+            dpnVal: null,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+        };
+     }
+    function PriorityDistributionbyDayChartGrid_onDataBound(arg) {
+         $("#PriorityDistributionbyDayChartGrid thead [data-field=DrpCategory] .k-link").html($("#D2_DrpValChart5").val());
+     }
+    function TicketCountFlowbyHourGrid_onDataBound(arg) {
+        $("#TicketCountFlowbyHourGrid thead [data-field=DrpCategory] .k-link").html($("#D2_DrpValChart6").val());
+
+    }
+    function TrendTable_onDataBound(arg) {
+        $("#TrendTable thead [data-field=DrpCategory] .k-link").html($("#DrpValTrend").val());
+    }
+    function Chart6Grid_onDataBound(arg) {
+        $("#Chart6Grid thead [data-field=DrpCategory] .k-link").html($("#DrpValChart6").val());
+    }
+    function Chart5Grid_onDataBound(arg) {
+        $("#Chart5Grid thead [data-field=DrpCategory] .k-link").html($("#DrpValChart5").val());
+    }
+    function Chart4Grid_onDataBound(arg) {
+        $("#Chart4Grid thead [data-field=DrpCategory] .k-link").html($("#DrpValChart4").val());
+    }
+    function ticketminmax_onDataBound(arg) {
+        var stockChart = $("#TicketCountFlowbyHour").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 7) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+            stockChart.options.categoryAxis.max = 7;
+        }
+        stockChart.redraw();
+    }
+    function Winticketcountminmax_onDataBound(arg) {
+        var stockChart = $("#winTicketountFlowbyHourChart").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 12) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 12;
+        }
+        stockChart.redraw();
+    }function hourminmax_onDataBound(arg) {
+        var stockChart = $("#HourlyDistributionChart").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 8) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 8;
+        }
+        stockChart.redraw();
+    }
+    function Winhourminmax_onDataBound(arg) {
+        var stockChart = $("#winDistributionbyHourChart").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 10) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 10;
+        }
+        stockChart.redraw();
+    }
+    function Dispriminmax_onDataBound(arg) {
+        var stockChart = $("#PriorityDistributionbyDayChart").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 7) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 7;
+        }
+        stockChart.redraw();
+    }
+    function WinDispriminmax_onDataBound(arg) {
+        var stockChart = $("#winPriorityDistributionbyDayChart").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 7) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 7;
+        }
+        stockChart.redraw();
+    }
+    function minmax_onDataBound(arg) {
+        var stockChart = $("#Chart4").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 4) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 4;
+        }
+        console.log(stockChart.options.categoryAxis.max)
+        stockChart.redraw();
+    }
+    function Winminmax_onDataBound(arg) {
+        var stockChart = $("#winChart4").data("kendoChart");
+       // console.log(stockChart);
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 8) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 8;
+        }
+        stockChart.redraw();
+    }
+    function winInflow_onDataBound(arg) {
+        var ChartTrend = $("#winChartTrend").data("kendoChart");
+    var x = $("#inflowOutflow").is(":checked");
+    if (x) {
+        ChartTrend.options.series[1].visible = true;
+        ChartTrend.options.series[3].visible = true;
+    } else {
+        ChartTrend.options.series[1].visible = false;
+        ChartTrend.options.series[3].visible = false;
+       }
+        ChartTrend.redraw();
+    }
+    function Inflow_onDataBound(arg) {
+        var ChartTrend = $("#chartTrend").data("kendoChart");
+        var x = $("#inflowOutflow").is(":checked");
+        if (x) {
+            ChartTrend.options.series[1].visible = true;
+            ChartTrend.options.series[3].visible = true;
+        } else {
+            ChartTrend.options.series[1].visible = false;
+            ChartTrend.options.series[3].visible = false;
+        }
+        ChartTrend.redraw();
+    }
+    function onChangeTitle_onDataBound(arg) {
+        var stockChart = $("#Chart5").data("kendoChart");
+       // console.log(stockChart);
+        stockChart.options.valueAxis[0].title.text = '@ClientId'+"Total Tickets";
+        stockChart.options.categoryAxis.title.text = $("#DrpValChart5").val();
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 5) {
+
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 5;
+        }
+        console.log(stockChart.options.categoryAxis.max)
+        stockChart.redraw();
+        //stockChart.options.series[0].overlay = "None";
+    }
+    function onChangeWinTitle_onDataBound(arg) {
+           var stockChart = $("#winChart5").data("kendoChart");
+       // console.log(stockChart);
+        stockChart.options.valueAxis[0].title.text = '@ClientId' + "Total Tickets";
+           stockChart.options.categoryAxis.title.text = $("#DrpValChart5").val();
+           var Lmax = stockChart.options.series[0].data.length;
+           if (Lmax <= 8) {
+               stockChart.options.categoryAxis.max = Lmax;
+           } else {
+
+               stockChart.options.categoryAxis.max = 8;
+           }
+           stockChart.redraw();
+
+    }
+    function GetPriorityDistributionbyDayChartParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Date",
+            dpnVal: $("#D2_DrpValChart5").val(),
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+
+        };
+    }
+    function GetTicketCountFlowbyHourParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: "Hour",
+            dpnVal: $("#D2_DrpValChart6").val(),
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr
+
+        };
+    }
+    //Maximise Dashboard Chart
+    function maximiseChartTrend() {
+        var ChartTrend = $("#winChartTrend").data("kendoChart");
+         ChartTrend.dataSource.read();
+        var popup = $("#chartTrendWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+        //var x = $("#inflowOutflow").is(":checked");
+        //console.log(x);
+        //if (x) {
+        //    console.log(x);
+        //    ChartTrend.options.series[1].visible = true;
+        //  //  console.log(ChartTrend.options.series[1].visible);
+        //    ChartTrend.options.series[3].visible = true;
+        //  //  console.log(ChartTrend.options.series[3].visible);
+        //    ChartTrend.redraw();
+        // //   console.log(ChartTrend.options.series[3].visible);
+        //} else {
+        //   // console.log(x);
+
+        //    ChartTrend.options.series[1].visible = false;
+        //   // console.log(ChartTrend.options.series[1].visible);
+        //    ChartTrend.options.series[3].visible = false;
+        //   // console.log(ChartTrend.options.series[3].visible);
+        //    ChartTrend.redraw();
+        //   // console.log(ChartTrend.options.series[3].visible);
+        //}
+        //console.log(ChartTrend.options.series[3].visible);
+    }
+    function maximiseChart6() {
+        var chartpriority = $("#winchart6").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#Chart6Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function RotateChart6() {
+        var chart6 = $("#pieChart6").data("kendoChart");
+        if (chart6.dataSource._data.length > 0) {
+            if (chart6._sourceSeries[0].startAngle >= 340)
+                chart6._sourceSeries[0].startAngle = 0;
+            else
+            chart6._sourceSeries[0].startAngle += 20;
+
+            chart6.dataSource.read();
+        }
+
+    }
+    function RotateChart3() {
+        var chart6 = $("#StatusChart").data("kendoChart");
+        if (chart6.dataSource._data.length > 0) {
+            if (chart6._sourceSeries[0].startAngle >= 340)
+                chart6._sourceSeries[0].startAngle = 0;
+            else
+                chart6._sourceSeries[0].startAngle += 20;
+
+            chart6.dataSource.read();
+        }
+
+    }
+    function maximiseChartPriority() {
+
+        var chartpriority = $("#winChartPriority").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#ChartPriortyWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChart4() {
+
+        var chartpriority = $("#winChart4").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#Chart4Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChart5() {
+
+        var chartpriority = $("#winChart5").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#Chart5Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartStatus() {
+        var chartStatus = $("#winStatusChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#ChartStatusWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyYear() {
+        var chartStatus = $("#winDistributionbyYearChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyYearChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyMonth() {
+        var chartStatus = $("#winDistributionbyMonthChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyMonthChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyDay() {
+        var chartStatus = $("#winDistributionbyDayChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyDayChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartDistributionbyHour() {
+        var chartStatus = $("#winDistributionbyHourChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#DistributionbyHourChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartPriorityDistributionbyDay() {
+        var chartStatus = $("#winPriorityDistributionbyDayChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#PriorityDistributionbyDayChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartTicketountFlowbyHour() {
+        var chartStatus = $("#winTicketountFlowbyHourChart").data("kendoChart");
+        chartStatus.dataSource.read();
+
+        var popup = $("#TicketountFlowbyHourChartWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function columnVisual(e) {
+        return createColumn(e.rect, e.options.color);
+    }
+    function toggleHandler(e) {
+        e.preventDefault();
+        var visual = e.visual;
+        var opacity = e.show ? 0.8 : 1;
+
+        visual.opacity(opacity);
+    }
+    function createLegendItem(e) {
+        var drawing = kendo.drawing;
+        var geometry = kendo.geometry;
+
+        var color = e.options.markers.background;
+        var labelColor = e.options.labels.color;
+        var rect = new geometry.Rect([0, 0], [120, 50]);
+        var layout = new drawing.Layout(rect, {
+            spacing: 5,
+            alignItems: "center"
+        });
+
+        var overlay = drawing.Path.fromRect(rect, {
+            fill: {
+                color: "#fff",
+                opacity: 0
+            },
+            stroke: {
+                color: "none"
+            },
+            cursor: "pointer"
+        });
+
+        var column = createColumn(new geometry.Rect([0, 0], [15, 10]), color);
+        var label = new drawing.Text(e.series.name, [0, 0], {
+            fill: {
+                color: labelColor
+            }
+        })
+
+        layout.append(column, label);
+        layout.reflow();
+
+        var group = new drawing.Group().append(layout, overlay);
+
+        return group;
+    }
+    function createColumn(rect, color) {
+        var drawing = kendo.drawing;
+        var geometry = kendo.geometry;
+
+        var origin = rect.origin;
+        var center = rect.center();
+        var bottomRight = rect.bottomRight();
+        var radiusX = rect.width() / 2;
+        var radiusY = radiusX / 3;
+        var gradient = new drawing.LinearGradient({
+            stops: [{
+                offset: 0,
+                color: color
+            }, {
+                offset: 0.5,
+                color: color,
+                opacity: 0.9
+            }, {
+                offset: 0.5,
+                color: color,
+                opacity: 0.9
+            }, {
+                offset: 1,
+                color: color
+            }]
+        });
+
+        var path = new drawing.Path({
+            fill: gradient,
+            stroke: {
+                color: "none"
+            }
+        }).moveTo(origin.x, origin.y)
+            .lineTo(origin.x, bottomRight.y)
+            .arc(180, 0, radiusX, radiusY, true)
+            .lineTo(bottomRight.x, origin.y)
+            .arc(0, 180, radiusX, radiusY);
+
+        var topArcGeometry = new geometry.Arc([center.x, origin.y], {
+            startAngle: 0,
+            endAngle: 360,
+            radiusX: radiusX,
+            radiusY: radiusY
+        });
+
+        var topArc = new drawing.Arc(topArcGeometry, {
+            fill: {
+                color: color
+            },
+            stroke: {
+                color: "#ebebeb"
+            }
+        });
+        var group = new drawing.Group();
+        group.append(path, topArc);
+        return group;
+    }
+    function LabelVisual(e) {
+        var defaultLbl = e.createVisual();
+        var rectX = e.rect.origin.x;
+        var rectY = e.rect.origin.y;
+        if (e.series.name != "Percentage") {
+            var newPosition = [rectX, rectY - 12];
+            var additionalLabel = new kendo.drawing.Text(e.category, newPosition);
+
+            defaultLbl.append(additionalLabel);
+            return defaultLbl;
+        } else {
+            return defaultLbl;
+        }
+                }
+    function D2LabelVisual(e) {
+
+        var defaultLbl = e.createVisual();
+        var rectX = e.rect.origin.x;
+        var rectY = e.rect.origin.y;
+        if (e.series.name != "Percentage") {
+            var newPosition = [rectX, rectY - 12];
+            var additionalLabel = new kendo.drawing.Text(e.category+" Hour", newPosition);
+
+            defaultLbl.append(additionalLabel);
+            return defaultLbl;
+        } else {
+            return defaultLbl;
+        }
+    }
+    function GetAccId() {
+
+        var app = $("#AccountNamesList").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+    function onSelectAccount(e) {
+        var app = $("#Contract").data("kendoMultiSelect");
+        app.dataSource.read();
+    }
+    function onTrendSeriesClick(e) {
+
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel1').innerHTML = "Ticket Trend by " + $("#DrpValTrend").val()+" - "+ e.category;
+        document.getElementById("InflowOutFlowType").value = e.series.field;
+        console.log(e.category);
+        console.log(e.series.field);
+        var gridpriority = $("#GridTickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseriesModal').modal('show');
+    }
+    $("#TrendTable").click(function (e) {
+        console.log(e);
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            var word1 = e.target.parentNode.cells[0].parentNode.cells[1].childNodes[0].data;
+            document.getElementById('gridlabel1').innerHTML = "Ticket Trend by " + $("#DrpValTrend").val() + " - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = word1;
+            var gridpriority = $("#GridTickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseriesModal').modal('show');
+        }
+        // console.log("changed");
+    });
+    function onPrioritySeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel2').innerHTML = "Distribution by Priority - " + e.category;
+        document.getElementById("InflowOutFlowType").value = "Priority";
+        var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        if (e.series.field == "Percent") {
+            $('#chartseries2Modal').modal('hide');
+        } else {
+            $('#chartseries2Modal').modal('show');
+        }
+
+    }
+    $("#PriorityTable").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            //var word1 = e.target.parentNode.cells[0].parentNode.cells[1].childNodes[0].data;
+            document.getElementById('gridlabel2').innerHTML = "Distribution by Priority - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = "Priority";
+            var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries2Modal').modal('show');
+        }
+        // console.log("changed");
+    });
+    function onStatusSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel2').innerHTML = "Distribution by Status - " + e.dataItem.LongCategory;
+        document.getElementById("InflowOutFlowType").value = "Status";
+        var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries2Modal').modal('show');
+    }
+    $("#StatusGrid").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            //var word1 = e.target.parentNode.cells[0].parentNode.cells[1].childNodes[0].data;
+            document.getElementById('gridlabel2').innerHTML = "Distribution by Status - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = "Status";
+            var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries2Modal').modal('show');
+        }
+        // console.log("changed");
+    });
+    function onChart4SeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel2').innerHTML = "Total Incidents in % " + $("#DrpValChart4").val() +" - " + e.category;
+        document.getElementById("InflowOutFlowType").value = $("#DrpValChart4").val();
+        var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        if (e.series.field == "Percent") {
+            $('#chartseries2Modal').modal('hide');
+        } else {
+            $('#chartseries2Modal').modal('show');
+        }
+    }
+    $("#Chart4Grid").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            //var word1 = e.target.parentNode.cells[0].parentNode.cells[1].childNodes[0].data;
+            document.getElementById('gridlabel2').innerHTML = "Total Incidents in % " + $("#DrpValChart4").val() + " - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = $("#DrpValChart4").val();
+            var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries2Modal').modal('show');
+        }
+        // console.log("changed");
+    });
+    function onChart5SeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.__proto__.LongCategory;
+        document.getElementById('gridlabel2').innerHTML = "Total Incidents by " + $("#DrpValChart5").val() + " - " + e.dataItem.__proto__.LongCategory;
+        console.log(e.dataItem.__proto__.LongCategory);
+        document.getElementById("InflowOutFlowType").value = $("#DrpValChart5").val();
+        var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries2Modal').modal('show');
+    }
+    $("#Chart5Grid").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel2').innerHTML = "Total Incidents by " + $("#DrpValChart5").val() + " - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = $("#DrpValChart5").val();
+            var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries2Modal').modal('show');
+        }
+        // console.log("changed");
+    });
+    function onChart6SeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel2').innerHTML = "Distribution by " + $("#DrpValChart6").val() + " - " + e.dataItem.LongCategory;
+        console.log(e.dataItem.LongCategory);
+        document.getElementById("InflowOutFlowType").value = $("#DrpValChart6").val();
+        var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries2Modal').modal('show');
+    }
+    $("#Chart6Grid").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        if (word == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel2').innerHTML = "Distribution by " + $("#DrpValChart6").val() + " - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = $("#DrpValChart6").val();
+            var gridpriority = $("#Grid2Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries2Modal').modal('show');
+        }
+    });
+    function onYearSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel3').innerHTML ="Distribution by Year - "+ e.category;
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "year";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = "01/01/2020";
+        document.getElementById("D2EndDate").value = "12/31/2030";
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#YearlyDistributionGrid").click(function (e) {
+        var word = e.target.parentNode.cells[0].innerHTML;
+        console.log(word);
+        if (word == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Distribution by Year - " + word;
+            document.getElementById("category").value = word;
+            document.getElementById("InflowOutFlowType").value = "";
+            document.getElementById("DateField").value = "year";
+            document.getElementById("categoryseries").value = "";
+            document.getElementById("D2StartDate").value = "01/01/2020";
+            document.getElementById("D2EndDate").value = "12/31/2030";
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function onDateSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel3').innerHTML = "Distribution by Day - "+e.category;
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "Date";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#DailyDistributionGrid").click(function (e) {
+        if (e.target.parentNode.cells[1].innerHTML == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Distribution by Day - " + e.target.parentNode.cells[1].innerHTML;
+            document.getElementById("category").value = e.target.parentNode.cells[0].innerHTML;
+            document.getElementById("InflowOutFlowType").value = "";
+            document.getElementById("categoryseries").value = "";
+            document.getElementById("DateField").value = "Date";
+            document.getElementById("D2StartDate").value = $("#start").val();
+            document.getElementById("D2EndDate").value = $("#end").val();
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function onHourSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel3').innerHTML ="Distribution by Hour - "+ e.category+" Hour";
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "Hour";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#HourlyDistributionChartGrid").click(function (e) {
+        if (e.target.parentNode.cells[0].innerHTML == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Distribution by Hour - " + e.target.parentNode.cells[0].innerHTML + " Hour";
+            document.getElementById("category").value = e.target.parentNode.cells[0].innerHTML;
+            document.getElementById("InflowOutFlowType").value = "";
+            document.getElementById("DateField").value = "Hour";
+            document.getElementById("D2StartDate").value = $("#start").val();
+            document.getElementById("D2EndDate").value = $("#end").val();
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function onMonthSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel3').innerHTML ="Distribution by Month - "+ e.category;
+        document.getElementById("InflowOutFlowType").value = "";
+        document.getElementById("DateField").value = "Month";
+        document.getElementById("categoryseries").value = "";
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#MonthlyDistributionGrid").click(function (e) {
+        if (e.target.parentNode.cells[1].innerHTML == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Distribution by Month - " + e.target.parentNode.cells[1].innerHTML;
+            document.getElementById("category").value = e.target.parentNode.cells[0].innerHTML;
+            document.getElementById("InflowOutFlowType").value = "";
+            document.getElementById("DateField").value = "Month";
+            document.getElementById("D2StartDate").value = $("#start").val();
+            document.getElementById("D2EndDate").value = $("#end").val();
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function onPriorityDistributionByDaySeriesClick(e) {
+        document.getElementById("category").value = e.dataItem.LongCategory;
+        document.getElementById('gridlabel3').innerHTML = "Distribution by " + $("#D2_DrpValChart5").val()+"-"+e.category;
+        document.getElementById("InflowOutFlowType").value = $("#D2_DrpValChart5").val(),
+        document.getElementById("DateField").value = "Date";
+        document.getElementById("categoryseries").value = e.dataItem.__proto__.DrpCategory;
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        console.log("category" + e.dataItem.LongCategory + " " + "InflowOutFlowType" + $("#D2_DrpValChart5").val() + "   DateField" + "Date" + "categoryseries" + e.dataItem.__proto__.DrpCategory);
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#PriorityDistributionbyDayChartGrid").click(function (e) {
+        if (e.target.parentNode.childNodes[2].innerHTML == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Distribution by " + $("#D2_DrpValChart5").val() + "-" + e.target.parentNode.childNodes[1].innerHTML;
+            document.getElementById("category").value = e.target.parentNode.childNodes[1].innerHTML;
+            document.getElementById("InflowOutFlowType").value = $("#D2_DrpValChart5").val(),
+                document.getElementById("DateField").value = "Date";
+            document.getElementById("D2StartDate").value = $("#start").val();
+            document.getElementById("D2EndDate").value = $("#end").val();
+            console.log("category" + e.target.parentNode.childNodes[1].innerHTML + " " + "InflowOutFlowType" + $("#D2_DrpValChart5").val() + "   DateField" + "Date" + "categoryseries" + e.target.parentNode.childNodes[2].innerHTML);
+            document.getElementById("categoryseries").value = e.target.parentNode.childNodes[2].innerHTML;
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function onTicketCountFlowByHourSeriesClick(e) {
+        console.log(e);
+        document.getElementById("category").value = e.category;
+        document.getElementById('gridlabel3').innerHTML = "Ticket Count Flow by " + $("#D2_DrpValChart6").val()+" - "+ e.category+" Hour";
+        document.getElementById("InflowOutFlowType").value = $("#D2_DrpValChart6").val(),
+            document.getElementById("DateField").value = "Hour";
+        document.getElementById("D2StartDate").value = $("#start").val();
+        document.getElementById("D2EndDate").value = $("#end").val();
+        document.getElementById("categoryseries").value = e.dataItem.__proto__.DrpCategory;
+        var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartseries3Modal').modal('show');
+    }
+    $("#TicketCountFlowbyHourGrid").click(function (e) {
+        if (e.target.parentNode.childNodes[2].innerHTML == "Total") {
+        }
+        else {
+            document.getElementById('gridlabel3').innerHTML = "Ticket Count Flow by " + $("#D2_DrpValChart6").val() + " - " + e.target.parentNode.childNodes[1].innerHTML + " Hour";
+            document.getElementById("category").value = e.target.parentNode.childNodes[1].innerHTML;
+            document.getElementById("InflowOutFlowType").value = $("#D2_DrpValChart6").val(),
+                document.getElementById("DateField").value = "Hour";
+            document.getElementById("D2StartDate").value = $("#start").val();
+            document.getElementById("D2EndDate").value = $("#end").val();
+            document.getElementById("categoryseries").value = e.target.parentNode.childNodes[2].innerHTML;
+            var gridpriority = $("#Grid3Tickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            $('#chartseries3Modal').modal('show');
+        }
+    });
+    function GetdrilldownTrendParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            ChartType: $("#DrpValTrend").val(),
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr,
+            Category: document.getElementById("category").value,
+            InflowOutFlowType: document.getElementById("InflowOutFlowType").value
+        };
+    }
+    function GetDynamicdrilldownParameter(e) {
+        return {
+            drpval: document.getElementById("InflowOutFlowType").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr,
+            Category: document.getElementById("category").value
+        };
+
+    }
+    function GetDashboarddrilldownParameter(e) {
+        return {
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            drpval: document.getElementById("DateField").value,
+            dpnVal: document.getElementById("InflowOutFlowType").value,
+            Datetype: $("#Datefield").val(),
+            StartDate: document.getElementById("D2StartDate").value,
+            EndDate: document.getElementById("D2EndDate").value,
+            Contract: Contarr,
+            Category: document.getElementById("category").value,
+            Categoryseries: document.getElementById("categoryseries").value
+
+        };
+    }
+    function getDescriptionToolTip1(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+    function getDescriptionToolTip2(e) {
+        var dataItem = $("#Grid2Tickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+    function getDescriptionToolTip3(e) {
+        var dataItem = $("#Grid3Tickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+    $("#d1c1").click(function () {
+            var grid = $("#TrendTable").data("kendoGrid");
+            grid.dataSource.read();
+    });
+    $("#d1c2").click(function () {
+        var grid = $("#PriorityTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c3").click(function () {
+        var grid = $("#StatusGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c4").click(function () {
+        var gridStatus = $("#Chart4Grid").data("kendoGrid");
+        gridStatus.dataSource.read();
+    });
+    $("#d1c5").click(function () {
+        var grid = $("#Chart5Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d1c6").click(function () {
+        var grid = $("#Chart6Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d2c1").click(function () {
+        var grid = $("#YearlyDistributionGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d2c2").click(function () {
+        var grid = $("#DailyDistributionGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d2c3").click(function () {
+        var grid = $("#HourlyDistributionChartGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d2c4").click(function () {
+        var gridStatus = $("#MonthlyDistributionGrid").data("kendoGrid");
+        gridStatus.dataSource.read();
+    });
+    $("#d2c5").click(function () {
+        var grid = $("#PriorityDistributionbyDayChartGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#d2c6").click(function () {
+        var grid = $("#TicketCountFlowbyHourGrid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function wrapText(value) {
+        var words = value.split(/[;,—_\W]+/);
+        var resvalue = "";
+        for (var i = 0; i < words.length; i++) {
+            resvalue += words[i] + "\n";
+        }
+        //if (value.length > 10) {
+        //    value = value.substring(0, 10) + "\n" + value.substring(10, 20) + "\n" + value.substring(20);
+        //};
+        return resvalue;
+    };
+</script>
+<script>
+    $('#inflowOutflow').click(function (e) {
+        var chartStatus = $("#chartTrend").data("kendoChart");
+        var chart1 = $("#winChartTrend").data("kendoChart");
+        if ($(this).is(':checked')) {
+            chartStatus.options.series[1].visible = true;
+            chartStatus.options.series[3].visible = true;
+            chart1.options.series[1].visible = true;
+            chart1.options.series[3].visible = true;
+            chartStatus.redraw();
+            chart1.redraw();
+        } else {
+            chartStatus.options.series[1].visible = false;
+            chartStatus.options.series[3].visible = false;
+            chart1.options.series[1].visible = false;
+            chart1.options.series[3].visible = false;
+            chartStatus.redraw();
+            chart1.redraw();
+        }
+    });
+
+    $('#btnPreview').on("click", function (e) {
+        document.getElementById("TowerCategory").value = '';
+        updateDashboard();
+    });
+    var TypectrlSel = $('#Type').val();
+    var TypeDesc = "";
+    if (TypectrlSel != null) {
+        for (var i = 0; i < TypectrlSel.length; i++) {
+            if (i > 0) { TypeDesc += "#"; }
+            TypeDesc += $('#Type option:selected')[i].label;
+        }
+    }
+    //  var typarr = "";
+    var typarr = TypeDesc;
+
+    var Staarr = "";
+    var Priarr = "";
+    var Towarr = "";
+    var tempContarr = document.getElementById("ContractId").value;
+    var Contarr;
+    if (tempContarr == 0) {
+        Contarr = "";
+    }
+    else {
+        Contarr = tempContarr;
+    }
+    //console.log(Contarr);
+    //alert(Contarr);
+    var showDashboardLink = "dashboard1";
+
+    //Inicident Navigator Change Dashboard functionality
+    $('.change-dashboard').on('click', 'span', function (e) {
+
+        showDashboardLink = $(this).attr('data-href');
+        //if (showDashboardLink == 'dashboard1') {
+        if (!$(this).hasClass('active')) {
+            $(this).addClass('active');
+            $(this).siblings().removeClass('active');
+        }
+
+        $("." + showDashboardLink).addClass('active');
+        $("." + showDashboardLink).siblings('.dashboard-content').removeClass('active');
+        updateDashboard();
+        if (showDashboardLink == 'dashboard3') {
+            $("#d3export").addClass('show');
+            $("#d3export").removeClass('hide');
+        } else {
+            $("#d3export").addClass('hide');
+            $("#d3export").removeClass('show');
+        }
+
+    });
+    //$('.change-dashboard').one('click', 'span', function () {
+    //    var showDashboardLink = $(this).attr('data-href');
+    //    if (showDashboardLink == 'dashboard2') {
+    //        //var $showProgress = $("<span style='padding: 0 10px;font-style: italic; color: orange;'>Note: Dashboard 2 is in development phase</span>");
+
+    //        //$(".dashboard-name").after($showProgress);
+    //        $(".open-tab").click(function(){
+    //        // Hide any of the content tabs
+    //            $(".tab").hide();
+    //            // Show your active tab (read from your data attribute)
+    //            $('[data-tab ="' + $(this).data('tab') + '"]').show();
+    //            // Optional: Highlight the selected tab
+    //            $('li.active').removeClass('active');
+    //            $(this).closest('li').addClass('active');
+    //    });
+
+    //    }
+    //});
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+        $('.parameter-slider').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+
+    $('.graph-view').on('click', function () {
+        if ($(this).hasClass('graph-view')) {
+            $(this).addClass('table-view');
+            $(this).removeClass('graph-view');
+        }
+        else {
+            $(this).addClass('graph-view');
+            $(this).removeClass('table-view');
+        }
+        $(this).parents('.top-content-heading').siblings('.chart-content').toggleClass('hide');
+        $(this).parents('.top-content-heading').siblings('.table-content').toggleClass('hide');
+    });
+
+    $('.custom-multiselect-dropdown').multiselect({
+        maxHeight: 200,
+        numberDisplayed: 1,
+        includeSelectAllOption: true,
+        includeResetOption: true
+    });
+    $(".custom-multiselect-dropdown").multiselect('selectAll', true);
+    $(".custom-multiselect-dropdown").multiselect('updateButtonText');
+
+</script>
+<script>
+    //Integration_Report script
+    function RotateTowerChart() {
+        var chart6 = $("#IntegrationReport_ByTower").data("kendoChart");
+        if (chart6.dataSource._data.length > 0) {
+            if (chart6._sourceSeries[0].startAngle >= 340)
+                chart6._sourceSeries[0].startAngle = 0;
+            else
+                chart6._sourceSeries[0].startAngle += 20;
+
+            chart6.dataSource.read();
+        }
+
+    }
+    function UnselectTower() {
+        $("#BackButton").addClass('hide');
+        $("#BackButton").removeClass('show');
+        document.getElementById("category").value = '';
+        var CatChart = $("#ChartCategory").data("kendoChart");
+        var TokenChart = $("#ChartToken").data("kendoChart");
+        var stockChart1 = $("#IntegrationReport_ByTowerandLever").data("kendoChart");
+
+        stockChart1._seriesVisibility.options.seriesColors = ["#60B4F9", "#1AE5E5", "#F9EF55", "#89EA97", "#F2B1B1", "#D7DBDD", "#FFC639", "#BA91CD", "#B997FF", "#FCA1C1"]
+        CatChart._sourceSeries[0].color = "#75B5F9";
+        TokenChart._sourceSeries[0].color = "#75B5F9";
+        document.getElementById("TowerCategory").value = '';
+        //  document.getElementById('Towergridlabel2').innerHTML = "Distribution by Lever for Tower: " + e.category;
+        document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token  " ;
+        document.getElementById('CategoryChartlabel').innerHTML = "Integration Report By Category " ;
+        document.getElementById('LeverChartlabel').innerHTML = "Integration Report By Lever " ;
+
+        var gridTowerandLever = $("#IntegrationReport_ByTowerandLever").data("kendoChart");
+        gridTowerandLever.dataSource.read();
+        var CatChart = $("#ChartCategory").data("kendoChart");
+        CatChart.dataSource.read();
+        var TokenChart = $("#ChartToken").data("kendoChart");
+        TokenChart.dataSource.read();
+
+    }
+    function TowerChartGrid_onDataBound(arg) {
+        $("#TowerTable thead [data-field=DrpCategory] .k-link").html($("#DrpValTowerChart").val());
+    }
+    function onTowerChartClick(e) {
+        console.log(e);
+        var parentColor = e;
+        document.getElementById("category").value = '';
+        changeChartColor(parentColor);
+        document.getElementById("TowerCategory").value = e.category;
+        //  document.getElementById('Towergridlabel2').innerHTML = "Distribution by Lever for Tower: " + e.category;
+        document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token for Tower: " + e.category;
+        document.getElementById('CategoryChartlabel').innerHTML = "Integration Report By Category for Tower: " + e.category;
+        document.getElementById('LeverChartlabel').innerHTML = "Integration Report By Lever for Tower: " + e.category;
+
+        var gridTowerandLever = $("#IntegrationReport_ByTowerandLever").data("kendoChart");
+        gridTowerandLever.dataSource.read();
+        var CatChart = $("#ChartCategory").data("kendoChart");
+        CatChart.dataSource.read();
+        var TokenChart = $("#ChartToken").data("kendoChart");
+        TokenChart.dataSource.read();
+        $("#BackButton").addClass('show');
+        $("#BackButton").removeClass('hide');
+
+
+    }
+    function TicketTypeOnOpen() {
+        var TicketType = $("#TicketType").data("kendoMultiSelect");
+        TicketType.dataSource.read();
+        TicketType.enable(true);
+    }
+    function GetIRdrilldown() {
+        var TowerSelected = document.getElementById("TowerSelected").value;
+        var LeverSelected = document.getElementById("LeverSelected").value;
+        var CategorySelected = document.getElementById("CategorySelected").value;
+        var TokenSelected = document.getElementById("TokenSelected").value;
+        return {
+            drpval: document.getElementById("category").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: TowerSelected,
+            Lever: LeverSelected,
+            Category: CategorySelected,
+            Token: TokenSelected,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr
+        };
+    }
+    function PopupGetIR() {
+        var TowerSelected = Towarr;
+        return {
+            drpval: document.getElementById("category").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: TowerSelected,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr
+        };
+
+    }
+    function GetICR() {
+        var TowerSelected = Towarr;
+        if (document.getElementById("TowerCategory").value.length > 0) {
+            TowerSelected = document.getElementById("TowerCategory").value;
+        }
+        return {
+            drpval: document.getElementById("category").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: TowerSelected,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr,
+            TextType: $("#SearchList").data("kendoDropDownList").text(),
+            TextLength: $("#DescLength").val()
+        };
+
+    }
+    function GetICRN() {
+        var TowerSelected = Towarr;
+        if (document.getElementById("TowerCategory").value.length > 0) {
+            TowerSelected = document.getElementById("TowerCategory").value;
+        }
+        return {
+            drpval: document.getElementById("category").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: TowerSelected,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr,
+            TextType: $("#SearchListNew").data("kendoDropDownList").text(),
+            TextLength: $("#DescLengthNew").val()
+        };
+    }
+    function GetIR() {
+        var TowerSelected = Towarr;
+        if (document.getElementById("TowerCategory").value.length > 0) {
+            TowerSelected = document.getElementById("TowerCategory").value;
+        }
+        return {
+            drpval: document.getElementById("CategorySelected").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: TowerSelected,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr
+        };
+
+    }
+    function GetTowerandLever() {
+        return {
+            drpval: document.getElementById("TowerCategory").value,
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            contract: Contarr
+        };
+
+    }
+    function GetdrilldownTrendParameter(e) {
+        return {            
+            TicketType: typarr,
+            Status: Staarr,
+            Track: Towarr,
+            Priority: Priarr,
+            ChartType: $("#DrpValTrend").val(),
+            Datetype: $("#Datefield").val(),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            Contract: Contarr,
+            Category: document.getElementById("category").value,
+            InflowOutFlowType: document.getElementById("InflowOutFlowType").value
+        };
+    }
+    function onIntegrationReportSeriesClick(e) {
+        console.log(e);
+        //document.getElementById("category").value = e.category;
+        //if (document.getElementById("TowerCategory").value.length > 0) {
+        //    document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token for Category: " + e.category + " and Tower: " + document.getElementById("TowerCategory").value;
+        //}
+        //else {
+        //    document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token for Category: " + e.category;
+        //}
+        //var Tokenchart = $("#ChartToken").data("kendoChart");
+        //Tokenchart.dataSource.read();
+
+        document.getElementById("TokenSelected").value = e.category;
+              if (document.getElementById("TowerCategory").value.length > 0) {
+                  document.getElementById('gridintlabel1').innerHTML = "Integration Report By Token for Category: " + e.category + " and Tower: " + document.getElementById("TowerCategory").value;
+        }
+        else {
+                  document.getElementById('gridintlabel1').innerHTML = "Integration Report By Token for Category: " + e.category;
+        }
+      //  document.getElementById('gridintlabel1').innerHTML = "Integration Report By Token for Category: " + e.category + " and Tower: " + document.getElementById("TowerCategory").value;
+       // document.getElementById("InflowOutFlowType").value = $("#DrpValChart4").val();        
+        var grid = $("#IntegrationReportGridTickets").data("kendoGrid");
+        grid.dataSource.read();
+        if (e.series.field == "Percent") {
+            $('#chartIntegrationReportseriesModal').modal('hide');
+        } else {
+            $('#chartIntegrationReportseriesModal').modal('show');
+        }
+
+
+    }
+    function onIntegrationReportSeriesClickcategory(e) {
+
+        var Category = e.category;
+        document.getElementById("TowerSelected").value = document.getElementById("TowerCategory").value;
+        document.getElementById("LeverSelected").value = '';
+        document.getElementById("TokenSelected").value = '';
+        var label = "Integration Report Data ";
+        if (document.getElementById("TowerSelected").value.length > 1)
+            label += " Tower: " + document.getElementById("TowerSelected").value;
+        if (Category == "Total") {
+            document.getElementById("CategorySelected").value = '';
+            label += " Category: All "
+        }
+        else {
+            if (document.getElementById("CategorySelected").value.length > 1)
+                label += " Category: " + Category;
+            document.getElementById("CategorySelected").value = Category;
+            document.getElementById("LeverSelected").value = '';
+        if (document.getElementById("TowerSelected").value.length > 0) {
+            document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token for Category: " + e.category + " and Tower: " + document.getElementById("TowerSelected").value;
+        }
+        else {
+            document.getElementById('TokenChartlabel').innerHTML = "Integration Report By Token for Category: " + Category;
+        }
+        //var Tokenchart = $("#ChartToken").data("kendoChart");
+
+        }
+        document.getElementById('gridintlabel1').innerHTML = label;
+        var Tokenchart = $("#ChartToken").data("kendoChart");
+        Tokenchart.dataSource.read();
+
+        //var gridpriority = $("#IntegrationReportGridTickets").data("kendoGrid");
+        //gridpriority.dataSource.read();
+        //$('#chartIntegrationReportseriesModal').modal('show');
+    }
+    $("#CategoryTG").click(function () {
+        var grid = $("#CategoryTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#TowerTG").click(function () {
+        var grid = $("#TowerTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#TokenTG").click(function () {
+        var grid = $("#TokenTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#LeverTG").click(function () {
+        var grid = $("#LeverTable").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    $("#TowerTable").click(function (e) {
+        console.log(e);
+        var Tower = e.target.parentNode.cells[1].innerHTML;
+        var Lever = e.target.parentNode.cells[2].innerHTML;
+        document.getElementById("TokenSelected").value = '';
+        document.getElementById("CategorySelected").value = '';
+        if (Tower == "Total") {
+
+            document.getElementById('gridintlabel1').innerHTML = "Integration Report Data ";
+            document.getElementById("TowerSelected").value = '';
+            document.getElementById("LeverSelected").value = '';
+
+        }
+        else {
+            document.getElementById('gridintlabel1').innerHTML = "Integration Report Data for the Tower: " + Tower + " and Lever:  " + Lever;
+            document.getElementById("TowerSelected").value = Tower;
+            document.getElementById("LeverSelected").value = Lever;
+        }
+        var gridpriority = $("#IntegrationReportGridTickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartIntegrationReportseriesModal').modal('show');
+        // console.log("changed");
+    });
+    $("#CategoryTable").click(function (e) {
+        console.log(e);
+        var Category = e.target.parentNode.cells[0].innerHTML;
+        document.getElementById("TowerSelected").value = document.getElementById("TowerCategory").value;
+        document.getElementById("LeverSelected").value = '';
+        document.getElementById("TokenSelected").value = '';
+        var label = "Integration Report Data ";
+        if (document.getElementById("TowerSelected").value.length > 1)
+            label += " Tower: " + document.getElementById("TowerSelected").value;
+        if (Category == "Total") {
+            document.getElementById("CategorySelected").value = '';
+            label += " Category: All "
+        }
+        else {
+            if (document.getElementById("CategorySelected").value.length > 1)
+                label += " Category: " + Category;
+            document.getElementById("CategorySelected").value = Category;
+            document.getElementById("LeverSelected").value = '';
+        }
+        document.getElementById('gridintlabel1').innerHTML = label;
+
+        var gridpriority = $("#IntegrationReportGridTickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartIntegrationReportseriesModal').modal('show');
+        // console.log("changed");
+    });
+    $("#TokenTable").click(function (e) {
+        console.log(e);
+        var Token = e.target.parentNode.cells[0].innerHTML;
+        // var Lever = e.target.parentNode.cells[2].innerHTML;
+        document.getElementById("TowerSelected").value = document.getElementById("TowerCategory").value;
+        document.getElementById("LeverSelected").value = '';
+        document.getElementById("CategorySelected").value = document.getElementById("category").value;
+
+        var label = "Integration Report Data ";
+        if (document.getElementById("TowerSelected").value.length > 1)
+            label += " Tower: " + document.getElementById("TowerSelected").value;
+        if (document.getElementById("CategorySelected").value.length > 1)
+            label += " Category: " + document.getElementById("CategorySelected").value;
+
+        if (Token == "Total") {
+
+            document.getElementById("TokenSelected").value = '';
+            label += "  Token: All"
+
+        }
+        else {
+            document.getElementById("TokenSelected").value = Token;
+            if (document.getElementById("TokenSelected").value.length > 1)
+                label += "  Token: " + document.getElementById("TokenSelected").value;
+        }
+        document.getElementById('gridintlabel1').innerHTML = label;
+        var gridpriority = $("#IntegrationReportGridTickets").data("kendoGrid");
+        gridpriority.dataSource.read();
+        $('#chartIntegrationReportseriesModal').modal('show');
+        // console.log("changed");
+    });
+    function maximiseChartCategory() {
+
+        var chartpriority = $("#PopupChartCategory").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#chartCategoryWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function maximiseIssueClusterChart() {
+
+        var chartpriority = $("#PopupChartCategory").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#chartCategoryWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartToken() {
+
+        var chartpriority = $("#PopupChartToken").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#chartTokenWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartLever() {
+
+        var chartpriority = $("#PopupChartLever").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#chartLeverWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function maximiseChartTower() {
+
+        var chartpriority = $("#PopupChartTower").data("kendoChart");
+        chartpriority.dataSource.read();
+        var popup = $("#chartTowerWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+    function Chart6IntegrationReportGrid_onDataBound(arg) {
+        $("#TowerGrid thead [data-field=DrpCategory] .k-link").html($("#DrpValTowerChart").val());
+    }
+    function LabelVisualIntegrated(e) {
+        var defaultLbl = e.createVisual();
+        var rectX = e.rect.origin.x;
+        var rectY = e.rect.origin.y;
+        if (e.series.name != "Percentage") {
+            var newPosition = [rectX, rectY - 12];
+            var additionalLabel = new kendo.drawing.Text(e.category, newPosition);
+
+            defaultLbl.append(additionalLabel);
+            return defaultLbl;
+        } else {
+            return defaultLbl;
+        }
+
+    }
+    function LabelVisualInteToken(e) {
+        var defaultLbl = e.createVisual();
+        var rectX = e.rect.origin.x;
+        var rectY = e.rect.origin.y;
+        if (e.series.name != "Percentage") {
+            var newPosition = [rectX, rectY - 12];
+            var additionalLabel = new kendo.drawing.Text(e.category, newPosition);
+
+            defaultLbl.append(additionalLabel);
+            return defaultLbl;
+        } else {
+            return defaultLbl;
+        }
+    }
+    function i_category_minmax_onDataBound(arg) {
+        var stockChart = $("#ChartCategory").data("kendoChart");
+        stockChart._sourceSeries[0].overlay = null;
+        stockChart._sourceSeries[1].overlay = null;
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 5) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 12;
+        }
+        stockChart.redraw();
+    }
+    function i_token_minmax_onDataBound(arg) {
+        var stockChart = $("#ChartToken").data("kendoChart");
+        stockChart._sourceSeries[0].overlay = null;
+        stockChart._sourceSeries[1].overlay = null;
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 5) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 12;
+        }
+        stockChart.redraw();
+    }
+    function i_category_max_onDataBound(arg) {
+        var stockChart = $("#PopupChartCategory").data("kendoChart");
+        stockChart._sourceSeries[0].overlay = null;
+        stockChart._sourceSeries[1].overlay = null;
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 6) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 6;
+        }
+        stockChart.redraw();
+    }
+    function i_token_max_onDataBound(arg) {
+        var stockChart = $("#PopupChartToken").data("kendoChart");
+        stockChart._sourceSeries[0].overlay = null;
+        stockChart._sourceSeries[1].overlay = null;
+        var Lmax = stockChart.options.series[0].data.length;
+        if (Lmax <= 6) {
+            stockChart.options.categoryAxis.max = Lmax;
+        } else {
+
+            stockChart.options.categoryAxis.max = 6;
+        }
+        stockChart.redraw();
+    }
+    //    function changeChartColor(e) {
+    //        console.log(e.point.options.color);
+    //        var parentColor = e.point.options.color;
+    //        if (parentColor == "#E64C8E") {
+    //            e.sender._seriesVisibility.options.seriesColors = ["#6C3D52", "#A74B70", "#E64C8E", "#F25AB4", "#FC86C5","#FCAEE2"]
+
+    //        }
+    //        console.log(e)
+    //        console.log(e.sender._seriesVisibility.options.seriesColors)
+
+    //}
+    function changeChartColor(e) {
+        var CatChart = $("#ChartCategory").data("kendoChart");
+        var popupCatChart = $("#PopupChartCategory").data("kendoChart");
+        var TokenChart = $("#ChartToken").data("kendoChart");
+        var popupTokenChart = $("#PopupChartToken").data("kendoChart");
+        var stockChart1 = $("#IntegrationReport_ByTowerandLever").data("kendoChart");
+        var popupstockChart1 = $("#PopupChartLever").data("kendoChart");
+
+        var parentColor = e.dataItem.seriesColor;
+        if (parentColor == "#E64C8E") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#FCAEE2", "#FC86C5", "#F25AB4", "#E64C8E", "#A74B70", "#6C3D52"]
+            CatChart._sourceSeries[0].color = "#F25AB4";
+            TokenChart._sourceSeries[0].color = "#FC86C5";
+            // popupstockChart1._seriesVisibility.options.seriesColors = ["#FCAEE2", "#FC86C5", "#F25AB4", "#E64C8E", "#A74B70", "#6C3D52"]
+            //popupCatChart._sourceSeries[0].color = "#F25AB4";
+            //popupTokenChart._sourceSeries[0].color = "#FC86C5";
+        }
+        else if (parentColor == "#C15E5F") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#FFD2D6", "#FD9495", "#EA7A7A", "#C15E5F", "#955051", "#6D3C3F"]
+            CatChart._sourceSeries[0].color = "#EA7A7A";
+            TokenChart._sourceSeries[0].color = "#FD9495";
+            // popupstockChart1._seriesVisibility.options.seriesColors = ["#FFD2D6", "#FD9495", "#EA7A7A", "#C15E5F", "#955051", "#6D3C3F"]
+            // popupCatChart._sourceSeries[0].color = "#EA7A7A";
+            // popupTokenChart._sourceSeries[0].color = "#FD9495";
+        }
+        else if (parentColor == "#DB502A") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#F4B5A6", "#ED865D", "#DD6637", "#DB502A", "#BA2B1C", "#911B0F"]
+            CatChart._sourceSeries[0].color = "#DD6637";
+            TokenChart._sourceSeries[0].color = "#ED865D";
+            // popupstockChart1._seriesVisibility.options.seriesColors = ["#F4B5A6", "#ED865D", "#DD6637", "#DB502A", "#BA2B1C", "#911B0F"]
+            // popupCatChart._sourceSeries[0].color = "#DD6637";
+            // popupTokenChart._sourceSeries[0].color = "#ED865D";
+        }
+        else if (parentColor == "#FA9000") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#FEE27B", "#FEDB18", "#FFB300", "#FA9000", "#F57000", "#E8520F"]
+            CatChart._sourceSeries[0].color = "#FFB300";
+            TokenChart._sourceSeries[0].color = "#FEDB18";
+            //   popupstockChart1._seriesVisibility.options.seriesColors = ["#FEE27B", "#FEDB18", "#FFB300", "#FA9000", "#F57000", "#E8520F"]
+            //  popupCatChart._sourceSeries[0].color = "#FFB300";
+            // popupTokenChart._sourceSeries[0].color = "#FEDB18";
+        }
+        else if (parentColor == "#846113") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#D39F4A", "#B88927", "#A17D19", "#846113", "#6D4A0D", "#513409"]
+            CatChart._sourceSeries[0].color = "#A17D19";
+            TokenChart._sourceSeries[0] = "#B88927";
+            //      popupstockChart1._seriesVisibility.options.seriesColors = ["#D39F4A", "#B88927", "#A17D19", "#846113", "#6D4A0D", "#513409"]
+            //      popupCatChart._sourceSeries[0].color = "#A17D19";
+            //      popupTokenChart._sourceSeries[0] = "#B88927";
+        }
+        else if (parentColor == "#118614") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#A9D3B2", "#65B270", "#159A20", "#118614", "#0A680D", "#05460F"]
+            CatChart._sourceSeries[0].color = "#159A20";
+            TokenChart._sourceSeries[0].color = "#65B270";
+            //     popupstockChart1._seriesVisibility.options.seriesColors = ["#A9D3B2", "#65B270", "#159A20", "#118614", "#0A680D", "#05460F"]
+            //    popupCatChart._sourceSeries[0].color = "#159A20";
+            //    popupTokenChart._sourceSeries[0].color = "#65B270";
+        }
+        else if (parentColor == "#12887F") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#93CCB9", "#57B5A3", "#179D8B", "#12887F", "#0D706E", "#08585D"]
+            CatChart._sourceSeries[0].color = "#179D8B";
+            TokenChart._sourceSeries[0].color = "#57B5A3";
+            //         popupstockChart1._seriesVisibility.options.seriesColors = ["#93CCB9", "#57B5A3", "#179D8B", "#12887F", "#0D706E", "#08585D"]
+            //         popupCatChart._sourceSeries[0].color = "#179D8B";
+            //         popupTokenChart._sourceSeries[0].color = "#57B5A3";
+        }
+        else if (parentColor == "#168CDB") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#AED5FC", "#75B5F9", "#479DFC", "#168CDB", "#137FBF", "#0A5C7E"]
+            CatChart._sourceSeries[0].color = "#479DFC";
+            TokenChart._sourceSeries[0].color = "#75B5F9";
+            //       popupstockChart1._seriesVisibility.options.seriesColors = ["#AED5FC", "#75B5F9", "#479DFC", "#168CDB", "#137FBF", "#0A5C7E"]
+            //       popupCatChart._sourceSeries[0].color = "#479DFC";
+            //       popupTokenChart._sourceSeries[0].color = "#75B5F9";
+        }
+        else if (parentColor == "#7A33FA") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#CBB9FF", "#BA97FF", "#9C67FF", "#7A33FA", "#6500FF", "#4D20BC"]
+            CatChart._sourceSeries[0].color = "#9C67FF";
+            TokenChart._sourceSeries[0].color = "#BA97FF";
+            //        popupstockChart1._seriesVisibility.options.seriesColors = ["#CBB9FF", "#BA97FF", "#9C67FF", "#7A33FA", "#6500FF", "#4D20BC"]
+            //        popupCatChart._sourceSeries[0].color = "#9C67FF";
+            //        popupTokenChart._sourceSeries[0].color = "#BA97FF";
+        }
+        else if (parentColor == "#BF8BDC") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#E1BFF7", "#D9A7FB", "#D69BF6", "#BF8BDC", "#9B74AD", "#654873"]
+            CatChart._sourceSeries[0].color = "#D69BF6";
+            TokenChart._sourceSeries[0].color = "#D9A7FB";
+            //          popupstockChart1._seriesVisibility.options.seriesColors = ["#E1BFF7", "#D9A7FB", "#D69BF6", "#BF8BDC", "#9B74AD", "#654873"]
+            //          popupCatChart._sourceSeries[0].color = "#D69BF6";
+            //          popupTokenChart._sourceSeries[0].color = "#D9A7FB";
+        }
+        else if (parentColor == "#53707C") {
+            stockChart1._seriesVisibility.options.seriesColors = ["#CED9DE", "#B0BFC6", "#8FA5AF", "#53707C", "#445C67", "#364850"]
+            CatChart._sourceSeries[0].color = "#8FA5AF";
+            TokenChart._sourceSeries[0].color = "#B0BFC6";
+            //    popupstockChart1._seriesVisibility.options.seriesColors = ["#CED9DE", "#B0BFC6", "#8FA5AF", "#53707C", "#445C67", "#364850"]
+            //    popupCatChart._sourceSeries[0].color = "#8FA5AF";
+            //    popupTokenChart._sourceSeries[0].color = "#B0BFC6";
+        }
+        else // def colors
+        {
+            stockChart1._seriesVisibility.options.seriesColors = ["#CED9DE", "#B0BFC6", "#8FA5AF", "#53707C", "#445C67", "#364850"]
+            CatChart._sourceSeries[0].color = "#65B270";
+            TokenChart._sourceSeries[0].color = "#65B270";
+            //    popupstockChart1._seriesVisibility.options.seriesColors = ["#CED9DE", "#B0BFC6", "#8FA5AF", "#53707C", "#445C67", "#364850"]
+            //    popupCatChart._sourceSeries[0].color = "#8FA5AF";
+            //    popupTokenChart._sourceSeries[0].color = "#B0BFC6";
+        }
+
+    }
+    var chartSort = 0;
+    function kendoGridHeaderSort(chartname, col1) {
+        console.log(chartname + " " + col1);
+        var grid = $("#" + chartname).data("kendoGrid");
+        if (chartSort == 0) {
+            grid.dataSource.sort({ field: col1, dir: "asc" });
+            chartSort = 1;
+        }
+        else {
+            grid.dataSource.sort({ field: col1, dir: "desc" });
+            chartSort = 0;
+        }
+    }
+    function SaveReportParameters(typarr, Staarr, Priarr, Groarr, Towarr, WaiveOption) {
+
+        //Ajax call begin
+
+        var model = {
+            FromYear: $("#start").val(),
+            ToYear: $("#end").val(),
+            DateTimeGroup: 0,
+            TypeDropDown: typarr,
+            StatusDropDown: Staarr,
+            PriorityDropDown: Priarr,
+            GroupDropDown: Groarr,
+            TowerDropDown: Towarr,
+            WaivedindicatorOption: 0,
+        };
+        var data = JSON.stringify(model);
+
+        $.ajax(
+            {
+                type: 'post',
+
+                url: 'Integration_Report/SaveReportDetails',
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //                    alert('Success');
+                },
+                error: function (err, data) {
+                    console.log(arguments);
+                    //                    alert('Ajax Error');
+                }
+
+            });
+        //Ajax end
+
+    }
+    function onDataBoundContract(e) {
+        var multiselect = $('#Contract').data("kendoMultiSelect");
+        var all = $.map(multiselect.dataSource.data(), function (dataItem) {
+            return dataItem.Value;
+        });
+        multiselect.value(all);
+    }
+</script>

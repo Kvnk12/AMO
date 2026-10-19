@@ -1,0 +1,64 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+
+
+
+@section IMTOPMenu {
+
+    @Html.Partial("_IMTopMenu")
+    
+    }
+
+
+@*<div class="selectappArea">*@
+    <div>
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">Master Idea Types</li>
+        </ol>
+    </div>
+
+
+<div style="padding:0;height:1000px">
+
+    
+            <div class="well well-sm"><strong>Idea Types</strong></div>
+            <div class="">
+                <!--valchainContent-->
+            <!--.valchainContent-->
+                               <div>
+                    @Html.Partial("_DisplayIdeaTypes")
+            </div>
+
+
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+   
+    </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+               
+        
+
+    });
+
+</script>
+ 
+
+
+
+
+
+

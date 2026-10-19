@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="ico/favicon.png">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/bootstrap")
+
+    <!-- Bootstrap core CSS -->
+    <link href="Content/css/bootstrap.css" rel="stylesheet">
+    <link href="Content/css/menu.css" rel="stylesheet">
+    <link href="Content/css/style.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="Content/css/sticky-footer.css" rel="stylesheet">
+    <link href="Content/css/datepicker.css" rel="stylesheet">
+    <link href="Content/css/bootstrap-select.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Wrap all page content here -->
+    <div id="wrap">
+        <!-- Fixed navbar -->
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">
+                        <img src="~/Content/images/logoClientProfile.png" alt="Client Profile Manager" /><h4 style="display: inline; font-weight: bold; padding-top: 12px">Client Profile Manager</h4>
+                    </a>
+                </div>
+
+           
+
+                <div class="collapse navbar-collapse">-->
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="active"><a href="/home/dashboard/">Welcome! <b>@User.Identity.Name</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Metadata</a></li>
+                                <li><a href="#">Manage Data Elements</a></li>
+                                <li><a href="#">Access Control</a></li>
+                                <li><a href="#">Error Log</a></li>
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("LogOff", "Login", "Account")</li>
+                    </ul>
+                </div>
+                <!--/.nav-collapse -->
+            </div>
+            <!--/.container -->
+        </div>
+        <!--/nav bar div closes here -->
+       
+        
+        @RenderBody()        
+    </div>
+    <!--.wrap-->
+
+    <div id="footer">
+        <div class="container">
+            <p class="text-muted credit">(c) NTT Data 2013 | All rights reserved</p>
+        </div>
+    </div>
+    
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/bootstrap")
+    @Scripts.Render("~/bundles/modernizr")
+     @Scripts.Render("~/Scripts")
+    @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            cbpHorizontalMenu.init();
+            $('.selectpicker').selectpicker();
+            $('.selectpicker').selectpicker('val', ['Ketchup', 'Relish']);
+            $('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+            $('#drpSelClient').change(function () {
+                var url = '/Client/Edit/?id=' + $('#drpSelClient').val();
+                window.location = url;
+                ($("txtClientName").attr('readonly',true));
+               
+            });
+
+           
+        });
+        
+      
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers
+@using WebUI.Dto;
+@model dataMappingTemplatesInput
+
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    @*<link rel="stylesheet" href="@Url.Content("~/Content/css/custom-styles.css")" />*@
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = client.ClientId;
+    var clientName = client.ClientName;
+
+    var templateObject = new MappingTemplateViewModel();
+    templateObject.ClientId = clientId;
+    templateObject.UserApplications = GetDropDownListItems.UserApplications((int)Session["UserId"], clientId);
+    templateObject.StandardSourceTemplates = GetDropDownListItems.StandardSourceTemplates();
+
+}
+
+
+
+<style>
+    .dataMapping {
+        width: 100%;
+        height: auto;
+        background-color: white;
+        border-top: 8px solid rgb(91,121,171);
+        margin-bottom: 1.5em;
+        padding: 1em;
+    }
+
+    .dataMappingDetails {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .mapDataLabel {
+        color: rgb(91,121,171);
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 1.5em;
+    }
+
+    table.table thead tr th {
+        background: rgb(91,121,171);
+    }
+
+    .table caption + thead tr:first-child th, .table colgroup + thead tr:first-child th, .table thead:first-child tr:first-child th, .table caption + thead tr:first-child td, .table colgroup + thead tr:first-child td, .table thead:first-child tr:first-child td {
+        border-top: none;
+    }
+
+    .table thead > tr > th {
+        vertical-align: middle;
+        border-bottom: none;
+    }
+
+    .table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td {
+        padding: 8px;
+        line-height: 1.428571429;
+        border: none;
+    }
+
+    .table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td {
+        text-align: center;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Data Mapping</li>
+    </ol>
+    <div class="dataMappingScreen">
+        <div style="padding:0;">
+            <div class="dataMapping">
+                <div class="dataMappingDetails">
+                    <label class="mapDataLabel">Data mapping templates</label>
+                </div>
+                <button tabindex="30" class="custom-button" type="button" data-id="@Model.ClientId" id="btnAdd" style="margin-bottom:10px">New Template</button>
+            </div>
+            <!--valchainContent-->
+            <div class="grid_4 height400">
+                <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="8%" scope="col">APP</th>
+                            <th width="8%" scope="col">Client</th>
+                            <th width="10%" scope="col">Template File</th>
+                            <th width="10%" scope="col">Template Identifier</th>
+                            <th width="10%" scope="col">File Format</th>
+                            <th width="5%" scope="col">Delimiter</th>
+                            <th width="15%" scope="col">Acknowledge By</th>
+                            <th width="15%" scope="col">Acknowledge on</th>
+                            <th width="10%" scope="col">Custom Template</th>
+                            <th width="11%" scope="col">Mapping Done</th>
+                            <th width="10%" scope="col"></th>
+                        </tr>
+                    </thead>
+
+                    @{
+                        //if (Model.ClientId > 0)
+                        //{
+
+                        IList<MappingTemplateViewModel> mappingTemplates = Model.templates;
+                        string templateName = "";
+                        string templateFormat = "";
+                        string templateDelimiter = "";
+                        string templateIdentifier = "";
+                        int? mappingId;
+                        string strYes = "Yes";
+                        string strNo = "No";
+                        //byte[] filedata = null;
+                        foreach (MappingTemplateViewModel templateItem in mappingTemplates)
+                        {
+
+                            templateName = templateItem.TemplateName;
+                            if (templateItem.BaseMappingId != null)
+                            {
+                                templateName = templateItem.BaseMappingTemplateViewModel.TemplateName;
+                                templateIdentifier = templateItem.BaseMappingTemplateViewModel.GlobalMappingIdentifier;
+                                templateFormat = templateItem.BaseMappingTemplateViewModel.FileFormat;
+                                templateDelimiter = templateItem.BaseMappingTemplateViewModel.FileDelimiter;
+                                mappingId = templateItem.BaseMappingId;
+                                // filedata = templateItem.BaseMappingTemplateViewModel.TemplateFile;
+                            }
+                            else
+                            {
+                                templateName = templateItem.TemplateName;
+                                templateIdentifier = templateItem.GlobalMappingIdentifier;
+                                templateFormat = templateItem.FileFormat;
+                                templateDelimiter = templateItem.FileDelimiter;
+                                mappingId = templateItem.MappingId;
+                                // filedata = templateItem.TemplateFile;
+                            }
+                            <tr>
+                                <td>@templateItem.AppName</td>
+                                <td>@clientName</td>
+                                <td>@Html.ActionLink(templateName, "DownloadTemplate", "DataMapping", new { MappingId = templateItem.MappingId }, null)</td>
+                                @*<td>@templateItem.Id</td>*@
+                                <td>@templateIdentifier</td>
+                                <td>@templateFormat</td>
+                                <td>@templateDelimiter</td>
+                                <td>@templateItem.AcknowledgeByUserName</td>
+                                <td>@templateItem.AcknowledgeOn</td>
+                                @*here we are displaying custom or not*@
+                                <td>
+                                    @if (templateItem.IsStandard)
+                                    {
+                                        @Html.Label(strNo);
+                                    }
+                                    else
+                                    {
+                                        @Html.Label(strYes);
+                                    }
+                                </td>
+                                <td>
+                                    @if (templateItem.MappingDone)
+                                    {
+                                        @Html.Label(strYes);
+                                    }
+                                    else
+                                    {
+                                        @Html.Label(strNo);
+                                    }
+                                <td>@Html.ActionLink("Map-Data", "GetDataMappings", "DataMapping", new { MappingId = templateItem.MappingId }, null)</td>
+                            </tr>
+                        }
+
+                    }
+
+                </table>
+            </div>
+        </div>
+        <!--.valchainContent-->
+        <!--/.treeMenuContent container-->
+    </div>
+
+    @Html.Partial("_AddNewTemplate", templateObject)
+    <!--/.treeMenuContent-->
+</div>
+<!--/.treeMenuArea-->
+
+
+
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<script src="~/Content/js/bootstrap.min.js"></script>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+    //    $('select#ddlClientId').change(function () {
+    //        var SelectedclientId = $('#ddlClientId :selected').val();
+    //        var href = window.location.href.split('/');
+    //        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+    //        var baseurl = '';
+    //        $('#hidClientId').val = SelectedclientId;
+    //        if (href[3].toLowerCase() == 'clientprofilemanager') {
+    //            //alert('local url');
+
+    //            var baseurl = href[0] + '//' + href[2] + '/' + 'ClientProfileManager/DataMapping?ClientId='
+    //        }
+    //        else {
+    //            //alert('server');
+    //            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'clientprofilemanager/DataMapping?ClientId='
+    //        }
+
+    //        window.location = baseurl + SelectedclientId;
+
+    //    });
+
+        
+
+    //    function errorinPage() {
+    //        alert('An error occurred. Please contact administrator');
+    //    }
+
+    //    function getSubVertical(data, status) {
+    //        return true;
+    //    }
+    //});
+
+    $('#btnAdd').click(function () {
+
+
+        var SelectedclientId = $(this).attr("data-id");
+        if (SelectedclientId == "" || SelectedclientId == "0") {
+            alert('Please Select Client name from the list');
+            return false;
+        }
+
+        var rptpopup = $("#AddTemppopUp").data("kendoWindow");
+        rptpopup.open();
+    });
+
+</script>

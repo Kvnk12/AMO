@@ -1,0 +1,212 @@
+﻿@using Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@model INConfigurationValueModel
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+}
+
+<div class="content-main">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li>Client Administration</li>
+            <li class="active">Cluster Configuration</li>
+        </ol>
+    </div>
+    <div style="padding: 0; height:1000px;">
+
+        <div id="success" class="alert alert-success" hidden>
+            <p>Saved Changes Successfully.</p>
+            <br />
+            <p>Successfully invoked the ‘Cluster reset’ job, which is in progress. Please check the re-clustered incident data after some time.</p>
+        </div>
+        
+        
+        <div>
+            @(Html.Kendo().Grid<INConfigurationValueModel>()
+        .Name("ConfigurationValue")
+        .Columns(columns =>
+        {
+            columns.Bound(e => e.Id).Hidden();
+            columns.Bound(e => e.KeyId).Hidden();
+            columns.Bound(e => e.ParameterName).Title("Parameter Name").Width(300);
+            columns.Bound(e => e.ParameterValue).Title("Parameter Value").ClientTemplate("#=myTemplate(data)#").Width(300);
+            columns.Bound(e => e.Description).Title("Description");
+            //columns.Bound(e => e.ActiveFlag);
+            //columns.Command(command => { command.Edit(); });
+        })
+        .Editable(editable => editable.Mode(GridEditMode.InCell))
+        .ToolBar(toolbar =>
+        {
+            toolbar.Save().SaveText("Save").CancelText("Cancel");
+
+        })
+        .HtmlAttributes(new { style = "height:550px; " })
+        .DataSource(dataSource => dataSource
+
+        .Ajax()
+        .PageSize(10)
+
+        .ServerOperation(false)
+        .Batch(true)
+        .Model(model =>
+        {
+            model.Field(f => f.ParameterName).Editable(false);
+            model.Id(f => f.Id);
+            model.Field(f => f.Description).Editable(false);
+            //model.Field(f=>f.Description).
+        })
+        //.Events(e=>e.Error("errorr"))
+
+        .Read(read => read.Action("GetConfigValue", "Configuration"))
+        .Update(Update => Update.Action("Editing_Update", "Configuration"))
+        //.Destroy(destroy => destroy.Action("Destroy", "Configuration"))
+        )
+        .Events(events => { events.SaveChanges("Grid_Save");
+            events.Change("EmptyCells");
+
+            //events.Save("EmptyCells");
+        }
+
+    )
+            )
+        </div>
+    </div>
+</div>
+
+
+<style>
+     .k-grid-header th.k-header > .k-link {
+        font-weight: bold;
+        font-size:15px;
+    }
+</style>
+
+<script>
+
+
+
+
+    function EmptyCells(e)
+    {
+        var ParamerterVal = e.values.ParameterValue;
+        var DescriptionVal = e.values.Description;
+        //alert(ParamerterVal);
+        if (ParamerterVal.trim() == "") {
+            // the user changed the name field
+            alert("ParameterValue Field should not be left Empty!");
+
+            } else if (DescriptionVal.trim() == "") {
+            alert("Description123 Field should not be left Empty!");
+
+
+        }
+        else {
+            return e;
+        }
+
+    }
+
+    function Grid_Save(e) {
+
+        if (!confirm("Are you really sure to update the cluster configuration?  You will lose cluster data, re-clustering would apply. Press 'Ok' to continue."))
+            {
+                //In the confirm box, if the user clicks no or cancel, then do not proceed with the updation of record
+                e.preventDefault();
+      }
+      else
+      {
+          //alert(e.values.ParameterValue);
+          $("#success").show();
+      }
+
+
+    }
+
+    function getParamDetails(e) {
+
+
+            var dataItem = this.dataItem(e.item);
+
+            var dat = {
+                Id: dataItem.Value
+            }
+
+            var dataa = JSON.stringify(dat);
+            var baseurl1 = '@Url.Content("~/Configuration/getParamDetails")';
+        if (dataItem.Value != "")
+        {
+            $.ajax({
+                async: false,
+                type: "post",
+                url: baseurl1,
+                data: dataa,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#ParameterValue").val(response.DefaultValue);
+                    $("#Desc").val(response.Description);
+                    $("#ParamName").val(response.ParameterName);
+                    //$("#ParameterValue").append(response.DefaultValue);
+                    //$("#Desc").append(document.createTextNode(response.Description));
+                    //$("#ParamName").append(document.createTextNode(response.ParameterName));
+
+                    //$("#ActiveFlag").append(response.ActiveFlag);
+                    if (response.ActiveFlag == true) {
+                        $("[name=ActiveFlag]").prop("checked", true);
+                    }
+
+                    var model = $('#ConfigurationValue').data().kendoGrid.editable.options.model;
+                    model.set('ParameterName',response.ParameterName);
+                    model.set('ParameterValue', response.DefaultValue);
+                    model.set('Description',response.Description);
+
+
+                }
+            });
+        }
+        else {
+            return null;
+        }
+
+
+
+
+    }
+
+    //function myTemplate(data) {
+    //    var type = data;
+    //    console.log(type);
+    //    //if (data.Products) {
+    //    //    var template = "<ul>";
+    //    //    for (var i = 0; i < data.Products.length; i++) {
+    //    //        var product = data.Products[i];
+    //    //        template += kendo.format("<li>Product: {0}, Price: {1:c} </li>", product.ProductName, product.Price);
+    //    //    }
+    //    //    template += "</ul>"
+    //    //    return template;
+    //    //}
+    //}
+
+   
+
+</script>

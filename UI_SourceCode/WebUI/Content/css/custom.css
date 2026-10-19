@@ -1,0 +1,64 @@
+
+/* Wrapper for page content to push down footer */
+* {
+	margin: 0;
+}
+html, body {
+	height: 100%;
+}
+.wrapper {
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -40px; /* the bottom margin is the negative value of the footer's height */
+	
+}
+
+.wrap {
+  min-height: 100%;
+  height: auto !important;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height 
+  padding: 0 0 30px;*/
+}
+.push {
+	height: 40px; /* .push must be the same height as .footer */
+	clear:both;
+	
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height:40px;
+  background-color: #434142;
+  
+ }
+.padding_top
+ {
+	 padding-top:80px;
+ }
+#footer p {float:right;color:#0892da;padding-top:14px}
+.motto{color:#0080b1}
+.forgotPwd{color:#0080b1;}
+.forgotPwd:hover{text-decoration:underline;}
+.welcome{color:#0080b1}
+.analyze{background-image:url(../images/analyze.png) height="92" width="92"}
+.keyarea{background:#0892da;padding:20px;color:#a6dfff;text-align:center;}
+.keyarea h3{color:#ffffff}
+.apparea{background: none repeat scroll 0 0 #E5E5E5;height:150px;margin-left: 54px;text-align: center;width: 176px;}
+.approw{margin-top:30px;margin-bottom:30px;}
+
+.wingsarea{width:100%;margin-bottom:5%;}
+.dynamoWings{margin:0 0 60px 60px;text-align:center;}
+.wingarea{padding-left:10%;}
+.wingone a{border:3px solid #a6cdcd; padding:30px;text-align:center;-webkit-box-shadow: 0 8px 6px -6px #000000;-moz-box-shadow: 0 8px 6px -6px #000000;box-shadow: 0 8px 6px -6px #000000;background:#e8eaf0;margin-left: 76px;margin-bottom:40px;display:inline-block;}
+.wingone a:hover{background:#CCC;text-decoration:none;}
+.apps{width:100%; height:auto;}
+.apps ul{list-style-type:none; margin:0; padding:0}
+.apps ul li {float:left; background:#e5e5e5;width:176px;height:150px; margin:0 38px 27px 0;-moz-border-radius: 3px;-webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;border-radius: 3px;cursor:pointer}
+.apps ul li:hover{background:#bababa}
+.apps ul li a{display:block; text-align:center;width:176px;height:150px;}
+.apps ul li a img {position:relative;top: 4%;left: 0; border:0}
+.navbar-static-top {margin-bottom: 19px;}

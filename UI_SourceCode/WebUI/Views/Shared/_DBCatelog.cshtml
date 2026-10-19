@@ -1,0 +1,100 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+    //Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+<div class="treemenu">
+    <div class="dsh">
+        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> Dashboard Catalog</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <ul class="treeMenuUl">
+        <li>
+            <a href="#">SLA Dashboards</a>
+            <ul>
+                @*<li>@Html.ActionLink("Overall Summary Dashboard", "GetViewOverallSummary", "IncidentDashboard", new { area = "",cid=client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Production Support Summary", "GetViewPssHM", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                @*<li>@Html.ActionLink("Prod Suppt Exec Summary", "GetPrdSuptView", "IncidentDashboard", new { area = "",cid=client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Response Time Summary", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "respts" }, null)</li>
+                @*<li>@Html.ActionLink("Response Time Summary Trend", "IncidentView", "IncidentDashboard", new { area = "", rptName = "resptst" }, null)</li>*@
+                @*<li>@Html.ActionLink("Response Time Summary by Workgroup Trend", "IncidentView", "IncidentDashboard", new { area = "", rptName = "respwkgptst" }, null)</li>*@
+                @*<li>@Html.ActionLink("Est Response Time Summary", "GetRptView", "IncidentDashboard", new { area = "", cid=client.Id, rptName = "estresptst" }, null)</li>*@
+                <li>@Html.ActionLink("Resolution Time Summary", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "rslnresptst" }, null)</li>
+                @if (client.ClientName.ToUpper() == "SE2")
+                {
+                    <li>@Html.ActionLink("ClientFile SLA Dashboard", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "cfsla" }, null)</li>
+                }
+                <li>@*@Html.ActionLink("Project Managment Summary", "GetProjView", "IncidentDashboard", new { area = "",cid=client.Id, rptName = "rslnresptst" }, null)*@</li>
+                @*<li>@Html.ActionLink("Batch Interface Report", "GetIntView", "IncidentDashboard", new { area = "",cid=client.Id, rptName = "rslnresptst" }, null)</li>*@
+                <li>@Html.ActionLink("Avg Response Time Summary", "GetViewAvg", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Avg Resolution Time Summary", "GetViewRspAvg", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                @*<li>@Html.ActionLink("Ticket Trend", "GetViewTicketT", "IncidentDashboard", new { area = "",cid=client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Schedule Variance Adherence", "GetViewScheduledVariance", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "rslnresptst" }, null)</li>
+                <li>@Html.ActionLink("Backlog Analysis (Run)", "GetBacklog", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Aging Analysis (Run)", "GetViewTicketAging", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("First Time Right", "GetFirstTimeRight", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "rslnresptst" }, null)</li>
+                <li>@Html.ActionLink("Delivery End Date Revision (Build)", "GetDeliveryEndDate", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                @*<li>@Html.ActionLink("SLA-04/KPI-06:Schedule Variance Adherence", "GetViewScheduledVariance", "IncidentDashboard", new { area = "", cid = client.Id, rptName = "rslnresptst" }, null)</li>
+                    <li>@Html.ActionLink("KPI-03:Backlog Analysis (Run)", "GetBacklog", "IncidentDashboard", new { area = "", cid = client.Id }, null)</li>
+                    <li>@Html.ActionLink("KPI-04:Aging Analysis (Run)", "GetViewTicketByAssignedGroups", "IncidentDashboard", new { area = "", cid = client.Id }, null)</li>
+                    <li>@Html.ActionLink("SLA-03/KPI-08:First Time Right", "GetFirstTimeRight", "IncidentDashboard", new { area = "", cid = client.Id, rptName = "rslnresptst" }, null)</li>
+                    <li>@Html.ActionLink("KPI-09:Delivery End Date Revision (Build)", "GetDeliveryEndDate", "IncidentDashboard", new { area = "", cid = client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Effort Variance", "GetViewEffortVariance", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+
+            </ul>
+        </li>
+
+        @if (@User.IsInRole("CustomerUser") != true)
+        {
+            <li>
+                <a href="#">KPIs</a>
+                <ul>
+                    <li>@Html.ActionLink("Ticket Trend", "GetViewTicketT", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                    @* <li>@Html.ActionLink("Ticket Volume", "GetViewTicketVolume", "KPI", new { area = "",cid=client.Id }, null)</li>*@
+                    <li>@Html.ActionLink("Ticket Priority Volume", "GetViewTicketVolumeByStatus", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                    @*<li>@Html.ActionLink("Incidents by Assigned Groups", "GetViewTicketVolumeByAssignedGroups", "KPI", new { area = "",cid=client.Id }, null)</li>*@
+                    <li>@Html.ActionLink("Ticket Breakdown by Assigned Groups", "GetViewTicketByAssignedGroups", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                    <li>@Html.ActionLink("Ticket Assigned to Individual Person", "GetViewIncidenAssignedToPerson", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                    <li>@Html.ActionLink("Unassigned  Tickets by Group", "GetViewIncidenUnAssignedToPerson", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                    <li>@Html.ActionLink("Tickets by Data Source", "GetViewIncidenMetricByDatasource", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                </ul>
+            </li>
+        }
+        @if (@User.IsInRole("CustomerUser") != true)
+        {
+            <li>
+                <a href="#">Analytics Dashboards</a>
+                <ul>
+                    <li>@Html.ActionLink("Trend of Inflow and Resolution", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "estresptst" }, null)</li>
+                    <li>@Html.ActionLink("Missed SLA Report", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "missedsla" }, null)</li>
+                    <li>@Html.ActionLink("SLA Alert Report", "GetRptView", "IncidentDashboard", new { area = "", cid = client.ClientId, rptName = "slaalert" }, null)</li>
+                </ul>
+            </li>
+        }
+        @if (client.ClientName.ToUpper() == "EXXON MOBIL")
+        {
+            <li>
+                <a href="#">Customer Survey</a>
+                <ul>
+                    <li>@Html.ActionLink("SLA-05:Customer Satisfaction", "GetViewCustomerSatisfactionM", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                    <li>@Html.ActionLink("KPI-10:Customer Satisfaction", "GetViewCustomerSatisfactionQ", "IncidentDashboard", new { area = "", cid = client.ClientId }, null)</li>
+                </ul>
+            </li>
+        }
+        @*                <li><a href="#">Service Request Dashboards</a>
+              <ul>
+                <li>@Html.ActionLink("Service Request Summary", "GetSLAM", "SLAMDashboard", new { area = "",id = client.Id }, null)</li>
+                <li>@Html.ActionLink("Business Alignment Summary", "GetSLAM", "SRBASummary", new { area = "", cid=client.Id }, null)</li>
+              </ul>
+            </li>*@
+        @* <li><a href="#">Idea Management Dashboards</a>
+              <ul>
+                <li>@Html.ActionLink("Completed Idea - Financial Benefit by LOB Trend", "GetIdeaT", "IdeaDashboard", new { area = "", id = client.Id }, null)</li>
+                <li>@Html.ActionLink("Completed Idea - Benefit by LOB Summary", "GetIdeaL", "IdeaDashboard", new { area = "", id = client.Id }, null)</li>
+                <li>@Html.ActionLink("Submitted Idea - Innovation Index Trend", "GetIdeaI", "IdeaDashboard", new { area = "", id = client.Id }, null)</li>
+              </ul>
+            </li>*@
+    </ul>
+</div>

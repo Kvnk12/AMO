@@ -1,0 +1,1267 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientInput
+@using NTTData.AMOPortal.WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Extensions
+@using WebUI.Dto;
+@using WebUI.Models;
+
+<!--<form class="form-horizontal" role="form" id="">-->
+<!--.container-->
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    HomeInput menuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    var Userrole = menuItemsInput.UserRole;
+    //  var cl = (Client)Session["Client"];
+    ClientDetail cl = (ClientDetail)Session["SessionClient"];
+    var ClientName = cl.ClientName;
+}
+@{
+    if (TempData["IsDeleted"] == "1")
+    {
+        <script>
+            alert('Client Deleted Successfully');
+        </script>
+    }
+
+}
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+    #displayPhoto {
+        width: 150px;
+        height: 90px;
+        border: 1px solid #ddd;
+        object-fit: contain;
+    }
+
+    #displayLogo {
+        width: 150px;
+        height: 90px;
+        border: 1px solid #ddd;
+        object-fit: contain;
+    }
+
+    
+</style>
+
+<!--newly added begin-->
+<div class="content-main dark-bg clientProfileManager">
+
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li class="active">Client Demographics</li>
+
+    </ol>
+
+    <!--end of breadcrumb container-->
+    <!-- Wrap all page content here -->
+
+
+    <div class="form-group" style="display:flex;margin:1em 0;">
+        <label for="clientName" class="col-sm-3 control-label" id="" style="width:150px;color:white"><span class="mandate">*</span>Client Name</label>
+        <div class="main-drp">
+            @Html.DropDownListFor(m => m.Id, new SelectList(Model.UserClientList, "value", "text", Model.ClientNames), "", new
+            {
+                @class = "client-dropdown",
+                tabindex = "6",
+                autocomplete = "on",
+                id = "drpSelClient"
+            })
+        </div>
+    </div>
+
+    <!--/.selectApp-->
+    <!--newly added End-->
+
+
+
+    <div class="content-wrapper" style="padding: 0; height:auto;">
+        @using (Html.BeginForm())
+        {
+
+            @*<ul class="nav nav-tabs">
+                    <li class="active"><a href="#clientDemographics" role="tab" data-bs-toggle="tab">Client Demographics</a></li>
+                    <li class=""><a href="#TeamsDetailss" role="tab" data-bs-toggle="tab">Teams/Towers</a></li>
+                    <li class=""><a href="#ClientAccessControl" role="tab" data-bs-toggle="tab">Client Access Control</a></li>
+                    <li class=""><a href="#LeaderShipDetails" role="tab" data-bs-toggle="tab">LeaderShip Team</a></li>
+                </ul>*@
+            <div class="tab-container">
+                <div class="tab-main">
+                    <span id="clientDemographicsOpen" class="tab-link active" onclick="openTab(event, 'clientDemographics')">Client Demographics</span>
+                    <span id="TeamsDetailssOpen" class="tab-link" onclick="openTab(event, 'TeamsDetailss')">Teams/Towers</span>
+                    <span id="ClientAccessControlOpen" class="tab-link" onclick="openTab(event, 'ClientAccessControl')">Client Access Control</span>
+                    <span id="LeaderShipDetailsOpen" class="tab-link" onclick="openTab(event, 'LeaderShipDetails')">LeaderShip Team</span>
+
+                </div>
+            </div>
+            <div class="tab-content" id="clientDemographics">
+
+                <div class="container" style="padding: 0;">
+                    @if (!ViewData.ModelState.IsValid && (ViewData.ModelState.ContainsKey("VerticalId") && ViewData.ModelState.ContainsKey("SubVerticalId")))
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                    }
+                    else if (ViewData["ErrorMsg"] != null)
+                    {
+                        <div class="alert alert-danger container">
+                            @ViewData["ErrorMsg"]
+                        </div>
+                    }
+                    else if (ViewData["CreateMsg"] != null)
+                    {
+                        <div class="alert alert-success container">
+                            @ViewData["CreateMsg"]
+                        </div>
+                    }
+                    else if (ViewData["EditMsg"] != null)
+                    {
+                        <div class="alert alert-success container">
+                            @ViewData["EditMsg"]
+                        </div>
+                    }
+
+
+                    @*Html.ValidationSummary(false,"")*@
+                    <div class="leftarea form-horizontal">
+                        <div class="form-group" style="display:flex;">
+                            <label for="ClientName" id="" class="col-sm-5 control-label"><span class="mandate">*</span>Client Name</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.ClientName, new { @class = "custom-textbox", placeholder = "Name of the Client", onkeypress = "return isAlphNumKey(event)", tabindex = "1", id = "txtClientName" })
+                            </div>
+
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="clientdesc" class="col-sm-5 control-label">Brief description of Client Business</label>
+                            <div class="col-sm-5">
+                                @Html.TextAreaFor(m => m.BusinessDesc, new { @class = "custom-textarea desc", rows = "4", cols = "26", placeholder = "Description", tabindex = "3" })
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <div class="checkbox">
+              <label>
+                <input type="checkbox"> Remember me
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-default">Sign in</button>
+          </div>
+        </div>-->
+                        <div class="form-group" style="display:flex;">
+                            <label for="IndustryVertical" class="col-sm-5 control-label"><span class="mandate">*</span>Industry Vertical</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.VerticalId, new SelectList(Model.IndustryVerticalList, "value", "text", Model.VerticalId), "", new { @class = "cust-dropdown", tabindex = "6", id = "drpIndustryVertical" })
+                                @Html.ValidationMessageFor(m => m.VerticalId, "", new { @class = "text-danger" })
+
+                            </div> <label id="Vertical_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="IndustrySub-Vertical" class="col-sm-5 control-label"><span class="mandate">*</span>Industry Sub-Vertical</label>
+                            <div class="col-sm-5">
+                                @if (ViewData["subVertical"] != null)
+                                {
+                                    @Html.DropDownListFor(m => m.SubVerticalId, new SelectList((List<SelectListItem>
+                                        )ViewData["subVertical"], "value", "text", Model.SubVerticalId), "", new { @class = "cust-dropdown", tabindex = "7", id = "drpIndustrySubVertical" })
+                                    @Html.ValidationMessageFor(m => m.SubVerticalId, "", new { @class = "text-danger" })
+
+
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.SubVerticalId, new SelectList(Enumerable.Empty<SelectListItem>
+                                        (), "value", "text", Model.SubVerticalId), "", new { @class = "cust-dropdown", tabindex = "7", id = "drpIndustrySubVertical" })
+                                    @Html.ValidationMessageFor(m => m.SubVerticalId, "", new { @class = "text-danger" })
+
+                                }
+                            </div><label id="SubVertical_alert" hidden><span class="mandate" style="font-size:small"> required!</span></label>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="Currency" class="col-sm-5 control-label">Currency</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.Currency, new SelectList(Model.CurrencyList, "value", "text", Model.Currency), "", new { @class = "cust-dropdown", tabindex = "8" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="contactval" class="col-sm-5 control-label">Total Contract Value (Current Fiscal Year)</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.TotalContractValue, new { @class = "custom-textbox", placeholder = "TotalContractValue", tabindex = "12", onkeypress = "return isNumberKey(event)", id = "txtcontractFY", style = "text-align:right" })
+                            </div>
+                            <!-- <div class="checkbox">
+                <label for="acc" class=" col-sm-5 control-label accrollup">Calculate based on Account rollup
+                    <input type="checkbox" class="accrollupchk">
+               </label>
+            </div>-->
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="contactvaldate" class="col-sm-5 control-label">Total Contract Value <b>(To Date)</b></label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.TotalContractValueToDate, new { @class = "custom-textbox", placeholder = "TotalContractValueToDate", tabindex = "13", id = "txtcontractTD" })
+                            </div>
+                            <!--<div class="checkbox">
+                <label for="acc" class=" col-sm-5 control-label accrollup">Calculate based on Account rollup
+                    <input type="checkbox" class="accrollupchk" tabindex="11">
+               </label>
+            </div>-->
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="avgrevenue" class="col-sm-5 control-label">
+                                Average Annual Revenue
+                                <br>
+                                &nbsp;&nbsp;
+                            </label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.AvgAnnualRevenue, new { @class = "custom-textbox", placeholder = "", tabindex = "14", onkeypress = "return isNumberKey(event)", id = "txtAvgAnnlRev", style = "text-align:right" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="supportecosystem" class="col-sm-5 control-label">
+                                Support EcoSystem ?
+                                <br>
+                                &nbsp;&nbsp;
+                            </label>
+                            <div class="col-sm-5">
+
+                                @Html.CheckBoxFor(m => m.SupportEcoSystem, new { id = "chkSupportEcoSystem", tabindex = "25" })
+
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="EnableMFA" class="col-sm-5 control-label">
+                                Enable Multi-Factor Authentication
+                                <br>
+                                &nbsp;&nbsp;
+                            </label>
+                            <div class="col-sm-5">
+
+                                @Html.CheckBoxFor(m => m.EnableMFA, new { id = "EnableMFA", tabindex = "26" })
+
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display:flex;">
+                            <label for="EnableMultipleApproval" class="col-sm-5 control-label">
+                                Enable MultipleApprovals
+                                <br>
+                                &nbsp;&nbsp;
+                            </label>
+                            <div class="col-sm-5">
+
+                                @Html.CheckBoxFor(m => m.MultipleApprovals, new { id = "EnableMultipleApproval", tabindex = "27" })
+
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display:flex;">
+                            <label for="BusinessCalender" class="col-sm-5 control-label">
+                                Business Calendar(For Ticket Aging Report)
+                                <br>
+                                &nbsp;&nbsp;
+                            </label>
+                            <div class="col-sm-5">
+
+                                @Html.CheckBoxFor(m => m.BusinessCalender, new { id = "BusinessCalender", tabindex = "28" })
+
+                            </div>
+                        </div>
+                        @*<div class="form-group">
+                <label for="IMAutoApprovalSelection" class="col-sm-5 control-label">
+                    AutoApproval Selection for Idea Manager
+                    <br>
+                    &nbsp;&nbsp;
+                </label>
+                <div class="col-sm-5">
+
+                    @Html.CheckBoxFor(m => m.IMAutoApprovalSelection, new { id = "IMAutoApprovalSelection", tabindex = "29" })
+
+                </div>
+            </div>*@
+                        <!--<div class="checkbox">
+            <label for="acc" class=" col-sm-5 control-label accrollup">Calculate based on Account rollup
+           <input type="checkbox" class="accrollupchk" tabindex="13">
+              </label>
+         </div>
+
+        <div class="engagement">
+                                <div><span>Engagement</span></div>
+                        </div>
+                             <!--/.engagement-->
+                        <!--  <div class="engArea">
+                       <div class="engSt">
+
+                <label for="EngagementStartDate" class="col-sm-5 control-label">Start Date</label>
+                <div id="sandbox-container">
+                <div class="input-append date col-sm-7">
+              <span class="add-on"><i class="icon-th"></i></span>
+               </div>
+           </div>
+         </div>
+        <div class="engEdt">
+            <label for="EngagementEndDate" class="col-sm-5 control-label">End Date</label>
+               <div id="sandbox-container">
+                <div class="input-append date col-sm-7">
+                   <span class="add-on"><i class="icon-th"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="engyrs">
+                <label for="EngagementDuration" class="col-sm-8 control-label">Duration of relationship (years)</label>
+              <div class="" style="width: 19.667%; display: inline-block;">
+             </div>
+            </div><div></div>
+               <div id="showdate_error" style="display:none;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label style="color: #FF0000;">End Date should be greater than or equal to the Start Date</label></div>
+          </div>-->
+                        <!--/.engArea-->
+                    </div>
+                    <!--END OF LEFTAREA-->
+
+                    <div class="rightarea form-horizontal">
+                        <div class="form-group" style="display:flex;">
+                            <label for="GlobalClientmanager" class="col-sm-5 control-label">NTT Data Global Client Manager</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.GlobalClientManager, new { @class = "custom-textbox", placeholder = "", tabindex = "2", style = "text-align:right" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="GlobalDeliveryManager" class="col-sm-5 control-label">NTT Data Global Delivery Manager</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.GlobalDeliveryManager, new { @class = "custom-textbox", placeholder = "", tabindex = "4", style = "text-align:right" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="ClientTitle" class="col-sm-5 control-label">Client Relationship with (Client Title)</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.ClientTitle, new { @class = "custom-textbox", placeholder = "", tabindex = "5" })
+                            </div>
+                        </div>
+                        <div class="engagement">
+                            <div style=" padding-top: 7px; width: 30%;"><span>Client Headquarters</span></div>
+                        </div>
+                        <!--/.engagement-->
+                        <div class="engArea">
+                            <div style=" padding-top: 7px; display: flex; margin-bottom: 1em;">
+                                <label for="Region" class="col-sm-3 control-label">Region</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.PrimaryAddress.RegionId, new SelectList(Model.RegionList, "value", "text", Model.PrimaryAddress.RegionId), "", new { @class = "cust-dropdown", tabindex = "9", id = "drpSelRegion" })
+                                </div>
+                            </div>
+                            <table><tr></tr></table>
+
+                            <div style=" padding-top: 7px; display: flex;margin-bottom: 1em;">
+                                @Html.HiddenFor(m => m.PrimaryAddressId)
+                                @Html.HiddenFor(m => m.PrimaryAddress.Id)
+                                <label for="Country" class="col-sm-3 control-label">Country</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.PrimaryAddress.CountryId, new SelectList((List<SelectListItem>)ViewData["country"], "value", "text", Model.PrimaryAddress.CountryId), "", new { @class = "cust-dropdown", tabindex = "10", id = "drpSelCountry" })
+                                </div>
+                            </div>
+                            <div style=" padding-top: 7px; display: flex; margin-bottom: 1em;">
+                                <label for="City" class="col-sm-3 control-label">City</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.PrimaryAddress.CityId, new SelectList((List<SelectListItem>)ViewData["city"], "value", "text", Model.PrimaryAddress.CityId), "", new { @class = "cust-dropdown", tabindex = "11", id = "drpSelCity" })
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <!--/.engArea-->
+                        <div class="form-group" style="display:flex;">
+                            <label for="ClientStatus" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Client Status</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.ClientStatus, new SelectList(Model.CientStatusList, "value", "text", Model.ClientStatus), "", new { @class = "cust-dropdown", tabindex = "15" })
+                                @Html.ValidationMessageFor(m => m.ClientStatus, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="Referencable" class="col-sm-5 control-label">Referenceable?</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.IsReferenceable, new SelectList(Model.ReferencableList, "value", "text", Model.IsReferenceable), "", new { @class = "cust-dropdown", tabindex = "16" })
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" style="display:flex;">
+                            <label for="" class="col-sm-5 control-label">Has this client referred NTT Data to other potential Clients?</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.HasReferred, new SelectList(Model.ReferredClientList, "value", "text", Model.HasReferred), "", new { @class = "cust-dropdown", tabindex = "17", cols = "25" })
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="" class="col-sm-5 control-label">List of the potential clients referred</label>
+                            <div class="col-sm-7">
+                                @Html.TextAreaFor(m => m.ReferredClientName, new { @class = "custom-textarea carea", tabindex = "21", placeholder = "Enter Potential clients seperated by comma", rows = "4" })
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="display:flex;">
+                            <label for="CustomerSurveyDate" class="col-sm-5 control-label">Date of Last Customer Satisfaction Survey</label>
+                            <div id="sandbox-container">
+                                <div class="input-append date col-sm-10">
+                                    @if (Model.CustomerSurveyDate != null)
+                                    {
+                                        @Html.TextBoxFor(m => m.CustomerSurveyDate, new { @Value = Model.CustomerSurveyDate.ToString().Substring(0, 9), @class = "custom-textbox", tabindex = "22" ,@style="padding-right:3em;"})
+                                    }
+                                    else
+                                    {
+                                        @Html.TextBoxFor(m => m.CustomerSurveyDate, new { @Value = Model.CustomerSurveyDate, @class = "custom-textbox", tabindex = "22" ,@style = "padding-right:3em;" })
+                                    }
+                                    <span class="add-on"><i class="icon-th"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex;">
+                            <label for="Ref" class="col-sm-5 control-label">Rating of Last Customer Satisfaction Survey</label>
+                            <div class="col-sm-3">
+                                @Html.DropDownListFor(m => m.CustomerRating, new SelectList(Model.CustomerRatingList, "value", "text", Model.CustomerRating), "", new { @class = "cust-dropdown", tabindex = "23" })
+                            </div>
+                        </div>
+                        <!--hidden for sprint one  <div class="crevenue">
+               <div style="float:left;padding-top:7px;width:30%;"><span>Client Revenue</span></div>
+               <!--<div style="float:right;padding-top:0px;width:70%;">
+                      <label for="IndustryVertical" class="col-sm-7 control-label">Revenue for selected period</label>
+                      <div class="col-sm-5">
+                           <input type="" class="form-control" id="duration" placeholder="" tabindex="32" style="padding-top:0px;" />
+                       </div>
+                </div>
+        </div>-->
+                        <!--/.crevenue-->
+                        <!-- <div class="engArea">
+               <div style="float:left;padding-top:7px;width:50%;">
+                     <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Start Date</label>
+                     <div id="sandbox-container" >
+                             <div class="input-append date col-sm-7">
+                                   <input type="" class="form-control" tabindex="24" ><span class="add-on"><i class="icon-th"></i></span>
+                               </div>
+                      </div>
+                </div>
+                <div style="float:right;padding-top:7px;width:50%;">
+                     <label for="IndustrySub-Vertical" class="col-sm-5 control-label">End Date</label>
+                     <div id="sandbox-container" >
+                              <div class="input-append date col-sm-7">
+                                        <input type="" class="form-control" tabindex="25"><span class="add-on"><i class="icon-th"></i></span>
+                               </div>
+                      </div>
+                 </div>
+        </div>-->
+                        <!--/.engArea-->
+                        <!--/.end of Client revenue details-->
+                    </div>
+                    <!-- end of right areaa-->
+                    <div class="fte">
+                        <div><span> </span></div>
+                    </div>
+                    <!--/.fte-->
+                    <!--   <div class="ftearea">
+        <div class="onshore">
+            <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Onshore</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(m => m.AvgAnnualFTEsOnShore, new { @class = "custom-textbox", placeholder = "", tabindex = "26", onkeypress = "return isNumbersKey(event)", style = "text-align:right" })
+            </div>
+        </div>
+        <div class="offshore">
+            <label for="IndustryVertical" class="col-sm-5 control-label">Nearshore</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(m => m.AvgAnnualFTEsNearShore, new { @class = "custom-textbox", placeholder = "", tabindex = "27", onkeypress = "return isNumbersKey(event)", style = "text-align:right" })
+            </div>
+        </div>
+        <div class="offshore">
+            <label for="IndustryVertical" class="col-sm-5 control-label">Offshore</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(m => m.AvgAnnualFTEsOffShore, new { @class = "custom-textbox", placeholder = "", tabindex = "27", onkeypress = "return isNumbersKey(event)", style = "text-align:right" })
+            </div>
+        </div>
+        <div class="avgfte">
+            <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Average Annual FTE</label>
+            <div class="col-sm-8">
+                @Html.TextBoxFor(m => m.AvgAnnualFTEs, new { @class = "custom-textbox", placeholder = "", tabindex = "24", onkeypress = "return isNumbersKey(event)", style = "text-align:right" })
+                @*<input type="checkbox" tabindex="25" id="chkAverageAnnualFTE" onclick="Calc()">*@
+                @Html.CheckBoxFor(m => m.AutoCalculatedFTE, new { id = "chkAverageAnnualFTE", tabindex = "25" })
+                Calc. based on All shoring model
+            </div>
+        </div>
+    </div>
+     -->
+                    <!--/.engArea-->
+                    <div class="leftarea form-horizontal" style="width:40%;">
+                        <div class="form-group">
+                            <div style="display:flex;margin-bottom:1em;">
+                                <div style="width:62%">
+                                    <label class="col-sm-8 control-label">Client Logo</label><br />
+                                    <div class="col-sm-5" style="margin-left:1em;">
+                                        @(Html.Kendo().Upload()
+                                                .Name("httpPostedTemplateFile")
+                                                .HtmlAttributes(new { aria_label = "files"/*, @style = "width:50px;"*/ })
+                                                .Validation(validation =>
+                                                {
+                                                    validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" });
+                                                    validation.MaxFileSize(500000);
+                                                })
+                                                .Messages(m => m.Select("Select Image"))
+                                                .Multiple(false)
+                                                 .Events(events => events
+                                                 .Select("onSelect")
+                                                 // .Remove("onRemove")
+                                                 )
+                                    )
+
+
+                                    </div>
+                                </div>
+                                <img src=@ViewBag.Photo id="displayPhoto" class="imageDisplay img-thumbnail" />
+                            </div>
+                            <div style="display:flex;margin-top:1em;">
+                                <div style="width:62%">
+                                    <label class="col-sm-8 control-label">Client Email Logo</label><br />
+                                    <div class="col-sm-5" style="margin-left:1em;">
+                                        @(Html.Kendo().Upload()
+                                                .Name("httpPostedEmailTemplateFile")
+                                                .HtmlAttributes(new { aria_label = "files"/*, @style = "width:50px;"*/ })
+                                                .Validation(validation =>
+                                                {
+                                                    validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" });
+                                                    validation.MaxFileSize(500000);
+                                                })
+                                                .Messages(m => m.Select("Select Image"))
+                                                .Multiple(false)
+                                                 .Events(events => events
+                                                 .Select("onEmailSelect")
+                                                 // .Remove("onRemove")
+                                                 )
+                                    )
+
+                                    </div>
+                                </div>
+                                <img src=@ViewBag.EmailPhoto id="displayLogo" class="imageDisplay img-thumbnail" />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="rightarea form-horizontal" style="width:60%;">
+                        <div class="form-group">
+                            <div style="display:flex;">
+                                <label for="inputPassword3" class="col-sm-1 control-label">Notes</label><br />
+                                <div>
+                                    @Html.TextAreaFor(m => m.Notes, new { @class = "custom-textarea noteareanew", rows = "4", cols = "76", placeholder = "Enter notes", tabindex = "28" })
+                                </div>
+                            </div>
+
+                            <div class="pageaction" style="margin-top: 7em;">
+                                @if (Userrole.ToLower() == "admin" || Userrole.ToLower() == "sysadmin" || Userrole.ToLower() == "superuser")
+                                {
+                                    <button type="submit" id="submitForm" class="btn btn-primary" tabindex="30">Save</button>
+                                    if (Model.ClientName != null)
+                                    {
+                                        <button class="btn btn-secondary" tabindex="31" type="button" id="btnDelClient">Delete</button>
+                                    }
+                                }
+                                <button type="submit" id="btnCancel" tabindex="32" class="btn btn-secondary" onclick="location.href='@Url.Action("Create", "Client")';return false;">Cancel</button>
+                                <!--<button type="reset" class="btn btn-default" tabindex="31">Cancel</button>-->
+
+                            </div>
+
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+
+            </div>
+            <div class="tab-content" id="TeamsDetailss" style="display: none;">
+                <div class=" form-horizontal" align="center" style="padding: 0;min-height:464px;width:100%;">
+
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<WebUI.Dto.IMTeamModel>()
+                                                                 .Name("IMTeam")
+                                                                 .Columns(columns =>
+                                                                 {
+                                                                     columns.Bound(e => e.Team).Title("Team");
+                                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                                 })
+                                                              .Sortable()
+                                                              .Scrollable()
+                                                              .Pageable()
+                                                              .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                              .ToolBar(toolbar => toolbar.Create().Text("Add New Team/Tower"))
+                                                               .HtmlAttributes(new { @style = "height:310px !important;" })
+                                                              .DataSource(dataSource => dataSource
+                                                              .Ajax()
+                                                              .PageSize(10)
+                                                              .Model(model => model.Id(f => f.Id))
+                                                              .Read(read => read.Action("GetTeams", "Client").Data("GetClientId"))
+                                                              .Create(create => create.Action("AddTeams", "Client"))
+                                                              .Update(update => update.Action("EditTeams", "Client"))
+                                                              .Destroy(destroy => destroy.Action("DeleteTeams", "Client"))
+
+                                                                  )
+                                                                  .Events(events => events
+                                                       .Save("SaveTeams"))
+
+                        )
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div id="ClientAccessControl" class="tab-content" style="height: 545px; display: none;">
+
+                <div style="margin-bottom:1em;">
+                    <div>
+                        <strong>Client Name : @ClientName</strong>
+                    </div>
+                    <br />
+
+                    <label>
+                        <strong>Add New Client :</strong>
+                    </label>
+
+                    @(Html.Kendo().DropDownList()
+                                           .Name("clients")
+                                           //.HtmlAttributes(new { style = "width: 100%;" })
+                                           .DataTextField("Text")
+                                           .DataValueField("Value")
+                                           .Filter("contains")
+                                           .DataSource(source =>
+                                           {
+                                               source.Read(read =>
+                                               {
+                                                   read.Action("ServerFiltering_GetClients", "ClientAccess");
+                                               })
+                                               .ServerFiltering(false);
+                                           })
+                    )
+                    &nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-primary" type="button" onclick="AddClientClick(this)">
+                        Add
+                    </button>
+                    <div style="margin-top:15px;">
+                        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="SuccessMsg" hidden>
+                            <ul>
+                                <li>Successfully linked the Client.</li>
+                            </ul>
+                        </div>
+                        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SubVerErrMsg" hidden>
+                            <ul>
+                                <li>Please select the Sub Vertical.</li>
+                            </ul>
+                        </div>
+                        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="ErrorMsg" hidden>
+                            <ul>
+                                <li>Error while assigning.</li>
+                            </ul>
+                        </div>
+
+                        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedClient" hidden>
+                            <ul>
+                                <li>Please select the Client.</li>
+                            </ul>
+                        </div>
+                        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="AlreadyExists" hidden>
+                            <ul>
+                                <li>This Client already has been Linked!.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+
+                <div class="custom-kendo-grid">
+                    @(Html.Kendo().Grid<ClientAccessModel>()
+                                        .Name("clientAccess")
+                                        .Columns(columns =>
+                                        {
+
+                                            columns.Bound(e => e.Client).Title("Client Name");
+                                            columns.Bound(e => e.CreatedBy).Title("Added By");
+                                            columns.Bound(e => e.CreatedDt).Title("Date Time").Format("{0:d}");
+                                            columns.Command(command => { command.Destroy(); }).Width(180);
+                                        })
+                                        .Sortable()
+                                        .Editable(editable => editable.ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delate?"))
+                                        .HtmlAttributes(new { @style = "height:250px;" })
+                                        .Scrollable()
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(read => read.Action("GetSubClients", "ClientAccess").Type(HttpVerbs.Get))
+                                            .Model(model =>
+                                            {
+                                                model.Id(e => e.Id);
+                                                model.Field(e => e.Client).Editable(false);
+                                                model.Field(e => e.CreatedBy).Editable(false);
+                                                model.Field(e => e.CreatedDt).Editable(false);
+                                            })
+                                            .Destroy(update => update.Action("DeleteClientLink", "ClientAccess"))
+
+                                        )
+                    )
+                </div>
+
+            </div>
+
+            <div class="tab-content" id="LeaderShipDetails" style="height:588px;display:none;">
+                <div class="leftarea form-horizontal" align="center" style="padding: 0;min-height:1000px;width:100%; align-content:center">
+                    <div class="custom-kendo-grid ">
+                        @(Html.Kendo().Grid<LeadershipDetails>()
+                     .Name("LeaderShipDeatils")
+                     .Columns(columns =>
+                     {
+                         columns.Bound(e => e.Id).Hidden();
+                         //columns.Bound(e => e.UserId).Hidden();
+                         columns.Bound(e => e.ClientId).Hidden();
+                         columns.Bound(e => e.EmailAddress).Title("Email Address");
+                         columns.Bound(e => e.Name).Title("Name");
+                         columns.Bound(e => e.LeadRole).Title("Role");
+                         columns.Bound(e => e.Country).Title("Country");
+                         columns.Bound(e => e.Shore).Title("Shore");
+                         columns.Bound(e => e.Organization).Title("Organization");
+                         columns.Bound(e => e.CreatedByName).Title("Created By");
+                         columns.Bound(e => e.CreatedDate).Title("Created On").Format("{0:MM/dd/yyyy}");
+                         columns.Bound(e => e.UpdatedByName).Title("Modified By");
+                         columns.Bound(e => e.UpdatedDate).Title("Modified On").Format("{0:MM/dd/yyyy}");
+                         columns.Command(command => { command.Edit().Text(" ") ; command.Destroy().Text(" ")/*.Visible("deleteVisible")*/; }).Title("Action");
+
+                     })
+                    .Scrollable()
+                    .Pageable()
+                    .ToolBar(toolbar => toolbar.Create().Text("Add New Leadership Team") )
+                    .HtmlAttributes(new { style = "height:500px"})
+                    .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to remove the Leadership Team user?"))
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .PageSize(6)
+                        .Model(model =>
+                        {
+                            model.Id(p => p.Id);
+                        })
+                          .Read(read => read.Action("getLeadershipDetails", "Client").Data("GetClientId"))
+                          .Create(create => create.Action("AddLeadershipTeamDetails", "Client"))
+                          .Update(update => update.Action("LeadershipDetailsUpdate", "Client"))
+                          .Destroy(destroy => destroy.Action("LeadershipDetailsDelete", "Client"))
+                          .Events(events => events.Error("errorFunct"))
+                     )
+                     .Groupable()
+                     .Sortable()
+                     .Resizable(resize => resize.Columns(true))
+                     .Reorderable(reorder => reorder.Columns(true))
+                    .Events(e=>e.Save("SaveLeadership"))
+                   )
+                    </div>
+                </div>
+            </div>
+
+
+        }
+
+
+
+    </div>
+</div>
+
+<!--/.end of container-->
+<!--/.end of pushContainer1Content-->
+<!--end pushContainer1-->
+<!--.wrap-->
+<!--</form>-->
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+
+<script type="text/javascript">
+
+    function SaveTeams(e) {
+
+        var CID = $('#drpSelClient').val();
+        var Team = e.model.Team.toUpperCase();
+        var Id = e.model.Id;
+        e.model.ClientId = CID;
+        //var ClientId = CID;
+        //alert(ClientId);
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Team.toUpperCase() === Team && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Team Already Exists. Please Select Unique Team!");
+
+            }
+        }
+
+    }
+
+    $('select#drpSelClient').change(function () {
+        var SelectedclientId = $('#drpSelClient :selected').val();
+        console.log(SelectedclientId);
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'Client') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Client/'
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/'
+        }
+        if (SelectedclientId == "") {
+            window.location = baseurl + 'Create#' + SelectedclientId;
+        }
+        else {
+            window.location = baseurl + 'Edit/?id=' + SelectedclientId;
+        }
+    });
+
+    //Enable MFA user confirmation
+    $('#EnableMFA').click(function (e) {
+        var id = $('#EnableMFA:checked').val() ? true : false;
+        if (id) {
+            var confirm = window.confirm('Do you want to Enable Multi-Factor Authentication? All the users of this client will have to go through 2-step verification.');
+            if (confirm) {
+                return true;
+
+            }
+            return false;
+
+
+        } else {
+            var confirm = window.confirm('Do you want to Disable Multi-Factor Authentication? All the users of this client will not go through 2-step verification.');
+            if (confirm) {
+                return true;
+            }
+
+            return false;
+        }
+
+    });
+
+    $('#EnableMultipleApproval').click(function (e) {
+        var id = $('#EnableMultipleApproval:checked').val() ? false : true;
+        if (id) {
+            var confirm = window.confirm('This setting will get applied to new Ideas in Idea manager tool.');
+            if (confirm) {
+                return true;
+
+            }
+            return false;
+
+
+        }
+
+
+    });
+
+     function isAlphNumKey(evt) {
+         var charCode = (evt.which) ? evt.which : event.keyCode;
+         if ((charCode > 32 && charCode < 48) ||
+            (charCode > 57 && charCode < 65) ||
+            (charCode > 90 && charCode < 95) ||
+            (charCode > 95 && charCode < 97) ||
+            (charCode > 123 && charCode < 127)) {
+            return false;
+
+         }
+         return true;
+    }
+
+    function isNumbersKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+        $('#txtcontractTD').number(true, 0);
+        $('#txtAvgAnnlRev').number(true, 0);
+        $('#txtcontractFY').number(true, 0);
+        $('#txtStartDate').change(EngagementDiff);
+        $("#txtDuration").prop('readonly', true);
+        $('#txtEndDate').change(EngagementDiff);
+        $('#showdate_error').hide();
+    });
+
+    function EngagementDiff() {
+        if ($("#txtStartDate").val() == "") {
+            $("#txtDuration").val("0.0");
+            return false;
+        }
+        if ($("#txtEndDate").val() == "") {
+            $("#txtDuration").val("0.0");
+            return false;
+        }
+
+        if ($("#txtStartDate").val() != "" && $("#txtEndDate").val() != "") {
+            var start_date = Date.parse($("#txtStartDate").val());
+            var end_date = Date.parse($("#txtEndDate").val());
+            var eDate = new Date(end_date);
+            var sDate = new Date(start_date);
+
+            if (sDate > eDate) {
+                $('#showdate_error').show();
+                $("#txtDuration").val("0.0");
+                return false;
+            }
+
+            $('#showdate_error').hide();
+
+            var date1 = new Date($("#txtStartDate").val());
+            var date2 = new Date($("#txtEndDate").val());
+            var t1 = date1.getTime();
+            var t2 = date2.getTime();
+            var dayDiff = parseInt((t2 - t1) / (24 * 3600 * 1000));
+
+            if (dayDiff == 364) {
+                var dayDiffRoundOff = parseInt(dayDiff) / 364;
+                //dayDiffRoundOff = dayDiffRoundOff.toString().substring(0, 4);
+                dayDiffRoundOff = dayDiffRoundOff.toFixed(2).toString();
+            }
+            else {
+                var dayDiffRoundOff = parseInt(dayDiff) / 365;
+                dayDiffRoundOff = dayDiffRoundOff.toFixed(2).toString();
+            }
+
+            $("#txtDuration").val("");
+            $("#txtDuration").val(dayDiffRoundOff);
+        }
+        else {
+            $("#txtDuration").val("0.0");
+        }
+    }
+
+    $('#chkAverageAnnualFTE').change(function () {
+        if ($("#chkAverageAnnualFTE").is(':checked')) {
+            var OnshoreVal = $("#AvgAnnualFTEsOnShore").val();
+            var OffshoreVal = $("#AvgAnnualFTEsOffShore").val();
+            var nearshoreVal = $("#AvgAnnualFTEsNearShore").val();
+            if (OnshoreVal != 0 && OffshoreVal != 0 && nearshoreVal != 0) {
+                var AverageVal = parseFloat(OnshoreVal) + parseFloat(OffshoreVal) + parseFloat(nearshoreVal);;
+                $("#AvgAnnualFTEs").val(AverageVal).toString();
+            }
+        }
+    });
+
+    $('#btnDelClient').click(function () {
+        var Id = $('#drpSelClient').val();
+        var confirm = window.confirm('Do you want to delete the client?');
+
+        if (Id == "") {
+            alert('Please select client to delete');
+            return false;
+        }
+
+        if (confirm) {
+            var href = window.location.href.split('/');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var url = baseurl + 'Client/DeleteClient/?id=' + $('#drpSelClient').val();
+            window.location = url;
+            return false;
+        }
+        else { return false; }
+    });
+
+    $('#drpSelRegion').change(function () {
+        $("select#drpSelCountry").empty();
+        $("select#drpSelCountry").selectpicker('refresh');
+        $("select#drpSelCountry").append("<option value='0'></option>");
+        $("select#drpSelCountry").selectpicker('refresh');
+        $("select#drpSelCity").empty();
+        $("select#drpSelCity").selectpicker('refresh');
+        $("select#drpSelCity").append("<option value='0'></option>");
+        $("select#drpSelCity").selectpicker('refresh');
+        var Id = parseInt($(this).find(":selected").val());
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3] == 'Client') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetCountry'
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetCountry'
+        }
+
+        if (Id != "") {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                data: { region: Id },
+                success: getCountry,
+                failure: errorInDropdownPopulation
+            })
+        }
+    });
+
+    function getCountry(data, status) {
+        console.log(data);
+        $.each(data, function (key, value) {
+            $("select#drpSelCountry").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+        });
+        $("select#drpSelCountry").selectpicker('refresh');
+        $('#drpSelCountry').css('display','block');
+        $('#drpSelCity').css('display','block');
+        $('.btn-group.bootstrap-select.cust-dropdown').css({
+            display: 'none'
+        });
+    }
+
+    function errorInDropdownPopulation() {
+        alert('An error occurred. Please contact administrator');
+    }
+
+    $('#drpSelCountry').change(function () {
+        $("select#drpSelCity").empty();
+        $("select#drpSelCity").selectpicker('refresh');
+        $("select#drpSelCity").append("<option value='0'></option>");
+        var Id = parseInt($(this).find(":selected").val());
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3] == 'Client') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetCity'
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetCity'
+        }
+
+        if (Id != "") {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                data: { city: Id },
+                success: getCities,
+                failure: errorInDropdownPopulation
+            })
+        }
+    });
+
+    function getCities(data, status) {
+        $("select#drpSelCity").empty();
+        $("select#drpSelCity").selectpicker('refresh');
+        $("select#drpSelCity").append("<option value='0'></option>");
+        $.each(data, function (key, value) {
+            $("select#drpSelCity").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+        });
+        $("select#drpSelCity").selectpicker('refresh');
+    }
+
+    $('#drpIndustryVertical').change(function () {
+        var Id = parseInt($(this).find(":selected").val());
+        var confirm = window.confirm('Changing vertical will effect business capabilities');
+
+            if (confirm == false) {
+                $('#drpIndustryVertical').val('@Model.VerticalId');
+                return true;
+
+            }
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3] == 'Client') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Client/GetSubVertical'
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Client/GetSubVertical'
+        }
+        if ($("#drpIndustryVertical :selected").val() != "") {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                data: { vertical: Id },
+                success: getSubVertical,
+                failure: errorInDropdownPopulation
+            })
+        }
+
+
+    });
+
+    function getSubVertical(data, status) {
+        $("select#drpIndustrySubVertical").empty();
+        $("select#drpIndustrySubVertical").selectpicker('refresh');
+        $("select#drpIndustrySubVertical").append("<option value='0'></option>");
+        $.each(data, function (key, value) {
+            $("select#drpIndustrySubVertical").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+        });
+        $("select#drpIndustrySubVertical").selectpicker('refresh');
+        $("#drpIndustrySubVertical").css('display','block');
+        $('.btn-group.bootstrap-select.cust-dropdown').css({
+            display: 'none'
+        });
+    }
+
+     function AddClientClick(e) {
+
+        $("#ErrorMsg").hide();
+        $("#SelectedClient").hide();
+        $("#AlreadyExists").hide();
+         $("#SuccessMsg").hide();
+
+        var mod = {
+            SCId: ClientId
+
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/PortfolioAnalyzer/ClientAccess/AddSubClient")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    // SuccessMsg ErrorMsg SelectedClient AlreadyExists
+                    if (data === 1) {
+                        $("#SuccessMsg").show();
+                    }
+                    if (data === 2) {
+
+                        $("#AlreadyExists").show();
+                    }
+                    if (data === 0) {
+
+                        $("#SelectedClient").show();
+                    }
+                    var caccess = $('#clientAccess').data('kendoGrid');
+                    caccess.dataSource.read();
+                },
+                error: function (e) {
+                    $("#ErrorMsg").show();
+                }
+             });
+        // e.preventDefault();
+         return false;
+     }
+    function GetClientId()
+    {
+
+        var Id = $('#drpSelClient').val();
+        console.log(Id);
+        //e.model.ClientId = Id;
+        return {
+            ClientId: Id
+        }
+
+    }
+    function GetLeadClientId() {
+
+        var Id = $('#drpSelClient').val();
+        //e.model.ClientId = Id;
+        var model = {
+            ClientId: Id
+        }
+        return model;
+
+    }
+
+    function onSelect(e) {
+        var file = e.files[0].rawFile;
+        var ext = e.files[0].extension.toLowerCase();
+
+        if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp" || ext == ".gif" ) {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $("#displayPhoto").attr("src", this.result); //img id where the photo is to be displayed
+            };
+
+            reader.readAsDataURL(file); //Read the selected photo and display in UI
+        }
+        else {
+        }
+    }
+
+    function onEmailSelect(e) {
+        var file = e.files[0].rawFile;
+        var ext = e.files[0].extension.toLowerCase();
+
+        if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp" || ext == ".gif") {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $("#displayLogo").attr("src", this.result); //img id where the photo is to be displayed
+            };
+
+            reader.readAsDataURL(file); //Read the selected photo and display in UI
+        }
+        else {
+        }
+    }
+    var grd = $('#LeaderShipDeatils').data('kendoGrid');
+    var selectedItem = grd.dataItem(grd.select());
+    var Id = $('#drpSelClient').val();
+    selectedItem.set("ClientId", Id);
+    function onEdit(e) {
+        $('[name="Id"]').attr("readonly", true);
+        $('[name="CreatedBy"]').attr("readonly", true);
+        $('[name="UpdatedBy"]').attr("readonly", true);
+        $('[name="CreatedDate"]').attr("readonly", true);
+        $('[name="UpdatedDate"]').attr("readonly", true);
+
+
+        //  document.getElementById("errorlabel").innerHTML = "";
+    }
+    function SaveLeadership(e) {
+
+        var CID = $('#drpSelClient').val();
+        e.model.ClientId = CID;
+        //var ClientId = CID;
+        //alert(ClientId);
+        console.log(e.model.ClientId);
+        console.log(CID);
+    }
+    function errorFunct(e) {
+        console.log(e.errors["Id"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["EndDate"].errors + " </span>";
+
+    }
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tab-link");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+    $(window).on('load', function () {
+        document.getElementById("clientDemographics").click();
+    })
+</script>
+

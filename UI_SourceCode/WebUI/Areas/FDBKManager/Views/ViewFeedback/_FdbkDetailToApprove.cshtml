@@ -1,0 +1,116 @@
+﻿@using Kendo.Mvc.UI;
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using NTTData.AMOPortal.Data;
+@using WebUI.Dto;
+
+@model FeedbackViewModel
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    Db db = new Db();
+    IEnumerable<string> tagList = (from a in db.IMFDBKTag
+                                   where a.ClientId == client.ClientId
+                                   select a.TagName).ToList();
+}
+<style>
+    div#dtl_desc img {
+        height: 4em;
+        width: auto;
+    }
+</style>
+<div id="detail_view" style="display:none">
+    <div class="fdbk-dtlDiv">
+        <div class="fdbk-title">
+            <span id="dtl_fdbkId" hidden></span>
+            <div id="dtl_title"></div>
+            <div class="approver-action" id="approverAction">
+                <button class="reject-btn" id="rejectBtn" onclick="rejectclick()">Reject</button>
+                <button class="approve-btn" id="approveBtn" onclick="approveclick()">Approve</button>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div id="feature_view" style="display:none;width: 52%;">
+                <div class="fdbk-prd">Product : <span id="dtl_prod"></span></div>
+                <div class="fdbk-type">Feedback Type : <span>New Nucleus Feature</span></div>
+                <div class="fdbk-prd">Feedback Id : <span id="dtl_fdbkId2"></span></div>
+            </div>
+            <div id="business_view" style="display:none;width: 52%;">
+                <div class="fdbk-prd">Digital Offering : <span id="dtl_Digi"></span></div>
+                <div class="fdbk-type">Feedback Type : <span>New Business Feature</span></div>
+                <div class="fdbk-prd">Feedback Id : <span id="dtl_fdbkId3"></span></div>
+            </div>
+            <div>
+                <div class="fdbk-submtBy">Submitted By : <span id="dtl_submtBy"></span></div>
+                <div class="fdbk-lastActy">Submitted On : <span id="dtl_crtDt"></span></div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding-bottom: 1em; margin-top: 0.75em; margin-bottom: 0.5em; border-bottom: 1.5px solid #ccc;">
+            <div class="fdbk-tags">
+                <div>Tags : </div>
+                <div style="margin-left:0.5em;display:flex">
+                    <div id="Tags"></div>
+                    <div id="tagsListDtl" style="display:flex">
+                    </div>
+                </div>
+                <div class="addTags">
+                    <div id="tagaddView" class="hide" style="position: absolute; margin-top: 15px;">
+                        @(Html.Kendo().AutoComplete()
+                           .Name("NewTags")
+                           .Filter("startswith")
+                           //.Placeholder("Select Email Address...")
+                           .BindTo(tagList)
+                           .Events(e =>
+                           {
+                            e.Change("onTagChange");
+                           })
+                           .Separator(", ")
+                          )
+                    </div>
+                </div>
+            </div>
+            <div class="fdbk-status"><div id="dtl_status"></div><div class="info-icon"></div></div>
+        </div>
+        <div class="fdbk-desc" id="dtl_desc">
+        </div>
+    </div>
+    <div style="display: flex; justify-content: space-between; height: 2.5em; margin-top: 0.5em;">
+        <div style="display:flex">
+            <span hidden id="vote"></span>
+            <div class="fdbk-likes vote" style="display:none"><span class="like-icon"></span><span id="dtl_vote"></span> Votes</div>
+            <div class="fdbk-likes voted" style="display:none"><span class="like-icon"></span><span id="dtl_voted"></span> Votes</div>
+            @*<div class="fdbk-comments"><span class="cmt-icon"></span><span id="dtl_comment">02</span> Comments</div>*@
+        </div>
+        <div class="last-Activity">Last Activity  <span id="dtl_lastAct1"></span></div>
+    </div>
+    <div class="fdbk-comment-section" style="display:none">
+        <div class="scrollbar-inner">
+            <div class="comment-view">
+                <div class="user-icon">PR</div>
+                <div style=" width: 88%; ">
+                    <div class="userName">Patel, Rajeshwari   <span>5hr ago</span></div>
+                    <div class="userComment">
+                        A long-awaited feature A long-awaited feature A long-awaited feature A long-awaited feature
+                        A long-awaited feature A long-awaited feature A long-awaited feature A long-awaited feature
+                        A long-awaited feature A long-awaited feature A long-awaited feature A long-awaited feature
+                    </div>
+                </div>
+            </div>
+            <div class="comment-view">
+                <div class="user-icon">PR</div>
+                <div style=" width: 88%; ">
+                    <div class="userName">Patel, Rajeshwari   <span>5hr ago</span></div>
+                    <div class="userComment">A long-awaited feature</div>
+                </div>
+            </div>
+        </div>
+        <div class="fdbk-comment-btn">
+            <div class="edit-icon"></div>
+            <div style="width: 83%; padding-top: 0.85em; padding-left: 0.25em;">
+                <textarea class="newCommentBox" id="newCmment" disabled placeholder="Let us know what you think about this idea..."></textarea>
+            </div>
+            <div><button id="postCmt" class="addCmt-btn" onclick="postCommentclick()">Submit</button></div>
+
+        </div>
+    </div>
+
+</div>

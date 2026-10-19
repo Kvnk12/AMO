@@ -1,0 +1,47 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.BusinessCapabilitiesLevelsInput 
+
+<div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Sub - Capabilities<br>
+                        <span>Business Capability:  @{
+                             if(Model.InExValue=="External")
+                            {
+                            @Model.Level2Name
+                        }
+                        }</span> </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLevel3Ex">Add</button>
+                      </div>
+                    </div>
+    <form>
+    <input hidden id="level2Id" value="@Model.Level2Id.ToString()"  />
+
+     <input hidden id="level2Name" value="@Model.Level2Name.ToString()"   />
+  <input hidden id="level1Id" value="@Model.Level1Id.ToString()"  />
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   />  
+     <input hidden id="level1Name" value="@Model.Level1Name.ToString()"   />
+            
+        <input hidden id="subvid" value="@Model.subVId.ToString()"  />
+        
+     </form>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                         <tr>
+                          <th scope="col">Sub - Capabilities</th>
+                        </tr>
+                        @{
+                            if (Model.Level2Id > 0 && Model.InExValue == "External")
+                            {
+                                foreach(var item in Model.BusinessCapabilitiesLevel3List)
+                                {
+                                 <tr>
+                                <td>@Html.ActionLink(@item.Level3,"DisplayBusinessCapabilitiesLevels",new {Level3Id=item.Id,Level3Name = item.Level3, Level2Id=item.Level2Id,Level2Name=@Model.Level2Name,Level1Id = @Model.Level1Id,Level1Name = @Model.Level1Name,InExValue = @Model.InExValue,subVId=@Model.subVId})</td>   
+
+                                      
+                                 </tr>   
+                                }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

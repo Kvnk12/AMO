@@ -1,0 +1,110 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model Integration_ReportListModel
+<div class="graph-3 dashbord-integrated">
+    <div class="top-content-heading">
+                <label  id="Towergridlabel2">Distribution by Tower</label>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="TowerTG">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartTower()"></span>
+
+        </div>
+    </div>
+    <div class="chart-content " style="color: #000;padding: 0 18px;">
+        <div class="rotate-icon">
+            <span class="rotate-view" title="Rotate the Chart" onclick="RotateTowerChart()"></span>
+        </div>
+        <div class="back-icon">
+            <span class="back-view hide"  id="BackButton" title="Go Back" onclick="UnselectTower()"></span>
+        </div>
+        <div class="chart-area" id="TowerChart">
+            @(Html.Kendo().Chart<Integration_ReportModel>()
+                                        .Name("IntegrationReport_ByTower")
+                                        .Legend(legend => legend.Position(ChartLegendPosition.Bottom).Visible(false)
+                                    )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        )
+                                           .AutoBind(false)
+                                        .DataSource(ds => ds.Read(read => read.Action("GetIntegrationReport_ByTower", "Integration_Report").Data("GetIR")))
+                                            //.SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                            //                             "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                            //                             "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                            //                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                            //                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                            //                      })
+
+                                            .Series(series =>
+                                            {
+                                                series.Donut(model => model.IncidentCount, model => model.Tower, model => model.seriesColor)
+                                                .Labels(labels => labels
+                                                .Template("#= kendo.format('{0:P}', percentage)#")
+                                                .Background("transparent")
+                                                .Visible(true)
+                                                .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                )
+                                                 .Overlay(ChartPieSeriesOverlay.None)
+                                                 .StartAngle(90);
+
+                                            })
+                                            .Tooltip(tooltip => tooltip
+                                            .Visible(true)
+                                          .Template("#= category #: \n #= kendo.format('{0:P}', percentage)#")
+                                        )
+                                                .Events(events => events
+                                                         .SeriesClick("onTowerChartClick")
+                                                        )
+        )
+
+        </div>
+    </div>
+
+    <div class="table-content fix-grid-head hide" style="color: #000;padding: 0 18px 12px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:130px" onclick="kendoGridHeaderSort('TowerTable', 'Tower')">Tower</div>
+            <div style="width:130px" onclick="kendoGridHeaderSort('TowerTable', 'Lever')">Lever</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('TowerTable', 'IncidentCount')">Ticket Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('TowerTable', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<Integration_ReportModel>()
+    .Name("TowerTable")
+    .Columns(columns =>
+    {
+        columns.Bound(e => e.Tower).Title("Tower").ClientFooterTemplate("Total").Width(130);
+        columns.Bound(e => e.Lever).Title("Lever").ClientFooterTemplate("Total").Width(130);
+        columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(109);
+        columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+    })
+
+    .AutoBind(false)
+    .HtmlAttributes(new { style = "height:235px;" })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Aggregates(agg =>
+    {
+        agg.Add(p => p.IncidentCount).Sum();
+        agg.Add(p => p.Percent).Sum();
+    })
+    .Group(grouping =>
+    {
+        grouping.Add(e => e.Tower);
+    })
+        .Sort(sort => sort.Add(e => e.Tower).Ascending())
+
+    .Read(read => read.Action("GetIntegrationReport_ByTowerandLeverforGrid", "Integration_Report").Data("GetIR")))
+    .Events(events => events
+    .DataBound("Chart6IntegrationReportGrid_onDataBound")
+
+)
+    )
+
+
+    </div>
+
+</div>

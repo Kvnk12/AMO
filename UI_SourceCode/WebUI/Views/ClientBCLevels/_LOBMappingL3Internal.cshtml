@@ -1,0 +1,53 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+@*<input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Line of Business-Sub-Capabilities </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLOBL3">Add</button>
+                      </div>
+                    </div>
+        @*               <input hidden id="level2Id" value="@Model.CLevel2Id.ToString()"  />
+
+     <input hidden id="level2Name" value="@Model.CLevel2Name.ToString()"   />
+  <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   />  
+     <input hidden id="level1Name" value="@Model.CLevel1Name.ToString()"   />
+       <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+                       <input hidden id="level3Id" value="@Model.CLevel3Id.ToString()"  />
+
+     <input hidden id="level3Name" value="@Model.CLevel3Name.ToString()"   />*@
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Line of Business</th>
+                             <th scope="col">App Support</th>
+                             <th scope="col">Manual Support</th>
+                              <th scope="col">External Support</th>
+
+
+                        </tr>
+                        @{
+                            if (Model.JunctionLOBClientBCLevel3List.Count() > 0 && Model.JunctionLOBClientBCLevel3List.Count() != null)
+                            {
+                                foreach (var item in Model.JunctionLOBClientBCLevel3List)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.lineOfBusiness.LOBName,"DisplayClientBClevels","ClientBClevels", new {ClientID=@Model.ClientId,CLevel1Id=@Model.CLevel1Id,CLevel1Name = @Model.CLevel1Name,CLevel2Id=@Model.CLevel2Id,CLevel2Name = @Model.CLevel2Name,CLevel3Id=@Model.CLevel3Id,CLevel3Name = @Model.CLevel3Name,InExValue = @Model.InExValue,LOBClientBCId=@item.Id,LOBName=@item.lineOfBusiness.LOBName,LOBId = @item.LOBId}, null)</td>
+                                   <td>
+                                       @Html.CheckBoxFor(m => item.CBCLevel3_AppSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                    <td>
+                                          @Html.CheckBoxFor(m => item.CBCLevel3_ManualSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                  <td>
+                                  @Html.CheckBoxFor(m => item.CBCLevel3_ExternalSupport, new { tabindex = "",disabled="disabled"})</td>
+                            
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

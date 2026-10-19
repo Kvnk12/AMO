@@ -1,0 +1,497 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using WebUI.Models;
+@using NTTData.AMOPortal.Data;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+
+@model MetricModel
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+
+    List<MetricSpecification> metSpecList = ViewBag.MetricSpecificationList;
+}
+
+<style>
+    .bg-image {
+        background-repeat: no-repeat;
+        width: 0.2em;
+        height: 1em;
+        margin-top: 2px;
+        margin-left: 7px;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+    }
+
+    .k-grid tbody tr {
+        height: 10px;
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .forTooltips1 {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid .k-grid-content-locked {
+        background-color: white;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid {
+        background-color: white;
+    }
+</style>
+
+
+<div class="content-main dark-bg">
+    <ol class="breadcrumb">
+        <li>SLA Manager</li>
+        <li class="active">Metric Library   </li>
+    </ol>
+
+    <div style="margin-top:1em;width:100%;">
+        @Html.Partial("_SLAMetricTreeMenu", metSpecList)
+    </div>
+
+    <br />
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1em">
+        <button class="custom-button" id="createMetricbtn" onclick="onCreateMetric()" style="width:fit-content">Add New Metric</button>
+    </div>
+    <div class="custom-kendo-grid ">
+        @(Html.Kendo().Grid<MetricModel>()
+        .Name("MetricLibraryGrid")
+        .AutoBind(false)
+        .Columns(columns =>
+        {
+            //columns.Bound(p => p.Id).Hidden();
+            //columns.Select().Width(50).Locked(true).Lockable(true);
+            columns.Bound(p => p.MetricName).Title("Metric Name").Width(150).Locked(true).Lockable(true);
+            columns.Bound(p => p.Objective).Title("Objective").Width(150);
+            columns.Bound(p => p.ObjectiveType).Title("Objective Type");
+            columns.Bound(p => p.Calculation).Title("Calculation").Width(150);
+            columns.Bound(p => p.CalculationDataElement).Title("Calculation Data Element").Width(150);
+            columns.Bound(p => p.ContextualDataElement).Title("Contextual Data Element").Width(150);
+            //columns.Bound(p => p.MetricId).Title("Metric Id").Width(150);
+            columns.Bound(p => p.inUse).Title("Metric Available For Use").Width(100);
+            columns.Bound(p => p.ServiceCategory).Title("Service Category").Width(150).Locked(true).Lockable(true);
+            columns.Bound(p => p.Service).Title("Service").Width(150).Locked(true).Lockable(true);
+            columns.Bound(p => p.ServiceComponent).Title("Service Component").Width(150).Locked(true).Lockable(true);
+            columns.Bound(p => p.MetricPerspective).Title("Metric Perspective").Width(150);
+            columns.Bound(p => p.MetricType).Title("Metric Type").Width(150);
+            columns.Bound(p => p.ChartIndicator).Title("Charts/Indicator").Width(150);
+            columns.Bound(p => p.MetricUnit).Title("Metric Units").Width(100).Locked(true).Lockable(true);
+            columns.Bound(p => p.Rules).Title(" Rules").Width(150);
+            columns.Bound(p => p.PrimaryAudience).Title("Primary Audience").Width(150);
+            columns.Bound(p => p.CreatedBy).Title("Created By").Width(150);
+            columns.Bound(p => p.CreatedDate).Title("Created Date").Width(150);
+            columns.Bound(p => p.UpdatedBy).Title("Updated By").Width(150);
+            columns.Bound(p => p.UpdatedDate).Title("Updated Date").Width(150);
+            columns.Bound(p => p.Flag).Filterable(false).Locked(true).Lockable(true).Title("Action").Width(120).ClientTemplate("#if(data.Flag!=null){#<div><div><button class='bg-image edit' title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");' onclick='editMET(#:Id#);' id='sla-edit#=Id#'></button><button class='bg-image view' title='View' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");' onclick='viewMET(#:Id#);' id='sla-View#=Id#'></button><button class='bg-image delete' title='Delete' style='background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + ");' onclick='deleteMET(#=Id#);' id='sla-delete#=Id#'></button></div></div>#}#");
+        })
+    //.HtmlAttributes(new { @style = "height:480px" })
+    .Filterable()
+    .Scrollable(e => e.Endless(false))
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Read(read => read.Action("GetMetricLibraryList", "SLAMetricLibrary").Data("getServiceId"))
+    //.Destroy(destroy => destroy.Action("DeleteSlaSetup", "SLASetupUpdated"))
+    )
+    )
+
+
+    </div>
+    @Html.Partial("_NewSlaMetric", Model)
+    @Html.Partial("_ViewSlaMetric", Model)
+</div>
+
+<script>
+
+    function onCreateMetric() {
+        console.log("Create");
+        var popup = $("#chartMetricCreateWindow").data("kendoWindow");
+        document.getElementById('chartMetricCreateWindow_wnd_title').innerHTML = "New SLA Metric";
+        onCancelforms();
+        popup.open();
+        popup.center();
+        $('#MetricName_alert').hide();
+        $('#ServiceCat_alert').hide();
+        $('#Service_alert').hide();
+    }
+
+    function onsubmitforms() {
+        $('#MetricName_alert').hide();
+        $('#ServiceCat_alert').hide();
+        $('#Service_alert').hide();
+
+
+
+        var MetricName = $("#MetricName").data("kendoTextBox").value();
+        if (MetricName == '') {
+            $('#MetricName_alert').show();
+            return false;
+        }
+        var Objective = $("#Objective").data("kendoTextBox").value();
+        var ObjectiveType = $("#ObjectiveType").data("kendoTextBox").value();
+        var Calculation = $("#Calculation").data("kendoTextBox").value();
+        var CalculationDataElement = $("#CalculationDataElement").data("kendoTextBox").value();
+        var ContextualDataElement = $("#ContextualDataElement").data("kendoTextBox").value();
+        var inUse = $('#inUse:checked').val() ? true : false;
+
+
+        var ServiceCategoryId = $("#ServiceCategoryId").data("kendoDropDownList").value();
+        if (ServiceCategoryId == '') {
+            $('#ServiceCat_alert').show();
+            return false;
+        }
+
+        var ServiceId = $("#ServiceId").data("kendoDropDownList").value();
+        if (ServiceId == '') {
+            $('#Service_alert').show();
+            return false;
+        }
+
+        var ServiceComponentId = $("#ServiceComponentId").data("kendoDropDownList").value();
+        var MetricPerspectiveId = $("#MetricPerspectiveId").data("kendoDropDownList").value();
+        var MetricTypeId = $("#MetricTypeId").data("kendoDropDownList").value();
+
+        var ChartIndicator = $("#ChartIndicator").data("kendoTextBox").value();
+        var MetricUnit = $("#MetricUnit").data("kendoTextBox").value();
+        var Rules = $("#Rules").data("kendoTextBox").value();
+        var PrimaryAudience = $("#PrimaryAudience").data("kendoTextBox").value();
+
+        var Id = document.getElementById("Id").value;
+
+        var mod = {
+            Id: Id,
+            MetricName: MetricName,
+            Objective: Objective,
+            ObjectiveType: ObjectiveType,
+            Calculation: Calculation,
+            CalculationDataElement: CalculationDataElement,
+            ContextualDataElement: ContextualDataElement,
+            inUse: inUse,
+            ServiceCategoryId: ServiceCategoryId,
+            ServiceId: ServiceId,
+            ServiceComponentId: ServiceComponentId,
+            MetricPerspectiveId: MetricPerspectiveId,
+            MetricTypeId: MetricTypeId,
+            ChartIndicator: ChartIndicator,
+            MetricUnit: MetricUnit,
+            Rules: Rules,
+            PrimaryAudience: PrimaryAudience
+        }
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/ClientProfileManager/SLAMetricLibrary/SaveSlaMetricDetails")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    console.log("Success");
+                    var popup = $("#chartMetricCreateWindow").data("kendoWindow");
+                    popup.close();
+                    onCancelforms();
+                    var grid = $("#MetricLibraryGrid").data("kendoGrid");
+                    grid.dataSource.read();
+
+                },
+                error: function (err, response) {
+
+                }
+            });
+    }
+
+    function viewMET(Id) {
+        var mod = {
+            Id: Id
+        }
+
+        var data = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/ClientProfileManager/SLAMetricLibrary/getSlaMetricDetails_View")';
+        $.ajax({
+            url: baseurl,
+            type: "post",
+
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            error: function (response) {
+
+                //alert('Error');
+            },
+            success: function (data) {
+                //console.log(data);
+                //alert("success");
+                $("#MetricName_View").val(data.MetricName);
+                $("#Objective_View").val(data.Objective);
+                $("#ObjectiveType_View").val(data.ObjectiveType);
+                $("#Calculation_View").val(data.Calculation);
+                $("#CalculationDataElement_View").val(data.CalculationDataElement);
+                $("#ContextualDataElement_View").val(data.ContextualDataElement);
+                $("#ServiceCategoryId_View").val(data.ServiceCategory);
+                $("#ServiceId_View").val(data.Service);
+                $("#ServiceComponentId_View").val(data.ServiceComponent);
+                $("#MetricPerspectiveId_View").val(data.MetricPerspective);
+                $("#MetricTypeId_View").val(data.MetricType);
+                $("#ChartIndicator_View").val(data.ChartIndicator);
+                $("#MetricUnit_View").val(data.MetricUnit);
+                $("#Rules_View").val(data.Rules);
+                $("#PrimaryAudience_View").val(data.PrimaryAudience);
+
+                if (data.inUse) {
+                    $('input[name=inUse_View]').attr('checked', false);
+                } else {
+                    $('input[name=inUse_View]').attr('checked', true);
+                }
+
+                var popup = $("#chartMetricViewWindow").data("kendoWindow");
+                document.getElementById("chartMetricViewWindow_wnd_title").insertAdjacentHTML("beforeend",
+                    "<label style='margin-left:10em'>Metric Name:</label>" + data.MetricName + "<label style='margin-left:2em'>Metric Id:</label>" + data.Id);
+                popup.open();
+                popup.center();
+
+
+            }
+        });
+    }
+
+    function editMET(Id) {
+     /*   alert("edit metric" + Id);*/
+        baseurl = '@Url.Content("~/ClientProfileManager/SLAMetricLibrary/getSlaMetricDetailsForEdit")';
+
+        $('#MetricName_alert').hide();
+        $('#ServiceCat_alert').hide();
+        $('#Service_alert').hide();
+
+        var mod = {
+            Ids: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var popup = $("#chartMetricCreateWindow").data("kendoWindow");
+                    console.log(data.MetricName);
+                    document.getElementById("Id").value = data.Id;
+                    $("#MetricName").data("kendoTextBox").value(data.MetricName);
+                    $("#Objective").data("kendoTextBox").value(data.Objective);
+                    $("#ObjectiveType").data("kendoTextBox").value(data.ObjectiveType);
+                    $("#Calculation").data("kendoTextBox").value(data.Calculation);
+                    $("#CalculationDataElement").data("kendoTextBox").value(data.CalculationDataElement);
+                    $("#ContextualDataElement").data("kendoTextBox").value(data.ContextualDataElement);
+                    if (data.inUse) {
+                        $('input[name=inUse]').attr('checked', false);
+                    } else {
+                        $('input[name=inUse]').attr('checked', true);
+                    }
+                    $("#ServiceCategoryId").data("kendoDropDownList").value(data.ServiceCategoryId);
+                    $("#ServiceId").data("kendoDropDownList").value(data.ServiceId);
+                    $("#ServiceComponentId").data("kendoDropDownList").value(data.ServiceComponentId);
+                    $("#MetricPerspectiveId").data("kendoDropDownList").value(data.MetricPerspectiveId);
+                    $("#MetricTypeId").data("kendoDropDownList").value(data.MetricTypeId);
+                    $("#MetricUnit").data("kendoTextBox").value(data.MetricUnit);
+                    $("#ChartIndicator").data("kendoTextBox").value(data.ChartIndicator);
+                    $("#Rules").data("kendoTextBox").value(data.Rules);
+                    $("#PrimaryAudience").data("kendoTextBox").value(data.PrimaryAudience);
+
+
+                    document.getElementById('chartMetricCreateWindow_wnd_title').innerHTML = "Edit Metric ";
+                    document.getElementById("chartMetricCreateWindow_wnd_title").insertAdjacentHTML("beforeend",
+                        "<label style='margin-left:10em'>Service Category : </label>" + data.ServiceCategory + " <label style='margin-left:2em'>Service : </label>" + data.Service );
+
+                    popup.open();
+
+                    console.log(data);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                },
+
+
+
+            })
+    }
+
+    function deleteMET(Id) {
+        baseurl = '@Url.Content("~/SLAMetricLibrary/DeleteMetric")';
+        console.log("delete url", baseurl);
+        var mod = {
+            Id: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                  
+
+                    var grid = $("#MetricLibraryGrid").data("kendoGrid");
+                    grid.dataSource.read();
+
+                }
+
+
+            })
+
+    }
+
+
+    function onCancelforms() {
+
+        $("#MetricName").data("kendoTextBox").value("");
+        $("#Objective").data("kendoTextBox").value("");
+        $("#ObjectiveType").data("kendoTextBox").value("");
+        $("#Calculation").data("kendoTextBox").value("");
+        $("#CalculationDataElement").data("kendoTextBox").value("");
+        $("#ContextualDataElement").data("kendoTextBox").value("");
+        $('input[type="checkbox"]').prop('checked', false);
+        $("#ServiceCategoryId").data("kendoDropDownList").value("");
+        $("#ServiceId").data("kendoDropDownList").value("");
+        $("#ServiceComponentId").data("kendoDropDownList").value("");
+        $("#MetricPerspectiveId").data("kendoDropDownList").value("");
+        $("#MetricTypeId").data("kendoDropDownList").value("");
+        $("#ChartIndicator").data("kendoTextBox").value("");
+        $("#MetricUnit").data("kendoTextBox").value("");
+        $("#Rules").data("kendoTextBox").value("");
+        $("#PrimaryAudience").data("kendoTextBox").value("");
+
+
+        var popup = $("#chartMetricCreateWindow").data("kendoWindow");
+        popup.close();
+    }
+
+    function onCancelClick() {
+        var popup = $("#chartMetricViewWindow").data("kendoWindow");
+        popup.close();
+    }
+
+
+    function getMetrics(sname,scatname) {
+
+       
+        document.getElementById("tempSName").innerHTML = sname; //serviceid
+        document.getElementById("tempSCatName").innerHTML = scatname; //serviceid
+        var tempSName = document.getElementById("tempSName").innerHTML;
+        var tempSCatName = document.getElementById("tempSCatName").innerHTML;
+        console.log("getMetrics ", tempSName + "," + tempSCatName);
+        $('.arrowdownBG').removeClass('show');
+        $('.arrowBG').removeClass('hide');
+        $('.eye-icon').removeClass('hide');
+        $('.hide-icon').removeClass('show');
+        document.getElementById('metric-menu').innerHTML = "Show Menu";
+        $('.menuListDiv').removeClass('show');
+
+        $("#MetricLibraryGrid").data("kendoGrid").dataSource.read();
+
+
+        document.getElementById('metric-menu').insertAdjacentHTML("beforeend",
+            "<label style='margin-left:5em'>Metric Catalog  : </label>" + scatname + " > " + sname );
+
+        @*baseurl = '@Url.Content("~/ClientProfileManager/SLAMetricLibrary/getSlaMetricDetailsForEdit")';
+         var mod = {
+            Id: Id
+        }
+
+        var data = JSON.stringify(mod);
+            var RootUrl = '@Url.Content("~/")';
+        $.ajax(
+        {
+            url: RootUrl + 'SLASetupUpdated/getServiceandCategory',
+            type: 'post',
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                   /* var popup = $("#chartSLACreateWindow").data("kendoWindow");*/
+
+                    document.getElementById('metric-menu').insertAdjacentHTML("beforeend",
+                        "<label style='margin-left:5em'>Metric Catalog  : </label>" + data.ServiceCategory + " > " + data.Service + " > " + MetricName);
+
+                    $("#SLAGrid1").data("kendoGrid").dataSource.read();
+                    document.getElementById('createSLAbtn').disabled = false;
+            }
+
+
+       })*@
+
+        //ID name - get parents - service and service category
+
+
+    }
+
+
+    function getServiceId() {
+       /* alert("get param");*/
+        var serviceName = document.getElementById("tempSName").innerHTML;
+        var serviceCatName = document.getElementById("tempSCatName").innerHTML;
+       
+        console.log("tempSName is " + serviceName);
+        console.log("tempSCatName is " + serviceCatName);
+      
+
+
+        return {
+            serviceName: serviceName,
+            serviceCatName: serviceCatName
+
+        };
+
+    }
+
+
+</script>

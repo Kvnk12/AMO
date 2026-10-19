@@ -1,0 +1,152 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.SLAMDashboardInput
+@using NTTData.AMOPortal.Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_DataMaintenanceAppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+    HomeInput menuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    var Userrole = menuItemsInput.UserRole;
+    }
+
+
+
+ @using (Html.BeginForm())
+ {
+
+ 
+
+
+
+        <div class="clear"></div>
+        <div>
+           <ol class="breadcrumb container">
+            <li class="active">SLA Manager</li>
+            <li class="active">Data Maintanence</li>
+            <li class="active">Service Request</li>
+          </ol>
+        </div>
+     if (Userrole=="User" || Userrole=="CustomerUser")
+         {
+        <div class="alert alert-info container readonly">
+		You are in <b>READ ONLY</b> mode.
+		</div>
+         }  
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+          <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            @if (!ViewData.ModelState.IsValid)
+            {
+              @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+            }
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+        @Html.Partial("_DMCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div style="min-height:700px">
+                  <div class="timeZonearea">
+                    <div class="left timeLeft">
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label" for="sametime">Service Request Data Set </label>
+                          @Html.HiddenFor(m => m.ClientId)
+                        @if (Model.ClientId != 0)
+                        {
+                            if (@User.IsInRole("User") == false || @User.IsInRole("CustomerUser") == false)
+                            {
+                        <p>@Html.ActionLink("Create New Service Request", "CreateSR", new { Id = Model.ClientId })</p>
+                            }
+                            else
+                            {
+                                      <p>Create New Service Request</p>
+                            }
+                        }
+                      </div>
+                    </div>
+                    <!--.left-->
+                    
+                    <!--/.right-->
+                  </div>
+                  <!--/.well-->
+                  <div class="container_12">
+                      @Html.Partial("_ViewSRbyClient", Model)
+
+                    <div class="clear"></div>
+                  </div>
+                </div>
+                <!--END OF LEFTAREA-->
+              </div>
+              <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+          </div>
+          <!--/.treeMenuArea-->
+        </div>
+        <!--/.container-->
+    
+ }
+
+<script>
+    //$('select#ddlClient').change(function () {
+    //    var SelectedclientId = $('#ddlClient :selected').val();
+    //    var href = window.location.href.split('/');
+    //    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+    //    var baseurl = '';
+    //    if (href[3] == 'ServiceRequest') {
+    //        //alert('local url');
+
+    //        var baseurl = href[0] + '//' + href[2] + '/' + 'ServiceRequest/ViewSRbyClient/?ClientId='
+    //    }
+    //    else {
+    //        //alert('server');
+    //        var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ServiceRequest/ViewSRbyClient/?ClientId='
+    //    }
+
+    //    window.location = baseurl + SelectedclientId;
+
+    //});
+
+    </script>
+
+
+    <!--<script type="text/javascript" src="Url.Content("~/Scripts/jquery.fixedheadertable.js")"></script>-->
+    <!--
+
+
+      <script>
+          //$(document).ready(function () {
+          //$(document.body).on('change', '#ddlClient', function () {
+          //    var v = $(this).val();
+
+          //    var url = '../ViewIncidentbyClient/?ClientId=' + v;
+          //    window.location = url;
+          //});
+
+          $('select#ddlClient').change(function () {
+              var SelectedclientId = $('#ddlClient :selected').val();
+              var href = window.location.href.split('/');
+              //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+              var baseurl = '';
+              if (href[3] == 'Incident') {
+                  //alert('local url');
+
+                  var baseurl = href[0] + '//' + href[2] + '/' + 'Incident/ViewIncidentbyClient/?ClientId='
+              }
+              else {
+                  //alert('server');
+                  var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Incident/ViewIncidentbyClient/?ClientId='
+              }
+
+              window.location = baseurl + SelectedclientId;
+
+          });
+
+    </script>
+     <script>
+         var j = jQuery.noConflict(true);
+         j(document).ready(function () {
+             j('#myTable05').fixedHeaderTable({ altClass: 'odd', footer: 'false' });
+         });
+
+
+</script>   -->

@@ -1,0 +1,32 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@model string
+
+
+@{
+
+    //  var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new MetaDataController();
+    //var INColumn = cont.GetColumnList(client.ClientId);
+    var INColumn = (IEnumerable<SelectListItem>)ViewData["LogicalColumnList"];
+    //use viewbag
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                    .Name("INFieldName")
+                                    .OptionLabel("Select Column..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .Filter("contains")
+                                    .BindTo(INColumn)
+                                    .Events(e =>
+                             {
+                                 e.Change("onSelectColumn");
+                             })
+                                    .AutoBind(true)
+
+
+)

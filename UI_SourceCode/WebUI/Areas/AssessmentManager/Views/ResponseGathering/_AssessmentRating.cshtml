@@ -1,0 +1,192 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+
+@model A3MMModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+<style>
+</style>
+
+<html>
+<body>
+    <div class="engagementSelfAssessmentPopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("AssessmentRatingpopUp")
+    .Title("Assessment Rating")
+    .Content(@<text>
+
+        <div class="ass-dg-Ar" style=" display: flex; flex-direction: column;">
+
+                   <p>Thank you for submitting a response. How would you rate this interaction?</p>
+
+                   <div class="assess-dg-Ar-ratingButtons" style="display: flex;">
+
+                       @*<button id="assessRt2" class="assess-ratingButton" style="background-color: #FF8E15;"onclick="engagementRatingSelection(2)">2</button>
+                       <button id="assessRt3" class="assess-ratingButton" style="background-color: #FAB733;"onclick="engagementRatingSelection(3)">3</button>
+                       <button id="assessRt4" class="assess-ratingButton" style="background-color: #ACB334;"onclick="engagementRatingSelection(4)">4</button>
+                       <button id="assessRt5" class="assess-ratingButton" style="background-color: #69B34C;"onclick="engagementRatingSelection(5)">5</button>*@
+
+                   </div>
+                   <input type="hidden" id="AssessmentRatingSelectedVal"  value="0" />
+
+                   @*<div style="display: flex; justify-content: space-between; width: 38%; margin-top: 0.5vw;">
+                     <p style="font-size: x-small;">Not Safisfied </p>
+                     <p style="font-size: x-small;">Very Safisfied</p>
+                   </div>*@
+
+                   <div id="matContentInfo" style="display: flex; visibility: hidden;  width: 100%; margin-top: 1vw;">
+                     <p id="matContent"></p>
+                   </div>
+
+
+
+                   <div id="assessmentRatingSelectedInfo" style="display: flex; visibility: hidden; margin-top: 1vw;" >
+                        <img id="assessRatingImg" src="~/Content/images/info_red.svg" />
+                        <p id="assessmentRatingSelected">   You selected <span id="assessRatingNo">"4"</span> Rating.</p>
+                    </div>
+
+
+                    @*<p style="color: #5876AA";font-weight: 400;>Comment for your Rating.</p>*@
+
+                   <div class="assess-AR-AOI;"style="display:flex;">
+                     <div style = "width:50% !important">
+                          <p style="color: #5876AA;font-weight: 400;margin:0px;padding:0px">Assessment response <span style="color: #ff0D0D; font-weight: 400;font-size:9px">(Required*)</span></p>
+                          @Html.TextAreaFor(m => m.AssessmentResponse, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "AssessmentResponse", rows = 2, cols = 10, @placeholder = "Type your response here...", style = "width:28em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+                     </div>
+                     <div style = "width:50% !important">
+                          <p style="color: #5876AA; font-weight: 400; margin: 0px; padding: 0px">Areas of improvement</p>
+                           @Html.TextAreaFor(m => m.AreasofImprovement, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "AreasOfImprovement", rows = 2, cols = 10, @placeholder = "Type your Areas of improvement text here...", style = "width:29em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+                     </div>
+                   </div>
+
+                  <div class="meta-data" style="display:flex; margin-top:2vw">
+
+                      <div class="imp-plan" style="display:flex;">
+                          <label class="a3mm-rating-drp-label">Implementation Plan : </label>
+                          <div class="new-dropdown" style="border-radius: 0px;  margin-top: -6px;">
+                              @(Html.Kendo().DropDownListFor(m => m.ImplementationPlanId)
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 //.BindTo(Model.ComponentList)
+                                 //.Value(Model.ComponentId.ToString())
+                                 .Enable(true)
+                                 .OptionLabel("Select Implementation Plan")
+                                 .Name("ImplementationPlan")
+                                .DataSource(d => d.Read(r => r.Action("ReadImplementationPlan", "ResponseGathering")))
+                                .HtmlAttributes(new { style = "width:13vw;" })
+                               )
+                          </div>
+                      </div>
+
+
+                      <div class="bus-driver" style="display:flex;margin-left: 7em;">
+                           <label class="a3mm-rating-drp-label">Business Driver : </label>
+                          <div class="new-dropdown" style="border-radius: 0px; margin-top: -6px;">
+                              @(Html.Kendo().DropDownListFor(m => m.BusinessDriverId)
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 //.BindTo(Model.ComponentList)
+                                 //.Value(Model.ComponentId.ToString())
+                                 .Enable(true)
+                                 .OptionLabel("Select Business Driver")
+                                 .Name("BusinessDriver")
+                                .DataSource(d => d.Read(r => r.Action("ReadBusinessDriver", "ResponseGathering")))
+                                .HtmlAttributes(new { style = "width:15vw;background-color:#fff;" })
+                               )
+                          </div>
+                      </div>
+
+                  </div>
+
+                  <div class="meta-data" style="display: flex; margin-top: 1vw;">
+
+                      <div class="priority" style="display:flex;">
+                          <label class="a3mm-rating-drp-label">Priority: </label>
+                          <div class="new-dropdown" style="border-radius: 0px; margin-top: -6px;">
+                              @(Html.Kendo().DropDownListFor(m => m.Priority)
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 //.BindTo(Model.ComponentList)
+                                 //.Value(Model.ComponentId.ToString())
+                                 .Enable(true)
+                                 .OptionLabel("Select Priority")
+                                 .Name("Priority")
+                                .DataSource(d => d.Read(r => r.Action("ReadPriority", "ResponseGathering")))
+                                .HtmlAttributes(new { style = "width:13vw;background-color:#fff;" })
+                               )
+                          </div>
+                      </div>
+
+                       <div class="ams-catalog" style="display:flex;margin-left:7em;">
+                          <label class="a3mm-rating-drp-label">AMS Catalog : </label>
+                          <div class="new-dropdown" style="border-radius: 0px; margin-top: -6px;">
+                              @(Html.Kendo().DropDownListFor(m => m.AMSCatalogId)
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 //.BindTo(Model.ComponentList)
+                                 //.Value(Model.ComponentId.ToString())
+                                 .Enable(true)
+                                 .OptionLabel("Select Catalog")
+                                 .Name("AMSCatalog")
+                                .DataSource(d => d.Read(r => r.Action("ReadAMSCatolog", "ResponseGathering")))
+                                .HtmlAttributes(new { style = "width:15vw;background-color:#fff;" })
+                               )
+                          </div>
+                      </div>
+                  </div>
+
+            <div class="mark-as-complete" style="display:flex; justify-content:space-between;margin-left:2em" >
+                <div>
+                  @(Html.Kendo().CheckBox().Name("markAsComplete").Checked(false).Label("Mark this question as Completed"))
+                </div>
+                <label id="assessmentRatingValidation" style="visibility: hidden;float:right; color:red;"> Please enter all the details </label>
+            </div>
+
+
+
+
+                    <div class="Assessment-Rating-save-cancel-buttons">
+
+                       <div style="margin: 0 1em 0 0;">
+                         <button class="custom-button" type="button" id="btnCancelAssessmentRating" onclick="onCancelAssessmentRating()">CANCEL</button>
+                       </div>
+                       <div style="margin: 0 0 0 0;">
+                         <button class="custom-button" type="button" id="btnSaveAssessmentRating" onclick="onSaveAssessmentRating()" >SUBMIT</button>
+                       </div>
+                    </div>
+
+        </div>
+
+
+
+         </text>)
+    .Visible(false)
+    .Draggable()
+    .Width(800)
+    .Height(480)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    //.Actions(actions => actions.Close())
+
+    )
+    </div>
+
+
+
+</body>
+
+</html>
+

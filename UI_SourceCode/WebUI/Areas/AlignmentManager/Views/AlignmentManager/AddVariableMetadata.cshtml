@@ -1,0 +1,164 @@
+﻿@using  NTTData.AMOPortal.Domain.Entities;
+@model WebUI.Areas.AlignmentManager.Models.VariableMetadataAddModel
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+
+@using (Html.BeginForm("AddVariableMetadata", "AlignmentManager", FormMethod.Post))
+{
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent" style="min-height: 700px">
+            <div class="amgrcontentLeft">
+                <div class="well well-sm"><strong>Meta Data</strong></div>
+                <div class="valchainContent">
+                    <div class="container row">
+                        
+                        <div class="col-xs-6 col-sm-4">
+                            <div class="tblacc">
+                                <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped">
+                                    <th width="100%" scope="col">Data Elements</th>
+                                    @foreach (VariableMDType type in Model.Types)
+                                    {
+                                        <tr>
+                                            <td><a class="meta-header" data-ix href="@String.Format("#tab-{0}", type.Id)">@type.TypeName</a></td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                        <!--end of col-->
+                        
+                        <div id="meta-data-tabs">
+                            @{
+                                bool firstElement = true;
+                            }
+                            @foreach (VariableMDType type in Model.Types)
+                            {
+                                <div id="@String.Format("tab-{0}", type.Id)" class="col-xs-6 col-sm-4 metavalues" style="@String.Format("{0}", firstElement ? string.Empty : "display: none;")">
+                                    <div class="accContracthdr">
+                                        <div>Metadata Values</div>
+                                        <b>@type.TypeName</b>
+                                    </div>
+                                    <div class="form-horizontal">
+                                        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped">
+                                            <tr>
+                                            <th width="100%" scope="col">Values</th>
+                                            <tr>
+                                                <td>
+                                                    <select class="form-control">
+                                                        <option>1</option>
+                                                        <option>2</option>
+                                                        <option>3</option>
+                                                        <option>4</option>
+                                                        <option>5</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            @*<tr>
+                                                <td><a href="#">Create New Score</a></td>
+                                            </tr>*@
+                                        </table>
+                                    </div>
+                                    <div class="form-group">
+                                        <label id="" class="col-sm-6 control-label" for="metawt">Metadata Weight</label>
+                                        <div class="col-sm-3">
+                                            <input id="" class="form-control" type="" tabindex="" placeholder="" name="metawt">
+                                        </div>
+                                    </div>
+                                </div>
+                                if (firstElement)
+                                {
+                                    firstElement = false;
+                                }
+                            }
+                        </div>
+                        <!--end of col-->
+                    </div>
+                    <!--./row-->
+                    @Html.HiddenFor(m => m.Scores)
+                    @Html.HiddenFor(m => m.Values)
+
+                    <div class="addvalaction">
+                        @Html.ActionLink("Back", "AddVariable", "AlignmentManager", new { parentId = Model.ParentId, variableId = Model.VariableId }, new { @class = "btn btn-primary" })
+                        <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+                        @Html.ActionLink("Cancel", "Index", "AlignmentManager", null, new { @class = "btn btn-primary" })
+                    </div>
+                </div>
+                <!--.valchainContent-->
+            </div>
+            <!--/.amgrcontentLeft-->
+            <div class="amgrcontentRight">
+                <div class="dependancyArea">
+                    <div class="dAhead">
+                        <a class="rightNav rightNavoneClose" title="" href="#"><span class="glyphicon glyphicon-chevron-right"></span>Dependencies
+                        </a>
+                    </div>
+
+                    <ul class="list-group">
+                        <li class="list-group-item">Dependency One</li>
+                        <li class="list-group-item">Dependency Two</li>
+                        <li class="list-group-item">Dependency Three</li>
+                        <li class="list-group-item">Dependency Four</li>
+                        <li class="list-group-item">Dependency Five</li>
+                    </ul>
+
+
+                </div>
+                <!--.dependancyArea-->
+                <div class="dAreaOpen">
+                    <a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                </div>
+
+                <div class="otherInfoArea">
+                    <div class="dAhead">
+                        <a class="rightNav rightNavtwoClose" title="" href="#">
+                            <span class="glyphicon glyphicon-chevron-right"></span>Other Information
+                                      
+                        </a>
+
+                    </div>
+                    <!--.dAhead-->
+
+                    <ul class="list-group">
+                        <li class="list-group-item">Client Name : <strong>Hanover</strong></li>
+                        <li class="list-group-item">Vertical : <strong>Mfg</strong></li>
+                        <li class="list-group-item">SLA Metric : <strong>Incident Compliance</strong></li>
+                        <li class="list-group-item">PA Trends : <strong>Time to complete problem average</strong></li>
+
+                    </ul>
+
+                </div>
+                <!--.otherInfoArea-->
+
+                <div class="oAreaOpen">
+                    <a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                </div>
+
+            </div>
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+
+    
+}
+@section scripts {
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script>
+        $(document).ready(function () {
+            
+            $(".meta-header").click(function () {
+                var link = $(this).attr("href");
+                $(".metavalues").hide();
+                $(link).fadeIn();
+            });
+            
+        });
+    </script>
+}

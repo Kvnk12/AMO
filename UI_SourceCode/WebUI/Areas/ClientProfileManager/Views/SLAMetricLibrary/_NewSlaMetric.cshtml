@@ -1,0 +1,274 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+
+@model MetricModel
+
+
+@Html.AntiForgeryToken()
+@(Html.Kendo().Window()
+                    .Name("chartMetricCreateWindow")
+                    .Title(" Metric Library ")
+                    .Content(@<text>
+    <input type="hidden" id="Id" name="Id" value=@Model.Id>
+<div class="slasetup-create">
+    <div class="slasetup-section">
+        <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> <span class="mandate">*</span> Metric Name</label>
+            </div>
+              <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.MetricName )
+                     .Name("MetricName")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                 <label id="MetricName_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+                </div>
+        </div>
+
+        <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">  Metric Objective</label>
+            </div>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.Objective)
+                     .Name("Objective")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+
+
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Objective Type</label>
+            </div>
+                       <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.ObjectiveType)
+                     .Name("ObjectiveType")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+
+
+         <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Calculation</label>
+            </div>
+                     <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.Calculation)
+                     .Name("Calculation")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+
+         <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Calculation Data Element</label>
+            </div>
+            <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.CalculationDataElement)
+                     .Name("CalculationDataElement")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Contextual Data Element</label>
+            </div>
+                   <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.ContextualDataElement)
+                     .Name("ContextualDataElement")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric available for use</label>
+            </div>
+              <div class="custom-checkbox">
+                    @(Html.Kendo().CheckBoxFor(e => e.inUse)
+                       .Name("inUse")
+                    )
+
+                </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"><span class="mandate">*</span>Service Category</label>
+            </div>
+             <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.ServiceCategoryId)
+                                .Name("ServiceCategoryId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.ServiceCategoryList)
+                                .AutoBind(true)
+                    )
+                <label id="ServiceCat_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                 <label class="custom-blue-label"><span class="mandate">*</span>Service</label>
+            </div>
+            <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.ServiceId)
+                                .Name("ServiceId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.ServiceList)
+                                .AutoBind(true)
+                    )
+                <label id="Service_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+            </div>
+        </div>
+
+    </div>
+    <div class="slasetup-section">
+               <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Service Component</label>
+                    </div>
+                   <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.ServiceComponentId)
+                                .Name("ServiceComponentId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.ServiceComponentList)
+                                .AutoBind(true)
+                    )
+
+            </div>
+                 </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric Perspective</label>
+            </div>
+            <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.MetricPerspectiveId)
+                                .Name("MetricPerspectiveId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.MetricPerspectiveList)
+                                .AutoBind(true)
+                    )
+
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label">Metric Type</label>
+            </div>
+            <div class="custom-dropdown">
+     @(Html.Kendo().DropDownListFor(e => e.MetricTypeId)
+                                .Name("MetricTypeId")
+                                .DataTextField("Text")
+                                .OptionLabel("Select")
+                                .DataValueField("Value")
+                                .BindTo(Model.MetricTypeList)
+                                .AutoBind(true)
+                    )
+            </div>
+        </div>
+               <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> Charts/Indicators:</label>
+            </div>
+            <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.ChartIndicator)
+                      .Name("ChartIndicator")
+                      .Enable(true)
+                      .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+        </div>
+
+        <div class="slasetup-group">
+            <div class="create-slasetup-label">
+                <label class="custom-blue-label"> Metric Unit :</label>
+            </div>
+           <div class="custom-textbox">
+            @(Html.Kendo().TextBoxFor(e => e.MetricUnit)
+                      .Name("MetricUnit")
+                      .Enable(true)
+                      .HtmlAttributes(new { @maxlength = "100" })
+                    )
+</div>
+        </div>
+    </div>
+    <div class="slasetup-section">
+           <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">Rules</label>
+                    </div>
+                     <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.Rules)
+                     .Name("Rules")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+           </div>
+        <div class="slasetup-group">
+                    <div class="create-slasetup-label">
+                        <label class="custom-blue-label">PrimaryAudience</label>
+                    </div>
+                   <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.PrimaryAudience)
+                     .Name("PrimaryAudience")
+                     .Enable(true)
+                     .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+           </div>
+
+    </div>
+</div>
+<div class="sla-setup-bottom">
+                    <div style="margin: 0 1em 0 0;">
+                        <button class="custom-button btn-cancel"  onclick="onCancelforms()" type="reset" id="btnCancel">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button class="custom-button" onclick="onsubmitforms()" type="submit" id="btnAdd">SAVE</button>
+                      @*  <button class="custom-button" onclick="onSave()" type="button" id="btnAdd">SAVE</button>*@
+                          @*<input id = "Submit" type = "submit" value = "submit" />*@
+                    </div>
+</div>
+
+ </text>)
+                                                    .Visible(false)
+                                                    .Draggable()
+                                                    .Resizable()
+                                                    .Width(1000)
+                                                    .Height(500)
+                                                    .AutoFocus(false)
+                                                    .Modal(true)
+                                                    .Actions(actions => actions.Close())
+
+)

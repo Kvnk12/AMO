@@ -1,0 +1,528 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using System.Web.Configuration;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Telerik.Reporting;
+@using Telerik.ReportViewer.Mvc;
+
+
+@model A3MMModel
+
+@{ ViewBag.Title = "A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+            <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+                        <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+                                    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+ /*new*/
+                        <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+ /*new*/
+
+
+            <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+                        <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+                                    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+                                                <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+                                                            <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+ //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+                                                            Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+                                                            var area = HttpContext.Current.Request.Url.AbsoluteUri;
+                                                            var Patharray = area.Contains("AMOPortalAPIPTest");
+                                                            var ReportUrl = "A3MM/A3MM_MaturityLevelCompare_drilldown";
+                                                            if (Patharray)
+                                                            {
+                                                                ReportUrl = "A3MM/A3MM_MaturityLevelCompare_drilldown";
+                                                            }
+
+
+                                                            var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+                                                            var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+                                                            var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+                                                            var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+
+                                                            List<A3MMModel> QuestionSetList = new List<A3MMModel>();
+
+                                                            ClientDetail client = (ClientDetail)Session["SessionClient"];
+                                                            var clientId = client.ClientId;
+                                                            var clientName = client.ClientName; }
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+<link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+<script src="@RepJsResources"></script>
+<style>
+
+    #reportViewerA3MM_MaturityLevelCompare {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+
+    .k-button#btnPreview {
+        background: #fff;
+        color: rgb(91,121,171);
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+    }
+
+    .k-button#btnSubscribe {
+        background: #fff;
+        color: rgb(91,121,171);
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+    }
+
+    .k-button#btnRptSch {
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+        margin-top: 10px;
+        background-image: url('../../Content/images/view_download_scheduled_report.svg');
+        background-repeat: no-repeat;
+        height: 2.4em;
+        background-color: transparent;
+        padding-left: 2.5em;
+    }
+
+    .k-button#btnRptSub {
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 3px 12px;
+        border: none;
+        margin-top: 1em;
+        background-image: url('../../Content/images/report_subscriptions.svg');
+        background-repeat: no-repeat;
+        height: 2.5em;
+        background-color: transparent;
+        padding-left: 2.2em;
+    }
+</style>
+<div class="content-main dark-bg support-body-container">
+    <div>
+        <ol class="breadcrumb container">
+            <li>Assessment Manager</li>
+            <li class="active">A3MM Maturity Level Compare</li>
+        </ol>
+
+    </div>
+    <input type="hidden" id="avg_MaturityLevel" name="avg_MaturityLevel">
+    <input type="hidden" id="AssessmentName" name="AssessmentName">
+    <input type="hidden" id="Component_ID" name="Component_ID">
+    <input type="hidden" id="ComponentName" name="ComponentName">
+    <input type="hidden" id="Assessment_id" name="Assessment_id">
+
+    @*Report Specific Subscriptions*@
+    @(Html.Kendo().Button()
+                        .Name("btnRptSub")
+                        .Content("    Report Subscriptions")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+     )
+    @*Report Specific Downloads*@
+    @(Html.Kendo().Button()
+                        .Name("btnRptSch")
+                        .Content("View/Download Scheduled Reports")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+     )
+
+
+    <div>
+
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <span class="parameter-filter-icon"></span>
+            </div>
+
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+                        <li class="custom-multiselect">
+                            Account:
+                            <select class="custom-multiselect-dropdown" id="Account" multiple="multiple" onchange="onAccountchange">
+                                @{ foreach (var item in Model.AccountNamesList)
+                                    {
+
+                        <option value="@item.Value" selected>@item.Text</option> } }
+                            </select>
+
+                        </li>
+
+                        <li class="custom-multiselect">
+                            AssessmentNameList:
+                            <select class="custom-multiselect-dropdown" id="Assessment" multiple="multiple">
+                                @{ foreach (var item in Model.AssessmentNameListDropDown)
+                                    {
+
+                        <option value="@item.Value" selected>@item.Text</option> } }
+                            </select>
+
+                        </li>
+                        <li class="custom-multiselect">
+                            Discipline :
+                            <select class="custom-multiselect-dropdown" id="Discipline" multiple="multiple">
+                                @{ foreach (var item in Model.DisciplineList)
+                                    {
+
+                        <option value="@item.Value" selected>@item.Text</option> } }
+                            </select>
+
+                        </li>
+                        <li class="custom-multiselect">
+                            Component :
+                            <select class="custom-multiselect-dropdown" id="Component" multiple="multiple">
+                                @{ foreach (var item in Model.ComponentList)
+                                    {
+
+                        <option value="@item.Value" selected>@item.Text</option> } }
+                            </select>
+
+                        </li>
+                        <li>
+                            @(Html.Kendo().Button()
+
+                        .Name("btnPreview")
+                        .Content("Apply")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                        @*<li>
+                                @(Html.Kendo().Button()
+                                      .Name("btnDrilldown")
+                                      .Content("Drill")
+                                      .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                                      )
+                            </li>*@
+                        <li>
+                            @(Html.Kendo().Button()
+                        .Name("btnSubscribe")
+                        .Content("Subscribe")
+                        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div style="padding:0;padding-top: 15px;width:100%;margin:8px" id="reportPartialID">
+            <div class="chart-content">
+                <div class="chart-area">
+                    @(Html.Kendo().Chart<A3MMMultiDJGraphData>()
+                                        .Name("chartTrend")
+                                        // .Title("Ticket Trend by Year/Month")
+                                        .Legend(legend => legend
+                                        .Visible(true)
+                                        .Align(ChartLegendAlign.Start)
+                                        .Position(ChartLegendPosition.Bottom)
+                                        //.Offset(1, 1)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetMultiDigintalJourneyData", "Assessment").Data("ParameterDJ")))
+
+                                                                                    //series.Line(model => model.DisciplineList.Count()).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(true);
+                                            
+                                        .Series(series =>
+                                                                                    {
+                                                                                        series.Line(model => model.x).Name("No. of Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#19BDFF").Visible(true)).Color("#19BDFF");
+                                                                                        series.Line(model => model.x).Name("No. of Resolved Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#2FB447").Padding(0, 0, -30, 0).Visible(true)).Color("#2FB447").Visible(false);
+                                                                                        series.Line(model => model.y).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(false);
+
+                                                                                    })
+                                        .CategoryAxis(axis => axis
+                                        .Min(0)
+                                         .Max(12)
+                                        .Categories(model => model.x)
+                                        .MajorGridLines(lines => lines.Visible(false))
+
+                                        .Labels(labels => labels.Rotation("auto"))
+                                        .AxisCrossingValue(0, 1000)
+                                            .Crosshair(c => c.Visible(true).DashType(ChartDashType.Dot))
+                                        //.Title(title => title.Text("Year/Month").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+
+                                        .ValueAxis(axis => axis.Numeric("TktCnt")
+                                                .Labels(labels => labels.Format("{0:N0}"))
+                                                     //.Visible(true)
+                                                     //  .MajorGridLines(lines => lines.Visible(true))
+                                                     .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                // .Title(title => title.Text("# of Tickets").Font("12px Arial,Helvetica,sans-serif"))
+                                                //.MajorUnit(100)
+                                                )
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= series.name #: #= value #"))
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                .Events(events => events
+
+            .DataBound("Inflow_onDataBound")
+            .SeriesClick("onTrendSeriesClick")
+        // .Render("onRender")
+        )
+        )
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+</div>
+
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<script src="~/Content/js/bootstrap.min.js"></script>
+<script>
+    $('.custom-multiselect-dropdown').multiselect({
+        maxHeight: 200,
+        numberDisplayed: 1,
+        includeSelectAllOption: true,
+        includeResetOption: true
+    });
+    $(".custom-multiselect-dropdown").multiselect('selectAll', true);
+    $(".custom-multiselect-dropdown").multiselect('updateButtonText');
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider').addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+
+    $('#btnDrilldown').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+
+    $('#btnPreview').on("click", function (e) {
+        // var multi = $("#Contract").data("kendoMultiSelect").value();
+        RefreshReport();
+    });
+
+
+    $('#btnDrilldown').on("click", function (e) {
+        // var multi = $("#Contract").data("kendoMultiSelect").value();
+
+        var avg_MaturityLevel = "1";
+        var AssessmentName = "AssessmentName";
+        var Component_ID = "1";
+        var ComponentName = "ComponentName";
+        var Assessment_id = "75";
+        document.getElementById("avg_MaturityLevel").value = avg_MaturityLevel;
+        document.getElementById("AssessmentName").value = AssessmentName;
+        document.getElementById("Assessment_id").value = Assessment_id;
+        document.getElementById("Component_ID").value = Component_ID;
+        document.getElementById("ComponentName").value = ComponentName;
+        document.getElementById('A3MMPopLabel').innerHTML = " " + AssessmentName + " Details  ";
+        var gridp = $("#GridA3MM_MaturityData").data("kendoGrid");
+        gridp.dataSource.read();
+        $('#A3MMPopUp').modal('show');
+
+
+
+
+    });
+
+
+    function onAccountchange() {
+        alert('onAccountchange')
+    }
+    function RefreshReport() {
+        var DisciplineSel = $('#Discipline').val();
+        var  DisciplineDesc = "";
+        for (var i = 0; i < DisciplineSel.length; i++) {
+            if (i > 0) { DisciplineDesc += "##"; }
+            DisciplineDesc += $('#Discipline option:selected')[i].value;
+        }
+        var Disciplinearr = DisciplineDesc.split('##');
+
+
+        var ComponentSel = $('#Component').val();
+        var ComponentDesc = "";
+        for (var i = 0; i < ComponentSel.length; i++) {
+            if (i > 0) { ComponentDesc += "##"; }
+            ComponentDesc += $('#Component option:selected')[i].value;
+        }
+        var Componentarr = ComponentDesc.split('##');
+        //SaveReportParameters(TypectrlSel, StatusctrlSel, PriorityctrlSel, GroupctrlSel, TowerctrlSel, WaiveOption);
+        var viewer = $("#reportViewerA3MM_MaturityLevelCompare").data("telerik_ReportViewer");
+
+        //var multiselectvalue = '';// $("#Assessment").data("kendoMultiSelect").value();
+        var DisciplineID1 = $('#Discipline').val();
+        //console.log(DisciplineID1);
+        //console.log(multiselectvalue);
+        console.log("Param1 : " + Disciplinearr);
+        console.log("Param2 : " + Componentarr);
+        //console.log("Param3 : " + multiselectvalue);
+        //var assessString = multiselectvalue.toString();
+        console.log(@clientId);
+        if (viewer !== undefined) {
+                viewer.reportSource({
+                    report: viewer.reportSource().report,
+                    parameters: {
+
+
+                        DisciplineID: Disciplinearr,//'Closed',
+                        ComponentID: Componentarr,
+                        Assessmentid: $("#Assessment").val(),
+                        UserName: '@Model.UserName',
+                        DateTimeNow:'@Model.CreatedDt',
+                        Assessmentids: $('#Assessment').val().toString(), //assessString
+                        ClientId:@clientId
+                  }
+                });
+
+        }
+        //setting the HTML5 Viewer's reportSource, causes a refresh automatically
+        //if you need to force a refresh for other case, use:
+        viewer.refreshReport();
+
+    }
+    function GetAccId() {
+
+        var app = $("#Account").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+    function onAccountchange(e) {
+        var app = $("#Account").data("kendoMultiSelect");
+        app.dataSource.read();
+    }
+
+    $('#Account').on("change", function (e) {
+        // var multi = $("#Contract").data("kendoMultiSelect").value();
+        AccountChange();
+    });
+
+    function AccountChange(Accarr) {
+
+        //Ajax call begin
+
+        var Accarr1 = $('#Account').val();
+
+        var model = {
+            AccountDropDown: Accarr1,
+
+        };
+        var data = JSON.stringify(model);
+
+        $.ajax(
+            {
+                type: 'post',
+
+                url: 'OnAccountChanged',
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //                    alert('Success');
+                },
+                error: function (err, data) {
+                    console.log(arguments);
+                    //                    alert('Ajax Error');
+                }
+
+            });
+        //Ajax end
+
+    }
+    function GetMaturityReportParameters(e) {
+
+
+        return {
+            ComponentName: document.getElementById("ComponentName").value,
+            Component_ID: document.getElementById("Component_ID").value,
+            Assessment_id: $('#Assessment').val().toString(),
+            AssessmentName: document.getElementById("AssessmentName").value,
+            avg_MaturityLevel: 1
+
+        };
+    }
+    function ParameterDJ(e) {
+        console.log($("#DrpValTrend").val());
+        //Contarr = $("#Contract").data("kendoDropDownList").value();
+        //alert(Contarr);
+        return {
+
+            ChartType: "sss"
+            
+        };
+    }
+
+
+
+
+
+
+
+
+
+
+    function getWhereClause() {
+        var Accarr2 = $('#Account').val();
+
+
+
+
+
+        console.log(Accarr2);
+        return {
+            AccountDropDown: Accarr2
+        };
+
+    }
+
+
+
+</script>

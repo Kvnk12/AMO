@@ -1,0 +1,519 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DashboardModel
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+    var clientlist = GetDropDownListItems.ClientList;
+
+
+
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">Dashboard</li>
+        </ol>
+    </div>
+
+    <div class="im-Dashboard">
+        <div class="im-Dashboard-top">
+            <div class="im-chart">
+                <div class="chart-head">
+                    Ideas Posted
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                                .Name("DashboardPieChart1")
+                                                                .Legend(legend => legend
+                                                                //.Position(ChartLegendPosition.Right)
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                .Background("transparent")
+                                                                //.Height(300)
+                                                                )
+                                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "Dashboard").Data("Chart1")))
+                                                                  .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                                                .Events(e => e
+                                                                        .SeriesClick("IdeaPostedClick")
+                                                                )
+                                                                  .Series(series =>
+                                                                  {
+                                                                      series.Donut(model => model.Count, model => model.Category, null)
+                                                                      .Labels(labels => labels
+                                                                      .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                      .Background("transparent")
+                                                                      .Visible(true)
+                                                                      .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                      )
+                                                                       .Overlay(ChartPieSeriesOverlay.None)
+                                                                      .StartAngle(150);
+                                                                  })
+
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+
+            </div>
+            <div class="im-chart">
+                <div class="chart-head">
+                    Ideas Status
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                                .Name("DashboardPieChart6")
+                                                                .Legend(legend => legend
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                )
+                                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "Dashboard").Data("Chart6")))
+                                                                  .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                                                .Events(e => e
+                                                                        .SeriesClick("IdeasStatusClick")
+                                                                )
+                                                                .Series(series =>
+                                                                {
+
+                                                                    series.Donut(model => model.Count, model => model.Category, null)
+                                                                       .Labels(labels => labels
+                                                                       .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                       .Background("transparent")
+                                                                       .Visible(true)
+                                                                       .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                    )
+                                                                        .Overlay(ChartPieSeriesOverlay.None)
+                                                                .StartAngle(150);
+                                                                })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+
+            </div>
+        </div>
+        <div class="im-Dashboard-bottom">
+            <div class="im-chart">
+                <div class="chart-head">
+                    Idea Type
+                    <div class="chart-type hide">
+
+                        @(Html.Kendo().DropDownListFor(m => m)
+                                        .Name("DrpValChart3")
+                                        .OptionLabel("")
+                                        .DataTextField("Text")
+                                        .DataValueField("Value")
+                                        .Value("Type")
+                                           //.Events(e => e
+                                           //        .Change("Chart3DrpChange")
+                                           //        )
+                                           .BindTo(new List<SelectListItem>() {
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Type",
+                                                                                                        Value = "Type"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Source",
+                                                                                                        Value = "Source"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Status",
+                                                                                                        Value = "Status"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Posted",
+                                                                                                        Value = "Posted"
+                                                                                                        }
+                                            })
+                                            .AutoBind(true)
+                )
+
+
+                    </div>
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                                .Name("DashboardPieChart3")
+                                                                .Legend(legend => legend
+                                                                //.Position(ChartLegendPosition.Right)
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                //.Height(250)
+                                                                )
+                                                                 .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "Dashboard").Data("Chart3")))
+                                                                   .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                                                .Events(e => e
+                                                                        .SeriesClick("IdeaTypesClick")
+                                                                )
+                                                                 .Series(series =>
+                                                                 {
+
+                                                                     series.Donut(model => model.Count, model => model.Category, null)
+                                                                        .Labels(labels => labels
+                                                                        .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                        .Background("transparent")
+                                                                        .Visible(true)
+                                                                        .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                     )
+                                                                         .Overlay(ChartPieSeriesOverlay.None)
+                                                                     .StartAngle(150);
+                                                                 })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+            </div>
+            <div class="im-chart">
+                <div class="chart-head">
+                    Idea Source
+                </div>
+                <div class="chart-content">
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                                .Name("DashboardPieChart2")
+                                                                .Legend(legend => legend
+                                                                .Visible(false)
+                                                                )
+                                                                .ChartArea(chartArea => chartArea
+                                                                    .Background("transparent")
+                                                                )
+                                                                 .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "Dashboard").Data("Chart2")))
+                                                                  .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+                                                                .Events(e => e
+                                                                        .SeriesClick("IdeaSourceClick")
+                                                                )
+                                                                 .Series(series =>
+                                                                {
+
+                                                                    series.Donut(model => model.Count, model => model.Category, null)
+                                                                       .Labels(labels => labels
+                                                                       .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                       .Background("transparent")
+                                                                       .Visible(true)
+                                                                       .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                    )
+                                                                        .Overlay(ChartPieSeriesOverlay.None)
+                                                                    .StartAngle(150);
+                                                                })
+                                                                .Tooltip(tooltip => tooltip
+                                                                    .Visible(true)
+                                                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                )
+                                                    )
+                </div>
+
+            </div>
+        </div>
+        <div id="chartseries1Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel1"> Idea Type</label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="custom-kendo-grid im-popup-grid">
+                            @(Html.Kendo().Grid<DashboardModel>(Model.IdeaTypes)
+.Name("IdeaTypes")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel())
+ .Excel(excel => excel
+        .FileName("IdeaTypes.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "Dashboard"))
+    )
+//.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="chartseries2Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel2">Idea Posted</label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="custom-kendo-grid im-popup-grid">
+                            @(Html.Kendo().Grid<DashboardModel>(Model.IdeaPosted)
+.Name("IdeasPosted")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("IdeasPosted.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "Dashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+
+)
+            )
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="chartseries3Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel3">Idea Status</label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="custom-kendo-grid im-popup-grid">
+                            @(Html.Kendo().Grid<DashboardModel>(Model.IdeaStatus)
+.Name("IdeasStatus")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("IdeasStatus.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "Dashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div id="chartseries4Modal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-popup-title">
+                    <label class="custom-white-label" id="gridlabel3">Idea Source</label>
+                    <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="custom-kendo-grid im-popup-grid">
+                            @(Html.Kendo().Grid<DashboardModel>(Model.IdeaSource)
+.Name("IdeaSource")
+.Columns(column =>
+{
+    column.Bound(m => m.Category);
+    column.Bound(m => m.Count).HtmlAttributes(new { @style = "text-align:right" });
+    //column.Bound(m => m.Percent).HtmlAttributes(new { @style = "text-align:right" });
+})
+.ToolBar(tools => tools.Excel())
+ .Excel(excel => excel
+        .FileName("IdeaSource.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "Dashboard"))
+    )
+.HtmlAttributes(new { @style = "width:460px" })
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+)
+            )
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+
+
+
+    function Chart1(e) {
+
+        return {
+
+            filterOption: 1,
+
+        };
+    }
+
+    function Chart3(e) {
+
+        return {
+
+            filterOption: 3,
+
+        };
+    }
+
+    function Chart2(e) {
+
+        return {
+
+            filterOption: 2,
+
+        };
+    }
+
+    function Chart5(e) {
+
+        return {
+
+            filterOption: 5,
+
+        };
+    }
+    function Chart6(e) {
+
+        return {
+
+            filterOption: 6,
+
+        };
+    }
+    function Chart4(e) {
+
+        return {
+
+            filterOption: 4,
+
+        };
+    }
+
+
+    function IdeaPostedClick(e) {
+        e.preventDefault();
+
+        $('#chartseries2Modal').modal('show');
+        //var popup = $("#IdeasPostedWindow").data("kendoWindow");
+        //popup.open();
+        //popup.center();
+    }
+    function IdeasStatusClick(e) {
+
+        e.preventDefault();
+
+        $('#chartseries3Modal').modal('show');
+        //var popup = $("#IdeasStatusWindow").data("kendoWindow");
+        //popup.open();
+        //popup.center();
+    }
+
+    function IdeaTypesClick(e) {
+
+        e.preventDefault();
+        $('#chartseries1Modal').modal('show');
+        //var popup = $("#IdeaTypesWindow").data("kendoWindow");
+        //popup.open();
+        //popup.center();
+    }
+
+    function IdeaSourceClick(e) {
+
+        e.preventDefault();
+
+        $('#chartseries4Modal').modal('show');
+        //var popup = $("#IdeaSourceWindow").data("kendoWindow");
+        //popup.open();
+        //popup.center();
+    }
+</script>

@@ -1,0 +1,237 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Controllers
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.Resources;
+@model ExportTicketInfoViewModel
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+
+
+@{
+    List<SelectListItem> yearlist = new List<SelectListItem>();
+    yearlist.Add(new SelectListItem { Text = "Select", Value = "0", Selected = true });
+    for (int yr = DateTime.Now.Year - 10; yr <= DateTime.Now.Year + 10; yr++)
+    {
+        yearlist.Add(new SelectListItem { Text = yr.ToString(), Value = yr.ToString() });
+    }
+
+    //// var client = (Client)Session["Client"];
+    var v = new ExportTicketInfoController();
+    var ClientStatus = v.ClientStatusList();
+}
+<style>
+    .treeMenuArea {
+        width: 100%;
+        position: relative;
+        left: -30px;
+    }
+
+    .form-group{
+        display:flex;
+        margin-bottom:1em;
+    }
+</style>
+<div class="content-main dark-bg">
+          <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li class="active">Client Profile Report</li>
+                
+            </ol>
+       
+
+        
+                <div style="color:white;"><h3>Client Profile Report</h3></div>
+                <br />
+                <div style="padding: 0;">
+                    <div class="form-horizontal">
+                        <div style="background-color: white; margin-bottom: 2em; padding: 1em;">
+                            <div class="form-group">
+                                <label for="ClientStatus" class="col-sm-5 control-label" id=""><strong>Client Status</strong></label>
+                                <div class="col-sm-5">
+                                    @(Html.Kendo().DropDownListFor(m => m.ClientStatus)
+                             .Name("ClientStatus")
+                             .OptionLabel("Select")
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(ClientStatus)
+                             .AutoBind(true)
+                     )
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Date" class="col-sm-5 control-label" id=""> <strong>Client Renewal Date</strong></label>
+                                <div class="col-sm-5">
+                                    @(Html.Kendo().DatePicker()
+        .Name("ClientRenewalDate")
+        //.Value("10/10/2011")
+        .HtmlAttributes(new { style = "width: 163px", title = "datepicker" })
+        .Format("MM/dd/yyyy")
+                                    )
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="Quater" class="col-sm-5 control-label" id=""><strong>Quarter </strong><small>(Ticket Period)</small></label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.Quarter, new List<SelectListItem>
+                                         {
+                                   new SelectListItem{ Text="Select", Value = "0" },
+                                             new SelectListItem{ Text="1", Value = "1" },
+                                             new SelectListItem{ Text="2", Value = "2" },
+                                             new SelectListItem{ Text="3", Value = "3" },
+                                             new SelectListItem{ Text="4", Value = "4" }
+                                         }, new { @class = "selectpicker", @id = "Quarter", @style = "border: 1px solid #cccccc; width:32% !important;height: 34px;border-radius: 4px !important " })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Year" class="col-sm-5 control-label" id=""><strong>Year </strong><small>(Ticket Period)</small></label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.Year, yearlist, new { @class = "selectpicker", @id = "Year", @style = "border: 1px solid #cccccc; width:32% !important;height: 34px;border-radius: 4px !important " })
+                                </div>
+                            </div>
+
+                            <div>
+                                <button type="button" id="btnSearch" class="btn btn-primary" onclick="Report();">Search</button>
+                            </div>
+                        </div>
+                        <div class="custom-kendo-grid">
+
+                            @(Html.Kendo().Grid<ExportTicketInfoViewModel>()
+                         .Name("ClientReport")
+                         .Resizable(resize => resize.Columns(true))
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.TicketId).Hidden();
+                             columns.Bound(e => e.ClientName).Title("Client Name").Width(125);
+                             columns.Bound(e => e.TotalContractValue).Title("Total Contract Value").Width(125);
+                             columns.Bound(e => e.IndustryVertical).Title("Industry Vertical").Width(100);
+                             columns.Bound(e => e.SubVertical).Title("Sub Vertical").Width(100);
+                             columns.Bound(e => e.YearOfRelationship).Title("Year Of Relationship").Width(100);
+                             columns.Bound(e => e.NTTGlobalClientManager).Title("NTT Global Client Manager").Width(100);
+                             columns.Bound(e => e.NTTGlobalDeliveryManager).Title("NTT Global Delivery Manager").Width(100);
+                             columns.Bound(e => e.LastCustomerSurvey).Title("Last Customer Survey").Width(100);
+                             columns.Bound(e => e.Rating).Title("Rating").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.FTEsOnShore).Title("On Shore FTE").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.OffShore).Title("Off Shore").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.FTEsNearShore).Title("Near Shore FTE").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.IncidentsCount).Title("Incidents Count").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.IncidentEffortHrs).Title("Incident Effort Hrs").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.IncidentEffortPerUnit).Title("Incident Effort Per Unit").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.UserSupportSRCount).Title("User Support SR Count").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.UserSupportSREffortHrs).Title("User Support SR Effort Hrs").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.UserSupportSREffortPerUnit).Title("User Support SR Effort Per Unit").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.EnhancementsCount).Title("Enhancements Count").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.EnhacementEffortHrs).Title("Enhacement Effort Hrs").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.EnhancementEffortPerUnit).Title("Enhancement Effort Per Unit").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.ProblemsCount).Title("Problems Count").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.ProblemsEffortHrs).Title("Problems Effort Hrs").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.ProblemsEffortPerUnit).Title("Problems Effort Per Unit").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.SRBacklog).Title("SRBacklog").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.Comment).Title("Comment").Width(100);
+                             columns.Bound(e => e.InMTTRSev1).Title("InMTTRSev1").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.InMTTRSev2).Title("InMTTRSev2").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.InMTTRSev3).Title("InMTTRSev3").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.InMTTRSev4).Title("InMTTRSev4").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.SrMTTRSev1).Title("SrMTTRSev1").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.SrMTTRSev2).Title("SrMTTRSev2").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.SrMTTRSev3).Title("SrMTTRSev3").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.SrMTTRSev4).Title("SrMTTRSev4").Width(100).HtmlAttributes(new { @style = "text-align:right;" });
+                         })
+                      .Pageable()
+                      .Scrollable()
+                      //.Groupable()
+                      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                      .Excel(excel => excel
+                      .FileName("ClientTickeInfoReport.xlsx")
+                      .Filterable(true)
+                      .AllPages(true)
+                       )
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Group(g => g.Add(p => p.ClientName))
+                      //.Group(g => g.Add(p => p.surveyEndDate))
+                      .PageSize(10)
+                      .Model(model => model.Id(f => f.TicketId))
+                      .Read(read => read.Action("ExportTicket", "ExportTicketInfo").Data("GetKeys"))
+                      .Events(e => e.Error("Event_Handler"))
+                          )
+
+                            )
+                        </div>
+
+                    </div>
+
+                </div>
+</div>
+      
+
+  <script type="text/javascript">
+      
+
+                    function Report() {
+                        // alert('xx');
+                        var grid = $("#ClientReport").data("kendoGrid");
+                        grid.dataSource.read();
+                    }
+                    function GetKeys()
+                    {
+                        var y = $("#Year").val();
+                        var q = $("#Quarter").val();
+                        var s = $("#ClientStatus").val();
+                        //var s = $("#ClientStatus").data("kendoDropDownList").value();
+                        var d = $("#ClientRenewalDate").val();
+                       // var d = $("#ClientRenewalDate").data("kendoGrid");
+                        var datacollection = {
+                            clientstatus: s,
+                            quarter: q,
+                            year: y,
+                            renewaldate:d
+                        };
+                      
+                        return datacollection;
+                    }
+                    function Event_Handler(e) {
+                        // alert('err');
+                        if (e.errors) {
+                            var message = "Error occurred:\n";
+                            // Create a message containing all errors.
+                            $.each(e.errors, function (key, value) {
+                                if ('errors' in value) {
+                                    $.each(value.errors, function () {
+                                        message += this + "\n";
+                                    });
+                                }
+                            });
+                            // Display the message.
+                            alert(message);
+                        }
+                    }
+
+   </script>

@@ -1,0 +1,104 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto
+@{
+   // var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    var objclient = (ClientDetail)Session["SessionClient"];
+    var clientId = objclient.ClientId.ToString();
+    var clientName = objclient.ClientName.ToString();
+}
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+
+
+}
+
+<div class="content-main custom-grid">
+
+    <div class="clear"></div>
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li class="active">Idea Manager</li>
+            <li class="active">Dashboard</li>
+            <li class="active">Analysis Idea Report</li>
+        </ol>
+    </div>
+
+    <div class="content-wrapper" style="padding:3px;height:100px">
+
+        <div class="clearfix"></div><!--This is to clear the floats-->
+        @*<iframe id="frameTrendig" src='@Url.Content("~/Areas/IdeaManager/AspxReport/WebForm2.aspx")' border="0" frameborder="0" height="1100px" width="100%"></iframe>*@
+        <embed id="frameTrendig" src='@Url.Content("~/Areas/IdeaManager/AspxReport/WebForm2.aspx")' height="1000px;" width="100%"/>
+        <style>
+            #export {
+                margin: 0 0 10px 1px;
+                float: right;
+            }
+        </style>
+
+    </div>
+    <!--/.container-->
+
+
+
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("#configurator").toggle();
+        //var ClientID = $('#myHiddenVar').val();
+        //var ClientID = $('#clientNameHiddenVar').val();
+
+        @*$('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx?ClientId=")' + ClientID );*@
+    });
+
+    function btnClick() {
+
+        $("#configurator").toggle();
+
+    }
+    $("#export").click(function (e) {
+        var pivotgrid = $("#pivotgrid").data("kendoPivotGrid");
+        pivotgrid.saveAsExcel();
+    });
+
+
+
+        function additionalData(e) {
+            var ddlItem = $("#fabric").data("kendoComboBox").value();
+            //alert(ddlItem);
+            return { ClientID: ddlItem }
+        }
+
+
+        function filterProducts() {
+            //alert($("#fabric").val());
+            return {
+                ClientID: $("#fabric").val()
+                    //productFilter: $("#products").data("kendoComboBox").input.val()
+                };
+        }
+
+        function filterTypes(e) {
+
+            return {
+                ClientID: $("#fabric").val(),
+            ConfigItem: $("#ConfigItem").val()
+            };
+        }
+
+        $(document).ready(function () { $(".appNav.appNavClose").trigger("click"); });
+</script>
+

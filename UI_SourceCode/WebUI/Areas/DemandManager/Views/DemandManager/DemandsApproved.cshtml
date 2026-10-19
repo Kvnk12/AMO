@@ -1,0 +1,193 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using PagedList.Mvc;
+@using PagedList; 
+@using Kendo.Mvc.Extensions
+@model IPagedList<DemandModel>
+
+@{
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+                     <div class="content-main">
+                         @using (Html.BeginForm("ApproveDemands", "DemandManager", FormMethod.Post))
+                         {
+
+
+                             <div>
+                                 <div>
+                                     <ol class="breadcrumb">
+                                         <li>Demand Manager</li>
+                                         <li class="active">Approve Demands</li>
+                                     </ol>
+                                 </div>
+                                 <div><label><strong>Demand Approval : </strong></label></div>
+                                 @if (!ViewData.ModelState.IsValid)
+                                 {
+                                     @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                                 }
+                                 @if (TempData["ValidationSuccessMsg"] != null)
+                                 {
+                                     <p class="alert alert-success"><strong>Success:</strong>@Html.Raw(@TempData["ValidationSuccessMsg"].ToString())</p>
+                                 }
+                                 <div class="form-group">
+                                     <div class="grid_4">
+                                         <table class="table" cellpadding="0">
+                                             <thead>
+                                                 <tr>
+
+                                                     <th scope="col">Select</th>
+                                                     <th scope="col">
+                                                         <u> @Html.ActionLink("Status", "DemandsApproved", new { sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     @*<th scope="col">Demand </th>*@
+                                                     <th scope="col">
+                                                         <u> @Html.ActionLink("Demand", "DemandsApproved", new { sortOrder = ViewBag.Demands }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u>  @Html.ActionLink("Description", "DemandsApproved", new { sortOrder = ViewBag.Description }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u> @Html.ActionLink("Created By", "DemandsApproved", new { sortOrder = ViewBag.Createdby }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u>  @Html.ActionLink("Demand Type", "DemandsApproved", new { sortOrder = ViewBag.Demandtype }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u> @Html.ActionLink("Demand Source", "DemandsApproved", new { sortOrder = ViewBag.Demandsource }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u>  @Html.ActionLink("LOB", "DemandsApproved", new { sortOrder = ViewBag.LOB }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">
+                                                         <u>   @Html.ActionLink("Config Item", "DemandsApproved", new { sortOrder = ViewBag.configitem }, new { @style = "color:white;" })</u>
+                                                     </th>
+                                                     <th scope="col">Priority</th>
+                                                     <th scope="col">Status Comments</th>
+
+                                                 </tr>
+                                             </thead>
+                                             <tbody>
+                                                 @{
+
+                                                     for (int i = 0; i < Model.Count; i++)
+                                                     {
+                                                         var commentId = "Comment" + "-" + Model[i].DemandId.ToString();
+                                                         var checkId = "Check" + "-" + Model[i].DemandId.ToString();
+                                                         var Statusname = (DMStatus)Model[i].StatusId;
+                                                         <tr>
+
+                                                             <td>
+                                                                 <div> @Html.HiddenFor(model => Model[i].ClientId) </div>
+                                                                 <div> @Html.HiddenFor(model => Model[i].StatusId)</div>
+                                                                 <div>
+                                                                     @Html.HiddenFor(model => Model[i].DemandId)
+                                                                 </div>
+                                                                 <div>
+                                                                     @Html.HiddenFor(model => Model[i].DemandName)
+                                                                 </div>
+
+                                                                 @if (Model[i].StatusId == (int)DMStatus.Posted || Model[i].StatusId == (int)DMStatus.Submitted)
+                                                                 {
+                                                                     @Html.CheckBoxFor(m => Model[i].IsChecked, new { @class = "form-control", tabindex = "", id = checkId })
+                                                                 }
+                                                                 else
+                                                                 {
+                                                                     <div data-toggle="tooltip" data-placement="right" title="@Model[i].Status Demands cannot be modified" style="overflow: hidden; text-overflow: ellipsis;">
+                                                                         @Html.CheckBoxFor(m => Model[i].IsChecked, new
+                                                                    {
+                                                                        @class = "form-control"@*, @style = "width:50px;"*@,
+                     tabindex = "",
+                     id = "status",
+                     disabled = "disabled"
+                 })
+                                                                     </div>
+                                                                 }
+
+
+                                                             </td>
+                                                             <td>
+                                                                 @Statusname
+                                                                 @Html.HiddenFor(model => Model[i].StatusId)
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].DemandName
+                                                                 @Html.HiddenFor(model => Model[i].DemandName)
+                                                             </td>
+                                                             <td>
+
+
+                                                                 @*<div data-toggle="tooltip" data-placement="right" title="@Model[i].Description" style="overflow: hidden;width:100px; height:50px; text-overflow: ellipsis;">*@
+                                                                 @Html.Raw(Model[i].Description)
+                                                                 @*</div>*@
+                                                                 @*@Model[i].Description *@
+
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].CreatedByUser
+                                                                 @Html.HiddenFor(model => Model[i].CreatedByUser)
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].DemandType
+                                                                 @Html.HiddenFor(model => Model[i].DemandType)
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].DemandSource
+                                                                 @Html.HiddenFor(model => Model[i].DemandSource)
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].LOB
+                                                                 @Html.HiddenFor(model => Model[i].LOB)
+                                                             </td>
+                                                             <td>
+                                                                 @Model[i].ConfigItemName
+                                                                 @Html.HiddenFor(model => Model[i].ConfigItemName)
+                                                             </td>
+                                                             <td>
+                                                                 @Html.DropDownListFor(m => Model[i].PriorityId, new SelectList(new List<SelectListItem>
+                                                                  {
+                                                            new SelectListItem{ Text="Select", Value = "0" },
+                                                                      new SelectListItem{ Text="1", Value = "1" },
+                                                                      new SelectListItem{ Text="2", Value = "2" },
+                                                                      new SelectListItem{ Text="3", Value = "3" },
+                                                                      new SelectListItem{ Text="4", Value = "4" },
+                                                                      new SelectListItem{ Text="5", Value = "5" }
+                                                                  }, "value", "text", Model[i].PriorityId), new { @class = "selectpicker", @id = "priority" })
+                                                             </td>
+
+                                                             <td>@Html.TextAreaFor(m => Model[i].StatusComments, new { @class = "form-control", id = commentId })</td>
+
+                                                         </tr>
+                                                     }
+                                                 }
+
+                                             </tbody>
+
+
+                                         </table>
+                                         <div class="pagination">
+                                             @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                                             @Html.PagedListPager(Model, page => Url.Action("DemandsApproved", new { page = page, sortOrder = Request["sortOrder"] }))
+                                         </div>
+
+                                         <div>
+                                             <button class="btn btn-primary" type="submit" name="btnSubmit" id="btnSubmit" value="Submit" style="margin-left:15px">Submit</button>
+                                             <button class="btn btn-primary" type="submit" name="btnSubmit" id="btnApprove" value="Approve" style="margin-left:15px">Approve</button>
+                                             <button class="btn btn-primary" type="submit" name="btnSubmit" id="btnDecline" value="Decline" style="margin-left:15px" onclick="Decline(this)">Decline</button>
+                                             <button class="btn btn-primary" type="submit" name="btnSubmit" id="btnClose" value="Close" style="margin-left:15px" onclick="Closed(this)">Closed</button>
+                                         </div>
+                                     </div>
+                                 </div>
+
+                             </div>
+
+                         }
+
+                     </div>
+
+

@@ -1,0 +1,19 @@
+﻿@using Domain.Entities.PortfolioAnalyzer
+
+@*@model object
+    @(Html.Kendo().DropDownListFor(m => m)
+            .Name("DispSolutionId")
+                .BindTo((IEnumerable<SelectListItem>)ViewData["DispSolutions"])
+    )*@
+
+@model int
+
+@(Html.Kendo().DropDownListFor(m => m)
+                .AutoBind(false)
+                //.ValuePrimitive(true)
+                .OptionLabel("Select Solution...")
+                .DataTextField("DispositionSolution")
+                .DataValueField("Id")
+                .BindTo((IEnumerable<APRDispositionSolution>)ViewData["DispSolutions"])
+)
+@Html.ValidationMessageFor(m => m)

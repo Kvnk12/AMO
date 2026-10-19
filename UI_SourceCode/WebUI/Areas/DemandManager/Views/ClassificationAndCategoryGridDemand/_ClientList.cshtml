@@ -1,0 +1,6 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.DemandClassAndCategoryInput
+
+@using (Html.BeginForm())
+{
+    @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", tabindex = "5", name = "ClientId", required = "required" })
+}

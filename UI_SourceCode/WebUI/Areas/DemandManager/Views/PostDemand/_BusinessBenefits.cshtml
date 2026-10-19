@@ -1,0 +1,60 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+
+<div>
+    @(Html.Kendo().Grid<DMItemBusinessBenefitsInput>()
+                         .Name("DMBusinessBenefitsGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.CreatedDate).Hidden();
+                             columns.Bound(e => e.LastUpdatedDate).Hidden();
+                             columns.Bound(e => e.Id).Hidden();
+                             columns.Bound(e => e.Name).Title("Name");
+                             columns.Bound(e => e.Detail).Title("Detail");
+                             columns.Bound(e => e.BenefitType).EditorTemplateName("BenefitTypeDropDownList").Title("Benefit Type").ClientTemplate("#:BenefitType#");
+                             columns.Bound(e => e.IncidentCount).Title("Volumetric").ClientFooterTemplate("Total Count: #=sum#").Width(150);
+                             columns.Bound(e => e.Value).Title("Value").ClientFooterTemplate("Total: $#=sum#");
+                             columns.Bound(e => e.FTEHours).Title("FTE Hours").ClientFooterTemplate("Total: #=sum# Hours");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Business Benefits"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Aggregates(agg =>
+                      {
+                          agg.Add(p => p.Value).Sum();
+                          agg.Add(p => p.FTEHours).Sum();
+                          agg.Add(p => p.IncidentCount).Sum();
+                      }
+                      )
+                      .Read(read => read.Action("GetBusinessBenefits", "PostDemand").Data("GetDemandId"))
+                      .Create(create => create.Action("AddBusinessBenefits", "PostDemand").Data("GetDemandId"))
+                      .Update(update => update.Action("EditBusinessBenefits", "PostDemand"))
+                      .Destroy(destroy => destroy.Action("DeleteBusinessBenefits", "PostDemand"))
+
+                          )
+
+        )
+</div>
+
+
+

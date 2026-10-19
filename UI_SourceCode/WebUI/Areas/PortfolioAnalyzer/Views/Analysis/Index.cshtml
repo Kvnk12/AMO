@@ -1,0 +1,59 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model AnalysisModel
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    // ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/PortfolioAnalyzer/Views/Shared/_INLayout.cshtml";
+
+    ViewBag.Title = "Portfolio Analyzer";
+    var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+
+
+    <div id="wrap">
+        
+       
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Portfolio Analyzer</li>
+
+                <li class="active">Analysis</li>
+            </ol>
+        </div>
+        <div class="" style="padding:0;">
+            <iframe id="frameTrendig" src='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/APRAnalysisReport.aspx")' border="0" frameborder="0" height="1100px" width="100%"></iframe>
+
+            
+        </div>
+    </div>
+
+}

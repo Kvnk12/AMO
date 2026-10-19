@@ -1,0 +1,50 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMLOBInput
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+
+@section IMTOPMenu {
+    @Html.Partial("_IMTopMenu")
+
+}
+<div class="content-main">
+    <ol class="breadcrumb">
+        <li>Idea Manager</li>
+        <li class="active">Master LOB</li>
+    </ol>
+    <div style="padding:0;height:900px">
+
+        <div class="well well-sm"><strong>LOB</strong></div>
+        <div class="">
+            <!--valchainContent-->
+            <!--.valchainContent-->
+            <div>
+                @Html.Partial("_DisplayLOB")
+            </div>
+
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+    });
+
+</script>
+
+
+
+

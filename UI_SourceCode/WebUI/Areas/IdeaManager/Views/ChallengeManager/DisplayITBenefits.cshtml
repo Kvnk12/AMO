@@ -1,0 +1,60 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section IMTOPMenu {
+
+    @Html.Partial("_IMTopMenu")
+    
+    }
+
+<h2>DisplayITBenefits</h2>
+
+<div id="PersonTableContainer" style="width:50%"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#PersonTableContainer').jtable({
+            title: 'Table of people',
+            actions: {
+                listAction: '/GettingStarted/PersonList',
+                createAction: '/GettingStarted/CreatePerson',
+                updateAction: '/GettingStarted/UpdatePerson',
+                deleteAction: '/GettingStarted/DeletePerson'
+            },
+            fields: {
+                PersonId: {
+                    key: true,
+                    list: false
+                },
+                Name: {
+                    title: 'Author Name',
+                    width: '40%'
+                },
+                Age: {
+                    title: 'Age',
+                    width: '20%'
+                },
+                RecordDate: {
+                    title: 'Record date',
+                    width: '30%',
+                    type: 'date',
+                    create: false,
+                    edit: false
+                }
+            }
+        });
+    });
+</script>

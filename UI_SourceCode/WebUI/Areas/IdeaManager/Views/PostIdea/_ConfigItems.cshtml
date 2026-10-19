@@ -1,0 +1,42 @@
+﻿            @using NTTData.AMOPortal.Domain.Entities
+            @using NTTData.AMOPortal.WebUI
+            @using WebUI.Areas.IdeaManager.Controllers
+            @using WebUI.Areas.IdeaManager.Models
+            @using WebUI.Areas.IdeaManager.Dto
+            @using NTTData.AMOPortal.WebUI.Dto
+            @using System.Data;
+            @using System.Collections;
+            @using Kendo.Mvc.UI;
+            @using Kendo.Mvc.Infrastructure;
+            @using Kendo.Mvc.Resources
+            @using Kendo.Mvc.Extensions;
+            @model  IdeaViewModel
+
+<div class="im-postidea-classandcategory">
+    <div class="im-postidea-treelist" id="configitemDiv">
+            @(Html.Kendo().TreeView()
+            .Name("ConfigItemsView")
+            .Checkboxes(checkboxes => checkboxes
+            .Name("checkedConfigItems")
+            .CheckChildren(true)
+            )
+            .AutoScroll(true)
+            .BindTo((IEnumerable<TreeViewItemModel>)ViewBag.ConfigItems)
+            )
+    </div>
+    <div class="im-post-approver-bottom">
+            <button type="reset" onclick="cancel()" class="im-custom-button im-btn-cancel" id="resetbuttoncancel1">Cancel</button>
+            <button type="submit" onclick="saveConfigItems(this)" id="saveConfigItems" class="im-custom-button im-btn-save">Save</button>
+    </div>
+</div>
+  
+
+
+
+<script>
+function cancel() {
+var tre = $("#ConfigItemsView").data("kendoTreeView");
+tre.dataSource.read();
+}
+</script>
+

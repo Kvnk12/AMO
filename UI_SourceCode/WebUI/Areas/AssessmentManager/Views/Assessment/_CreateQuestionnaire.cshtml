@@ -1,0 +1,157 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+
+    .k-input.k-textarea {
+        width: 29em !important;
+        resize: none;
+        height: 5em;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+
+    .k-widget.k-window.k-display-inline-flex {
+        margin-top: -3em;
+        width: 57vw;
+    }
+    #CreateQuestionnairepopUp.k-window-content{
+        height:22vw;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="createQuestionnairepopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("CreateQuestionnairepopUp")
+    .Title("Create Questionnaire")
+    .Content(@<text>
+
+                  <div class="create-questionnaire">
+                      <div>
+                          <div class="fields assessment-type" style="display: flex; width: 25vw; margin-left: 1em; margin-top: 1em; ">
+                          <span class="custom-blue-label" style="margin-right: 2em; width: 13.7vw;">Assessment Type :</span>
+                          <div class="custom-dropdown Assessment" style="width:9vw;margin-left: -3.5em;">
+
+                              @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+
+                              .Name("AssessmentID")
+                              .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;margin-left: -2em;font-size:1vw" })
+                              .Events(e =>
+                              {
+                                  e.Change("onSelectAssessmentType");
+                              })
+                              )
+
+
+                          </div>
+                      </div>
+
+                      <div class="fields versionId" style="display: flex; width: 25vw; margin-top: 2em; margin-left: 1em; ">
+                          <span class="custom-blue-label" style="margin-right: 2em; width: 9vw;">Question Set # :</span>
+                          <div class="custom-textbox" style="margin-left: -0.8em;">
+                              @(Html.Kendo().TextBox()
+                              .Name("QVerTxtBox")
+                              .Value("")
+                              .Enable(false)
+                              .HtmlAttributes(new { style = "width: 114.5%;font-size:1vw" })
+                              )
+
+                              <label id="versionID_alert"><span class="mandate" style="font-size:12px"> required!</span></label>
+
+
+                          </div>
+                      </div>
+
+                      <div class="fields status" style="width: 25vw; display: flex; margin-top: 2em; margin-left: 1em; ">
+                          <span class="custom-blue-label" style="margin-right: 2em; width: 9vw;">Status :</span>
+                          <div class="custom-textbox" style="margin-left: -0.8em;">
+                              @(Html.Kendo().TextBox()
+                              .Name("Status")
+                              .Value("Draft")
+                              .Enable(false)
+                              .HtmlAttributes(new { style = "width: 114.5%;font-size:1vw" })
+                              )
+                          </div>
+                      </div>
+
+                      </div>
+
+                      <div class="actionButtons" style="margin-top: 1.6em;">
+                          <div style="margin: 0 1em 0 0;">
+                              <button style="float: right; width: 5em;font-size:1vw" class="custom-button" type="button" id="btncancel" onclick="onCancelClick()">CANCEL</button>
+                          </div>
+                          <div style="margin: 0 1.5em 0 0;">
+                              <button style="float: right; width: 5em; margin-right: 1em;font-size:1vw" class="custom-button" type="button" onclick="onSaveClick()" id="btnAdd">SAVE</button>
+                          </div>
+                      </div>
+
+                      <hr style="margin-top: 5em;" />
+
+                                        <div id="draftExistsAlert" style="display:none;color:red;font-size:0.75vw;">Note: *Draft version already exists for the selected Assessment Type</div>
+
+                      <div id="cloneQset" class="cloneQset" style="display: block;  font-size: 0.9vw">
+                          <div class="confirm-clone-Text" style=" text-align: center; margin-left: -6em; ">
+                              <p><span id="warningIcon" style=" background-image: url(../../Content/images/Warning.png); background-repeat: no-repeat; width: 10em; height: 2em; margin-top: 2px; margin-left: 27px; background-color: transparent; background-size: 1.4em; padding-left: 27px;"></span>A finalized Question Set is available for the selected Assessment Type, would you like to clone the questions to the new Questionnaire?</p>
+                          </div>
+                          <div class="confirmButtons" style="display: flex; margin-top: -0.4em; justify-content:end">
+                              <button style=" width: 3.5vw; height: 3.5vh; margin-left: 0.5em; font-weight: bold;font-size:0.9vw; background-color: LIGHTGREY; margin-top: -0.3em; padding: 0em;" class="custom-button" type="button" id="btnConfirmNo" onclick="onConfirmCloneNo()">NO</button>
+                              <button style=" width: 3.5vw; height: 3.5vh; margin-right: 1em; font-weight: bold; font-size: 0.9vw; margin-left: 0.6em; margin-top: -0.23em; padding: 0em;" class="custom-button" type="button" onclick="onConfirmCloneYes()" id="btnConfirmYes">YES</button>
+                          </div>
+                      </div>
+
+                  </div>
+
+
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(800)
+    .Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+</body>
+</html>
+

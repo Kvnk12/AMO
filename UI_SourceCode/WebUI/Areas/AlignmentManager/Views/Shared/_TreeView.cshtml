@@ -1,0 +1,102 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model WebUI.Areas.AlignmentManager.Dto.PPTreeView
+
+               
+@{if(Model.TreeViewItems.Count > 0)
+      
+      {
+ <ul id="navigation"  class="treeview" ><li class="open">@Model.VariableName
+                    @Html.Partial("_TreeViewItems", Model)
+                    </li>
+                    </ul>
+    }
+    }
+    
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: false,
+                unique: true
+            });
+        });
+    </script>
+
+
+    @*    <script>
+            $(document).ready(function () {
+                $("#navigation").treeview({
+                    collapsed: true,
+                    animated: "medium",
+                    persist: "location",
+                    unique: true
+
+                });
+            });
+    </script>*@
+
+}
+<script>
+        //$(document).ready(function () {
+        //    alert('entered');
+        //    $("#navigation").treeview({
+        //        persist: "location",
+        //        collapsed: true
+        //    });
+        //});
+    
+
+    $(document).ready(function () {
+        $('#btnAddNewChain').click(function () {
+            var clientId = $("select#ClientId").val().toString();
+            if (clientId == "0" || clientId == "") {
+                alert('Please select Client to create new value chain details');
+                return false;
+            }
+            var localToServer = "/";
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AlignmentManager/AddVariable/?ClientId=' + SelectedclientId;
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/AddVariable/?ClientId=' + SelectedclientId;
+            }
+            window.location = baseurl;
+            return false;
+
+            ////alert(window.location.host);
+            ////alert(localToServer);
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/AlignmentManager/AddVariable/?ClientId=" + SelectedclientId);
+            ////alert(strUrl);
+            //window.location = strUrl;
+
+        });
+
+
+      
+
+    });
+</script>

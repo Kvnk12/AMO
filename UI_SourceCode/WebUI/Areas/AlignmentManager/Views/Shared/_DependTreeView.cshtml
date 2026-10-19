@@ -1,0 +1,36 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model WebUI.Areas.AlignmentManager.Dto.PPTreeView
+
+
+ <ul id="depnednavigation"  class="treeview" ><li>
+                    @Html.ActionLink(Model.VariableName, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableTypeId=Model.varTypeId},null)
+                    @*<a href="#" id= "root">@Model.VariableName</a>*@
+                    @*<li>@Html.ActionLink(Model.VariableName, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableTypeId=Model.varTypeId},null) *@
+                    @Html.Partial("_DependTreeViewItems", Model)
+                    </li>
+                    </ul>
+
+
+
+
+
+
+
+
+@*        <script>
+            $(document).ready(function () {
+                $("#depnednavigation").treeview({
+                    collapsed: true,
+                    animated: "medium",
+                    persist: "location",
+                    unique: true
+
+                });
+            });
+    </script>*@
+
+

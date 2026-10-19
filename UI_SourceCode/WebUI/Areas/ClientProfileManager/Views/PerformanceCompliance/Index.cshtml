@@ -1,0 +1,308 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@model PerformanceComplianceModel
+@{
+    ViewBag.Title = "Client Profile Manager";
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+    var v = new ClientAjaxServiceController();
+    var clientlist = v.DashboardUserClients((int)Session["UserId"]);
+}
+
+
+<div class="content-main dark-bg">
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li class="active">Performance Compliance</li>
+    </ol>
+    <table style=" width: 100%; margin-bottom: 1em;">
+        <tr style="height:80px;width:300px">
+            <td width="383px">
+                <table>
+                    <tr>
+                        <td>
+                            <span style="padding-left:1em;">Select :</span>
+                            @(Html.Kendo().DropDownList()
+        .OptionLabel("Quarter")
+        .DataTextField("Text")
+          .DataValueField("Value")
+          .Name("Quarter")
+     .HtmlAttributes(new { style = "width: 100px" })
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "1",
+                  Value = "1"
+              },
+              new SelectListItem() {
+                  Text = "2",
+                  Value = "2"
+              },
+               new SelectListItem() {
+                  Text = "3",
+                  Value = "3"
+              },
+               new SelectListItem() {
+                  Text = "4",
+                  Value = "4"
+              },
+
+          }))
+                            @(Html.Kendo().DatePicker()
+        .Name("yearDatetime")
+        .Start(CalendarView.Decade)
+        .Depth(CalendarView.Decade)
+                                  .Format("yyyy")
+
+                                  .DateInput()
+                                        //.HtmlAttributes(new { style = "width: 100%", title = "monthpicker" })
+                            )
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+
+            <td align="left">
+                @(Html.Kendo().Button()
+        .Name("CompareButton")
+        .HtmlAttributes(new { type = "button", @class = "btn-primary" })
+        .Content("Submit")
+
+          .Events(e => e
+
+            .Click("onClick")
+
+        )
+                )
+            </td>
+        </tr>
+
+    </table>
+
+    <div class="custom-kendo-grid" align=center>
+
+        @(Html.Kendo().Grid<PerformanceComplianceModel>()
+        @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+    //if (Model != null)
+    //{
+    //    foreach (System.Data.DataColumn c in Model.Columns)
+    //    {
+    //        columns.Bound(c.ColumnName);
+    //    }
+    //}
+
+    columns.Bound(p => p.ClientName).Title("Clients").HeaderHtmlAttributes(new { style = "font-weight: bold;" }).HtmlAttributes(new { style = "font-weight: bold;" }).Width(200);
+    columns.Bound(p => p.NoOfIncidents).ClientTemplate("#=templateFunction(data)#")
+        @* .Template(@<text>
+               @if (item.NoOfIncidents == Convert.ToDecimal(0))
+                {
+                    <div style="background-color: Red;">
+                        @item.NoOfIncidents
+                    </div>
+                }
+
+            </text>)*@
+         .Title("No. of Incidents").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align:right;" }).Width(100);
+        columns.Bound(p => p.NoOfUserSuport).ClientTemplate("#=templateFunction1(data)#").Title("No. of User Support SR").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.NoOfEnhancement).ClientTemplate("#=templateFunction2(data)#").Title("No Enhancements").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.NoOfProblem).ClientTemplate("#=templateFunction3(data)#").Title("No. of Problem").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.NoOfSRBacklog).ClientTemplate("#=templateFunction4(data)#").Title("No. of SR Backlog").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.EffortHrIncidents).ClientTemplate("#=templateFunction5(data)#").Title("Effort Hrs. on Incident").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.EffortHrRequest).ClientTemplate("#=templateFunction6(data)#").Title("Effort Hrs. on Request").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.EffortHrEnhancement).ClientTemplate("#=templateFunction7(data)#").Title("Effort Hrs. on Enhancements").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.EffortPerIncident).ClientTemplate("#=templateFunction8(data)#").Title("Effort Per Incident").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+        columns.Bound(p => p.EffortPerRequest).ClientTemplate("#=templateFunction9(data)#").Title("Effort Per Request").HeaderHtmlAttributes(new { style = "font-weight: bold;overflow: visible; white-space: normal" }).HtmlAttributes(new { style = "font-weight: bold;text-align: right;" }).Width(100);
+
+
+    })
+.HtmlAttributes(new { style = "height:600px;" })
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+//.Sortable()
+//.Pageable()
+//.Scrollable(scr => scr.Height(430))
+//.Resizable(resize => resize.Columns(true))
+//.Filterable()
+.Scrollable(scrollable => scrollable.Enabled(true))
+.Reorderable(reorderable => reorderable.Columns(true))
+
+
+    .Sortable()
+
+
+.AutoBind(true)
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("PerformanceCompliance.xlsx")
+        //.Filterable(true)
+        .AllPages(true)
+    //.ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+     //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+     .Read(read => read.Action("GetClientPerformanceComplianceReport", "ClientAjaxService").Data("ParameterData"))
+     )
+    )
+    </div>
+</div>
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+    //    var grid = $("#Grid").data("kendoGrid");
+    //    grid.dataSource.read();
+    //});
+
+    function ParameterData(e) {
+
+        var Quarter = $("#Quarter").data("kendoDropDownList"),
+            Quarter = Quarter.value();
+        //alert(Quarter);
+
+        var yearDatetime = $("#yearDatetime").data("kendoDatePicker"),
+            yearDatetime = yearDatetime.value();
+        //alert(yearDatetime);
+
+
+
+        return {
+
+            Quarter: Quarter,
+            yearDatetime: yearDatetime,
+
+        }
+    }
+    function onClick(e) {
+
+        var grid = $("#Grid").data("kendoGrid");
+
+        grid.dataSource.read();
+
+
+
+
+    }
+
+    function templateFunction(item) {
+
+        if (item.NoOfIncidents == 0) {
+            return "<span class='customClass'>" + item.NoOfIncidents + "</span>";
+        }
+
+        return item.NoOfIncidents;
+    }
+    function templateFunction1(item) {
+
+        if (item.NoOfUserSuport == 0) {
+            return "<span class='customClass'>" + item.NoOfUserSuport + "</span>";
+        }
+
+        return item.NoOfUserSuport;
+    }
+    function templateFunction2(item) {
+
+        if (item.NoOfEnhancement == 0) {
+            return "<span class='customClass'>" + item.NoOfEnhancement + "</span>";
+        }
+
+        return item.NoOfEnhancement;
+    }
+
+    function templateFunction3(item) {
+
+        if (item.NoOfProblem == 0) {
+            return "<span class='customClass'>" + item.NoOfProblem + "</span>";
+        }
+
+        return item.NoOfProblem;
+    }
+
+    function templateFunction4(item) {
+        if (item.NoOfSRBacklog == 0) {
+            return "<span class='customClass'>" + item.NoOfSRBacklog + "</span>";
+        }
+
+        return item.NoOfSRBacklog;
+    }
+
+    function templateFunction5(item) {
+        if (item.EffortHrIncidents == 0) {
+            return "<span class='customClass'>" + item.EffortHrIncidents + "</span>";
+        }
+
+        return item.EffortHrIncidents;
+    }
+
+    function templateFunction6(item) {
+        if (item.EffortHrRequest == 0) {
+            return "<span class='customClass'>" + item.EffortHrRequest + "</span>";
+        }
+
+        return item.EffortHrRequest;
+    }
+
+    function templateFunction7(item) {
+        if (item.EffortHrEnhancement == 0) {
+            return "<span class='customClass'>" + item.EffortHrEnhancement + "</span>";
+        }
+
+        return item.EffortHrEnhancement;
+    }
+    function templateFunction8(item) {
+
+        if (item.EffortPerIncident == 0) {
+            return "<span class='customClass'>" + item.EffortPerIncident + "</span>";
+        }
+
+        return item.EffortPerIncident;
+    }
+
+    function templateFunction9(item) {
+        if (item.EffortPerRequest == 0) {
+            return "<span class='customClass'>" + item.EffortPerRequest + "</span>";
+        }
+
+        return item.EffortPerRequest;
+
+
+
+    }
+
+
+</script>
+<style>
+    .customClass {
+        color: red;
+    }
+
+    .customClass1 {
+        background-color: red;
+    }
+
+    h5.h5client {
+        visibility: hidden;
+    }
+</style>

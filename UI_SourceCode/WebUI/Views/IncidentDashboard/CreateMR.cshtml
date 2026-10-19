@@ -1,0 +1,250 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.MaintenanceRequestInput
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/slam.png");
+}
+
+@using (Html.BeginForm("GetViewMR", "IncidentDashboard", FormMethod.Post, new { @class = "form-horizontal" }))
+ {
+    <div id="wrap">
+        <!-- Fixed navbar -->
+        <!--/nav bar div closes here -->
+        <!--.container-->
+        <div class="selectappArea">
+            <!-- Wrap all page content here -->
+            <div class="container">
+                <div class="selectApp form-horizontal">
+                    <div class="form-group">
+                        <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                        <div class="col-sm-5">
+                            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text", Model.ClientId), "", new { @class = "selectpicker", id = "drpClientId", tabindex = "6" , @disabled = "disabled"  })
+                        </div>
+                    </div>
+                </div>
+                <!--/.selectApp-->
+                <div class="selectyearArea form-horizontal">
+                    <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>-->
+                    <!-- hidden for sprint two-->
+                </div>
+                <!--/.selectyearArea-->
+            </div>
+            <!--/.container-->
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+            <!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li class="active">SLA Manager</li>
+            <li class="active">Dashboard</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+        	<!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+        
+        
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+                <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                @Html.Partial("_DBCatelog")
+                <div class="treeMenuContent">
+                	<div class="container" style="padding:0;">
+                        @*<div class="slaleftpane">*@
+                         @Html.Hidden("reportname", Model.ReportName)
+                           @if (Model.ReportName == "respts")
+                            {
+                                <div class="well well-sm">Dashboard: SLA Summary – Response Time Summary</div>
+                            }
+                            else if (Model.ReportName == "resptst")
+                            {
+                                <div class="well well-sm">Dashboard: SLA Summary – Response Time Summary Trend</div>
+                            }
+                            else if (Model.ReportName == "respwkgptst")
+                            {
+                                <div class="well well-sm">Dashboard: SLA Summary – Response Time Summary by Workgroup Trend</div>  
+                            }
+                            else if (Model.ReportName == "estresptst")
+                            {
+                                <div class="well well-sm">Dashboard: SLA Summary – Estimation Response Time Summary</div>  
+                            }
+                            else if (Model.ReportName == "rslnresptst")
+                            {
+                                <div class="well well-sm">Dashboard: SLA Summary – Resolution Time Summary</div>  
+                            }
+                          	<div class="form-horizontal">
+                              <div class="form-group col-sm-6 pull-right">
+                                <label for="sladmonth" class="col-sm-4 control-label">Ticket Type</label>
+                                <div class="col-sm-3">
+                                  @Html.DropDownListFor(m => m.Datasetid, new SelectList(Model.Datasetlist, "value", "text", Model.Datasetid), "", new { @class = "selectpicker", id = "sladmonth" })
+                                </div>
+                              </div>
+                            </div><!--end of form-horizontal -->
+                            @*<div class="clearfix"></div><!--This is to clear the floats-->
+                             <div class="legendsArea">
+                            	<b>Legend:</b>&nbsp;&nbsp; <span class="sladbgreen"></span>Met SLA
+                                <span class="sladbred"></span>Missed SLA
+                                 <span class="sladbblue"></span>SLA - Expectation Higher Limit
+                                  <span class="sladbredlowlim"></span>SLA - Expectation Lower Limit 
+                            </div>   *@
+                         @if (Model.ClientId != 0 && Model.Datasetid == 3)
+                         {
+
+                                <div class="clear clearfix">&nbsp;</div>
+                                 if (Model.ReportName == "respts")
+                                 {
+                                <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptMaintResp")' border="0" frameborder="0" height="750px" width="1150px"></iframe>
+                                 }
+                                 else if (Model.ReportName == "estresptst")
+                                 {
+                                <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptMaintEstResp")' border="0" frameborder="0" height="750px" width="1150px"></iframe>
+                                 }
+                                 else if (Model.ReportName == "rslnresptst")
+                                 {
+                                <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptMaintResln")' border="0" frameborder="0" height="750px" width="1150px"></iframe>
+                                 }
+                         }
+                         else
+                         {
+                                <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                         }
+                         @*</div>*@
+                        <!--END OF LEFTAREA-->@*   
+                        <div class="slarightpane">
+                        	<div class="selectFiltersOpen">
+                                <a href="#">
+                                <span class="glyphicon glyphicon-chevron-left"></span>
+                                </a>
+							</div>
+                        
+                        	<div class="selectFiltersClose">
+                            	<div class="SFhead">
+									<a class="rightNav slarightnavClose" href="#" title="">
+                                    	<span class="glyphicon glyphicon-chevron-right"></span>Select Filters
+                                    </a>
+								</div>
+                                <div class="form-horizontal" style="margin-top:20px">
+                                      	<div class="form-group">
+                                        <label for="Chart" class="col-sm-4 control-label">Client ID</label>
+                                        <div class="col-sm-7">
+                                            @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control", tabindex = "2", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">RecordIncluded</label>
+                                        <div class="col-sm-7">
+                                            @Html.DropDownListFor(m => m.RecordIncluded, new SelectList(Model.RecordIncludedList, "value", "text", Model.RecordIncluded), "All", new { @class = "selectpicker selfilterwidth", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">ResolvedByVendor</label>
+                                        <div class="col-sm-7">
+                                            @Html.DropDownListFor(m => m.ResolvedByVendor, new SelectList(Model.ResolvedbyVendorList, "value", "text", Model.ResolvedByVendor), "All", new { @class = "selectpicker selfilterwidth", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">ResolvedByGroup</label>
+                                        <div class="col-sm-7">
+                                            @Html.DropDownListFor(m => m.ResolvedByGroup, new SelectList(Model.ResolvedbyGroupList, "value", "text", Model.ResolvedByGroup), "All", new { @class = "selectpicker selfilterwidth", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="metricperspective" class="col-sm-5 control-label">Waivedindicator</label>
+                                        <div class="col-sm-7">
+                                            @Html.DropDownListFor(m => m.Waivedindicator, new SelectList(Model.WaivedList, "value", "text", Model.Waivedindicator), "All", new { @class = "selectpicker selfilterwidth", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                         </div><!--/. form-horizontal-->
+                         <button class="btn btn-primary" type="Submit">Submit Filters</button>
+                      	</div><!--/.selectFiltersClose-->
+                        </div>
+                  		*@<!--/.slarightpane -->
+                    </div><!--/.treeMenuContent container-->
+                </div><!--/.treeMenuContent-->
+
+            </div><!--/.treeMenuArea-->
+        
+        </div><!--/.container-->
+
+       <!--/.container-->
+
+    </div>
+    <!--.wrap-->
+}
+
+<script>
+    $('select#drpClientId').change(function () {
+        var SelectedclientId = $('#drpClientId :selected').val();
+        var reportname = $('#reportname').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'IncidentDashboard') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+        }
+
+        baseurl = baseurl.replace("{clientid}", SelectedclientId);
+        baseurl = baseurl.replace("{reportid}", reportname);
+
+        window.location = baseurl;
+
+    });
+    $('select#sladmonth').change(function () {
+        var SelectedClient = $('#drpClientId :selected').val();
+        var Selecteddataset = $('#sladmonth :selected').val();
+        var reportname = $('#reportname').val();
+        var href = window.location.href.split('/');
+
+        if (SelectedClient == "0") {
+            return false;
+        }
+
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'IncidentDashboard') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+        }
+
+        baseurl = baseurl.replace("{clientid}", SelectedClient);
+        baseurl = baseurl.replace("{reportid}", reportname);
+        baseurl = baseurl.replace("{datasetid}", Selecteddataset);
+
+        window.location = baseurl;
+
+    });
+</script>

@@ -1,0 +1,498 @@
+﻿@using WebUI.Areas.AssessmentManager.Models;
+@using Kendo.Mvc.UI;
+@model A3MMModel
+
+
+<div id="Id-ques-navigation-main">
+    <div class="ques-nav-head">
+        <label>Questions</label>
+        <div class="demo-section">
+            <button id="autohide-filter" class="k-button wider btn-groupfilter"></button>
+        </div>
+
+        @(Html.Kendo().Tooltip()
+.For("#autohide-filter")
+.AutoHide(false)
+.Position(TooltipPosition.Bottom)
+.ContentTemplateId("filter-template")
+.Width(180)
+//.Events(events => events.Hide("onHide").Show("onShow"))
+)
+
+    </div>
+
+
+    <input type="hidden" value="@Model.SQNo" id="nav-Sqno-id" />
+    <input type="hidden" id="id-current-resid" name="SubResponseidid" value=@Model.currentresId />
+    <input type="hidden" id="id-current-followupid" name="SubResponseidid" value=@Model.currentfollowupId />
+    @{
+        int i = 0;
+        if (Model.UnAnsQset != null)
+        {
+            if (Model.UnAnsQset.Count != 0)
+            {
+                <div style="position:relative;padding-right:4px;" id="unAnsweredDiv">
+                    <div class="product_header unAns_head" style="background-color: #E2E2E2; padding: 5px; display: flex; justify-content: space-between; scroll-behavior: smooth;">
+                        <div style="display:flex">
+                            <div class="arrow1 grparrow down"></div>
+                            <span class="ques-expand">Unanswered Question</span>
+                        </div>
+                        <div>
+                            <label id="UnAnswered" class="lbl-navi-Qcount">@Model.UnAnsQset.Count()</label>
+                        </div>
+                    </div>
+                    <div class="custom-scrollbar question-navigation blockA" style="height:15em;overflow-y:auto;display:none;scroll-behavior:smooth">
+                        @foreach (var item in Model.UnAnsQset)
+                        {
+                            if (i == 0)
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="unans" class="pager-btn ques-selected first-sqno">
+                                    Question @item.SQNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-grp="unans" data-sqno="@item.SQNo" class="pager-btn">
+                                    Question @item.SQNo
+                                </div>
+                            }
+
+
+                            i++;
+                        }
+                    </div>
+
+                </div>
+            }
+        }
+
+    }
+    @{
+        int i1 = 0;
+        if (Model.ResponseInProgressQset != null)
+        {
+            if (Model.ResponseInProgressQset.Count != 0)
+            {
+                <div style="position:relative;padding-right:4px;" id="ResInProgDiv">
+                    <div class="product_header Res-in-prog_head" style="background-color:#E2E2E2;padding:5px;display:flex;justify-content:space-between">
+                        <div style="display:flex">
+                            <div class="arrow2 grparrow down"></div>
+                            <span class="ques-expand">Response In Progress</span>
+                        </div>
+                        <div>
+                            <label id="Responseinprogress" class="lbl-navi-Qcount">@Model.ResponseInProgressQset.Count()</label>
+                        </div>
+                    </div>
+                    <div class="custom-scrollbar question-navigation blockB" style="height:15em;overflow-y:auto;display:none;scroll-behavior:smooth">
+                        @foreach (var item in Model.ResponseInProgressQset)
+                        {
+                            if (i1 == 0)
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="Resinprogress" class="pager-btn ques-selected first-sqno">
+                                    Question @item.SQNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-grp="Resinprogress" data-sqno="@item.SQNo" class="pager-btn">
+                                    Question @item.SQNo
+                                </div>
+                            }
+
+
+                            i1++;
+                        }
+                    </div>
+
+                </div>
+            }
+        }
+
+    }
+    @{
+        int i2 = 0;
+        if (Model.RespondedQset != null)
+        {
+            if (Model.RespondedQset.Count != 0)
+            {
+                <div style="position:relative;padding-right:4px;" id="RespondedDiv">
+                    <div class="product_header Responded_head" style="background-color:#E2E2E2;padding:5px;display:flex;justify-content:space-between">
+                        <div style="display:flex">
+                            <div class="arrow3 grparrow down"></div>
+                            <span class="ques-expand">Responded Question</span>
+                        </div>
+                        <div>
+                            <label id="Responded" class="lbl-navi-Qcount">@Model.RespondedQset.Count()</label>
+                        </div>
+                    </div>
+                    <div class="custom-scrollbar question-navigation blockC" style="height:15em;overflow-y:auto;display:none;scroll-behavior:smooth">
+                        @foreach (var item in Model.RespondedQset)
+                        {
+                            if (i2 == 0)
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="Responded" class="pager-btn ques-selected first-sqno">
+                                    Question @item.SQNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-grp="Responded" data-sqno="@item.SQNo" class="pager-btn">
+                                    Question @item.SQNo
+                                </div>
+                            }
+
+
+                            i2++;
+                        }
+                    </div>
+
+                </div>
+            }
+        }
+
+    }
+    @{
+        int ii = 0;
+        if (Model.RatingInProgressQset != null)
+        {
+            if (Model.RatingInProgressQset.Count != 0)
+            {
+                <div style="position:relative;padding-right:4px;" id="RatingInProgressDiv">
+                    <div class="product_header RatingInProgress_head" style="background-color:#E2E2E2;padding:5px;display:flex;justify-content:space-between">
+                        <div style="display:flex">
+                            <div class="arrow4 grparrow down"></div>
+                            <span class="ques-expand">Rating In Progress</span>
+                        </div>
+                        <div>
+                            <label id="RatingInProgress" class="lbl-navi-Qcount">@Model.RatingInProgressQset.Count()</label>
+                        </div>
+                    </div>
+                    <div class="custom-scrollbar question-navigation blockD" style="height:15em;overflow-y:auto;display:none;scroll-behavior:smooth">
+
+
+                        @foreach (var item in Model.RatingInProgressQset)
+                        {
+                            if (ii == 0)
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="RatingInProgress" class="pager-btn first-sqno Qincomp">
+                                    Question @item.SQNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="RatingInProgress" class="pager-btn Qincomp">
+                                    Question @item.SQNo
+                                </div>
+                            }
+
+
+                            ii++;
+                        }
+
+
+
+
+                    </div>
+                </div>
+            }
+        }
+
+    }
+    @{
+        int iii = 0;
+        if (Model.CompleteQset != null)
+        {
+            if (Model.CompleteQset.Count != 0)
+            {
+                <div style="position:relative;padding-right:4px;" id="CompleteDiv">
+                    <div class="product_header Com_head" style="background-color:#E2E2E2;padding:5px;display:flex;justify-content:space-between">
+                        <div style="display:flex">
+                            <div class="arrow5 grparrow down"></div>
+                            <span class="ques-expand">Completed Question</span>
+                        </div>
+                        <div>
+                            <label id="Complete" class="lbl-navi-Qcount">@Model.CompleteQset.Count()</label>
+                        </div>
+                    </div>
+                    <div class="custom-scrollbar question-navigation blockE" style="height:15em;overflow-y:auto;display:none;scroll-behavior:smooth">
+
+                        @foreach (var item in Model.CompleteQset)
+                        {
+                            if (iii == 0)
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="comp" class="pager-btn first-sqno">
+                                    Question @item.SQNo
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="Quesid_@item.SQNo" data-assId="@item.AssessmentId" data-sqno="@item.SQNo" data-grp="comp" class="pager-btn">
+                                    Question @item.SQNo
+                                </div>
+                            }
+
+
+                            iii++;
+                        }
+
+
+
+
+                    </div>
+
+                </div>
+            }
+        }
+
+    }
+</div>
+
+<script id="filter-template" type="text/x-kendo-template">
+         <div>
+     <input type="checkbox" id="unAnswered" name="unAnswered" value="unAnswered" checked="checked">
+     <label for="unAnswered"> UnAnswered</label><br>
+     <input type="checkbox" id="Response-in-Progress" name="Response-in-Progress" value="Response in Progress" checked="checked">
+     <label for="Response-in-Progress"> Response in Progress</label><br>
+     <input type="checkbox" id="Responsed" name="Responsed" value="Responsed" checked="checked">
+     <label for="Responsed"> Responsed </label><br>
+      <input type="checkbox" id="Rating-in-progress" name="Rating in Progress" value="Rating in Progress" checked="checked">
+    <label for="Rating-in-progress"> Rating in Progress </label><br>
+     <input type="checkbox" id="Completed" name="Completed" value="Completed" checked="checked">
+     <label for="Completed">Completed</label><br>
+     <button class="custom-button" style="width: 50px;display: flex;margin-left: auto;justify-content: center;"  onclick="ongroupFilterChange()">Apply</button
+         </div>
+</script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectedQuestion = document.querySelector('.ques-selected');
+        if (selectedQuestion) {
+            selectedQuestion.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    //var arr1 = document.querySelector('.arrow1');
+    //if (arr1 != null) {
+      
+    //    arr1.addEventListener('click', function (event) {
+    //        event.target.classList.toggle('down');
+    //    });
+    //}
+    $(".unAns_head").click(function () {   
+            $('.blockA').slideToggle().toggleClass('active');
+        if ($('.blockA').hasClass('active')) { 
+            Ggroupname = "Unanswered";
+            $('.blockA').css('display', 'block')
+            $(".arrow1").removeClass("down")
+
+            $('.blockB').css('display', 'none')
+            $(".arrow2").addClass("down")
+            $(".blockB").removeClass("active")
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else {
+            $(".arrow1").addClass("down")
+            }
+    });
+
+    //var arr2 = document.querySelector('.arrow2');
+    //console.log(arr2);
+    //if (arr2 != null) {
+    //    arr2.addEventListener('click', function (event) {
+    //        event.target.classList.toggle('down');
+    //    });
+    //}
+
+    $(".Res-in-prog_head").click(function () {  
+        $('.blockB').slideToggle().toggleClass('active');
+        if ($('.blockB').hasClass('active')) {   
+            Ggroupname = "ResponseInProgress";
+            $('.blockB').css('display', 'block')
+            $(".arrow2").removeClass("down")
+
+            $(".arrow1").addClass("down")
+            $('.blockA').css('display', 'none')
+            $('.blockA').removeClass("active")
+
+            $(".arrow3").addClass("down")
+            $('.blockC').css('display', 'none')
+            $('.blockC').removeClass("active")
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else {
+            $(".arrow2").addClass("down")
+            // $('.arrow').css('display', 'none')
+            // $('.arrow').style.display = "none";
+        }
+    });
+
+    //var arr3 = document.querySelector('.arrow3');
+    //if (arr3 != null) {
+    //arr3.addEventListener('click', function (event) {
+    //    event.target.classList.toggle('down');
+    //});}
+    $(".Responded_head").click(function () {      
+        $('.blockC').slideToggle().toggleClass('active');
+        if ($('.blockC').hasClass('active')) {    
+            Ggroupname = "Responded";
+            $('.blockC').css('display', 'block')
+            $('.arrow3').removeClass("down");
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $('.blockA').removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $('.blockB').removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else {
+            $(".arrow3").addClass("down")
+            // $('.arrow').css('display', 'none')
+            // $('.arrow').style.display = "none";
+        }
+    });
+    $(".RatingInProgress_head").click(function () {      
+        $('.blockD').slideToggle().toggleClass('active');
+        if ($('.blockD').hasClass('active')) {   
+            Ggroupname = "RatingInProgress";
+            $('.blockD').css('display', 'block')
+            $('.arrow4').removeClass("down");
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $('.blockA').removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $('.blockB').removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else {
+            $(".arrow4").addClass("down")
+            // $('.arrow').css('display', 'none')
+            // $('.arrow').style.display = "none";
+        }
+    });
+    $(".Com_head").click(function () {      
+        $('.blockE').slideToggle().toggleClass('active');
+        if ($('.blockE').hasClass('active')) {    
+            Ggroupname = "Completed";
+            $('.blockE').css('display', 'block')
+            $('.arrow5').removeClass("down");
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $('.blockA').removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $('.blockB').removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".block3").removeClass("active")
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+        } else {
+            $(".arrow5").addClass("down")
+            // $('.arrow').css('display', 'none')
+            // $('.arrow').style.display = "none";
+        }
+    });
+
+    $(".pager-btn").click(function () {
+       // console.log("in page click");
+        var Sqno = $(this).attr('data-sqno');
+        var AssessmentID = $(this).attr('data-assId');
+      //  console.log(Sqno, AssessmentID);
+        pageSelectalert(Sqno, AssessmentID);
+    });
+    
+    function ongroupFilterChange() {
+        $("#unAnsweredDiv").css("display", "block");
+        $("#ResInProgDiv").css("display", "block");
+        $("#RespondedDiv").css("display", "block");
+        $("#RatingInProgressDiv").css("display", "block");
+        $("#CompleteDiv").css("display", "block"); 
+        GunAnswered = document.getElementById("unAnswered").checked;
+        GResponseInProgress = document.getElementById("Response-in-Progress").checked;
+        GResponsed = document.getElementById("Responsed").checked;
+        GRatingInProgress = document.getElementById("Rating-in-progress").checked;
+        GCompleted = document.getElementById("Completed").checked;
+        //console.log(GunAnswered);
+       // console.log(GInComplete);
+       // console.log(GCompleted);  
+        var firstsqn0;
+        if (GunAnswered==false) {
+            $("#unAnsweredDiv").css("display", "none");
+        }
+        if (GResponseInProgress ==false) {
+            $("#ResInProgDiv").css("display", "none");
+        }
+        if (GResponsed == false) {
+            $("#RespondedDiv").css("display", "none");
+        }
+        if (GRatingInProgress == false) {
+            $("#RatingInProgressDiv").css("display", "none");
+        }
+        if (GCompleted==false) {
+            $("#CompleteDiv").css("display", "none");
+        }
+        if (GunAnswered == true) {
+            firstsqn0 = 0;
+        } else if (GunAnswered == false && GResponseInProgress == true) {
+            firstsqn0 = 1;
+        } else if (GunAnswered == false && GResponseInProgress == false && GResponsed==true) {
+            firstsqn0 = 2;
+        } else if (GunAnswered == false && GResponseInProgress == false && GResponsed == false && GRatingInProgress==true) {
+            firstsqn0 = 3;
+        }
+        else {
+            firstsqn0 = 4;
+        }
+        var elements1 = document.getElementsByClassName("first-sqno");
+           // console.log("individual element id", elements1[0].id);
+           // console.log(elements1[firstsqn0].attributes[ "data-sqno"].value)
+         //   console.log(elements1[firstsqn0].attributes["data-assId"].value)
+            var QNo = elements1[firstsqn0].attributes["data-sqno"].value
+            var AssessmentID = elements1[firstsqn0].attributes["data-assId"].value
+            $(".pager-btn").removeClass("ques-selected");
+            $("#Quesid_" + QNo).addClass("ques-selected");
+            
+            pageClick(QNo, AssessmentID);
+        
+       
+    }
+
+</script>

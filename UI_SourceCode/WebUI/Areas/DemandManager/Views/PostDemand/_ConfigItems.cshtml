@@ -1,0 +1,53 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+<script>
+    function cancel() {
+        var tre = $("#ConfigItemsView").data("kendoTreeView");
+        tre.dataSource.read();
+    }
+</script>
+<div>
+
+    <div class="treeMenuContent">
+        <div class="leftarea form-horizontal" style="width:50%">
+
+            <div class="outer">
+                <div class="Items">
+                    <!--Check List-->
+                    <div class="form-group" id="configitemDiv">
+                        @(Html.Kendo().TreeView()
+                    .Name("ConfigItemsView")
+                    .Checkboxes(checkboxes => checkboxes
+                        .Name("checkedConfigItems")
+                        .CheckChildren(true)
+                    )
+                    .AutoScroll(true)
+
+                    .BindTo((IEnumerable<TreeViewItemModel>)ViewBag.ConfigItems)
+                        )
+                    </div>
+                </div>
+                <div class=botBut>
+                    <button type="submit" onclick="saveConfigItems(this)" id="saveConfigItems" class="btn btn-primary">Save</button>
+                    <button type="reset" onclick="cancel()" class="btn btn-primary" id="resetbuttoncancel1">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+

@@ -1,0 +1,40 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+@using Kendo.Mvc.UI
+@using Kendo.Mvc.Extensions
+@using Kendo.Mvc.Resources
+@using WebUI.Areas.RetirementAccelerator.Models;
+
+
+@model int?
+
+@(Html.Kendo().Upload()
+                  .Name("AttachmentName")
+                  .Async(a =>
+                  {
+                      a.Save("ExecutionFileUpload", "Assessment");
+                      a.Remove("ExecutionFileDestroy", "Assessment");
+                      a.AutoUpload(true);
+                  }
+                  )
+
+                  //.Events(e => e.Upload("whileUpload"))
+                  .ShowFileList(true) // Hide the file list as we're displaying uploaded files in the Grid
+                  .Multiple(false)
+
+
+)
+<script>
+    function whileUpload(e) {
+        console.log('@Model');
+        if(@Model!=null){
+
+        var RowId = '@Html.Raw(Json.Encode(Model))';
+        e.data = JSON.parse(RowId);
+
+        }
+    }
+
+</script>
+

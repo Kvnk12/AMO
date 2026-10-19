@@ -1,0 +1,58 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+
+
+@{
+    ViewBag.Title = "Demand Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+
+@section DMTOPMenu {
+
+    @Html.Partial("_DMTopMenu")
+
+}
+
+<h2>DisplayITBenefits</h2>
+
+<div id="PersonTableContainer" style="width:50%"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#PersonTableContainer').jtable({
+            title: 'Table of people',
+            actions: {
+                listAction: '/GettingStarted/PersonList',
+                createAction: '/GettingStarted/CreatePerson',
+                updateAction: '/GettingStarted/UpdatePerson',
+                deleteAction: '/GettingStarted/DeletePerson'
+            },
+            fields: {
+                PersonId: {
+                    key: true,
+                    list: false
+                },
+                Name: {
+                    title: 'Author Name',
+                    width: '40%'
+                },
+                Age: {
+                    title: 'Age',
+                    width: '20%'
+                },
+                RecordDate: {
+                    title: 'Record date',
+                    width: '30%',
+                    type: 'date',
+                    create: false,
+                    edit: false
+                }
+            }
+        });
+    });
+</script>

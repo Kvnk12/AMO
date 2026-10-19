@@ -1,0 +1,501 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+@using WebUI.Areas.TransformationAccelerator.Model;
+
+
+@model IList<ServicePlanningModel>
+
+    @{
+        ViewBag.Title = "Transformation Accelerator";
+        <script src="~/Content/js/bootstrap.js"></script>
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/home/transformation_accelerator_white.svg");
+        Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+        string currentYear = DateTime.Now.Year.ToString();
+        //(0-3 ->1) 1->(20211)
+        int month = DateTime.Now.Month;
+        int currentYearQtr;
+        //currentYear = currentYear + month;
+
+
+        if (month > 0 && month < '4')
+        {
+            currentYear = currentYear + "1";
+        }
+        else if (month > 3 && month < 7)
+        {
+            currentYear = currentYear + "2";
+        }
+        else if (month > 6 && month < 10)
+        {
+            currentYear = currentYear + "3";
+        }
+        else if (month > 9 && month < 13)
+        {
+            currentYear = currentYear + "4";
+        }
+
+        currentYearQtr = Convert.ToInt32(currentYear); //20211
+    }
+
+    <div id="wrap">
+        <div class="content-main dark-bg service-plan-container">
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Transformation Accelerator</li>
+                <li class="active">Service Plan</li>
+            </ol>
+            <div class="service-plan-content">
+                <div class="heading-section">
+                    <div class="heading-left">
+                        <h4 id="hh">Service Improvement - Implementation Plan</h4>
+                        <span> (Planning values in %)</span>
+                    </div>
+                    <span id="plsWait" hidden class="wait-text">Please Wait...</span>
+                    <span id="placehold" class="plan-info"></span>
+                    <div class="heading-right">
+                        <span id="finalLabel" class="final-status"> @ViewBag.Status</span>
+                        <button class="btn btn-primary finalize" onclick="finalizeClick()">FINALIZE</button>
+                        <div class="export-link" id="Export">
+                            Export -
+                            <span class="export-icon" onclick="fnExcelReport();"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-html-grid table-col-fix">
+                    <table id="tbl">
+                        @*<thead >ddd</thead>*@
+                        <thead>
+
+                            <tr>
+                                <th rowspan="2" class="fixed" style="left: 0;">Service Improvement</th>
+                                <th rowspan="2" class="fixed" style="left: 8.05em;">Goal</th>
+                                @{
+                                    //loop to display years
+                                    foreach (var i in ViewBag.Year)
+                                    {
+                                        <th colspan="4" scope="colgroup">@i</th>
+                                    }
+                                }
+                            </tr>
+                            <tr>
+                                @*loop to display quarters in each year years*@
+                                @foreach (var quater in ViewBag.Year) //
+                                {
+                                    <th id="1" scope="col">Q1</th>
+                                    <th id="2" scope="col">Q2</th>
+                                    <th id="3" scope="col">Q3</th>
+                                    <th id="4" scope="col">Q4</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                //loop for distinct service improvement type
+                                foreach (var ImprovementType in ViewBag.ImpType)
+                                {
+                                    <tr>
+                                        <td class="fixed">@ImprovementType</td>
+                                        @{
+                                            var goal = (from a in Model
+                                                        where a.ImprovementType == ImprovementType
+                                                        select a.Goal).FirstOrDefault();
+                                            <td class="fixed" style="left: 8.05em;">@goal%</td>
+                                        }
+                                        @*loop for distinct years*@
+                                        @foreach (var year in ViewBag.Year)
+                                        {
+                                            //loop for 4 quarters for each year in the above loop
+                                            for (var quarter = 1; quarter < 5; quarter++)
+                                            {
+                                                //conditionalRecordMatch returns single record from Model which satisfies 3 conditions(improvementType , year , quarter)
+                                                var conditionalRecordMatch = (from x in Model
+                                                                              where x.ImprovementType == ImprovementType && x.Year == year && x.Quarter == quarter.ToString()
+                                                                              select x).FirstOrDefault();
+                                                var conditionalRecordID = (from x in Model
+                                                                           where x.ImprovementType == ImprovementType && x.Year == year && x.Quarter == quarter.ToString()
+                                                                           select x.Id).FirstOrDefault();
+
+                                                var comment = (from a in Model
+                                                               where a.ImprovementType == ImprovementType && a.Year == year && a.Quarter == quarter.ToString()
+                                                               select a.Comment).FirstOrDefault();
+                                                var yearInt = year;
+                                                yearInt = yearInt + quarter.ToString();
+                                                yearInt = Int16.Parse(yearInt);
+                                                if (conditionalRecordMatch != null)
+                                                {
+                                                    //year = year.concat(quarter);
+                                                    //concat year nd quarter
+
+                                                    if (yearInt < currentYearQtr)
+                                                    {
+                                                        //Making the cells non editable
+                                                        <td class="table-input read-only not-fixed">
+                                                            @*<input type="text" id=@conditionalRecordID value="@conditionalRecordMatch.GoalPlan%" />*@
+                                                            <span id=@conditionalRecordID> @conditionalRecordMatch.GoalPlan </span>
+                                                            @*<i class="comments-icon"></i>*@
+                                                            <i class="comments-icon" data-toggle="tooltip" data-placement="right" title="@comment"></i>
+                                                        </td>
+                                                    }
+
+                                                    else
+                                                    {
+                                                        //Making the cells editable
+                                    <td class="table-input editable not-fixed">
+                                        <span id=@conditionalRecordID style="display:none"> @conditionalRecordMatch.GoalPlan </span>
+                                        <input type="text" id=@conditionalRecordID value=@conditionalRecordMatch.GoalPlan />
+                                        @*<i class="comments-icon"></i>*@
+                                        <i class="comments-icon" data-toggle="tooltip" data-placement="left" data-quarter="@quarter" data-year="@year" data-type="@ImprovementType" data-comment="@comment" title="@comment"></i>
+                                    </td>
+                                                    }
+                                                }
+                                                else if (yearInt < currentYearQtr)
+                                                {
+                                                    <td class="read-only not-fixed"> - </td>
+                                                }
+
+                                                else
+                                                {
+                                                    <td class="not-fixed"> - </td>
+                                                }
+                                            }
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="save-cancel">
+                    <button type="button" onclick="cancelReload()" class="btn btn-secondary button">CANCEL</button>
+                    <button type="button" id="onSave" onclick="getCount()" class="btn btn-primary button">SAVE</button>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal fade" id="commentsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel">@*Comment - Service Model Optimization - 2020 Q4*@</h5>
+
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea rows="3" class="comment-textarea"></textarea>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary  save-comment-modal">SAVE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="modal fade" id="finalizeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        @*<h5 class="modal-title" id="finalizeModalLabel">hello</h5>*@
+
+                        @*<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>*@
+                    </div>
+                    <div class="modal-body">
+                        <h3 class="finalize-textdisplay" id="finalizeModalLabel" style="font-weight:bold;font-size:18px">Goal Planned Across Quarters Exceeds Overall Goal</h3>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">PROCEED</button>
+                        @*<button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+    <script>
+        var commentIDD = 0;
+        var saveGoal = 0;
+        //var check = document.getElementById('finalLabel').innerHTML;
+
+        //if (check == "FINALIZED") {
+        //document.getElementById("finalize").disabled = true;
+        //}
+
+        $('.table-input input').on('change keypress paste focus blur', function () {
+            var val = $(this).val();
+            if (val != '') {
+                $(this).parent('.table-input').removeClass('comment-disabled');
+            }
+            else {
+                $(this).parent('.table-input').addClass('comment-disabled');
+            }
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $(".editable").on('click', '.comments-icon', function () {
+
+            // show Modal
+            var yearVal = $(this).data('year');
+            //console.log(yearVal);
+            var quatVal = $(this).data('quarter');
+            //console.log(quatVal);
+            var impType = $(this).data('type');
+            //console.log(impType);
+            document.getElementById('commentModalLabel').innerHTML = "Comment - " + impType + "- " + yearVal + " Q" + quatVal;
+
+
+
+
+            $('#commentsModal').modal('show');
+            var inputId = $(this).siblings('input').attr('id'); //id of planQ
+            //var inputIdValue = $(this).find('.comments-icon').data('original-title');
+            var inputIdValue = $(this).data('comment');
+            //console.log($(this), inputIdValue);
+            $('#commentsModal').find('textarea').val(inputIdValue);
+
+
+
+            commentIDD = inputId;
+            //saveGoal = $(this).siblings('input').attr('value');
+            saveGoal = $(this).siblings('input').val();
+
+            console.log(saveGoal);
+
+            console.log(inputId, inputIdValue);
+        });
+
+
+
+        $(".save-comment-modal").click(function () {
+
+
+            var inputComment = $(this).parent().siblings('.modal-body').find('.comment-textarea').val();
+
+            console.log(inputComment, commentIDD);
+
+            $.ajax({
+                url: 'ServicePlan/updateComments',
+                type: "POST",
+
+                data: {
+                    uid: commentIDD,
+                    comments: inputComment,
+                    goalPlan: saveGoal
+                },
+                error: function (response) {
+
+                    alert('Could not update the  detail.');
+                },
+                success: function (response) {
+                    //$('#grid').data('kendoGrid').dataSource.read();
+                    //$('#grid').data('kendoGrid').refresh();
+                    location.reload(true);
+                    console.log('Updated')
+                }
+            });
+
+
+        });
+
+
+
+
+        var ids = [];
+        var goalValues = [];
+        $('#onSave').on('click', function () {
+
+            $('#plsWait').removeAttr('hidden');
+        });
+
+        function getCount() {
+            // GET ALL THE INPUT ELEMENTS.
+
+            var ele = document.getElementsByTagName('input');
+            var arg = '';
+            for (i = 0; i < ele.length; i++) {
+                if (ele[i].type == 'text') {
+                    arg = arg + ele[i].id + ',' + ele[i].value + '|';
+                    console.log('Value: ' + ele[i].value);
+                    console.log('ids: ' + ele[i].id);
+                }
+            }
+            //console.log(arg);
+            // LOOP THROUGH EACH ELEMENT.
+            for (i = 0; i < ele.length; i++) {
+                // CHECK THE ELEMENT TYPE.
+                //if (ele[i].type == 'text') {
+
+                ids.push(ele[i].id);
+                goalValues.push(ele[i].value)
+
+                $.ajax({
+                    url: 'ServicePlan/UpdateNew',
+                    type: "POST",
+
+                    data: {
+                        uid: arg
+                        //uval: ele[i].value,
+                    },
+                    error: function (response) {
+                        //alert("hello");
+                        document.getElementById('plsWait').style.display = 'none';
+                        //$("#placehold").fadeIn(1, "linear")
+                        document.getElementById("placehold").innerHTML = "<span class='alert alert-danger'>Error Occured While Saving Service Plan Data  </span>";
+                    },
+                    success: function (response) {
+                        document.getElementById('plsWait').style.display = 'none';
+                        document.getElementById("placehold").innerHTML = "<span class='alert alert-success'>Service Improvement plan has been saved successfully.  </span>";
+                        document.getElementById("finalLabel").innerHTML = "Not Finalized"
+                        setTimeout(function () {
+                            document.getElementById("placehold").innerHTML = " ";
+                        }, 5000);
+                    }
+                });
+                //$("#placehold").fadeOut(20000, "swing");
+
+            }
+
+        }
+
+
+
+
+        function cancelReload() {
+            location.reload();
+        }
+
+        //console.log(goalValues);
+
+        function finalizeClick() {
+
+            //document.getElementById("finalize").disabled = true;
+
+
+
+            $.ajax({
+                url: 'ServicePlan/UpdateValidation',
+                type: "POST",
+                async: false,
+                error: function (response) {
+
+                    alert("Error Occured");
+
+                    //document.getElementById("placehold").innerHTML = "<span style='font-weight:bold;position:absolute;top:16px;' class='alert alert-danger'>Error Occured While Saving Service Plan Data  </span>";
+                },
+                success: function (response) {
+
+                    if (response.isValid) {
+
+                        //console.log('it is greater');
+                        //alert('it is greater');
+                        console.log(response.impArray);
+
+                        var appends = "Goal Planned Across Quarters Exceeds Overall Goal For Service Improvement Types - &nbsp&nbsp";
+
+                        //appends = appends + "aa";
+
+                        for (var i = 0; i < response.impArray.length; i++) {
+
+                            //appends.concat(response.impArray[i]);
+                            appends = appends + "&nbsp&nbsp" + "'" + response.impArray[i] + "'" + ",";
+
+                        }
+                        console.log(appends);
+                        appends.toString();
+                        appends = appends.substring(0, appends.length - 1);
+                        appends = appends + ".";
+                        console.log(appends);
+                        document.getElementById("finalizeModalLabel").innerHTML = appends;
+
+                        $('#finalizeModal').modal('show');
+                    }
+                    else {
+                        //console.log('it is not greater');
+                        //console.log(response.impArray);
+                        document.getElementById("finalLabel").innerHTML = "Finalized";
+                        //$('#finalizeModal').modal('show');
+                    }
+
+                    console.log('Updated');
+
+
+                }
+            });
+
+
+
+
+        }
+
+
+        function fnExcelReport() {
+
+            var selectedTab = $("#tabstrip >ul").find(".k-item.k-state-active").index();
+            console.log(selectedTab);
+
+            var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+            var textRange; var j = 0;
+
+            tab = document.getElementById('tbl'); // id of table
+
+
+            for (j = 0; j < tab.rows.length; j++) {
+                //if (tab.row[j].innerHTML == "") {
+                //    tab_text = tab_text + tab.rows[j].value + "</tr>";
+                //}
+                //else {
+                //    tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+                //}
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+
+            }
+
+            tab_text = tab_text + "</table>";
+            tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+            tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+            tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf("MSIE ");
+
+            if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+            {
+                txtArea1.document.open("txt/html", "replace");
+                txtArea1.document.write(tab_text);
+                txtArea1.document.close();
+                txtArea1.focus();
+                sa = txtArea1.document.execCommand("SaveAs", true, "Say Thanks to Sumit.xls");
+            }
+            else                 //other browser not tested on IE 11
+                sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+            return (sa);
+        }
+
+    </script>

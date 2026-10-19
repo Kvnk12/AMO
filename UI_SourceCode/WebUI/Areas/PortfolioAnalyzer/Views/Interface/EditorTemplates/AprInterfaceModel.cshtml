@@ -1,0 +1,35 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+
+@model AprInterfaceModel
+@{ 
+    var client = (Client)Session["Client"];
+    //var v = new APRAjaxServiceController();
+
+    //var Applicationslistx = v.ApplicationList(client.Id);
+    //var vx = new InterfaceController();
+    //var Applicationslistx = vx.FilterApplicationList(client.Id);  , new { apId = Model.AppId }
+
+
+}
+<div style="margin-left:15px">
+    <label>Select Application:</label>
+    @(Html.Kendo().DropDownListFor(m => m.ApplicationInterfaced)
+                //.Name("ApplicationList")
+                //.Filter("contains")
+                //.BindTo(Applicationslistx)
+                .DataSource(dataSource => dataSource
+                                   .Read(read => read.Action("FilterApplicationList", "Interface").Data("GetappId")))
+        .DataValueField("Value")
+        .DataTextField("Text")
+        .Name("ApplicationName")
+        .AutoBind(true)
+    //.Events(e => e.Change(""))
+    )
+</div>

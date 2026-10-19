@@ -1,0 +1,42 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+
+
+@{
+    ViewBag.Title = "_WbsStatus";
+}
+
+
+<div>
+    <div style="margin:10px">
+        <h5 style="text-align:center">Wbs Status</h5>
+        
+        <div style="margin:10px; padding:5px; padding-top:0px;"class="custom-kendo-grid">
+            @(Html.Kendo().Grid<WbsStatusModel>()
+                .Name("WbsStatusGrid")
+                .Columns(column =>
+                {
+                    column.Bound(e => e.Id).Hidden();
+                    column.Bound(e => e.WbsStatus);
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+                .Sortable()
+                .Scrollable()
+                 .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New WBS Status"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetWbsStatus", "MetaData"))
+                      .Create(create => create.Action("AddWbsStatus", "MetaData"))
+                      .Update(update => update.Action("EditWbsStatus", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteWbsStatus", "MetaData"))
+
+                          ))
+        </div>
+    </div>
+</div>
+
+
+
+

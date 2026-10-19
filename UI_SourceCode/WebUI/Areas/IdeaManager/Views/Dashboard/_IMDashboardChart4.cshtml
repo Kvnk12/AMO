@@ -1,0 +1,166 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+<div>
+    <div class="top-content-heading">
+        <div class="top-content-head">
+            <h6>Total Ideas by </h6>
+            <div class="chart-type">
+
+                @(Html.Kendo().DropDownListFor(m => m)
+                                        .Name("DrpValChart4")
+                                        .OptionLabel("")
+                                        .DataTextField("Text")
+                                        .DataValueField("Value")
+                                        .Value("Configitemname")
+                                        .Events(e => e
+                                                .Change("Chart4DrpChange")
+                                                )
+                                           //.BindTo(Model.INMappedColumn)
+                                           .BindTo(new List<SelectListItem>() {
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Idea Type",
+                                                                                                        Value = "IdeaType"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Idea Source",
+                                                                                                        Value = "IdeaSource"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "LOB Department",
+                                                                                                        Value = "LOB"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Complexity",
+                                                                                                        Value = "Complexity"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "Team",
+                                                                                                        Value = "Team"
+                                                                                                        },
+                                                                                                        new SelectListItem() {
+                                                                                                        Text = "System Impacted Service",
+                                                                                                        Value = "SystemImpactedService"
+                                                                                                        }
+                                            })
+                                            .AutoBind(true)
+                )
+
+
+            </div>
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c4">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChart4()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<IMChartDashboardModel>
+    ()
+    .Name("Chart4")
+    .Legend(legend => legend
+    .Visible(false)
+    )
+
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    .Height(280)
+        )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("ParameterDatanew4")))
+    .Series(series =>
+    {
+        series.Column(model => model.Percent).Name("Percentage").Axis("%").CategoryField("DrpCategory").Spacing(-1).Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true).Position(ChartBarLabelsPosition.InsideBase)).Visible(true).Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Background("#19BDFF").Template("#= series.name #: #= value # %")).Color("transparent");
+        series.Column(model => model.IdeaCount).Name("Idea Count").CategoryField("DrpCategory").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(8)
+    //.Categories(model =>model.)
+    .MajorGridLines(lines => lines.Visible(false))
+    .Labels(labels => labels.Rotation(-90))
+    .AxisCrossingValue(0, 1000)
+    .Title(title => title.Text("Idea Type"))
+    )
+
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(true))
+    //.Labels(labels => labels.Rotation(-90))
+    //.MajorGridLines(lines => lines.Visible(true))
+    .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+    .Title(title => title.Text("Total Ideas"))
+    // .Title(title => title.Text("drpval"))
+    )
+    .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(true))
+            .Line(line => line.Visible(false))
+              .MajorGridLines(lines => lines.Visible(false))
+        )
+
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    .Template("#= series.name #: #= value #")
+
+    )
+    .Pannable(pannable => pannable
+    .Lock(ChartAxisLock.Y)
+    )
+    .Zoomable(zoomable => zoomable
+    .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+    .Selection(selection => selection.Lock(ChartAxisLock.Y))
+    )
+        .Events(events => events
+            .DataBound("onChangeTitle_onDataBound")
+             .SeriesClick("onChart4SeriesClick")
+        )
+    )
+
+        </div>      
+    </div>
+    <div class="table-content hide" style="color: #000;padding: 0 18px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:149px" onclick="kendoGridHeaderSort('Chart4Grid', 'LongCategory')">Category</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('Chart4Grid', 'IdeaCount')">Idea Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('Chart4Grid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<IMChartDashboardModel>
+    ()
+    .Name("Chart4Grid")
+    .Columns(columns =>
+    {
+
+    columns.Bound(e => e.LongCategory).Title("Category").Width(149).ClientFooterTemplate("Total");
+    columns.Bound(e => e.IdeaCount).Title("Idea Count").Width(109).ClientFooterTemplate("#=sum#");
+    columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+    })
+    // .Scrollable()
+    .AutoBind(false)
+    .HtmlAttributes(new { style = "height:235px;" })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Aggregates(agg =>
+    {
+    agg.Add(p => p.IdeaCount).Sum();
+    agg.Add(p => p.Percent).Sum();
+    })
+    // .PageSize(25)
+    .Read(read => read.Action("GetIMDashboardDataDynamicGrid", "Dashboard").Data("ParameterDatanew4")))
+    .Events(events => events
+    .DataBound("Chart4Grid_onDataBound")
+    )
+    )
+
+    </div>
+</div>

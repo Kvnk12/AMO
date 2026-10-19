@@ -1,0 +1,645 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model AuthoriseRolesModel
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    //  ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostIdeaController();
+    var sourcelist = cont.GetIdeaSource(client.ClientId);
+}
+<div class="content-main dark-bg im-metadata-screen">
+    <div>
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">Meta Data</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-tabstrip im-metadata-tab">
+        @*// @Html.HiddenFor(m => m.IMAutoApproval)*@
+        @(Html.Kendo().TabStrip()
+                          .Name("IMtabstrip")
+                          .Items(tabstrip =>
+                          {
+                              tabstrip.Add().Text("Idea Type")
+                                  .Selected(true)
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                    @*<label><strong style="font-size:medium; align-content:center">Idea Types</strong></label>*@
+                    @(Html.Kendo().Grid<IMIdeaTypeModel>()
+                         .Name("IMIdeaType")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.IdeaType).Title("IdeaType");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("New Idea Type"))
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetIdeaType", "Config"))
+                      .Create(create => create.Action("AddIdeaType", "Config"))
+                      .Update(update => update.Action("EditIdeaType", "Config"))
+                      .Destroy(destroy => destroy.Action("DeleteIdeaType", "Config"))
+
+                          )
+            .Events(events => events
+               .Save("SaveIdeaType"))
+                )
+                </div>
+                                           </text>
+                                   );
+
+                              tabstrip.Add().Text("LOB")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                    @*<label><strong style="font-size:medium; align-content:center">LOB Department</strong></label>*@
+                    @(Html.Kendo().Grid<IMLOBModel>()
+                         .Name("IMLOBModel")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.LOB).Title("LOB");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New LOB"))
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetLOB", "Config"))
+                      .Create(create => create.Action("AddLOB", "Config"))
+                      .Update(update => update.Action("EditLOB", "Config"))
+                      .Destroy(destroy => destroy.Action("DeleteLOB", "Config"))
+
+                          )
+            .Events(events => events
+               .Save("SaveLOB"))
+                )
+
+                </div>
+                                           </text>
+                                  );
+
+                                                tabstrip.Add().Text("Idea Source")
+                      .Content(@<text>
+                               <div class="custom-kendo-grid im-metadata-grid">
+        @*<label><strong style="font-size:medium; align-content:center">LOB Department</strong></label>*@
+        @(Html.Kendo().Grid<IMIdeaSourceMasterModel>()
+             .Name("IMIdeaSourceMasterModel")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.IdeaSource).Title("Idea Source");
+                 columns.Command(command => { command.Edit().Visible("setVisible"); command.Destroy().Visible("setVisible"); }).Width(250);
+             })
+          .Sortable()
+          .Scrollable()
+          //.Pageable()
+          .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+          .ToolBar(toolbar => toolbar.Create().Text("Add New Idea Source"))
+          //.HtmlAttributes(new { style = "height:550px;" })
+          .DataSource(dataSource => dataSource
+          .Ajax()
+          //.PageSize(10)
+          .Model(model => model.Id(f => f.Id))
+          .Read(read => read.Action("GetIdeaSourceMaster", "Config"))
+          .Create(create => create.Action("AddIdeaSourceMaster", "Config"))
+          .Update(update => update.Action("EditIdeaSourceMaster", "Config"))
+          .Destroy(destroy => destroy.Action("DeleteIdeaSourceMaster", "Config"))
+
+              )
+.Events(events => events
+   .Save("SaveIdeaSource"))
+    )
+
+    </div>
+                               </text>
+                      );
+
+
+                              tabstrip.Add().Text("Team/Tower")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                    @*<label><strong style="font-size:medium; align-content:center">Team/Tower</strong></label>*@
+                    @(Html.Kendo().Grid<WebUI.Dto.IMTeamModel>()
+                                                                 .Name("IMTeam")
+                                                                 .Columns(columns =>
+                                                                 {
+                                                                     columns.ForeignKey(e => e.IdeaSourceVal, sourcelist, "Value", "Text").Width(300).Title("Idea Source").EditorTemplateName("IdeaSourcedropdown");
+                                                                     columns.Bound(e => e.Team).Title("Team");
+                                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                                 })
+                                                              .Sortable()
+                                                              .Scrollable()
+                                                              //.Pageable()
+                                                              .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                              .ToolBar(toolbar => toolbar.Create().Text("Add New Team/Tower"))
+                                                              //.HtmlAttributes(new { @style = "height:310px;" })
+                                                              .DataSource(dataSource => dataSource
+                                                              .Ajax()
+                                                              //.PageSize(10)
+                                                              .Model(model => model.Id(f => f.Id))
+                                                              .Read(read => read.Action("GetTeams", "Config"))
+                                                              .Create(create => create.Action("AddTeams", "Config"))
+                                                              .Update(update => update.Action("EditTeams", "Config"))
+                                                              .Destroy(destroy => destroy.Action("DeleteTeams", "Config"))
+
+                                                                  )
+                                                                  .Events(events => events
+                                                       .Save("SaveTeams"))
+
+                        )
+
+                </div>
+                                           </text>
+                                  );
+
+                              tabstrip.Add().Text("Size/Complexity")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                    @*<label><strong style="font-size:medium; align-content:center">Size/Complexity</strong></label>*@
+                    @(Html.Kendo().Grid<IMComplexityModel>()
+                         .Name("IMComplexity")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Complexity).Title("Size/Complexity");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Size/Complexity"))
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetComplexity", "Config"))
+                      .Create(create => create.Action("AddComplexity", "Config"))
+                      .Update(update => update.Action("EditComplexity", "Config"))
+                      .Destroy(destroy => destroy.Action("DeleteComplexity", "Config"))
+
+                          )
+                          .Events(events => events
+               .Save("SaveComplexity"))
+
+                )
+                </div>
+                                            </text>
+                                  );
+
+                              tabstrip.Add().Text("Classification/Category")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                    @(Html.Kendo().Grid<IMClassificationModel>()
+             .Name("ClassificationGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.CalId).Hidden();
+                 columns.Bound(e => e.Classification).Title("Classification").Width(150);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             //.Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add New Classification"))
+             .Scrollable()
+             //.HtmlAttributes(new { style = "height:650px" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              //.PageSize(10)
+              .Model(model => { model.Id(f => f.CalId); model.Field(f => f.CalId).Editable(false); })
+              .Read(read => read.Action("GetClassification", "Config"))
+              .Create(create => create.Action("AddClassification", "Config"))
+              .Update(update => update.Action("EditClassification", "Config"))
+              .Destroy(destroy => destroy.Action("DeleteClassification", "Config"))
+               )
+               .Events(events => events.Save("SaveClassification"))
+               .ClientDetailTemplateId("CatGridTemplate")
+                )
+                </div>
+                                            </text>
+                                  );
+
+                              tabstrip.Add().Text("Configurations Type/Name")
+                                  .Content(@<text>
+                                             <div class="custom-kendo-grid im-metadata-grid">
+                    @(Html.Kendo().Grid<IMConfigTypeModel>()
+             .Name("ConfigurationtypeGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.CTId).Hidden();
+                 columns.Bound(e => e.ConfigType ).Title("Configuration Type").Width(150);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             //.Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add New Configuration Type"))
+             .Scrollable()
+             //.HtmlAttributes(new { style = "height:550px" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              //.PageSize(10)
+              .Model(model => { model.Id(f => f.CTId); model.Field(f => f.CTId).Editable(false); })
+              .Read(read => read.Action("GetConfigurationtype", "Config"))
+               .Create(create => create.Action("AddConfigurationtype", "Config"))
+               .Update(update => update.Action("EditConfigurationtype", "Config"))
+               .Destroy(destroy => destroy.Action("DeleteConfigurationtype", "Config"))
+               )
+               .Events(events => events.Save("SaveConfigurationtype"))
+               .ClientDetailTemplateId("ConfigNameGridTemplate")
+                )
+                </div>
+                                            </text>
+                                  );
+                                tabstrip.Add().Text("System Impacted Service")
+                                  .Content(@<text>
+                                             <div class="custom-kendo-grid im-metadata-grid">
+                    @(Html.Kendo().Grid<IMSystemImpactedServiceModal>()
+             .Name("SystemImpactedServiceGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.Id).Hidden();
+                 columns.Bound(e => e.SystemImpactedService).Title("System Impacted Service").Width(150);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+             //.Pageable()
+             .ToolBar(toolbar => toolbar.Create().Text("Add New System Impacted Service"))
+             .Scrollable()
+             //.HtmlAttributes(new { style = "height:550px" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              //.PageSize(10)
+              .Model(model => model.Id(f => f.Id))
+              .Read(read => read.Action("GetSystemImpactedService", "Config"))
+               .Create(create => create.Action("AddSystemImpactedService", "Config"))
+               .Update(update => update.Action("EditSystemImpactedService", "Config"))
+               .Destroy(destroy => destroy.Action("DeleteSystemImpactedService", "Config"))
+               )
+                 .Events(events => events.Save("SaveSystemImpactedService"))
+                )
+                </div>
+                                            </text>
+                                  );
+                                tabstrip.Add().Text("Select Auto Approvers")
+                                  .Content(@<text>
+        <div class="im-metadata-checkbox">
+             <div class="custom-group" style="display:flex">
+                <label style="margin-right:1.5em;font-size:14px;font-weight:bold;color:#000;">Auto approver selection</label>
+                <div class="custom-checkbox im-meta-blue-checkbox">
+                    @(Html.Kendo().CheckBoxFor(e => e.IMAutoApproval)
+    .Name("IMAutoApproval")
+                    .Label("(By selecting this option, below selected approvers will get auto selected for new Ideas. These approvers will get email notifications.)")
+                    //.Checked(true)
+                    //.HtmlAttributes(new { @class = "checkbox" })
+                    )
+
+                </div>
+            </div>
+        </div>
+         <div class="custom-kendo-grid im-metadata-grid approver-grid k-state-disabled">
+                   @(Html.Kendo().Grid<IMAutoApproverModel>()
+        .Name("ApproverGrid")
+        .Columns(columns =>        {
+            columns.Select().Width(100).Title("Select All");
+            columns.Bound(e => e.Id).Hidden();
+            columns.Bound(e => e.ApproverName).Title("Select Approver");
+        })
+        .Scrollable()
+        .PersistSelection()
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => { model.Id(f => f.Id);
+        })
+        .Read(read => read.Action("ListOfAdmins", "Config"))
+        )
+
+            )
+
+                </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:1.5em">
+               <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" onclick="SaveApprover()">Save</button>
+        </div>
+
+         </text>
+                                  );
+                          })
+                        )
+    </div>
+</div>
+
+<script id="CatGridTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<IMCategoryModel>()
+            .Name("CatGrid#=CalId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.CaId).Hidden();
+                columns.Bound(e => e.Category).Title("Category");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    //.HtmlAttributes(new { style = "height:450px;" })
+   // .Pageable()
+    .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("Add New Category");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.CaId);
+        })
+        //.PageSize(10)
+        .Read(read => read.Action("GetCategory", "Config", new { CattId = "#=CalId#" }))
+        .Create(create => create.Action("AddCategory", "Config", new { Id = "#=CalId#" }))
+        .Update(update => update.Action("EditCategory", "Config"))
+        .Destroy(delete => delete.Action("DeleteCategory", "Config"))
+    )
+    .Events(events => events.Save("SaveCategory"))
+    .ToClientTemplate())
+</script>
+<script id="ConfigNameGridTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<IMConfigItemModel>()
+            .Name("CItemGrid#=CTId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.CIId).Hidden();
+                columns.Bound(e => e.ConfigItem).Title("Configuration Item");
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+            })
+    .Sortable()
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    //.HtmlAttributes(new { style = "height:350px;" })
+    //.Pageable()
+    .ToolBar(
+   tools =>
+   {
+       tools.Create().Text("New Config Item");
+   })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(o => o.CIId);
+        })
+        //.PageSize(10)
+        .Read(read => read.Action("GetConfigurationitem", "Config", new { ConId = "#=CTId#" }))
+        .Create(create => create.Action("AddConfigurationitem", "Config", new { Id = "#=CTId#" }))
+        .Update(update => update.Action("EditConfigurationitem", "Config"))
+        .Destroy(delete => delete.Action("DeleteConfigurationitem", "Config"))
+    )
+    //.Events(events => events.Save("SaveConfigurationitem"))
+    .ToClientTemplate())
+</script>
+
+<script>
+        $(document).ready(function () {
+            var grid = $('#ApproverGrid').data('kendoGrid');
+            grid.bind('dataBound', function (e) {
+                $.each(grid.tbody.find('tr'), function () {
+                    var model = grid.dataItem(this);
+                    //var cells = this;
+                    if (model.IdeaApproverId != '' && model.IdeaApproverId != null) {
+                        $('[data-uid=' + model.uid + ']').addClass('k-state-selected')
+                            .find('[type=checkbox]')
+                            .attr("checked", "checked");
+                        grid.select("tr[data-uid='" + model.uid + "']");
+                    }
+                });
+            });
+        });
+
+        $(window).on('load', function () {
+            if ('@Model.IMAutoApproval'.toLowerCase() == 'true') {
+                if ($(".approver-grid").hasClass("k-state-disabled")) {
+                    $(".approver-grid").removeClass("k-state-disabled");
+                }
+            }
+        });
+        function SaveClassification(e) {
+            var Classification = e.model.Classification.toUpperCase();
+            var CalId = e.model.CalId;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].Classification.toUpperCase() === Classification && data[i].CalId != CalId) {
+                    e.preventDefault();
+                    alert("Classification Already Exists. Please Enter Unique Name!");
+                }
+            }
+
+        }
+
+        function SaveCategory(e) {
+            var Category = e.model.Category.toUpperCase();
+            var CaId = e.model.CaId;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].Category.toUpperCase() === Category && data[i].CaId != CaId) {
+                    e.preventDefault();
+                    alert('Category ' + '"' + Category + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveComplexity(e) {
+            var Complexity = e.model.Complexity.toUpperCase();
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].Complexity.toUpperCase() === Complexity && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('Complexity ' + '"' + Complexity + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveSystemImpactedService(e) {
+            var IdeaType = e.model.SystemImpactedService.toUpperCase();
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].SystemImpactedService.toUpperCase() === IdeaType && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('System Impacted Service ' + '"' + IdeaType + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+        function SaveIdeaType(e) {
+            var IdeaType = e.model.IdeaType.toUpperCase();
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].IdeaType.toUpperCase() === IdeaType && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('Idea Type ' + '"' + IdeaType + '"' + 'Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+    function setVisible(dataItem) {
+        console.log(dataItem);
+        if (dataItem.isDefault == false) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+        function SaveLOB(e) {
+            var LOB = e.model.LOB.toUpperCase();
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].LOB.toUpperCase() === LOB && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('LOB' + '"' + LOB + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+    function SaveIdeaSource(e) {
+        var IdeaSource = e.model.IdeaSource.toUpperCase();
+            var Id = e.model.Id;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].IdeaSource.toUpperCase() === IdeaSource && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert('IdeaSource' + '"' + IdeaSource + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveConfigurationtype(e) {
+            var Configurationtype = e.model.ConfigType.toUpperCase();
+            var CTId = e.model.CTId;
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].ConfigType.toUpperCase() === Configurationtype && data[i].CTId != CTId) {
+                    e.preventDefault();
+                    alert('Configuration Type ' + '"' + Configurationtype + '"' + ' Already Exists. Please Enter Unique Name!');
+                }
+            }
+
+        }
+
+        function SaveTeams(e) {
+
+            var CID = $('#drpSelClient').val();
+            var Team = e.model.Team.toUpperCase();
+            var Id = e.model.Id;
+            e.model.ClientId = CID;
+            //var ClientId = CID;
+            //alert(ClientId);
+            var data = this.dataSource.data();
+
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].Team.toUpperCase() === Team && data[i].Id != Id) {
+                    e.preventDefault();
+                    alert("Team Already Exists. Please Select Unique Team!");
+                }
+            }
+
+        }
+
+        function SaveApprover() {
+            var id = $('#IMAutoApproval:checked').val() ? true : false;
+            var grid = $("#ApproverGrid").getKendoGrid();
+                    var selValues = grid.selectedKeyNames().join(", ");
+                    if(selValues!=""||selValues!=",")
+                    {
+                        var mod = {
+                        IMAutoApproval:id,
+                        ApproverIds: selValues
+                        };
+                        var data = JSON.stringify(mod);
+                    baseurl = '@Url.Content("~/IdeaManager/Config/AddSelectedAdmins")';
+                    $.ajax(
+                    {
+                        url: baseurl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                            success: function (data) {
+
+
+                        }
+                    })
+                }
+                else{
+                }
+                return false;
+        }
+        $('#IMAutoApproval').click(function (e) {
+            var id = $('#IMAutoApproval:checked').val() ? true : false;
+            if (id) {
+                if ($(".approver-grid").hasClass("k-state-disabled")) {
+                    $(".approver-grid").removeClass("k-state-disabled");
+                }
+            }
+            else {
+                if ($(".approver-grid").hasClass("k-state-disabled")) {
+                   }
+                else {
+                    $(".approver-grid").addClass("k-state-disabled");
+                }
+
+            }
+        });
+
+
+</script>
+
+
+
+

@@ -1,0 +1,102 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Extensions;
+
+@model ApplicationDashboardModel
+
+<div class="dispositionContent">
+    <div>
+        <div class="dispositionHeader"> Description</div>
+        <div id="hideDesc" style=" margin-left: 1em;">
+            @(Html.Kendo().EditorFor(m => m.AppDescription)
+                .Name("AppDescription")
+                .HtmlAttributes(new { style = "height:150px; width:99%;" })
+                .Tools(tools => tools.Clear())
+                .Resizable(resizable => resizable.Content(false).Toolbar(false)
+            ))
+        </div>
+        <div id="pdfDesc" class="hide" style=" margin-left: 1em;">
+            <p id="Appdesc"></p>
+        </div>
+        <div style=" margin-left: 1em;">
+            <table>
+                <tr>
+                    <td>Level 1 Category:</td>
+                    <td><label id="lblLevel1Cat"></label></td>
+                    <td>System priority:</td>
+                    <td><label id="lblSystemPriority"></label></td>
+                    <td>User Range:</td>
+                    <td><label id="lblUserRange"></label></td>
+                </tr>
+                <tr>
+                    <td>Level 2 Group:</td>
+                    <td><label id="lblLevel2Cat"></label></td>
+                    <td>Deployment Model:</td>
+                    <td><label id="lblDeploymentModel"></label></td>
+                    <td>Standard Status:</td>
+                    <td><label id="lblStandardStatus"></label></td>
+                </tr>
+                <tr>
+                    <td>Level 3 Process:</td>
+                    <td><label id="lblLevel3Cat"></label></td>
+                    <td>Interfaces(in):</td>
+                    <td><label id="lblInterfacesIn"></label></td>
+                    <td>Differentiation(in):</td>
+                    <td><label id="lblDifferentiation"></label></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Interfaces(out):</td>
+                    <td><label id="lblInterfacesOut"></label></td>
+                    <td>Interfaces Entangled:</td>
+                    <td><label id="lblInterfacesEntangled"></label></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div>
+        <div class="dispositionHeader"> Disposition</div>
+        <div style=" margin-left: 1em;">
+            <table>
+                <tr>
+                    <td>Initial Disposition:</td>
+                    <td><label id="lblInitialDisposition"></label></td>
+                    <td>Replacement Target:</td>
+                    <td><label id="lblReplacementTarget"></label></td>
+                    <td>APR Disposition:</td>
+                    <td><label id="lblAPRDisposition"></label></td>
+                </tr>
+                <tr>
+                    <td>Disposition Solution:</td>
+                    <td><label id="lblDispositionSolution"></label></td>
+                    <td>Replacement Alternatives:</td>
+                    <td><label id="lblReplacementAlternatives"></label></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div>
+        <div class="dispositionHeader"> Disposition Dashboard</div>
+        <div class="custom-kendo-grid" style=" margin-left: 1em;">
+            @(Html.Kendo().Grid<_surveyRating>()
+                             .Name("surRatingGrid")
+                             .Columns(column =>
+                             {
+                                column.Bound(m => m.Question).Title("Attribute");
+                                column.Bound(m => m.Answer).ClientTemplate("#= LineItems_Color(Answer, answerValue)#").Title("Response");
+                             })
+                             .Resizable(resize => resize.Columns(true))
+                             .HtmlAttributes(new { style = "min-height:350px;" })
+                             .DataSource(data => data
+                             .Ajax()
+                            )
+                   )
+        </div>
+    </div>
+</div>

@@ -1,0 +1,332 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.Resources;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using NTTData.AMOPortal.Domain.Entities
+
+
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+
+@model ClientTicketInfoViewModel
+
+@{
+    List<SelectListItem> yearlist = new List<SelectListItem>();
+    for (int yr=DateTime.Now.Year-10; yr<= DateTime.Now.Year + 10;yr++)
+    {
+        yearlist.Add(new SelectListItem { Text = yr.ToString(), Value = yr.ToString() });
+    }
+}
+
+
+    
+
+        <div>
+            
+                        
+                    
+
+                        <table class="table table-striped" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td>
+                                    <table >
+                                        <tr>
+                                            <td>
+                                                <span><strong>Quarter:  </strong></span>
+                                                @Html.DropDownListFor(m => m.Quarter, new List<SelectListItem>
+                                         {
+                                             new SelectListItem{ Text="1", Value = "1" },
+                                             new SelectListItem{ Text="2", Value = "2" },
+                                             new SelectListItem{ Text="3", Value = "3" },
+                                             new SelectListItem{ Text="4", Value = "4" }
+                                         }, new { @class = "selectpicker", @style = "width:100px;"})
+                                            </td>
+
+                                            <td><span><strong>Year: </strong></span>
+                                                @Html.DropDownListFor(m => m.Year, yearlist, new { @class = "selectpicker", @style = "width:120px;" })
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top">
+                                    <table class="table table-striped" cellpadding="0" cellspacing="0">
+                                        <thead>
+                                             <tr>
+                                                <th scope="col" width="10%">Tickets</th>
+                                                <th scope="col" width="10%">Number</th>
+                                                <th scope="col" width="10%">Effort Hrs</th>
+                                                <th scope="col" width="10%">Effort-per-unit</th>
+                                            </tr>
+                                        </thead>
+
+                               <tr>
+                                   <td>
+                                    <strong>Incidents</strong>
+                                   </td>
+                                    @Html.HiddenFor(m => m.ClientId, new { @value = Model.ClientId })
+                                <td>
+                                    @Html.HiddenFor(m=>m.Id)
+                                                                       
+                                     @(Html.Kendo().TextBoxFor(m => m.IncidentNumber).HtmlAttributes(new { style = "width:80px;text-align:right" })
+         
+         )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.IncidentEffortHrs).HtmlAttributes(new { style = "width:80px;text-align:right" })
+       
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.IncidentEffortPerUnit).HtmlAttributes(new { style = "width:80px;text-align:right" })
+        
+    )
+                                </td>
+
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>User Support SR</strong>
+                                </td>
+
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.UssrNumber).HtmlAttributes(new { style = "width:80px;text-align:right" })
+         
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.UssrEffortHrs).HtmlAttributes(new { style = "width:80px;text-align:right" })
+       
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.UssrEffortPerUnit).HtmlAttributes(new { style = "width:80px;text-align:right" })
+         
+    )
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Enhancements</strong>
+                                </td>
+
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.EnhanceNumber).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.EnhaceEffortHrs).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.EnhanceEffortPerUnit).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Problems</strong>
+                                </td>
+
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.ProblemsNumber).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.ProblemsEffortHrs).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m => m.ProblemsEffortPerUnit).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>SR Backlog</strong>
+                                </td>
+                                <td>
+                                    @(Html.Kendo().TextBoxFor(m=>m.SRBacklog ).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                            </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Comments</strong>
+                                            </td>
+                                            <td colspan="3">
+                                                @Html.TextAreaFor(m => m.Comment, new { @style = " width: 280px;height: 50px; padding: 12px 20px;box-sizing: border-box; border: 2px solid #ccc; border-radius: 4px; background-color: #f8f8f8; resize: none;" })
+                                            </td>
+                                        </tr>
+                        </table>
+                                        
+                                   
+
+                    </td>
+                    
+                                <td valign="top">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Mean time
+                                                </th>
+                                                <th>
+                                                    MTTR-Sev1
+                                                </th>
+                                                <th>
+                                                    MTTR-Sev2
+                                                </th>
+                                                <th>
+                                                    MTTR-Sev3
+                                                </th>
+                                                <th>
+                                                    MTTR-Sev4
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tr>
+                                            <td>
+                                                <strong>To Resolve Incident</strong>
+                                            </td>
+
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.InMTTRSev1).HtmlAttributes(new { style = "width:80px;text-align:right" })
+
+    )
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.InMTTRSev2).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.InMTTRSev3).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.InMTTRSev4).HtmlAttributes(new { style = "width:80px;text-align:right" })
+     
+    )
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>To Fulfil SR</strong>
+                                            </td>
+
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.SrMTTRSev1).HtmlAttributes(new { style = "width:80px;text-align:right" })
+
+    )
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.SrMTTRSev2).HtmlAttributes(new { style = "width:80px;text-align:right" })
+  
+    )
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.SrMTTRSev3).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                            </td>
+
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.SrMTTRSev4).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                            </td>
+
+                                        </tr>
+                                      
+                                        <tr>
+                                            <td colspan="5">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>
+
+                                                            </th>
+                                                            <th>
+                                                                Onsite
+                                                            </th>
+                                                            <th>
+                                                                Offshore
+                                                            </th>
+                                                            <th>
+                                                                Nearshore
+                                                            </th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tr>
+                                                        <td class="table-striped">
+                                                            <strong>NTTD FTEs</strong>
+                                                        </td>
+                                                        <td>
+                                                            @(Html.Kendo().TextBoxFor(m => m.NttFTEOnsite).HtmlAttributes(new { style = "width:80px;text-align:right" })
+   
+    )
+                                                        </td>
+                                                        <td>
+                                                            @(Html.Kendo().TextBoxFor(m => m.NttFTEOffshore).HtmlAttributes(new { style = "width:80px;text-align:right" })
+    
+    )
+                                                        </td>
+                                                        <td>
+                                                            @(Html.Kendo().TextBoxFor(m => m.NttFTENearShore).HtmlAttributes(new { style = "width:80px;text-align:right" })
+ 
+    )
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table>
+                                                    
+                                                    <tr>
+
+                                                        <td style="background-color:#47A3DA" width="40%">
+                                                            <strong style="color:#fff">Number of Applications</strong>
+                                                        </td>
+                                                        <td>
+                                                            @(Html.Kendo().TextBoxFor(m => m.NoOfApplications).HtmlAttributes(new { style = "width:160px;text-align:right" })
+   
+    )
+                                                        </td>
+
+                                                    </tr>
+                                                </table>
+
+                                            </td>
+                                    </tr>   
+                           </table>
+                        </td>
+                    </tr>
+
+            </table>
+
+        </div>
+

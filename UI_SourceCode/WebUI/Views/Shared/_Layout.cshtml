@@ -1,0 +1,375 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@model WebUI.Models.AMOModelBase
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="shortcut icon" href="../ico/favicon.png">
+<title>@ViewBag.Title</title>
+ 
+<!-- Bootstrap core CSS -->
+<link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+<link href="@Url.Content("~/Content/css/menu.css")" rel="stylesheet">
+<link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+ 
+<!-- Custom styles for this template -->
+<link href="@Url.Content("~/Content/css/sticky-footer.css")" rel="stylesheet">
+<link href="@Url.Content("~/Content/css/datepicker.css")" rel="stylesheet">
+<link href="@Url.Content("~/Content/css/bootstrap-select.css")" rel="stylesheet">
+ 
+<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+</head>
+ 
+<body>
+  <div id="wrap"> 
+    
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+          <a class="navbar-brand" href="#"><img src="@ViewBag.ImageURL" alt="Alignment Manager"/>
+          <h4  style="display:inline;font-weight:bold;padding-top:12px">@ViewBag.Title</h4>
+          </a> </div>
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Welcome! Phil</a></li>
+            <li class="dropdown"> <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+              </ul>
+            </li>
+            <li><a href="#">Logout</a></li>
+          </ul>
+        </div>
+        <!--/.nav-collapse --> 
+      </div>
+      <!--/.container --> 
+    </div>
+    <!--/nav bar div closes here --> 
+    <div class="pushContainer1">
+    
+    <nav id="appNav">
+        <h3>Applications</h3>
+        <div class="panel-group" id="accordion">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> SLA Manager </a> </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+              <div class="panel-body">
+              	<ul class="appMenuUl">
+                                <li><a href="#">Dashboards</a></li>
+                                 <li><a href="#">Alerts</a></li>
+                                 <li><a href="#">Trends</a></li>
+                                 <li><a href="#">Analytics</a></li>
+                                 <li><a href="#">Data Maintenance</a></li>
+                                 <li><a href="#">Metric Management</a></li>
+                                 <li><a href="#">Document Management</a></li>
+                                 <li><a href="#">Administration</a>
+                                 	 <ul>
+                                     	 <li><a href="SLA_Dashboard_story172.html">Dashboard Setup</a></li>
+                                     </ul>
+                                 </li>
+                </ul>           
+             </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> Client Profile Manager </a> </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+              <div class="panel-body"> 
+              	 <ul class="appMenuUl">
+                                <li><a href="#">Demographics</a>
+                                    <ul>
+                                        <li>
+                                            @Html.ActionLink("Client", "Create","Client")
+                                        </li>
+                                        <li>@Html.ActionLink("Account","DisplayClientAccountContracts","ClientAccountGrid")</li>
+                                     </ul>
+                                </li>
+                                 <li><a href="#">Contact Information</a></li>
+                                 <li><a href="#">Reports</a></li>
+                                 <li><a href="#">Data Collection</a></li>
+                                 <li><a href="#">Data Management</a></li>
+                                 <li><a href="#">Document Management</a></li>
+                </ul>
+              
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"> Portfolio Analyzer </a> </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
+              <div class="panel-body">
+              	<ul class="appMenuUl">
+                                <li><a href="#">Dashboards</a></li>
+                                 <li><a href="#">Alerts</a></li>
+                                 <li><a href="#">Trends</a></li>
+                                 <li><a href="#">Analytics</a></li>
+                </ul>
+              
+              </div>
+            </div>
+          </div>
+           <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">Performance Analyzer </a> </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse">
+              <div class="panel-body">
+              	<ul class="appMenuUl">
+                                <li><a href="#">Dashboards</a></li>
+                                 <li><a href="#">Alerts</a></li>
+                                 <li><a href="#">Trends</a></li>
+                                 <li><a href="#">Analytics</a></li>
+                </ul>
+              
+              </div>
+            </div>
+          </div>
+           <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">Alignment Manager</a> </h4>
+            </div>
+            <div id="collapseFive" class="panel-collapse collapse">
+              <div class="panel-body">
+              	<ul class="appMenuUl">
+                                <li><a href="#">Dashboards</a></li>
+                                 <li><a href="#">Alerts</a></li>
+                                 <li><a href="#">Trends</a></li>
+                                 <li><a href="#">Analytics</a></li>
+                </ul>
+              
+              </div>
+            </div>
+          </div>
+           <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">Incident Navigator</a> </h4>
+            </div>
+            <div id="collapseSix" class="panel-collapse collapse">
+              <div class="panel-body">
+              	<ul class="appMenuUl">
+                                <li><a href="#">Dashboards</a></li>
+                                 <li><a href="#">Alerts</a></li>
+                                 <li><a href="#">Trends</a></li>
+                                 <li><a href="#">Analytics</a></li>
+                </ul
+               ></div>
+            </div>
+          </div>
+           <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">Predictive Analytics</a> </h4>
+                </div>
+                <div id="collapseSeven" class="panel-collapse collapse">
+                      <div class="panel-body">
+                            <ul class="appMenuUl">
+                                           <li><a href="#">Dashboards</a></li>
+                                             <li><a href="#">Alerts</a></li>
+                                             <li><a href="#">Trends</a></li>
+                                             <li><a href="#">Analytics</a></li>
+                            </ul>
+                        </div>
+                </div>
+          </div>
+          
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">Alignment Manager</a> </h4>
+            </div>
+            <div id="collapseEight" class="panel-collapse collapse">
+              <div class="panel-body"> 
+              	 <ul class="appMenuUl">
+                                <li><a href="#">Value Chain</a>
+                                    <ul>
+                                        <li><a href="#">Claims Department</a>
+                                        	<ul>
+                                            	<li><a href="#">Claims Department</a>
+                                                	<ul>
+                                                		<li><a href="#">Organization</a></li>   
+                                                        <li><a href="#">Human Resources</a></li>
+                                                        <li><a href="#">Technology</a></li>
+                                                        <li><a href="#">Purchasing</a></li>
+                                                        <li><a href="#">Inbound logistics</a></li>
+                                                        <li><a href="#">Operations</a></li>
+                                                        <li><a href="#">Marketing and Sales</a>
+                                                        	<ul>
+                                                            	<li><a href="#">Sales Management</a></li>
+                                                       			<li><a href="#">Customer Order</a>
+                                                            </ul>
+                                                        </li>
+                                                    
+                                                    </ul>
+                                                </li>
+                                				<li><a href="#">HR Department</a></li>
+                                           </ul>
+                                        </li>
+                                  </ul>
+                                </li>
+                                 <li><a href="#">Business Capability</a></li>
+                                 <li><a href="#">Business Function</a></li>
+                                 <li><a href="#">Application Function</a></li>
+                                 <li><a href="#">Application Solution</a></li>
+                                 <li><a href="#">Platform Framework</a></li>
+                                 <li><a href="#">Infrastructure Services</a></li>
+                </ul>
+              
+              </div>
+            </div>
+          </div>
+          
+          
+          
+        </div>
+    </nav>
+    <div class="pushContainer1Content">
+        <div class="menuBorder">
+            <nav id="cbp-hrmenu" class="cbp-hrmenu">
+                <a href="#" title="" class="appNav appNavOpen"><span class="glyphicon glyphicon-th-list">&nbsp;</span> Navigate Optimization Applications&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></a>
+            <a href="#" title="" class="appNav appNavClose"><span class="glyphicon glyphicon-th-list">&nbsp;</span> Close Sidebar Navigation&nbsp;<span class="glyphicon glyphicon-chevron-left"></span></a>
+            <!--<a href="#" title="Dashboard"><span class="dashboard" ></span></a>-->
+              <ul>
+                <li> <a href="#">Business Portfolio</a>
+                  <div class="cbp-hrsub">
+                    <div class="cbp-hrsub-inner"> 
+                        <!--<div>
+                            <ul>
+                            <li><a href="#">Add Client</a></li>
+                            <li><a href="#">Account</a></li>
+                            
+                            </ul>
+                        </div>-->                  
+                    </div>
+                    <!-- /cbp-hrsub-inner --> 
+                  </div>
+                  <!-- /cbp-hrsub --> 
+                </li>
+                <li><a href="#">Data Set</a></li>
+                <li><a href="#">Heat Map</a></li>
+               
+              </ul>
+                <!--<div class="searchI">
+                    <form role="form">                    
+                        <input type="search" class="form-control searchc" id="search incident" placeholder="Search Incident by ID">
+                        <button type="submit" class="btn btn-search">Search</button></li>
+                    </form>
+                </div>--><!--/end of search div--> 
+            </nav>
+          <!-- end of nav--> 
+        </div>
+        <!--.container-->
+        
+        <div class="selectappArea">
+        <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label"><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                  @Html.DropDownListFor(m => m.SelectedClientID, new SelectList(Model.GetClients(), "Id", "ClientName"))
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal"> 
+              
+              <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>--> <!-- hidden for sprint two--> 
+              
+            </div>
+            <!--/.selectyearArea--> 
+          </div>
+          <!--/.container--> 
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div><!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">Alignment Manager</a></li>
+             <li><a href="#">Value Chain</a></li>
+            <li class="active">Home</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        
+            
+        <div class="container" style="padding:0;">
+        	@RenderBody()
+        </div><!--/.container-->
+        
+        
+        
+
+    </div><!--/.pushContainer1Content-->
+  		<div class="warning">Here goes the warning message.<span class="closewarning">X</span></div>
+  </div><!--.wrap--></div>
+  
+<div id="footer">
+  <div class="container">
+    <p class="text-muted credit">(c) NTT Data @DateTime.Now.Year | All rights reserved</p>
+  </div>
+</div>
+
+<!-- Bootstrap core JavaScript
+    ================================================== --> 
+<!-- Placed at the end of the document so the pages load faster --> 
+<script src="Scripts/jquery-3.6.0.js"></script> 
+	<link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+	<script src="@Url.Content("~/Scripts/kendo/2022.1.119/jszip.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+<script src="Scripts/html5shiv.js"></script> 
+<script src="Scripts/menu.js"></script>
+<script src="Scripts/script.js"></script>
+<script src="Scripts/tab.js"></script>
+<script src="Scripts/modal.js"></script>
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+		</script> 
+<script src="js/bootstrap-select.js"></script> 
+<script>
+    $('.selectpicker').selectpicker();
+    $('.selectpicker').selectpicker('val', ['Ketchup', 'Relish']);
+    </script> 
+<script src="js/bootstrap-datepicker.js"></script> 
+<script>
+    $('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+    </script>
+</body>
+</html>

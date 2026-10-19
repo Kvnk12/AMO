@@ -1,0 +1,79 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+
+
+<div style="margin:5px;" class="custom-kendo-grid">
+
+    <!--Kendo Grid-->
+    @(Html.Kendo().Grid<OngoingArchivalSupportModel>()
+            .Name("OngoingArchivalGrid")
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.Id).Hidden();
+                columns.Bound(p => p.WhichCostTable).Hidden();
+                columns.Bound(p => p.OngoingActivity).Title("Activity");
+                columns.Bound(p => p.EstimatedHours);
+                columns.Bound(p => p.EstimatedCost);
+                columns.Bound(p => p.EstimateAssumptions);
+                columns.Bound(p => p.AttachmentName).ClientTemplate(
+                  "#if(AttachmentName) {# "
+                         + "<input type='file' style='width:85px;' value='#=AttachmentName#' onchange='FileUpload(this, #=Id#," + (int)CostScreen.ArchivalSupport + ")'/>"
+                         + "<div style='display: inline-block; padding:5px; padding-top:10px; margin:5px;'>"
+                         + "<a target='_blank' rel='noopener noreferrer' href='" + Url.Action("downloadFile", "Assessment", new { rowId = "#=Id#", table = (int)CostScreen.ArchivalSupport }) + "'>#=AttachmentName#</a>"
+                         + "<button style='margin-left:15px;' type='button' title='Remove File' onclick='deleteFile(#=Id#," + (int)CostScreen.ArchivalSupport + ")' class='close' aria-label='Close'><span aria-hidden ='true'>&times;</span></button> "
+                         + "</div>"
+                         + " #} else{#"
+                            + "<input type='file' onchange='FileUpload(this, #=Id#," + (int)CostScreen.ArchivalSupport + ")'/>"
+                       + "#}#"
+
+
+                  ).Width(350).Title("Attachment");
+
+            })
+            .ToolBar(toolbar =>
+            {
+                toolbar.Save();
+
+            })
+
+            .Editable(editable => editable.Mode(GridEditMode.InCell))
+            .Navigatable()
+            .Sortable()
+            .HtmlAttributes(new { @style = "height:550px" })
+            .Scrollable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Batch(true)
+                .ServerOperation(false)
+                .Aggregates(ag =>
+                {
+                    ag.Add(e => e.EstimatedHours).Sum();
+                    ag.Add(e => e.EstimatedCost).Sum();
+                })
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                    model.Field(r => r.OngoingActivity).Editable(false);
+                    model.Field(r => r.AttachmentName).Editable(false);
+
+                })
+               .Read(read => read.Action("OngoingArchivalRead", "Assessment").Data("GetAppId"))
+                .Update(up => up.Action("OngoingArchivalSave", "Assessment"))
+            )
+    )
+</div>
+
+
+
+
+
+

@@ -1,0 +1,12 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model VariableInput
+
+
+ @Html.Partial("_dependInfo", Model)
+
+<!--.dependancyArea-->
+ @Html.Partial("_clientInfo", Model)

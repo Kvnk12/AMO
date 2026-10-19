@@ -1,0 +1,123 @@
+﻿@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+
+<div class="container" style="padding:0;">
+
+
+    @(Html.Kendo().TreeView()
+        .Name("treeview")
+        .DataTextField("Name")
+        .DataSource(dataSource => dataSource
+            .Read(read => read
+                .Action("GetClientCapabilityList", "DataCollection")
+            )
+           
+        )
+    )
+
+    @*@(Html.Kendo().TreeView()
+            .Name("treeview")
+            .Checkboxes(checkboxes => checkboxes
+                .Name("checkedFiles")
+                .CheckChildren(true)
+            )
+             //.Events(events => events
+             //   .Check("onCheck")
+            )
+            .Items(treeview =>
+             {
+                 treeview.Add().Text("WFHM").Id("1")
+                     .SpriteCssClasses("rootfolder")
+                     .Expanded(true)
+                     .Items(root =>
+                     {
+                         root.Add().Text("WFHM").Id("2")
+                             .Expanded(true)
+                             .SpriteCssClasses("folder")
+                             .Items(project =>
+                             {
+                                 project.Add().Text("ACCOUNT MANAGEMENT").Id("3").Expanded(true).SpriteCssClasses("html")
+                                 .Items(project1 =>
+                                 project1.Add().Text("ACCOUNT FINANCIAL TRANSACTION MANAGEMENT").Id("4").Expanded(true)
+                                 .Items(projct2 =>
+                                 {
+                                     projct2.Add().Text("ACCOUNT BALANCE MANAGEMENT").Id("5");
+                                     projct2.Add().Text("ACCOUNT CLAIMS MANAGEMENT").Id("6");
+                                     projct2.Add().Text("ACCOUNT DELINQUENCY RESOLUTION").Id("7");
+                                     projct2.Add().Text("ACCOUNT ESCROW MANAGEMENT").Id("8").Expanded(true)
+                                     .Items(pro3 =>
+                                     {
+                                         pro3.Add().Text("ACCOUNT FLOOD INSURANCE").Id("9");
+                                         pro3.Add().Text("ACCOUNT HAZARD INSURANCE").Id("10");
+                                         pro3.Add().Text("ACCOUNT MORTGAGE INSURANCE").Id("11");
+
+                                     });
+                                 }
+                            ));
+
+
+
+                             });
+
+
+                     });
+             })
+    )*@
+
+    </div>
+    <div>
+        <footer class="col-xs-11 form-group text-right">
+            @(Html.Kendo().Button()
+                .Name("Previous7")
+                .Content("Previous")
+                .Events(ev => ev.Click("onPreviousClick")))
+            @(Html.Kendo().Button()
+                .Name("Next7")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+        </footer>
+    </div>
+
+<script>
+
+    // function that gathers IDs of checked nodes
+    //function checkedNodeIds(nodes, checkedNodes) {
+    //    for (var i = 0; i < nodes.length; i++) {
+    //        if (nodes[i].checked) {
+    //            checkedNodes.push(nodes[i].id);
+    //        }
+
+    //        if (nodes[i].hasChildren) {
+    //            checkedNodeIds(nodes[i].children.view(), checkedNodes);
+    //        }
+    //    }
+    //}
+
+    // show checked node IDs on datasource change
+    //function onCheck() {
+    //    var checkedNodes = [],
+    //        treeView = $("#treeview").data("kendoTreeView"),
+    //        message;
+
+    //    checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+    //    if (checkedNodes.length > 0) {
+    //        message = "IDs of checked nodes: " + checkedNodes.join(",");
+    //    } else {
+    //        message = "No nodes checked.";
+    //    }
+
+    //    $("#result").html(message);
+    //}
+</script>
+<style>
+    #treeview .k-sprite {
+        background-image: url("@Url.Content("~/Content/web/treeview/coloricons-sprite.png")");
+    }
+
+    .rootfolder { background-position: 0 0; }
+    .folder     { background-position: 0 -16px; }
+    .pdf        { background-position: 0 -32px; }
+    .html       { background-position: 0 -48px; }
+    .image      { background-position: 0 -64px; }
+</style>

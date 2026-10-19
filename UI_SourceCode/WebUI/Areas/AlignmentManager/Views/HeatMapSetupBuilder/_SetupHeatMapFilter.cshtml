@@ -1,0 +1,628 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+@using (Html.BeginForm("SaveHeatMapFilers", "HeatMapSetUpBuilder", new { ClientId = Model.ClientId, ReportId = Model.ReportId, ReportType = Model.HeatMapReportStatus }, FormMethod.Post))
+    {
+    
+    			@Html.Hidden("ReportId", Model.ReportId) 
+            @Html.Hidden("ReportType", Model.HeatMapReportStatus) 
+            @Html.Hidden("btnClick", "")
+            
+
+    
+    
+    
+      <div class="treeMenuContent" style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+           @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+               {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+               }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            else
+                {
+                //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+                }
+               
+                @*<div class="well well-sm"><strong>Heatmap Builder: Data</strong></div>*@
+                @{
+                    IList<String> rFilter = Model.reportFilterInput.ExistingFilters(Model.ReportId);
+                    if(rFilter.Count > 0)
+                        {
+                    <div style="width:250px" data-intro="Existing Filters, Click on one to view the details" data-step="5">
+
+                    <h4>Existing Filters</h4>
+                     <table class="fht-table table table-striped">
+                    @*<ul>*@
+                        @{foreach(string str in rFilter)
+                            {
+                              @*<li>@str</li>*@
+                            <tr>
+                                <td>@Html.ActionLink(str, null, null, null, new { Name = "reportFilterColumn", Value=str })</td>
+                            </tr>
+                             @*<li>@Html.ActionLink(str, null, null, null, new { Name = "reportFilterColumn", Value=str })</li>*@
+                            }   
+                            }  
+                    @*</ul>*@
+                         </table>   
+                </div>
+                    }
+                    }
+                <div class=""><!--/.valchainContent-->
+                  <div class="rcreportArea" data-intro="Select a column from the list to create new filter data" data-step="6">
+                    <h4>Report Column</h4>
+                    <div class="grid_4 height400">
+                      <div style="width: 100%; height: 100%;" class="fht-table-wrapper fht-default"><div class="fht-thead">
+                          <table class="fht-table table table-striped"><thead>
+                          <tr>
+                            <th scope="col" class="nobgg" width="30%">Column Name<div style="width: 115px;" class="fht-cell"></div></th>
+                            <th style="padding-right: 17px;" scope="col" class="nobgg" width="30%">Select<div style="width: 115px;" class="fht-cell"></div></th>
+                          </tr>
+                        </thead></table></div><div style="height: 363px;" class="fht-tbody">
+                            <table style="width: 261px; margin-top: -39px;border-left:1px solid #DDD" class="table table-striped fht-table fht-table-init" id="myTable06" cellpadding="0" cellspacing="0">
+                        <thead>
+                          <tr>
+                            <th scope="col" class="nobgg" width="30%">Column Name<div style="width: 114px;" class="fht-cell"></div></th>
+                            <th scope="col" class="nobgg" width="30%">Select<div style="width: 114px;" class="fht-cell"></div></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                    int counter = 0;
+                    foreach (ReportDataSet rdset in Model.reportFilterInput.SelectedColumns(Model.ReportId))
+                        {
+                        bool blnchecked = rdset.Id == Model.reportFilterInput.SelectedColId ? true : false;
+                        if (counter % 2 == 0)
+                            {
+                                      <tr>
+                                        <td>@rdset.SelectedColumn</td>
+                                        <td class="text-center"><input type="radio" class="metricchk"   name="radiochk" value="@rdset.Id" data-val="@rdset.SelectedColumn" checked="@blnchecked"/></td>
+                                      </tr>
+                            }
+                        else
+                            {
+                                      <tr class="odd">
+                            <td>@rdset.SelectedColumn</td>
+                            <td class="text-center"><input type="radio" class="metricchk"   name="radiochk" value="@rdset.Id"  data-val="@rdset.SelectedColumn" checked="@blnchecked" /></td>
+                          </tr>    
+                            }
+                        counter++;
+                        }
+                             }
+
+
+                        </tbody>
+                      </table></div></div>
+                    </div>
+                    <!--/.grid_4--> 
+                  </div>
+                  <!--/.report column table ends-->
+                  
+                  <div class="ppcvArea" style="width:600px" data-intro="Data for the selected Column" data-step="7">
+                    <h4>Data</h4>
+                    <div class="grid_4 height400">
+                      <div style="width: 100%; height: 100%;" class="fht-table-wrapper fht-default"><div class="fht-thead">
+                          <table class="fht-table table table-striped"><thead>
+                          <tr>
+                            <th scope="col" class="nobgg" width="60%">Value<div style="width: 113px;" class="fht-cell"></div></th>
+                            <th style="padding-right: 17px;" scope="col" class="nobgg" width="20%">Select<div style="width: 116px;" class="fht-cell"></div></th>
+                          </tr>
+                        </thead></table></div><div style="height: 363px;" class="fht-tbody">
+                            <table style="width: 261px; margin-top: -39px;border-left:1px solid #DDD" class="table table-striped fht-table fht-table-init" id="myTable07" cellpadding="0" cellspacing="0">
+                        <thead>
+                          <tr>
+                            <th scope="col" class="nobgg" width="60%">Value<div style="width: 112px;" class="fht-cell"></div></th>
+                            <th scope="col" class="nobgg" width="20%">Select<div style="width: 115px;" class="fht-cell"></div></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                    if(Model.reportFilterInput != null && Model.reportFilterInput.SelectedColId > 0)
+                        {            
+                    IList<SelectListItem> colValues = Model.reportFilterInput.ColumnData(Model.reportFilterInput.SelectedColId);
+                    IList<String> ExistingFilterData = Model.reportFilterInput.ExistingFilterData(Model.ReportId,Model.reportFilterInput.SelectedColId);
+                    int valuecounter = 0;
+                    if (colValues.Count == 0)
+                    {
+                         <td>No Data</td>
+                    }
+                    else
+                    {    
+                    foreach (SelectListItem lstItem in colValues)
+                        {
+                           bool isSelected = false;
+                           if(ExistingFilterData.Contains(lstItem.Text))
+                               {
+                               isSelected = true;
+                               }
+                        if (valuecounter % 2 == 0)
+                            {
+                                     <tr>
+                            <td>@lstItem.Text</td>
+                            <td class="text-center"><input type="checkbox" value="@lstItem.Text" name="chkSelectedData" checked="@isSelected"></td>
+                          </tr>
+                            }
+                        else
+                            {
+                                      <tr class="odd">
+                            <td>@lstItem.Text</td>
+                            <td class="text-center"><input type="checkbox" value="@lstItem.Text" name="chkSelectedData" checked="@isSelected"></td>
+                          </tr>
+                            }
+
+
+
+                        }
+                        }
+                                
+                             }
+
+
+                             }
+
+                        </tbody>
+                      </table></div></div>
+                    </div>
+                    <!--/.grid_4--> 
+                  </div>
+                  <!--/.metadata table ends-->
+                  
+                  <div class="ppcondition">
+                    <h4>Choose a Condition</h4>
+                    <div class="grid_4 height400">
+                      <table class="table table-striped" cellpadding="0" cellspacing="0">
+                        <thead>
+                          <tr>
+                            <th scope="col" class="nobggc" width="30%">Condition</th>
+                            <th scope="col" class="nobggc" width="30%">Select</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>AND</td>
+                            <td class="text-center"><input type="checkbox"></td>
+                          </tr>
+                          <tr>
+                            <td>OR</td>
+                            <td class="text-center"><input type="checkbox"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!--/.grid_4--> 
+                  </div>
+                  <!--/.condition-->
+                  
+                 
+                </div>
+                <!--.valchainContent--> 
+              
+                   <!--end of grid-->             
+                @*<div class="addvalaction"> <a href="#" class="btn btn-primary">Back</a> *@
+                <div class="addvalaction">
+                 @*<a href="#" class="btn btn-primary">Save</a>*@
+                    <button type="Submit" tabindex="30" class="btn btn-primary"  name="btnSave" value="Next">Next</button>
+                    <button type="Submit" tabindex="30" class="btn btn-primary"  name="btnSave" value="AddFilter">Add Another Filter</button>
+                    @*<button  tabindex="30" class="btn btn-primary" id="btnBack">Back</button>*@
+                    @*<button class="btn btn-primary" tabindex=""  id="btnDelete">Delete</button>*@
+                    @*<button class="btn btn-primary" tabindex=""  id="btnAdd">New Data Set</button>*@
+                    <button class="btn btn-default" id="cancelregDataSetMap" tabindex="" type="submit">Cancel</button>
+
+                </div>
+         </div>
+    }
+         
+
+<script>
+
+    $(document).ready(function () {
+
+
+        var blnReportNameExists = false;
+
+        $("a[name='reportFilterColumn']").click(function (evt) {
+
+            var columnName = $(this).attr('Value');
+            var radiocolumns = $("input[name='radiochk']:radio");
+            for (var i = 0; i < radiocolumns.length;i++)
+            {
+                //alert($(radiocolumns[i]).attr('data-val'));
+                if ($(radiocolumns[i]).attr('data-val').toLowerCase() == columnName.toLocaleLowerCase())
+                {
+                    $(radiocolumns[i]).prop('checked', true);
+                    $(radiocolumns[i]).change();
+                    return false;
+                }
+            }
+            return false;
+        });
+
+
+        $("input[name='radiochk']:radio").change(function ()
+        {
+            
+            
+            var selectedColId = $(this).val();
+            var SelectedclientId = $('#ClientId :selected').val();
+            var ReportId = "@Model.ReportId";
+            var ReportType = "@Model.HeatMapReportStatus";
+            
+            if (selectedColId != 0)  {
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+                if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                    //alert('local url');
+
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/GetDataForSelectedColumnForFilter/';
+                }
+                else {
+                    //alert('server');
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/GetDataForSelectedColumnForFilter/'
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}'
+                }
+
+                baseurl += '?ClientId={clientid}&ReportId={reportid}&ReportType={reporttype}&SelectedColumnId={selcoldid}';
+
+                baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                baseurl = baseurl.replace("{reportid}", ReportId);
+                baseurl = baseurl.replace("{reporttype}", ReportType);
+                baseurl = baseurl.replace("{selcoldid}", selectedColId);
+                window.location = baseurl;
+                return false;
+            }
+
+
+
+
+            
+        });
+
+
+        function GetDataSetColumns(object)
+        {
+            //alert('on load');
+            //alert(object);
+        }
+
+        @*$('#btnAdd').click(function () {
+
+
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager")
+            {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/SetupHeatMapBuilder/?ClientId=@Model.ClientId&Report=Add"");
+
+            window.location = strUrl;
+            return false;
+
+           });*@
+
+
+        $('#cancelregDataSetMap').click(function () {
+
+            
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+
+               @* var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");*@
+
+                window.location = baseurl;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        @* $('#btnDelete').click(function () {
+
+            var ReportId = $('#ReportId')[0].value;
+
+            var ReportName = $('#txtReportName')[0].value;
+            
+            if (ReportId == 0)
+            { return false; }
+            var confirm = window.confirm('Do you want delete this Report: '+ReportName+'?');
+            if (confirm) {
+
+
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DeleteDatSetName/?ClientId=@Model.ClientId");
+                strUrl += "&ReportId=" + ReportId;
+                
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+           });
+
+
+    }) *@
+
+        $('#btnBack').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            window.location = baseurl;
+            return false;
+@*            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+            window.location = strUrl;
+            return false;*@
+
+        });
+
+
+
+
+        $('[name="btnSave"]').click(function () {
+
+
+            var btnClickVal  = $(this).val();
+            
+            $("#btnClick").val(btnClickVal);
+            //alert($("#btnClick").val());
+
+            //if ($('#txtReportName').val() == "") {
+            //    alert('Please enter Rpeort name');
+            //    $('#txtReportName').focus();
+            //    return false;
+            //}
+            //else {
+
+            //    var ReportName = $('#txtReportName').val();
+            //    var ReportId = $('#ReportId')[0].value;
+
+            //    ReportNameExists(ReportName, ReportId);
+            //    if (blnReportNameExists) {
+            //        alert('Report name already exists, please change');
+            //        $('#txtReportName').focus();
+            //        return false;
+
+            //    }
+            //}
+
+
+            //var dboject = $('#vartypeid :selected').val();
+            //if (dboject == "" || dboject == "0") {
+            //    alert('Please select Heat Map Variable type from the list');
+            //    return false;
+            //}
+
+
+            //var selected = $("input[type='radio'][name='radiochk']:checked");
+
+            //if (selected.length == 0) {
+            //    alert('Please Select one Row from  Data Sets');
+            //    return false;
+            //}
+
+
+            //checkbox selected Columns for reportdataset
+
+
+            //var selected = $("input[type='checkbox'][name='chkCols']:checked");
+            //if (selected.length == 0) {
+            //    alert('Please Select atleast one Row from  Report Columns');
+            //    return false;
+            //}
+
+
+
+
+            //if (selected.length > 0) {
+            //    selectedVal = selected.val();
+            //    selectVirtualColumn = $('#virtualColumn' + selectedVal + ' :selected').text();
+            //    $('#virtualColumn' + selectedVal + ' :selected').val(selectVirtualColumn);
+            //    //alert(selectVirtualColumn);
+            //    if (selectVirtualColumn == "0" || selectVirtualColumn == "") {
+            //        alert('Please Select  Column Name from the List');
+            //        return false;
+            //    }
+            //}
+
+            var ReportId = "@Model.ReportId";
+            var ReportType = "@Model.HeatMapReportStatus";
+            //debugger;
+            if (btnClickVal == "AddFilter") {
+                var selected = $("input[type='radio'][name='radiochk']:checked");
+                if (selected.length == 0)
+                {
+                    alert('Please Select atleast one Columns for Filter Data');
+                    return false;
+
+                }
+
+                if (selected.length > 0) {
+
+                    var selected = $("input[type='checkbox'][name='chkSelectedData']:checked");
+                    if (selected.length == 0) {
+                        alert('Please Select atleast one Row for Filter Data');
+                        return false;
+                    }
+
+
+                }
+            }
+
+
+
+            //CHECK  ANY Filter Condidition set up (Check for columns & Values)
+
+
+
+
+
+
+        });
+
+
+        function ReportNameExists(ReportName, ReportId) {
+
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName';
+            }
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName");
+
+            {
+                $.ajax({
+                    url: baseurl,
+                    type: 'POST',
+                    data: { ReportName: ReportName, ReportId: ReportId },
+                    success: checkReportName,
+                    failure: errorCheckReportName,
+                    async: false
+
+                })
+            }
+
+        }
+
+        function checkReportName(status) {
+
+            
+            blnReportNameExists = status;
+            //$.each(status, function (key, value) {
+            //    if (value == true) {
+            //        alert('Report name already exists, please change');
+            //        return false;
+            //    }
+            //});
+
+
+        }
+
+        function errorCheckReportName() {
+
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+        $('select#vartypeid').change(function () {
+            var SelectedVartypeId = $('#vartypeid :selected').val();
+            var SelectedVartypeName = $('#vartypeid :selected').text();
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            var ReportId = $('#ReportId')[0].value;
+            var ReportType = $('#ReportType')[0].value;
+            var ReportName = $('#txtReportName')[0].value;
+
+            if (SelectedclientId != 0 && SelectedVartypeName != "") {
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+                if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                    //alert('local url');
+
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/';
+                }
+                else {
+                    //alert('server');
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/'
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}'
+                }
+
+                baseurl += '?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}&ReportName={reporname}';
+
+                baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                baseurl = baseurl.replace("{vartypename}", SelectedVartypeName);
+                baseurl = baseurl.replace("{reportid}", ReportId);
+                baseurl = baseurl.replace("{vartypeid}", SelectedVartypeId);
+                baseurl = baseurl.replace("{reporttype}", ReportType);
+                baseurl = baseurl.replace("{reporname}", ReportName);
+
+
+
+
+                window.location = baseurl;
+            }
+
+        });
+    });
+</script>
+         

@@ -1,0 +1,27 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model ALMTreeMenuInput
+
+
+    @*<li><a href="/Areas/AlignmentManager/DisplayHomePage?clientId=@Model.ClientId&variableId=@Model.VariableId">@Model.Name</a> *@
+    <li>@Html.ActionLink(Model.Name, "DisplayHomePage", "AlignmentManager", new {ClientId=Model.ClientId, variableId=Model.VariableId},null) 
+    @{
+        IList<vwVariableVariableLabel> children = AlignmentHelper.GetVWChildren(Model.VariableLabelId);
+        if (children.Any())
+            {
+        <ul class="treeview">
+            @foreach (var variable in children)
+                {
+                if (variable != null)
+                    {
+                    //Html.RenderPartial("_TreeViewItems", new NTTData.AMOPortal.WebUI.Dto.ALMTreeMenuInput(variable.Id));
+                    Html.RenderPartial("_VarTreeViewItems", new NTTData.AMOPortal.WebUI.Dto.ALMTreeMenuInput(variable));
+                    }
+                }
+        </ul>
+            }
+    }
+</li>

@@ -1,0 +1,86 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@model SurveyUserModel
+
+@{
+    ViewBag.Title = "AM-Optimization tool Survey";
+    // var clientlist = GetDropDownListItems.ClientList;
+    Layout = "~/Views/Shared/_Anonymouslayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+<div>
+
+    <div  style="padding: 0; height:1000px;" >
+
+                <div class="well well-sm"><strong>Survey for: @Model.SurveyName  @Model.PersonnelId @Model.SurveyId</strong></div>
+                <div>Survey Enddate: @Model.surveyenddate</div>
+                <div>Survey Descriptiom: @Model.Description</div>
+                        <div>
+                               
+                             @(Html.Kendo().Grid<SurveyCollectionModel>()
+             .Name("UserSurveyGrid")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.Question).Title("Question");
+                 columns.Bound(e => e.Hint).Title("Hint");
+                 //columns.Bound(e => e.FinalRating).Title("Answer");
+                 columns.Bound(e => e.qa).EditorTemplateName("SurveyAnswersTemplate").Title("Answer");
+             })
+             .Editable(editable => editable.Mode(GridEditMode.InCell))
+             .ToolBar(toolbar => toolbar.Save().Text("Submit Survey"))
+             .Editable(editable => editable.Mode(GridEditMode.InCell))
+            .Pageable()
+            .Navigatable()
+            .Sortable()
+            .Scrollable()
+             //.HtmlAttributes(new { style = "height: 100%; width:100%" })
+             .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .PageSize(20)
+        .ServerOperation(false)
+        .Events(events => events.Error("error_handler"))
+              .Model(model =>
+              {
+                  model.Id(f => f.SurveyModelId);
+
+              })
+              .Read(read => read.Action("GetSurveyCollection", "SurveyUser", new { surveyId = Model.SurveyId, SurveyPersonnel = Model.PersonnelId }))
+              .Update(update => update.Action("UpdateSurvey", "SurveyUser"))
+               )
+
+)
+                        </div>
+
+        </div>
+   </div>
+
+    <script type="text/javascript">
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function() {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+</script>

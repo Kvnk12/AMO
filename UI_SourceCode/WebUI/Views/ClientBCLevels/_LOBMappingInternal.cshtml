@@ -1,0 +1,43 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+@*<input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Line of Business - Group </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLOB">Add</button>
+                      </div>
+                    </div>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Line of Business</th>
+                             <th scope="col">App Support</th>
+                             <th scope="col">Manual Support</th>
+                              <th scope="col">External Support</th>
+
+
+                        </tr>
+                        @{
+                            if (Model.JunctionLOBClientBCLevel1List.Count() > 0 && Model.JunctionLOBClientBCLevel1List.Count() != null)
+                            {
+                                foreach (var item in Model.JunctionLOBClientBCLevel1List)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.lineOfBusiness.LOBName,"DisplayClientBClevels","ClientBClevels", new {ClientID=@Model.ClientId,CLevel1Id=@Model.CLevel1Id,CLevel1Name = @Model.CLevel1Name,InExValue = @Model.InExValue,LOBClientBCId=@item.Id,LOBName=@item.lineOfBusiness.LOBName,LOBId = @item.LOBId}, null)</td>
+                                   <td>
+                                       @Html.CheckBoxFor(m => item.CBCLevel1_AppSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                    <td>
+                                          @Html.CheckBoxFor(m => item.CBCLevel1_ManualSupport, new { tabindex = "",disabled="disabled"})</td>
+
+                                  <td>
+                                  @Html.CheckBoxFor(m => item.CBCLevel1_ExternalSupport, new { tabindex = "",disabled="disabled"})</td>
+                            
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

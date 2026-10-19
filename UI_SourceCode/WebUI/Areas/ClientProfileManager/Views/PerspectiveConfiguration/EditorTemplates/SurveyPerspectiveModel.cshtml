@@ -1,0 +1,43 @@
+﻿@using WebUI.Areas.ClientProfileManager.Dto;
+@using Kendo.Mvc.UI;
+
+@model SurveyPerspectiveModel
+<div class="container" style="padding:0;">
+    <div class="treeMenuContent">
+        <div class="selectappArea" style="align-content:center">
+            <h3><strong>Add/Edit Survey Perspectives </strong></h3>
+        </div>
+        <table>
+            <tr>
+                <td>
+                    <label>Perspective Name : </label>
+                </td>
+                <td>
+                    @(Html.Kendo().TextBoxFor(e => e.PerspectiveName))
+                </td>
+            </tr>
+            <tr>
+                <td><br /></td>
+            </tr>
+            <tr>
+                <td>
+                <label>Perspective Type: </label>
+                </td>
+                <td>
+                @(Html.Kendo().TextBoxFor(e => e.PerspectiveType))
+                </td>
+            </tr>
+            <tr>
+                <td><br /></td>
+            </tr>
+            <tr>
+                <td>
+                <label>Weight:</label>
+                </td>
+                <td>
+                @(Html.Kendo().TextBoxFor(e => e.Weight))
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

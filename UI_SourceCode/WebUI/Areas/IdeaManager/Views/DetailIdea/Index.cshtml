@@ -1,0 +1,908 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Models
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+
+@model  IdeaViewModel
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+}
+<style>
+    .form-group{
+        display:flex;
+        margin-bottom:0.5em;
+    }
+</style>
+<div class="content-main ">
+    <div id="breadcrumb">
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li style="padding: 4px;">Idea Manager /</li>
+            <li style="padding: 4px;" class="active">View/Post Idea</li>
+        </ol>
+
+    </div>
+
+    <div id="PageTitle">
+        <center><h4>NTT Data Optimization Tools</h4></center>
+    </div>
+
+
+    <div id="printidea">
+
+        <button type="submit" onclick="DetailIdeaPrint('ideadetail')" class="btn btn-primary" style="float:right;display:inline-block;">Print</button>
+
+    </div>
+    <div class="content-wrapper" style="height: 1080px;margin:12px">
+        <div class="ideaManagerContent">
+            <div style="width:100%" id="ideadetail">
+                <div class="leftarea form-horizontal" style="width:40%">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname">Idea Name</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.IdeaName, new { @class = "form-control", placeholder = "", id = "txtchallange", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label" for="qtfyIdea">Value (Quantify in $)</label>
+                            <div class="col-sm-5">
+                                @*<i style="display: inline-block; margin-left:-12px;">$</i>*@
+                                @Html.TextBoxFor(m => m.QtyFication, new { @class = "form-control", placeholder = "", id = "txtqtfyidea", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label id="lblChallengeName" class="col-sm-5 control-label" for="accname">Status</label>
+                            <div class="col-sm-5" style="text-align:left">
+                                @Html.TextBoxFor(m => m.IdeaStatus, new { @class = "form-control", placeholder = "", id = "IMItemStatus", disabled = "disabled" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">Internal Initiative?</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.InternalInit, new { @class = "form-control", placeholder = "", id = "chkSLA", disabled = "disabled" })
+
+                                @*@Html.CheckBoxFor(m => m.InternalInit, new { @class = "form-control", @style = "width:50px;", tabindex = "", id = "chkSLA", disabled = "disabled" })*@
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-5 control-label">System Impacted Service</label>
+                            <div class="col-sm-5" style="align-content:initial">
+                                @(Html.Kendo().DropDownListFor(e => e.SystemImpactedId)
+                                        .Name("SystemImpactedId")
+                                        .DataTextField("Text")
+                                        .HtmlAttributes(new { @class = "selectpicker" })
+                                        .OptionLabel(" ")
+                                        .Enable(false)
+                                        .DataValueField("Value")
+                                        .DataSource(d => d.Read(r => r.Action("SystemImpactedList", "PostIdea")))
+                                        .AutoBind(true)
+                                )
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rightarea form-horizontal" style="text-align:left;width:50%">
+                    <div class="form-group" style="text-align:left">
+                        <label for="IdeaSource" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Idea Source</label>
+                        <div class="col-sm-5">
+                            @Html.TextBoxFor(m => m.IdeaSourceId, new { @class = "form-control", placeholder = "", id = "IdeaType", disabled = "disabled" })
+
+                            @* @Html.DropDownListFor(m => m.IdeaSourceId, new SelectList(Model.IdeaSourceId, "value", "text", Model.IdeaSourceId), "", new { @class = "selectpicker", id = "IdeaType", name = "IdeaType", required = "required", disabled = "disabled" })*@
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">LOB Department</label>
+                        <div class="col-sm-5" style="align-content:initial">
+                            @*@Html.TextBoxFor(m => m.LOBId, new { @class = "form-control", placeholder = "", id = "LOBId", disabled = "disabled" })*@
+
+
+                            @(Html.Kendo().DropDownListFor(e => e.LOBId)
+                                                    .Name("LOBId")
+                                                    .DataTextField("Text")
+                                                    .HtmlAttributes(new { @class = "selectpicker" })
+                                                    .OptionLabel("Select LOB..")
+                                                    .Enable(false)
+                                                    .DataValueField("Value")
+                                                    .DataSource(d => d.Read(r => r.Action("LobList", "PostIdea")))
+                                                    .AutoBind(true)
+                                )
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Idea Type</label>
+                        <div class="col-sm-5">
+                            @*@Html.TextBoxFor(m => m.IdeatypeId, new { @class = "form-control", placeholder = "", id = "IdeaTypeId", disabled = "disabled" })*@
+                            @(Html.Kendo().DropDownListFor(e => e.IdeatypeId)
+                                                    .Name("IdeatypeId")
+                                                    .DataTextField("Text")
+                                                    .HtmlAttributes(new { @class = "selectpicker" })
+                                                    .OptionLabel("Select LOB..")
+                                                    .Enable(false)
+                                                    .DataValueField("Value")
+                                                     .AutoBind(true)
+                                )
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-5 control-label">Complexity</label>
+                        <div class="col-sm-5">
+                            @*@Html.TextBoxFor(m => m.Complexity, new { @class = "form-control", placeholder = "", id = "Complexity", disabled = "disabled" })*@
+
+
+                            @(Html.Kendo().DropDownListFor(e => e.Complexity)
+                                                        .Name("Complexity")
+                                                        .DataTextField("Text")
+                                                        //.HtmlAttributes(new { @class = "selectpicker" })
+                                                        .OptionLabel("Select Complexity")
+                                                        .Enable(false)
+                                                        .DataValueField("Value")
+                                                        .DataSource(d => d.Read(r => r.Action("ComplexityList", "PostIdea")))
+                                                        .AutoBind(true)
+                                )
+                        </div>
+                    </div>
+                    <div class="form-group" style="text-align:left">
+                        <label for="IdeaSource" class="col-sm-5 control-label" id="">Created By/ Proposed By</label>
+                        <div class="col-sm-5">
+                            @Html.TextBoxFor(m => m.CreatedByName, new { @class = "form-control", placeholder = "", id = "CreatedByName", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="display: inline-block;width:100%;">
+
+                    <div class="leftarea form-horizontal" style="width:45%;">
+                        <label><span class="mandate">*</span>Problem/Opportunity</label>
+
+                        @(Html.Kendo().EditorFor(e => e.Description)
+                                              .Name("Description")
+                                            .HtmlAttributes(new { style = "width:70%;height:200px", aria_label = "editor" })
+                                            .Resizable(resizable => resizable.Content(false).Toolbar(false))
+                                            .Tools(tools => tools
+                                            .Clear())
+
+                            )
+                        <label id="Description_alert" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+                    </div>
+                    <div class="rightarea form-horizontal" style="width:55%;">
+                        <label><span class="mandate"></span>Improvement Theme</label><br />
+
+                        @(Html.Kendo().EditorFor(e => e.ImprovementTheme)
+                                              .Name("ImprovementTheme")
+                                            .HtmlAttributes(new { style = "width:60%;height:200px", aria_label = "editor" })
+                                            .Resizable(resizable => resizable.Content(false).Toolbar(false))
+                                            .Tools(tools => tools
+                                            .Clear())
+                                    //.Enable(false)
+                            )
+                    </div>
+                </div>
+                <br />
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#six" style="text-decoration: underline; font-weight: bold">Selected Approver(s)</a>
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div>
+                            <table class="table table-striped">
+                                <thead class="theadstyle">
+                                    <tr>
+                                        <th>Approver Name</th>
+                                        <th>Approved Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        foreach (var i in Model.Approvers)
+                                        {
+                                            <tr>
+                                                <td>@i.FirstName @i.LastName</td>
+                                                <td>@i.ApprovedDate</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a style="text-decoration: underline; font-weight: bold">Classification and Category</a>
+                        </h4>
+                    </div>
+                    <div class="panel-body">
+                        <div>
+                            <table class="table table-striped">
+                                <thead class="theadstyle">
+                                    <tr>
+                                        <th>Classification</th>
+                                        <th>Category</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        string temp = "";
+                                        foreach (var i in Model.DetailClassification)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @if (temp != i.Classification)
+                                                    {
+                                                        @i.Classification
+                                                        temp = i.Classification;
+                                                    }
+                                                </td>
+                                                <td>@i.category</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="bs-example">
+                    <div class="panel-group" id="accordion">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#one" style="text-decoration: underline; font-weight: bold">Business Benefits</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Details</th>
+                                                <th>Benefit Type</th>
+                                                <th>Volumetric</th>
+                                                <th>Value</th>
+                                                <th>FTE Hours</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.BusinessBenefitsList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.Name</td>
+                                                        <td>@i.Detail</td>
+                                                        <td>@i.BenefitType</td>
+                                                        <td>@i.IncidentCount</td>
+                                                        <td>@i.Value</td>
+                                                        <td>@i.FTEHours</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#two" style="text-decoration: underline; font-weight: bold">IT Benefits</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Details</th>
+                                                <th>Saving Type</th>
+                                                <th>Volumetric</th>
+                                                <th>Value</th>
+                                                <th>FTE Hours</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.ITSavingsList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.Name </td>
+                                                        <td>@i.Detail </td>
+                                                        <td>@i.BenefitType</td>
+                                                        <td>@i.IncidentCount</td>
+                                                        <td>@i.Value</td>
+                                                        <td>@i.FTEHours</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a style="text-decoration: underline; font-weight: bold">Config Items</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Configuration</th>
+                                                <th>Type</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                string temp2 = "";
+
+                                                foreach (var i in Model.DetailConfigItem)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            @if (temp2 != i.ConfigType)
+                                                            {
+                                                                @i.ConfigType
+                                                                temp2 = i.ConfigType;
+                                                            }
+                                                        </td>
+                                                        <td>@i.ConfigItem</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#five" style="text-decoration: underline; font-weight: bold">Analysis And Solution</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group" style="display: inline-block;width:100%">
+                                    <div class="leftarea form-horizontal" style="width:50%;">
+                                        <label>Analysis/Root Cause</label>
+
+                                        @(Html.Kendo().EditorFor(e => e.Analysis)
+                                              .Name("Analysis")
+.HtmlAttributes(new { style = "width:70%;height:200px", aria_label = "editor" })
+.Resizable(resizable => resizable.Content(false).Toolbar(false))
+.Tools(tools => tools
+.Clear())
+                                                    //.Enable(false)
+                                            )
+                                    </div>
+                                    <div class="rightarea form-horizontal" style="width:50%;">
+                                        <label>Solution</label><br />
+
+                                        @(Html.Kendo().EditorFor(e => e.Solution)
+                                              .Name("Solution")
+.HtmlAttributes(new { style = "width:70%;height:200px", aria_label = "editor" })
+.Resizable(resizable => resizable.Content(false).Toolbar(false))
+.Tools(tools => tools
+.Clear())
+                                                    //.Enable(false)
+                                            )
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#five" style="text-decoration: underline; font-weight: bold">Risk And Mitigation</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Risk</th>
+                                                <th>Mitigation Plan</th>
+                                                <th>Comments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.RiskMitigationList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.CreateDateString</td>
+                                                        <td>@i.Risk</td>
+                                                        <td>@i.MitigationPlan</td>
+                                                        <td>@i.Comments</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#five" style="text-decoration: underline; font-weight: bold">MetricTarget</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>MetricTarget</th>
+                                                <th>Posted By</th>
+                                                <th>Posted On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.MetricTargetList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.MetricTarget</td>
+                                                        <td>@i.PostedBy</td>
+                                                        <td>@i.CreatedDate</td>
+
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#five" style="text-decoration: underline; font-weight: bold">Comments</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Comments</th>
+                                                <th>Posted By</th>
+                                                <th>Posted On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.Comments)
+                                                {
+                                                    <tr>
+                                                        <td>@i.Comments</td>
+                                                        <td>@i.CreatedByName</td>
+                                                        <td>@i.LastUpdatedDate</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a style="text-decoration: underline; font-weight: bold">Implementation Detail</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+                                @using (Html.BeginForm("SaveIdeaIMPDetails", "PostIdea", FormMethod.Post))
+                                {
+                                    @Html.HiddenFor(m => m.IdeaId)
+                                    <table style="width:100%">
+                                        <tbody style="width:100%">
+                                            <tr>
+                                                <td><label>Implementation Priority:</label></td>
+                                                <td>@(Html.Kendo().TextBoxFor(E => E.ImpPriority).Enable(false))</td>
+                                                <td><label>Implementation Health:</label></td>
+                                                <td>
+                                                    <div>
+                                                        @(Html.Kendo().TextBoxFor(E => E.ImplementationHealth).Enable(false))
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label>
+                                                        Target Progress (% Complete):
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(e => e.TargetProgress)
+                                                                                            .Name("TargetProgress")
+                                                                                            .Enable(false)
+                                                        )
+                                                </td>
+                                                <td>
+                                                    <label>
+                                                        Actual Progress (% Complete):
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().NumericTextBoxFor(e => e.ActualProgress)
+                                                                                            .Name("ActualProgress")
+                                                                                            .Enable(false)
+                                                                                            .Format("c")
+                                                                                            .Spinners(false)
+                                                        )
+                                                    <label id="ActualProgress_alert" hidden></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label>Planned Start Date:</label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(E => E.PlannedStartDt).Enable(false))
+                                                    @*@(Html.Kendo().DatePickerFor(e => e.PlannedStartDt)
+                                                                    .Name("PlannedStartDt")
+                                                                    .Enable(false)
+                                                        )*@
+                                                </td>
+                                                <td>
+                                                    <label>
+                                                        Actual Start Date:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(E => E.ActualStartDt).Enable(false))
+                                                    @*@(Html.Kendo().DatePickerFor(e => e.ActualStartDt)
+                                                            .Name("ActualStartDt")
+                                                            .Enable(false)
+                                                        )*@
+                                                </td>
+                                            </tr>
+                                            <tr>
+
+                                                <td>
+                                                    <label>
+                                                        Planned End Date:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(E => E.PlannedEndDt).Enable(false))
+                                                    @*@(Html.Kendo().DatePickerFor(e => e.PlannedEndDt)
+                                                            .Name("PlannedEndDt")
+                                                            .Enable(false)
+                                                        )*@
+                                                </td>
+                                                <td>
+                                                    <label>
+                                                        Actual End Date:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(E => E.ActualEndDt).Enable(false))
+                                                    @*@(Html.Kendo().DatePickerFor(e => e.ActualEndDt)
+                                                            .Name("ActualEndDt")
+                                                            .Enable(false)
+                                                        )*@
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label>
+                                                        Last Review Date:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @(Html.Kendo().TextBoxFor(E => E.LastReviewDt).Enable(false))
+                                                    @*@(Html.Kendo().DatePickerFor(e => e.LastReviewDt)
+                                                            .Name("LastReviewDt")
+                                                            .Enable(false)
+                                                        )*@
+                                                </td>
+                                                <td>
+                                                    <label>
+                                                        Implementation Manager:
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    @*@(Html.Kendo().TextBoxFor(E => E.ImpManager).Enable(false))*@
+                                                    @(Html.Kendo().DropDownListFor(e => e.ImpManager)
+.Name("ImpManager")
+.DataValueField("Value")
+.Enable(false)
+.DataTextField("Text")
+.OptionLabel("Select Manager..")
+.DataSource(data => data
+.Read(r => r.Action("ListOfAdmins", "PostIdea"))
+))
+                                                    <label id="ImpManager_alert" hidden></label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">
+                                                    <label>
+                                                        OverAll Status/ Updates:
+                                                    </label>
+                                                    @(Html.Kendo().EditorFor(e => e.StatusComment)
+.Name("StatusComment")
+.Tools(tools => tools.Clear())
+.Encode(false)
+.PasteCleanup(p => p
+.All(true)
+.Css(true)
+.KeepNewLines(false)
+.MsAllFormatting(true)
+.MsConvertLists(true)
+.MsTags(true)
+.None(true)
+.Span(true)
+)
+.HtmlAttributes(new { style = "width:39%;height:1px;margin:0;" })
+                                                        )
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                }
+                            </div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#four" style="text-decoration: underline; font-weight: bold">Completed And NextSteps Details</a>
+                                </h4>
+                            </div>
+                            <div class="panel-body">
+
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Completed Step</th>
+                                                <th>Next Step</th>
+                                                <th>Comments</th>
+                                                <th>Implementation Manager</th>
+                                                @*<th>Posted by</th>*@
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.CompletedAndNextStepList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.UpdatedDt</td>
+                                                        <td>@i.CompletedSteps</td>
+                                                        <td>@i.NextSteps</td>
+                                                        <td>@i.Comments</td>
+                                                        <td>@i.ImpName[0]</td>
+                                                        @*<td>@i.UpdatedBy</td>*@
+
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title" style="text-align:center">
+                                    <a data-toggle="collapse" data-parent="#accordion" style="text-decoration: underline; font-weight: bold">Log</a>
+                                </h4><h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#three" style="text-decoration: underline; font-weight: bold">Priority History</a>
+                                </h4>
+                            </div>
+                            @*<div id="three" class="panel-collapse collapse out">*@
+                            <div class="panel-body">
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Old Priority</th>
+                                                <th>New Priority</th>
+                                                <th>Comments</th>
+                                                <th>Posted By</th>
+                                                <th>Posted On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.PriorityHistory)
+                                                {
+                                                    <tr>
+                                                        <td>@i.OldPriorityId</td>
+                                                        <td>@i.NewPriorityId</td>
+                                                        <td>@i.Comments</td>
+                                                        <td>@i.PostedBy</td>
+                                                        <td>@i.LastUpdatedDate</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#four" style="text-decoration: underline; font-weight: bold">Implementation Priority History</a>
+                                </h4>
+                            </div>
+
+                            <div class="panel-body">
+
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                <th>Old Priority</th>
+                                                <th>New Priority</th>
+                                                <th>Comments</th>
+                                                <th>Posted By</th>
+                                                <th>Posted On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.ImpPriorityHistoryList)
+                                                {
+                                                    <tr>
+                                                        <td>@i.OldImpPriority</td>
+                                                        <td>@i.NewImpPriority</td>
+                                                        <td>@i.Comments</td>
+                                                        <td>@i.PostedBy</td>
+                                                        <td>@i.UpdatedDt</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#four" style="text-decoration: underline; font-weight: bold">Status History</a>
+                                </h4>
+                            </div>
+
+                            <div class="panel-body">
+
+                                <div>
+                                    <table class="table table-striped">
+                                        <thead class="theadstyle">
+                                            <tr>
+                                                @*<th>Old Status</th>*@
+                                                <th>Approver Action</th>
+                                                <th>Comments/ Updates</th>
+                                                <th>Posted By</th>
+                                                <th>Posted On</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @{
+                                                foreach (var i in Model.StatusHistory)
+                                                {
+                                                    <tr>
+                                                        @*<td>@i.OldStatus</td>*@
+                                                        <td>@i.NewStatus</td>
+                                                        <td>@i.Comments</td>
+                                                        <td>@i.PostedBy</td>
+                                                        <td>@i.LastUpdatedDate</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+            </div>
+            <div id="action">
+                <button class="btn btn-primary" onclick="ViewIdea()">Back</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+<style>
+    .theadstyle {
+        color: #428bca;
+    }
+
+    .rightarea .form-group input {
+        text-align: left;
+    }
+</style>
+
+<script type="text/javascript">
+    function ViewIdea()
+    {
+        var indexurl = '@Url.Content("~/IdeaManager/PostIdea")';
+        window.location.href = indexurl +'?ideaId='+@Model.IdeaId;
+    }
+
+    $(function () {
+        $($('#Description').data().kendoEditor.body).attr('contenteditable', false)
+        $($('#Solution').data().kendoEditor.body).attr('contenteditable', false)
+        $($('#Analysis').data().kendoEditor.body).attr('contenteditable', false)
+        $($('#ImprovementTheme').data().kendoEditor.body).attr('contenteditable', false)
+        $($('#StatusComment').data().kendoEditor.body).attr('contenteditable', false)
+        $("#PageTitle").hide();
+    })
+
+    //function DetailIdeaPrint(ideadetail) {
+
+
+    //    var printContents = document.getElementById(ideadetail).innerHTML;
+    //    var originalContents = document.body.innerHTML;
+
+    //    document.body.innerHTML = printContents;
+
+    //    window.print();
+
+    //    document.body.innerHTML = originalContents;
+
+
+    //}
+    function DetailIdeaPrint(ideadetail) {
+        var curURL = window.location.href;
+        $("#printidea").hide();
+        $("#action").hide();
+        $("#PageTitle").show();
+
+        $(".menuBorder").hide();
+        $("#breadcrumb").hide();
+        $("#footer").hide();
+        history.replaceState(history.state, '', '/');
+        window.print();
+        history.replaceState(history.state, '', curURL);
+        $("#printidea").show();
+        $("#action").show();
+        $("#PageTitle").hide();
+        $(".menuBorder").show();
+        $("#breadcrumb").show();
+        $("#footer").show();
+    }
+
+</script>

@@ -1,0 +1,42 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model APRAppSoftwareModel
+@*@(Html.Kendo().ComboBoxFor(m => m)
+            .DataValueField("CategoryID")
+            .DataTextField("CategoryName")
+            .BindTo((System.Collections.IEnumerable)ViewData["categories"])
+    )*@
+@(Html.Kendo().DropDownListFor(m => m.LifeCycleStage).Name("LifeCycleStage")
+     .OptionLabel("Select")
+          .DataTextField("Text")
+
+          .DataValueField("Value")
+          .ValuePrimitive(true)
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Emerging",
+                  Value = "Emerging"
+              },
+              new SelectListItem() {
+                  Text = "Exception",
+                  Value = "Exception"
+              },
+               new SelectListItem() {
+                  Text = "Legacy",
+                  Value = "Legacy"
+              },
+                new SelectListItem() {
+                  Text = "Not Supported",
+                  Value = "Not Supported"
+              },
+                 new SelectListItem() {
+                  Text = "Strategic",
+                  Value = "Strategic"
+              },
+          }))

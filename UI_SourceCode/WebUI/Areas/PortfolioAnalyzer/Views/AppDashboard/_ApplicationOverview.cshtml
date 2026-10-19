@@ -1,0 +1,227 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+<style>
+    td {
+        padding: 8px 0;
+        color: #5876AA;
+    }
+    table{
+        width:70%;
+    }
+</style>
+<div class="appOverView-content">
+    <div style="margin-bottom:1em;">
+        <div class="appOverView-subHeader">
+            <div class="arrowBG" onclick="switchAppVisible('1');" id="arrow-bg1" style="display:none;"></div>
+            <div class="arrowdownBG" onclick="switchAppVisible('1');" id="arrowdown-bg1"></div>
+            Application Details
+        </div>
+        <div id="appOverview-tab1" style="padding: 1em 2em 1em;">
+            <table>
+                <tr>
+                    <td>Name :</td>
+                    <td>
+                        <label id="LblAppName"></label>
+                    </td>
+                    <td>
+                        Alias Name :
+                    </td>
+                    <td>
+                        <label id="AppAliasName"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="25%">Client Application ID :</td>
+                    <td width="25%">
+                        <label id="ClientAppId"></label>
+                    </td>
+                    <td width="25%">
+                        Incident Tickets# :
+                    </td>
+                    <td width="25%">
+                        <label id="AppTicketCount"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Portfolio Name(s) :
+                    </td>
+                    <td>
+                        <label id="portfolioName"></label>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        Application Description :
+                    </td>
+                    <td>
+                        <label id="lblAppDescription"></label>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-bottom:1em;">
+        <div class="appOverView-subHeader">
+            <div class="arrowBG" onclick="switchAppVisible('2');" id="arrow-bg2"></div>
+            <div class="arrowdownBG" onclick="switchAppVisible('2');" id="arrowdown-bg2" style="display:none;"></div>
+            Technical Architecture
+        </div>
+        <div id="appOverview-tab2" style="display: none; padding: 1em 2em 1em;">
+            <table>
+                <tr>
+                    <td width="25%">
+                        Architecture :
+                    </td>
+                    <td width="25%">
+                        <label id="Architecture"></label>
+                    </td>
+                    <td width="25%">
+                        Application Size :
+                    </td>
+                    <td width="25%">
+                        <label id="ApplicationSize"></label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-bottom:1em;">
+        <div class="appOverView-subHeader">
+            <div class="arrowBG" onclick="switchAppVisible('3');" id="arrow-bg3"> </div>
+            <div class="arrowdownBG" onclick="switchAppVisible('3');" id="arrowdown-bg3" style="display:none;"></div>
+            Demographics
+        </div>
+        <div id="appOverview-tab3" style="display: none; padding: 1em 2em 1em;">
+            <table>
+                <tr>
+                    <td width="25%">Criticality :</td>
+                    <td width="25%">
+                        <label id="Criticality"></label>
+                    </td>
+                    <td width="25%">
+                        No. of users :
+                    </td>
+                    <td width="25%">
+                        <label id="NoOfUsers"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Revenue Impact :
+                    </td>
+                    <td>
+                        <label id="RevenueImpact"></label>
+                    </td>
+                    <td>
+                        Code Type :
+                    </td>
+                    <td>
+                        <label id="CodeType"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        App domain :
+                    </td>
+                    <td>
+                        <label id="AppDomainName"></label>
+                    </td>
+                    <td>
+                        Security Level :
+                    </td>
+                    <td>
+                        <label id="SecurityLevel"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Application Classification :
+                    </td>
+                    <td>
+                        <label id="AppClassification"></label>
+                    </td>
+                    <td>
+                        External Hosting :
+                    </td>
+                    <td>
+                        <label id="ExtHosting"></label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-bottom:1em;">
+        <div class="appOverView-subHeader">
+            <div class="arrowBG" onclick="switchAppVisible('4');" id="arrow-bg4"></div>
+            <div class="arrowdownBG" onclick="switchAppVisible('4');" id="arrowdown-bg4" style="display:none;"></div>
+            Desposition Details
+        </div>
+        <div id="appOverview-tab4" style="display: none; padding: 1em 2em 1em;">
+            <table>
+                <tr>
+                    <td width="25%">
+                        Planned Disposition :
+                    </td>
+                    <td width="25%">
+                        <label id="PlannedDisposition"></label>
+                    </td>
+                    <td width="25%">
+                        Disposition Immediacy :
+                    </td>
+                    <td width="25%">
+                        <label id="DispositionImmediacy"></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Retirement/ Replacement Date :
+                    </td>
+                    <td>
+                        <label id="RetirementDate"></label>
+                    </td>
+                    <td> </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div style="margin-bottom:1em;">
+        <div class="appOverView-subHeader">
+            <div class="arrowBG" onclick="switchAppVisible('5');" id="arrow-bg5"></div>
+            <div class="arrowdownBG" onclick="switchAppVisible('5');" id="arrowdown-bg5" style="display:none;"></div>
+            Application Ownership
+        </div>
+        <div id="appOverview-tab5" style="display: none; padding: 1em 2em 1em;">
+            <div class="custom-kendo-grid">
+                @(Html.Kendo().Grid<_ownershipType>(Model.OwnerShipType)
+                        .Name("AppOwner")
+                        .Columns(column =>
+                        {
+                            column.Bound(m => m.Name);
+                            column.Bound(m => m.Email);
+                            column.Bound(m => m.Title).Title("Ownership");
+                            column.Bound(m => m.IsSurveyParticipant).Title("Title");
+                        })
+                        //.Scrollable()
+                       // .Pageable()
+                        .DataSource(data => data
+                        .Ajax()
+                        .PageSize(5)
+                        )
+                                                    )
+            </div>
+        </div>
+    </div>
+
+</div>
+

@@ -1,0 +1,62 @@
+﻿@*@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;*@
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@model DataTable
+
+<style>
+    .k-grid table {
+        table-layout: fixed;
+    }
+
+    .k-grid tbody tr {
+        height: 50px;
+    }
+
+    .k-grid td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+</style>
+
+                         <div class="table-responsive">
+                    @(Html.Kendo().Grid(Model)
+                    .Name("ratingheatmapgrid")
+                    .Resizable(resize => resize.Columns(true))
+                    
+                    //.Columns(columns=>columns.AutoGenerate(true))
+                    .Scrollable()
+                    .Sortable()
+                                .ToolBar(tools => tools.Excel())
+                    .Excel(excel => excel
+                        .FileName("HeatMap.xlsx")
+                    )
+
+
+                   //  .Pageable()
+
+                    .Scrollable()
+                    .Navigatable()
+                    .HtmlAttributes(new { style = "height:600px;" })
+                    .DataSource(dataSource => dataSource
+        //              .Server()
+
+        .Ajax()
+       //.ServerOperation(true)
+       //.Model(model => model.Id(p => p["Row"]))
+       //.serverPaging(true)
+       //.PageSize(1)
+       //.Read(read => read.Action("getrejrec", "DataUpload"))
+       // .Read(read => read.Action("read_rr", "DataUpload", new { jobid = '6' }))
+
+       ))
+
+
+
+                        </div>
+
+

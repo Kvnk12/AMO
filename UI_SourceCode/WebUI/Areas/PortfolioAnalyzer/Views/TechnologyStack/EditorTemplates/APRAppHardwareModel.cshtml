@@ -1,0 +1,45 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model int?
+    @{ 
+        //var cl = (Client)Session["Client"];
+        ClientDetail cl = (ClientDetail)Session["SessionClient"];
+        var ClientId = cl.ClientId;
+        var v = new APRAjaxServiceController();
+        var AppHostlist = v.AppHostlist(ClientId);
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+            .DataValueField("Value")
+            .DataTextField("Text")
+            .BindTo((AppHostlist)
+    ))
+    @*@(Html.Kendo().DropDownListFor(m => m.IsSurveyParticipant).Name("IsSurveyParticipant")
+     .OptionLabel("Select")
+          .DataTextField("Text")
+
+          .DataValueField("Value")
+          .ValuePrimitive(true)
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Business",
+                  Value = "Business"
+              },
+              new SelectListItem() {
+                  Text = "Technical",
+                  Value = "Technical"
+              },
+               new SelectListItem() {
+                  Text = "Both",
+                  Value = "Both"
+              },
+
+          }))*@
+
+

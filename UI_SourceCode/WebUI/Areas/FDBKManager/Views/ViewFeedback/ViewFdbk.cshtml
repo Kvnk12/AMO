@@ -1,0 +1,983 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.Data;
+
+@model FeedbackViewModel
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+
+    ViewBag.Title = "Feedback Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/feedback_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOutWithoutFooter.cshtml";
+    ViewBag.NucleusLogo = Url.Content("~/Content/images/NucleusLogo.png");
+
+    Db db = new Db();
+    int uid= (int)Session["UserId"];
+    var prdMgr = (from a in db.IMFDBKProductMgr
+                  where a.UserId == uid
+                  select a).Count();
+    var viewtyp = ViewBag.viewtyp;
+}
+<style>
+    body {
+        overflow: hidden;
+    }
+</style>
+<div class="fdbk-content-main">
+    <div style="display:flex;justify-content:space-between">
+        <div class="drp-srch-content">
+            <div class="fdbk-type-dropdown">
+                @(Html.Kendo().DropDownList()
+                .Name("SelectedFeedbackType")
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .HtmlAttributes(new { style = "width: 100%" })
+                .Events(e => e.Change("OnTypeSeltnChange"))
+                .BindTo(new List<SelectListItem>
+                    ()
+                    {
+                    new SelectListItem() {
+                    Text = "Feedback Feature", Value ="1"
+                    },
+                    new SelectListItem() {
+                    Text = "Business Opportunity", Value ="2"
+                    }
+                    })
+                    )
+            </div>
+            <input type="text" id="searchKeywords" placeholder="Type Search Keyword here" class="searchTextBox" />
+            <div class="search-icon" onclick="searchKeyword()"></div>
+        </div>
+
+        <div class="post-fdbk-btn">
+            <button type="button" class="post-button" onclick="FdbkPostClick()">Post New Feedback</button>
+        </div>
+    </div>
+
+    <div class="fdbk-view-content">
+        <div class="left-content">
+            <div class="filter-content  scrollbar-inner">
+                <div class="allFdbk selectedOpt" onclick="togglefdbk('allFdbk')"> All Feedbacks</div>
+                <div class="myFdbk" onclick="togglefdbk('myFdbk')"> My Feedbacks</div>
+                <div class="filterDiv" id="productftr">
+                    <div>Products</div>
+                    @{
+                        foreach (var item in Model.ProductFtr)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="prodGrp_@item.grpId">
+                            <label>
+                                <div class="icon"></div>
+                                <input type="checkbox" name="productGrp" value="grp_@item.grpId" hidden checked="checked" onchange="prodGroupSel(this,@item.grpId)" />
+                                <span>@item.ProductGroupName</span>
+                            </label>
+                            <span class="downArrow" id="expProd_@item.grpId" onclick="expProd(@item.grpId)"></span>
+                        </div>
+                        <div id="showProd_@item.grpId" style="display: none; margin-left: 1em;">
+                            @foreach (var itemList in item.prdListitem)
+                                {
+                            <div class="unSelectedFilt selectedFilt" id="prod_@itemList.prdid">
+                                <label>
+                                    <div class="icon"></div>
+                                    <input type="checkbox" name="product_@item.grpId" value="@itemList.prdid" hidden checked="checked" onchange="prodSel(this,@item.grpId)" />
+                                    <span>@itemList.product</span>
+                                </label>
+                            </div>
+                                }
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv" id="digitalftr" style="display:none">
+                    <div>Digital Offering</div>
+                    @{
+                        foreach (var item in Model.offeringList)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="digi_@item.Value">
+                            <label>
+                                <div class="icon"></div>
+                                <input type="checkbox" name="digital" value="@item.Value" hidden checked="checked" onchange="digiSel(this)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv">
+                    <div>Status</div>
+                    @{
+                        foreach (var item in Model.StatusList)
+                        {
+                        <div class="unSelectedFilt selectedFilt" id="status_@item.Value">
+                            <label>
+                                <div class="icon"></div>
+                                <input type="checkbox" name="status" value="@item.Value" hidden checked="checked" onchange="statusSel(this)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+                <div class="filterDiv">
+                    <div>Sort By</div>
+                    <div class="unSelectedFilt selectedFilt" id="recentCreateSort">
+                        <label>
+                            <div class="icon"></div>
+                            <input type="checkbox" name="sortBy" value="recentCreated" hidden checked="checked" onchange="sortSel(this)" />
+                            <span>Most Recent Created</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt" id="recentUpdateSort">
+                        <label>
+                            <div class="icon"></div>
+                            <input type="checkbox" name="sortBy" value="recentUpdated" hidden onchange="sortSel(this)" />
+                            <span>Most Recent Updated</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt " id="votedSort">
+                        <label>
+                            <div class="icon"></div>
+                            <input type="checkbox" name="sortBy" value="voted" hidden onchange="sortSel(this)" />
+                            <span>Most Voted</span>
+                        </label>
+                    </div>
+                    <div class="unSelectedFilt " id="commentedSort">
+                        <label>
+                            <div class="icon"></div>
+                            <input type="checkbox" name="sortBy" value="commented" hidden onchange="sortSel(this)" />
+                            <span>Most Commented</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="filterDiv" id="Tagfilterlistdiv" style="display:none">
+                    <div>Select Tags</div>
+                    @{
+                        foreach (var item in Model.TagsList)
+                        {
+                        <div class="unSelectedFilt" id="tags_@item.Value">
+                            <label>
+                                <div class="icon"></div>
+                                <input type="checkbox" name="tags" value="@item.Text" hidden onchange="TagSel(this,@item.Value)" />
+                                <span>@item.Text</span>
+                            </label>
+                        </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="right-content">
+            <div class="fdbk-list-content scrollbar-inner">
+                @Html.Partial("_ViewFdbkList")
+            </div>
+            <div class="fdbk-detail-content scrollbar-inner">
+                @Html.Partial("_ViewFdbkDetail")
+            </div>
+        </div>
+    </div>
+
+    <div id="Postfdbk" class="modalfdbkpost">
+        <span class="closefdbkpost" onclick="FdbkPostClose()">&times;</span>
+        @Html.Partial("_PostFeedback")
+    </div>
+    <div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body">
+
+                <div class="alert alert-danger" id="lblErr1" style="display:none">
+                    <div style="display:flex">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <label style="width:18em">Error while Submitting.</label>
+                    </div>
+                </div>
+                <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                    <div style="display:flex">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <label style="width:18em">Feedback Submitted Successfully.</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*<div id="imageModal" class="modal" role="dialog" aria-hidden="true" style="background: rgb(0,0,0,0.75);">
+            <div class="modal-dialog">
+                <div class="modal-body">
+                    <button type="button" class="close" data-bs-dismiss="modal" onclick="closeImgModal()" aria-label="Close" style="position: fixed; top: 10px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold; transition: 0.3s;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <img id="fdbkimgsrc" src="" style="width: 70em;" />
+                    </div>
+                </div>
+            </div>
+        </div>*@
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        //console.log(@viewtyp);
+        if (@prdMgr> 0) {
+            $("#Tagfilterlistdiv").css("display", "block");
+        }
+        //$("#status_1").css("display", "none");
+        $(".modalfdbkpost .post-feedback .post-fdbk-cont .post-content .fdbk-inputfield .fdbk-drp.digitalDrp span.k-input-value-text").css({
+            'color': 'rgb(128, 128, 128)',
+            'font-size': '10px',
+            'font-style': 'italic'
+        });
+        $('.scrollbar-inner').scrollbar();
+        $('iframe').contents().find('body').css('color', 'gray');
+        $('iframe').contents().find('body').css('font-size', '10px');
+        $('iframe').contents().find('body').css('font-style', 'italic');
+        $('iframe').contents().find('body').css('font-family', 'cursive');
+        multisel = $("#internalclient").kendoMultiSelect({
+            includeSelectAllOption: true,
+            filter: "contains",
+            placeholder: "N/A",
+            //  headerTemplate: "<div><input type='checkbox' id='Header1' class='Header_selectall'><label> Select All</label></div>",
+            autoClose: false,
+            dataTextField: "Name",
+            dataValueField: "Id",
+            tagMode: "single",
+            height: 150,
+        }).data("kendoMultiSelect");
+
+        if (@viewtyp != 0) {
+            FdbkPostClose();
+            selectFdbk(@viewtyp);
+        }
+        console.log(@prdMgr);
+    });
+    function collapseleft(productid) {
+        $('#' + productid).toggleClass('hide');
+        $('#main_' + productid).toggleClass('show-content');
+    }
+    function FdbkPostClick() {
+        LogFdbkActivity("OpenFdbkPopup", "ToCreateFdbk")
+        OnClearall();
+        document.getElementById("Postfdbk").style.display = "block";
+    }
+    function FdbkPostClose() {
+        LogFdbkActivity("CloseLightBox", "NoFdbkPosted");
+        OnClearall();
+        document.getElementById("Postfdbk").style.display = "none";
+        $('iframe').contents().find('body').css('color', 'gray');
+        $('iframe').contents().find('body').css('font-size', '10px');
+        $('iframe').contents().find('body').css('font-style', 'italic');
+        $('iframe').contents().find('body').css('font-family', 'cursive');
+    }
+    var fdbkVal = "All";
+    var inputstring = "";
+    var sortByVal = "recentCreated";
+    var prdGrpid = "";
+    var tagCnt = 0;
+    var tagslist = [];
+
+    function togglefdbk(sel){
+        if (sel == 'allFdbk') {
+            $(".allFdbk").addClass("selectedOpt");
+            $(".myFdbk").removeClass("selectedOpt");
+            fdbkVal = "All";
+            //$("#status_1").css("display", "none");
+        }
+        else if (sel == 'myFdbk') {
+            $(".allFdbk").removeClass("selectedOpt");
+            $(".myFdbk").addClass("selectedOpt");
+            fdbkVal = "user";
+            //$("#status_1").css("display", "flex");
+        }
+        filterChanged();
+    }
+    function prodGroupSel(e, grpid) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByProduct", "ProductGroup", grpid, "selected");
+            $("input[name='product_" + grpid + "']").each(function () {
+                $(this).prop("checked", true);
+                $("#prod_" + $(this).val()).addClass("selectedFilt");
+
+            });
+            $("#prodGrp_" + grpid).addClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", true);
+        }
+        else {
+            LogFdbkActivityById("FilterByProduct", "ProductGroup", grpid, "unselected");
+            $("input[name='product_" + grpid + "']").each(function () {
+                $(this).prop("checked", false);
+                $("#prod_" + $(this).val()).removeClass("selectedFilt");
+
+                console.log($(this).val());
+            });
+            $("#prodGrp_" + grpid).removeClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", false);
+        }
+        filterChanged();
+    }
+    function prodSel(e,grpid) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByProduct", "Product",e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#prod_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByProduct","Product", e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#prod_" + e.value).removeClass("selectedFilt");
+        }
+        var checkCount = $("input[name='product_" + grpid + "']:checked").length;
+        var prodCount = $("input[name='product_" + grpid + "']").length;
+        if (checkCount != prodCount) {
+            $("#prodGrp_" + grpid).removeClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", false);
+        }
+        else {
+            $("#prodGrp_" + grpid).addClass("selectedFilt");
+            $("#grp_" + grpid).prop("checked", true);
+        }
+
+        filterChanged();
+    }
+    function digiSel(e) {
+        if (e.checked) {
+            LogFdbkActivityById("FilterByDigitalOffering","digital" ,e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#digi_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByDigitalOffering", "digital",e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#digi_" + e.value).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function statusSel(e) {
+        console.log(e)
+        if (e.checked) {
+            LogFdbkActivityById("FilterByStatus","Status" ,e.value, "selected");
+            console.log(e.value + " is selected");
+            $("#status_" + e.value).addClass("selectedFilt");
+        }
+        else {
+            LogFdbkActivityById("FilterByStatus", "Status" ,e.value, "unselected");
+            console.log(e.value + " is unselected");
+            $("#status_" + e.value).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function TagSel(e, tagid) {
+        console.log(tagid);
+        LogFdbkActivity("FilterByTag", "FilterByTag-'" + e.value + "'");
+        if (e.checked) {
+            console.log(e.value + " is selected");
+            $("#tags_" + tagid).addClass("selectedFilt");
+        }
+        else {
+            console.log(e.value + " is unselected");
+            $("#tags_" + tagid).removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function sortSel(e) {
+        LogFdbkActivity("SortBy", "SortBy-'" + e.value +"'");
+        if (e.checked) {
+            console.log(e.value + " is selected");
+            sortByVal = e.value;
+            console.log(sortByVal);
+            if (e.value == "recentCreated") {
+                $('#recentCreateSort').addClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', true);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "recentUpdated") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').addClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', true);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "voted") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').addClass("selectedFilt");
+                $('#commentedSort').removeClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', true);
+                $('input[value="commented"]').prop('checked', false);
+            }
+            else if (e.value == "commented") {
+                $('#recentCreateSort').removeClass("selectedFilt");
+                $('#recentUpdateSort').removeClass("selectedFilt");
+                $('#votedSort').removeClass("selectedFilt");
+                $('#commentedSort').addClass("selectedFilt");
+                $('input[value="recentCreated"]').prop('checked', false);
+                $('input[value="recentUpdated"]').prop('checked', false);
+                $('input[value="voted"]').prop('checked', false);
+                $('input[value="commented"]').prop('checked', true);
+            }
+        }
+        else {
+            sortByVal = "";
+            $('#recentCreateSort').removeClass("selectedFilt");
+            $('#recentUpdateSort').removeClass("selectedFilt");
+            $('#votedSort').removeClass("selectedFilt");
+            $('#commentedSort').removeClass("selectedFilt");
+        }
+        filterChanged();
+    }
+    function filterChanged() {
+        $('#filterList').empty();
+        var stDesc = "";
+        var stList = [];
+        var tagDesc = "";
+        var tagList = [];
+        var GrpList = [];
+        var prdList = [];
+        var prdDesc = "";
+        var dgDesc = "";
+        var digiList = [];
+        var typeid = $("#SelectedFeedbackType").val();
+        if (typeid == "1") {
+            $("input:checkbox[name=productGrp]").each(function () {
+                var str1 = $(this).val();
+                GrpList.push(str1.slice(4))
+            });
+            for (var j = 0; j < GrpList.length; j++) {
+                $("input:checkbox[name=product_" + GrpList[j] + "]:checked").each(function () {
+                    prdList.push($(this).val());
+                })
+            }
+            for (var k = 0; k < prdList.length; k++) {
+                prdDesc += prdList[k] + "#";
+            }
+            prdDesc = prdDesc.substring(0, prdDesc.length - 1);
+        }
+        else {
+            $("input:checkbox[name=digital]:checked").each(function () {
+                digiList.push($(this).val())
+            });
+            for (var i = 0; i < digiList.length; i++) {
+                dgDesc += digiList[i] + "#";
+            }
+            dgDesc=dgDesc.substring(0, dgDesc.length - 1);
+            //console.log(dgDesc);
+        }
+        $("input:checkbox[name=status]:checked").each(function () {
+            stList.push($(this).val())
+        });
+        for (var i = 0; i < stList.length; i++) {
+            stDesc += stList[i] + "#";
+        }
+        stDesc=stDesc.substring(0, stDesc.length - 1);
+        //console.log(stDesc);
+        $("input:checkbox[name=tags]:checked").each(function () {
+            tagList.push($(this).val())
+        });
+        for (var i = 0; i < tagList.length; i++) {
+            tagDesc += tagList[i] + "#";
+        }
+        tagDesc = tagDesc.substring(0, tagDesc.length - 1);
+
+        var typeid = $("#SelectedFeedbackType").val();
+
+        var model = {
+            statusSel: stDesc,
+            productSel: prdDesc,
+            digitalSel: dgDesc,
+            tagsSel: tagDesc,
+            typeid: typeid,
+            sortByVal: sortByVal,
+            selMode: fdbkVal,
+            inputstring: inputstring
+        };
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'GetFilteredFeedback';
+        }
+        else {
+            baseurl = 'ViewFeedback/GetFilteredFeedback';
+        }
+       // console.log(model);
+        var data = JSON.stringify(model);
+
+        $.ajax(
+            {
+                type: 'post',
+
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (temp) {
+                    //console.log(temp);
+                    $('#ListFdbkViews').html(temp);
+                    $("#detail_view").css("display", "none");
+                    $(".fdbk-content-main .fdbk-view-content .fdbk-list-content .product_divs").css("margin-right", "4px");
+
+                },
+                error: function (err, data) {
+                    console.log(arguments);
+                }
+
+            });
+    }
+
+    function OnTypeSeltnChange(e) {
+        var index = this.dataItem(e.item);
+        LogFdbkActivity("ChangeIdeaType", "Type Choosen-'" + index.Text+"'");
+        console.log(index);
+        switch (index.Value) {
+            case "1": $("#productftr").css('display', 'block');
+                $("#digitalftr").css('display', 'none');
+                break;
+            case "2": $("#productftr").css('display', 'none');
+                $("#digitalftr").css('display', 'block');
+                break;
+        }
+        filterChanged();
+    }
+    //function postCommentclick() {
+    //    var fdbkid = $("#dtl_fdbkId").text();
+    //    var cmt = $("#newCmment").val();
+    //    var model = {
+    //        fdbkid: fdbkid,
+    //        comment:cmt
+    //    };
+    //    var data = JSON.stringify(model);
+    //var baseurl = "";
+      //  if (@viewtyp != 0) {
+        //    baseurl = 'AddFDBKComments';
+        //}
+        //else {
+          //  baseurl = 'ViewFeedback/AddFDBKComments';
+        //}
+    //    $.ajax(
+    //        {
+    //            type: 'post',
+    //            url: baseurl,
+    //            data: data,
+    //            async: true,
+    //            contentType: 'application/json; charset=utf-8',
+    //            success: function (temp) {
+    //                console.log(temp);
+    //                $('#fdbkComments').html(temp);
+    //            },
+    //            error: function (err, data) {
+    //                console.log(arguments);
+    //            }
+    //        });
+    //}
+    function selectFdbk(fdbkid) {
+        tagCnt = 0;
+        var fdbkid = $("#fdbkid_" + fdbkid).text();
+        if (fdbkid == "") {
+            $("#detail_view").css("display", "none");
+        }
+        else {
+            $("#detail_view").css("display", "unset");
+        }
+        //var model = {
+        //    fdbkid:fdbkid
+        //};
+        @*var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'GetFeedbackComments';
+        }
+        else {
+            baseurl = 'ViewFeedback/GetFeedbackComments';
+        }*@
+        //var data = JSON.stringify(model);
+        //$.ajax(
+        //    {
+        //        type: 'post',
+        //        url: baseurl,
+        //        data: data,
+        //        async: true,
+        //        contentType: 'application/json; charset=utf-8',
+        //        success: function (temp) {
+        //            $('#fdbkComments').html(temp);
+        //            //console.log(temp);
+        //        },
+        //        error: function (err, data) {
+        //            console.log(arguments);
+        //        }
+        //    });
+        @*var baseurl1 = "";
+        if (@viewtyp != 0) {
+            baseurl1 = 'GetFeedbackImages';
+        }
+        else {
+            baseurl1 = 'ViewFeedback/GetFeedbackImages';
+        }*@
+        //$.ajax(
+        //    {
+        //        type: 'post',
+        //        url: baseurl1,
+        //        data: data,
+        //        async: true,
+        //        contentType: 'application/json; charset=utf-8',
+        //        success: function (temp) {
+        //            $('#fdbkImages').html(temp);
+        //            //console.log(temp);
+        //        },
+        //        error: function (err, data) {
+        //            console.log(arguments);
+        //        }
+        //    });
+        var typeid = $("#type_" + fdbkid).text();
+        var title = $("#title_" + fdbkid).text();
+        var type = $("#type_" + fdbkid).text();
+        var brief = $("#brief_" + fdbkid).text();
+        var submiby = $("#submitBy_" + fdbkid).text();
+        var lastAct = $("#lastAct_" + fdbkid).text();
+        var vote = $("#vote_" + fdbkid).text();
+        //var cmt = $("#cmt_" + fdbkid).text();
+        var status = $("#Dtstatus_" + fdbkid).text();
+        var typeid = $("#typeid_" + fdbkid).text();
+        var proddigiid = $("#prodDigiid_" + fdbkid).text();
+        var isMyfdbk = $("#isMyFdbk_" + fdbkid).text();
+        var crtDt = $("#crtDt_" + fdbkid).text();
+        var tagList = $("#tagList_" + fdbkid).text();
+        //console.log("a"+tagList+"b");
+        document.getElementById("tagsListDtl").innerHTML = "";
+        var array = tagList.split(",");
+        for (i = 0; i < array.length; i++) {
+            if (array[i] != "") {
+                temp = "<div class='tags' id='tagname_" +fdbkid+"_"+i+"'>" + array[i] + "</div>";
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("tagsListDtl");
+                element.appendChild(para);
+                console.log(array[i]);
+                tagCnt++;
+                tagslist.push(array[i]);
+            }
+        }
+        console.log(tagCnt);
+        var tagList = $("#tagList").innerHTML;
+        //console.log(tagList);
+        $("#Tags").innerHTML = tagList;
+        //console.log("#isMyFdbk_" + fdbkid)
+        //console.log(status)
+        //console.log(isMyfdbk)
+        $("#dtl_title").text(title);
+
+        if (typeid == "1") {
+            $("#dtl_prod").text(proddigiid);
+            $("#feature_view").css("display", "unset");
+            $("#business_view").css("display", "none");
+        } else if (typeid == "2") {
+            $("#dtl_Digi").text(proddigiid);
+            $("#feature_view").css("display", "none");
+            $("#business_view").css("display", "unset");
+        }
+        $('.fdbk-status').removeClass("approvedSt");
+        $('.fdbk-status').removeClass("RejectedSt");
+        if (status == "Approved") {
+            $('.fdbk-status').addClass("approvedSt");
+        }
+        else if (status == "Rejected") {
+            $('.fdbk-status').addClass("RejectedSt");
+        }
+        $("#dtl_submtBy").text(submiby);
+        $("#dtl_lastAct").text(lastAct);
+        $("#dtl_crtDt").text(crtDt);
+        $("#dtl_lastAct1").text(lastAct);
+        $("#vote").text(vote);
+        //$("#dtl_comment").text(cmt);
+        $("#dtl_status").text(status);
+        $("#dtl_fdbkId").text(fdbkid);
+        $("#dtl_fdbkId2").text(fdbkid);
+        $("#dtl_fdbkId3").text(fdbkid);
+        $("#dtl_desc").html(brief);
+
+        var voteStatus = $("#voteStatus_" + fdbkid).text();
+        console.log(voteStatus);
+        if (voteStatus == "True") {
+            // console.log("true");
+            $(".voted").css("display", "unset");
+            $(".vote").css("display", "none");
+            $("#dtl_voted").text(vote);
+            //  console.log(vote);
+        }
+        else {
+            // console.log("false");
+            $("#dtl_vote").text(vote);
+            $(".voted").css("display", "none");
+            $(".vote").css("display", "unset");
+            //console.log(vote);
+        }
+        // console.log(voteStatus);
+        //if()
+    }
+    $(".vote").click(function () {
+        $(".voted").css("display", "unset");
+        $(".vote").css("display", "none");
+        //$(this).toggleClass("voted");
+        var fid = $("#dtl_fdbkId").text();
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+        LogFdbkActivity("VoteFeedback", "Voted the Feedback");
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'SaveVoteofUser';
+        }
+        else {
+            baseurl = 'ViewFeedback/SaveVoteofUser';
+        }
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) + parseInt(1);
+                $("#vote_" + fid).text(vsum);
+                $("#vote").text(vsum);
+                $("#voteStatus_" + fid).text("True");
+                console.log(vsum, vcount);
+                $("#dtl_voted").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    $(".voted").click(function () {
+        $(".voted").css("display", "none");
+        $(".vote").css("display", "unset");
+        //$(this).toggleClass("voted");
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+        var fid = $("#dtl_fdbkId").text();
+        LogFdbkActivity("UnVoteFeedback", "UnVoted the Feedback");
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'SaveVoteofUser';
+        }
+        else {
+            baseurl = 'ViewFeedback/SaveVoteofUser';
+        }
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) - parseInt(1);
+                $("#vote_" + fid).text(vsum);
+                $("#vote").text(vsum);
+                $("#voteStatus_" + fid).text("False");
+                console.log(vsum, vcount);
+                $("#dtl_vote").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    function searchKeyword() {
+        inputstring = document.getElementById("searchKeywords").value;
+        LogFdbkActivity("SearchFeedback", "SearchFeedback-'" + inputstring+"'");
+        filterChanged();
+    }
+    $("#searchKeywords").focusout(function () {
+        inputstring = document.getElementById("searchKeywords").value;
+        console.log(inputstring);
+        if (inputstring == '') {
+            filterChanged();
+        }
+    });
+    function expProd(grpid) {
+        $("#showProd_" + grpid).toggleClass("show");
+    }
+    function draftClick(fdbkid) {
+        document.getElementById("Postfdbk").style.display = "block";
+        $('iframe').contents().find('body').css('color', 'white');
+        $('iframe').contents().find('body').css('font-size', '11px');
+        $('iframe').contents().find('body').css('font-style', 'unset');
+        $('iframe').contents().find('body').css('font-family', 'Verdana,Geneva,sans-serif');
+
+        var brief = $("#brief_" + fdbkid).text();
+        var title = $("#title_" + fdbkid).text();
+        var typeid = $("#typeid_" + fdbkid).text();
+        var proddigiid = $("#prodDigiid_" + fdbkid).text();
+        $("#fdbkid").text(fdbkid);
+        // console.log(typeid);
+        $("#Typeid").data("kendoDropDownList").value(typeid);
+        $('#ShortDescription').val(title.trim());
+        var editor = $("#DetailDesc_editor").data("kendoEditor");
+        editor.value(brief);
+
+        if (typeid == 1) {
+            document.getElementById("product").style.display = "flex";
+            document.getElementById("digitalOff").style.display = "none";
+            $("#Productid").data("kendoDropDownTree").value(proddigiid);
+        } else {
+            //  console.log(proddigiid);
+            document.getElementById("product").style.display = "none";
+            document.getElementById("digitalOff").style.display = "flex";
+            $("#Digitalid").data("kendoDropDownList").text(proddigiid);
+        }
+
+        var model = {
+            fdbkid: fdbkid
+        };
+        // console.log(model);
+        var data = JSON.stringify(model);
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'GetFeedbackINCClient';
+        }
+        else {
+            baseurl = 'ViewFeedback/GetFeedbackINCClient';
+        }
+        $.ajax(
+            {
+                type: 'post',
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data.array)
+                    $("#internalclient").data("kendoMultiSelect").value(data.array);
+
+                },
+                error: function (err, data) {
+                }
+
+            });
+    }
+    function LogFdbkActivity(ActionName, ActionDetail) {
+        var model = {
+            ActionName: ActionName,
+            ActionDetail: ActionDetail
+        };
+        var data = JSON.stringify(model);
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'SaveActivityDetails';
+        }
+        else {
+            baseurl = 'ViewFeedback/SaveActivityDetails';
+        }
+        $.ajax(
+            {
+                type: 'post',
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                },
+                error: function (err, data) {
+                }
+            });
+    }
+    function LogFdbkActivityById(ActionName, DetailName, DetailId, Action) {
+        var model = {
+            ActionName: ActionName,
+            DetailName: DetailName,
+            DetailId: DetailId,
+            Action: Action
+        };
+        var data = JSON.stringify(model);
+        var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'GetAndSaveActivityDetails';
+        }
+        else {
+            baseurl = 'ViewFeedback/GetAndSaveActivityDetails';
+        }
+        $.ajax(
+            {
+                type: 'post',
+                url: baseurl,
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                },
+                error: function (err, data) {
+                }
+            });
+    }
+    //function OnNotifyTypeSeltnChange(id) {
+    //    console.log(id);
+    //    var notifytype = document.getElementById("notifiyDrp" + id).value;
+    //    console.log("notify", document.getElementById("notifiyDrp" + id).value);
+    @*var baseurl = "";
+        if (@viewtyp != 0) {
+            baseurl = 'saveUserNotification';
+        }
+        else {
+            baseurl = 'ViewFeedback/saveUserNotification';
+        }*@
+    //    var model = {
+    //        fdbkid: id,
+    //        notifytype: notifytype
+    //    };
+    //    var data = JSON.stringify(model);
+    //    $.ajax({
+    //        url: baseurl,
+    //        type: 'post',
+    //        data: data,
+    //        async: true,
+    //        contentType: 'application/json; charset=utf-8',
+    //        success: function (temp) {
+    //            console.log("save successfully")
+    //        },
+    //        error: function (err, data) {
+    //            console.log(arguments);
+    //        }
+    //    });
+    //}
+    //function closeImgModal() {
+    //    document.getElementById("imageModal").style.display = "none";
+    //}
+</script>

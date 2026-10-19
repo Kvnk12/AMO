@@ -1,0 +1,72 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+
+
+<div id="StatusHistory" style="width:100%"></div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+        if (ItemId != null) {
+            $('#StatusHistory').jtable({
+                title: 'Status History',
+                actions: {
+                    listAction: "@Url.Action("GetStatusHistoryDetails")"+ "?ItemId="+ItemId
+                },
+                fields: {
+                    Id: {
+                        key: true,
+                        list: false
+                    },
+                    OldStatusId: {
+                        title: 'Old Status',
+                        width: '20%'
+                    },
+                    NewStatusId: {
+                        title: 'New Status',
+                        width: '20%'
+                    },
+
+                    Comments: {
+                title: 'Comments',
+                width: '20%'
+                    },
+
+                    CreatedByUser:
+                        {
+                            title: 'Posted By',
+                            width: '10%',
+                            key: true
+                        },
+
+
+                    CreateDateString:
+            {
+                title: 'Posted On',
+                width: '10%',
+                key: true
+            }
+
+
+
+                }
+            });
+            $('#StatusHistory').jtable('load');
+
+        }
+    });
+
+
+
+</script>

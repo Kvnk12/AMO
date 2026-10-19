@@ -1,0 +1,407 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.IncidentInput
+
+@{
+    
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+   
+}
+
+
+
+
+@using (Html.BeginForm("SLADashboard", "Incident", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+ 
+        <!--.container-->
+        
+        <div class="selectappArea">
+        <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                <div class="col-sm-5">
+                    @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text", Model.ClientsList), new { @class = "selectpicker", id = "ClientId", tabindex = "6" })     
+
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal"> 
+              
+              <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>--> <!-- hidden for sprint two--> 
+              
+            </div>
+            <!--/.selectyearArea--> 
+          </div>
+          <!--/.container--> 
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div><!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li class="active">Dashboard</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        
+            
+        <div class="container" style="padding:0;">
+        	<!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+        
+        
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+                <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                <div class="treemenu">
+                    <div class="dsh">
+                        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> Dashboard Catalog</h3>
+                        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                    </div>
+              <ul class="treeMenuUl">
+                <li><a href="#">SLA Dashboards</a>
+                  <ul>
+                    <li>@Html.ActionLink("Service Request Summary", "SLAMDView", "SLAMDashboard", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Application Downtime Summary", "SLADashboard", "Incident", new { area = "" }, null)</li>
+                  </ul>
+                </li>
+                <li><a href="#">Service Request Dashboards</a>
+                  <ul>
+                    <li>@Html.ActionLink("Business Alignment Summary", "SRBAView", "SRBASummary", new { area = "" }, null)</li>
+                  </ul>
+                </li>
+              </ul>
+                    @*<span class="dsheditsave">
+                            <button class="btn btn-primary" tabindex="" type="submit">Edit</button>
+                            <button class="btn btn-primary" tabindex="" type="submit">Save</button>
+                            <button class="btn btn-default" tabindex="" type="submit">Cancel</button>
+                    </span>*@
+                </div><!-- treemenu ends-->
+                <div class="treeMenuContent">
+                	<div class="container" style="padding:0;">
+                        <div class="leftarea form-horizontal" style="min-height:700px;width:49%">
+                          @*<h4>Dashboard: SLA – Availability (Allowable Downtime per Month)</h4>*@
+                            @*<h4 id="lblSLA">@Model.SlALable</h4>*@
+                            <h4 id="lblSLA">Application Downtime Summary</h4>
+                             <input type="hidden" name="SlALable" value="@Model.SlALable" />
+                            <input type="hidden" name="metricId" value="@Model.metricId" />
+                            @Html.HiddenFor(m=>m.metricId)
+                            
+                          @*   @Html.(m => m.SlALable, new { @class = "form-control",id="lblSLA", tabindex=""}) *@
+                           <ul class="nav nav-pills nav-stacked">
+ 								<li class="target">Target: @Model.TargetValue <span class="badge"> hh : mm : ss</span></li>
+						   </ul>
+	
+                          	
+                            
+                            <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-bordered">
+                    <tr>
+                                        <th scope="col" width="35%">
+                                        @*<select class="form-control">
+                                          <option>Config Item Name</option>
+                                          <option>2</option>
+                                          <option>3</option>
+                                          <option>4</option>
+                                          <option>5</option>
+                                        </select>*@
+                                            Config Item Name
+                                        </th>
+                                        <th scope="col" width="25%">Sum of time to Restore</th>
+                                        <th scope="col" width="25%">Count of Incident Number</th>
+                                        <th scope="col" width="15%">SLA Compliance</th>
+                                      </tr>
+                                @if (Model.GetResult != null)
+                                {
+                                    foreach (var item in Model.GetResult.Where(c => c != null))
+                                    {
+                                        if (@item.IsMissed > 0)
+                                        {
+                                    <tr>
+                                        <td>
+                                            @item.AppName
+                                        </td>
+                                        <td>@item.time</td>
+                                        <td>@item.count</td>
+                                     
+                                       <td class="alert-danger">Missed</td>
+                                       
+                                    </tr>
+                                        }
+                                        else
+                                        {
+                                         <tr>
+                                        <td>
+                                            @item.AppName
+                                        </td>
+                                        <td>@item.time</td>
+                                        <td>@item.count</td>
+                                     
+                                         <td></td>
+                                        
+                                    </tr>
+                                        }
+                                    }
+                                }
+                                     @* <tr>
+                                        <td>ARMOR</td>
+                                        <td>16 : 11 :30</td>
+                                        <td class="tac">1</td>
+                                        <td class="alert-danger">Missed</td>
+                                      </tr>
+                                      <tr>
+                                        <td>ICS</td>
+                                        <td>94 : 06 :51</td>
+                                        <td class="tac">1</td>
+                                        <td class="alert-danger">Missed</td>
+                                      </tr>
+                                      <tr>
+                                        <td>PIC</td>
+                                        <td>1023 : 22 : 57</td>
+                                        <td class="tac">3</td>
+                                        <td class="alert-danger">Missed</td>
+                                      </tr>*@
+                              </table>
+                                                             
+                        </div>
+                        <!--END OF LEFTAREA-->   
+                        
+                                 
+                        <div class="rightcont form-horizontal" style="float:right;width:40%;margin-top:80px">
+                        	<div class="panel panel-info">
+                            	<div class="panel-heading">Analysis</div>
+                                      <div class="panel-body">
+                                        <textarea class="form-control analysistxt" rows="5" placeholder="Enter your text here">
+                                      	</textarea>
+
+                                      </div>
+                                      <div class="analysisbtn">
+                                      <button class="btn btn-primary" tabindex="29" type="button">Edit</button>
+									  <button class="btn btn-primary" tabindex="30" type="button">Save</button>
+                                      </div>
+                            </div><!--/.panel panel-info --> 
+                         
+                       <div class="panel panel-default"> 
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">Filters</div>
+                    <div class="panel-body"> 
+                      <!--<table class="table" style="width:100%">
+                      	<thead>
+                        	<th class="col-sm-5 text-left">Attributes</th>
+                            <th class="col-sm-6 text-left">Value</th>
+                      	</thead>
+                      </table>-->
+                      <div class="form-group">
+                        <label for="incident" class="col-sm-5 control-label">Incident Priority</label>
+                        <div class="col-sm-5">
+                          <select multiple id="priority" name="SelectedPriority" class="selectpicker"  >
+                                                    
+                                               @if (Model.GetPriority.Any())
+                                               {
+                                                    foreach (var p in Model.GetPriority)
+                                                    {
+                                                       
+                                                        if (Model.SelectedPriority.Contains(p.Text))
+                                                        {
+                                                        <option selected="selected" value="@p.Value">@p.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                          
+                                                         <option value="@p.Value">@p.Text</option>
+                                                        
+                                                        }
+                                                    }
+                                               }
+                                                </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="incident" class="col-sm-5 control-label">Open Year</label>
+                        <div class="col-sm-5">
+                          <select multiple id="year" name="SelectedYear" class="selectpicker"  >
+                                                  @*  <option selected="selected" value="">All</option>*@
+                                              
+                                               @if (Model.GetYear.Any())
+                                               {
+                                                    foreach (var p in Model.GetYear)
+                                                    {
+                                                       
+                                                        if (Model.SelectedYear.Contains(p.Text))
+                                                        {
+                                                        <option selected="selected" value="@p.Value">@p.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                          
+                                                         <option value="@p.Value">@p.Text</option>
+                                                        
+                                                        }
+                                                    }
+                                               }
+                                                </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="incident" class="col-sm-5 control-label">Open Month</label>
+                        <div class="col-sm-5">
+                          <select multiple id="month" name="SelectedMonth" class="selectpicker"  >
+                                                   
+                                            @if(Model.GetMonth.Any())
+                                            {
+                                                    foreach (var p in Model.GetMonth)
+                                                    {
+                                                         if (Model.SelectedMonth.Contains(p.Text))
+                                                        {
+                                                        <option selected="selected" value="@p.Value">@p.Text</option>
+                                                        }
+                                                        else
+                                                        {
+                                                          
+                                                         <option value="@p.Value">@p.Text</option>
+                                                        
+                                                        }
+                                                    }
+                                            }
+                                                </select>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-sm-5">
+                          <button class="btn btn-primary " id="btnSave" type="submit" style="margin-right:70px">Search</button>
+
+                        </div>
+                      </div>
+                    </div>
+                    <!--panel-body ends here--> 
+                  </div>
+                        </div><!-- end of right areaa-->            
+                        
+                     
+                    </div><!--/.treeMenuContent container-->
+                </div><!--/.treeMenuContent-->
+            </div><!--/.treeMenuArea-->
+        
+        </div><!--/.container-->
+   
+}
+
+
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+		</script> 
+<script src="js/bootstrap-select.js"></script> 
+<script>
+    $('.selectpicker').selectpicker();
+    //$('.selectpicker').selectpicker('val', ['Ketchup','Relish']);
+    </script> 
+<script src="js/bootstrap-datepicker.js"></script> 
+<script>
+    $('#sandbox-container .input-append.date').datepicker({
+        keyboardNavigation: false,
+        autoclose: true,
+        todayHighlight: true
+    });
+    </script>
+
+     <script>
+         function FillMetricDetails(id, name) {
+             //var g = document.forms['form_global'];
+
+
+             $('#lblSLA').html(name);
+             $('input[name=SlALable]').val(name);
+             $('input[name=metricId]').val(id);
+             //document.getElementById("lblSLA").value = name;
+
+
+         }
+</script>
+
+    <script>
+        $("#btnSave").click(function () {
+
+            var clientid = document.getElementById("ClientId").value;
+            if (clientid == null || clientid == "" || clientid == 0) {
+                alert("Please select client");
+                return false;
+            }
+
+            //var metricid = $('input[name=metricId]').val();
+            //if (metricid == null || metricid == "" || metricid == 0) {
+            //    alert("Please select Metric");
+            //    return false;
+            //}
+        });
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            //var tabs = $("#tabs").val().toString();
+            //alert(SelectedclientId);
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'Incident') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'Incident/SLADashboard/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Incident/SLADashboard/?ClientId='
+            }
+
+            window.location = baseurl + SelectedclientId;
+
+        });
+    </script>
+
+   @* <script>
+
+        $("#priority").change(function () {
+            //if (this.selectedIndex == -1) {
+            //    $('option:gt(0)', this).prop('selected', false);
+            //}
+            //else {
+            //    $('option:gt(1)', this).prop('selected', false);
+            //}
+            //if (this.selectedIndex == 0) {
+            //    for (var i = 0; i < this.options.length; i++) {
+            //        this.options[i].selected = false;
+            //    }
+            //}
+            //for (var i = 0; i < this.options.length; i++) {
+            //    if (this.options[i].selected)
+            //        this.options[i].selected = false;
+            //}
+        });
+
+
+    </script>*@
+
+

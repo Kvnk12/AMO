@@ -1,0 +1,914 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+
+@model A3MMModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    List<A3MMModel> QuestionSetList = new List<A3MMModel>();
+
+
+}
+<style>
+
+
+    .Datagathering-main {
+        background-color: white;
+        height: 52vh;
+        width: 80vw;
+        margin-left: 6em;
+    }
+
+    .dg-header {
+        background-color: #5876AA;
+        height: 2vh;
+        width: 80vw;
+        margin-left: 6em;
+    }
+
+    .first-column {
+        width: 50vw;
+        height: 92vh;
+    }
+
+    .second-column {
+        height: 92vh;
+    }
+
+    .all-fields {
+        display: flex;
+        width: 50vw;
+        padding-left: 2em;
+        padding-top: 1em;
+    }
+
+    .k-input {
+        width: 12.5vw;
+        border: unset;
+        border-bottom: 1px solid #ccc;
+        border-radius: unset;
+        height: 2vh;
+        font-family: HelveticaNeue;
+    }
+
+    .div-border {
+        border: 1px solid black;
+        padding-left: 0px;
+        width: 31vw;
+        margin-top: 1em;
+        padding-bottom: 2em;
+        margin-left: 1em;
+    }
+
+    .div-border2 {
+        width: 34vw;
+        height: 16vh;
+        padding-left: 1em;
+        /*border: 1px solid black;*/
+        padding-top: 1em;
+        margin-top: 1em;
+        background-color: #d1d1d1;
+    }
+
+    .pager-btn {
+        height: 2vh;
+        width: 2vw;
+        background-color: transparent;
+        color: rgb(91,121,171);
+        border: 1.3px solid rgb(91,121,171);
+        font-family: HelveticaNeue;
+    }
+
+    #saveAlertModal .alert, #validationAlertModal .alert {
+        width: 29vw;
+        height: 7vh !important;
+        padding: unset;
+        display: flex;
+    }
+    #validationAlertModal .alert {
+        height: 8vh !important;
+        width: 40vw;
+    }
+    #actionButtons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .custom-tooltip {
+        white-space: normal;
+        width: 20vw;
+        word-wrap: break-word;
+        position: absolute;
+        padding: 1px 3px;
+        border-radius: 3px;
+        z-index: 999999;
+        display: none;
+        border: none;
+        background-color: lightgrey !important;
+    }
+
+    label:hover .custom-tooltip {
+        position: absolute;
+        display: block;
+        visibility:visible;
+    }
+
+    #AssessmentOverviewTreeList .k-pager-wrap .k-link.k-state-selected, #AssessmentOverviewTreeList .k-pager-wrap .k-link.k-state-selected:hover {
+        background-color: rgb(91,121,171);
+        border-color: rgb(91,121,171);
+        color: white;
+    }
+
+    #AssessmentOverviewTreeList .k-pager-wrap .k-link {
+        border-color: #ccc;
+        color: #333;
+        background: #fff;
+    }
+
+        #AssessmentOverviewTreeList .k-pager-wrap .k-link:focus {
+            box-shadow: none;
+        }
+
+        #AssessmentOverviewTreeList .k-pager-wrap .k-link:hover {
+            color: #333;
+            border-color: #ccc;
+            background: #fff;
+        }
+
+    #AssessmentOverviewTreeList .k-i-arrow-60-down, #AssessmentOverviewTreeList .k-i-arrow-60-left, #AssessmentOverviewTreeList .k-i-arrow-60-right, #AssessmentOverviewTreeList .k-i-arrow-60-up {
+        cursor: pointer;
+        color: #333;
+    }
+
+    #AssessmentOverviewTreeList .k-pager-nav .k-icon, #AssessmentOverviewTreeList .k-pager-nav .k-tool-icon {
+        color: #333;
+    }
+    #AssessmentOverviewTreeList .k-column-title {
+        color: white;
+    }
+    .custom-kendo-treelist .k-treelist .k-grid-header .k-grid-header-wrap th.k-header {
+        font-size: 1vw !important;
+        font-weight: 600;
+    }
+
+    .custom-kendo-treelist .k-treelist .k-grid-content table tr td {
+        font-size: 0.86vw !important;
+    }
+
+    .k-popup .k-list .k-list-item {
+        font-size: 0.9vw !important;
+    }
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar {
+        width: 7px;
+        height:7px;
+    }
+
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track {
+        background-repeat: repeat-y;
+    }
+
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track-piece {
+        border-radius: 3px;
+        background-color: #C4C4C4;
+        border: 3px solid #eee;
+    }
+
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: #0780B0;
+        border-radius: 6px;
+    }
+
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: rgb(91,121,171);
+        border-radius: 6px;
+    }
+    #AssessmentOverviewTreeList .k-grid-content.k-auto-scrollable {
+        height: 46vh;
+    }
+    #AssessmentOverviewTreeList .k-icon.k-i-filter:before {
+        content: "\e031";
+    }
+</style>
+<div class="content-main dark-bg Assess-Overview">
+    <ol class="breadcrumb" style="margin-bottom:8px">
+        <li>Assessment Manager</li>
+        <li class="active">Assessment Overview</li>
+    </ol>
+    <h5 style="color: white;">Assessment Overview </h5>
+    <div style="margin-top: 0.5em; margin-bottom: 1em;">
+        @Html.Partial("_AssessmentOverviewSearch")
+    </div>
+    <button class="plain-button export-button" style="display:flex;margin-left:auto;margin-bottom:1em" type="button" onclick="ExportAssessmentOverview()" id="btn-export-assessment">Export - </button>
+    <div class="custom-kendo-treelist">
+        @(Html.Kendo().TreeList<A3MMModel>()
+                                            .Name("AssessmentOverviewTreeList")
+
+                                            .Columns(columns =>
+                                            {
+                                                columns.Add().Field(p => p.QuestionResponseID).Hidden(true);
+                                                columns.Add().Field(p => p.DisciplineId).Hidden(true);
+                                                columns.Add().Field(p => p.AssessmentID).Hidden(true);
+                                                columns.Add().Field(p => p.AspectID).Hidden(true);
+                                                columns.Add().Field(p => p.QuestionId).Hidden(true);
+                                                columns.Add().Field(p => p.SQNo).Title("Q#").Width(70);
+                                                columns.Add().Field(p => p.DisciplineName).Title("Discipline").Width(110).Filterable(true);
+                                                columns.Add().Field(p => p.ComponentName).Title("Component").Filterable(true).Width(125);
+                                                columns.Add().Field(p => p.AspectName).Title("Aspect").Filterable(true).Width(100);
+                                                columns.Add().Field(p => p.Question).Title("Question").Width(120).Filterable(true).TemplateId("DisplayQuestionDesc").HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" }).Template("#if(data.Question==null){#<div><div style='display:flex;margin-left:-5px'><button class='bg-image add-question' title='Add New Question Icon'  onclick='addQuestion(#:AspectID#);'>Add Question</button></div></div>#}if(data.Question != null ){# <div>  #=Question# </div>#}#");
+                                                columns.Add().Field(p => p.Response).Title("Response").Width(150).Filterable(true).TemplateId("DisplayQuestionResponse").HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" });
+                                                //columns.Add().Field(p => p.Feedback).Title("Feedback").Width(105).Filterable(true);
+                                                columns.Add().Field(p => p.MaturityLevel).Title("Maturity Level").Width(125).Filterable(true);
+                                                columns.Add().Field(p => p.AreasofImprovement).Title("Improvement").Width(150).Filterable(true).TemplateId("DisplayAreaOfImprovement").HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" });
+                                                columns.Add().Field(p => p.RespAttachment).Filterable(false).Title("File Attached").Width(125).Template("# for(var i = 0; i < RespAttachment.length; i++) {# <a class='dwn-file-tag' onclick='Downloaduploadedfile(#: RespAttachment[i].Id #)'>#: RespAttachment[i].filename# </a> #};#") ;
+                                                columns.Add().Title("Action").Filterable(false).Width(80).Template("#if (data.Question!=null){#<div><div style='display:flex;margin-left:-5px'><button class='edit-question bg-image'  title='Edit Icon' onclick='editAssessment(#:AssessmentID#,#:QuestionId#);'></button><button class='view-question' title='View Icon' onclick='viewAssessmentOverview(#:AssessmentID#,#:QuestionId#);'></button></div></div>#}if(data.Question == null){#<div></div>#}#");
+
+
+
+                                            })
+                                               // .Excel(excel => excel.FileName("Question Set Administration Export.xlsx")/*.ProxyURL(Url.Action("Export_Assessment_Overview_Save", "Assessment"))*/)
+                                               // .Selectable(true)
+                                               .Filterable()
+                                               .Sortable()
+                                              .Toolbar(tools =>
+                                              {
+                                                  // tools.Excel().Text(" ");
+                                                  // tools.Create().Text("Add Question set");
+                                              })
+                                            .DataSource(dataSource => dataSource
+                                                // .ServerOperation(true)
+                                                .Read(read => read.Action("GetAssessmentOverview", "Assessment").Data("getAssessment"))
+
+                                                .Model(m =>
+                                                {
+                                                    m.Id(f => f.Id);
+                                                    m.ParentId(f => f.ParentID);
+                                                    m.Expanded(true);
+                                                    //  m.Field(f => f.DisciplineName);
+                                                })
+                                                .PageSize(10)
+                                                .ServerOperation(false)
+                                            )
+                                            //.Height(250)
+                                             .Pageable(true)
+                                             //.ColumnMenu()
+                    )
+    </div>
+
+
+    <div class="actionButtons" id="actionButtons" style="margin-top: 1em;">
+        @if (Model.UserRole == "Admin")
+        {
+            <div>
+                <button style="float: right; width: 5vw;margin-right: 1.5em;font-size:1vw" class="custom-button" type="button" id="btnPublish" onclick="onPublishClick()">Publish</button>
+            </div>
+        }
+        else if(Model.UserRole == "User")
+        {
+            <div>
+                <button style="float: right; width: 10vw;margin-right: 1.5em;font-size:1vw" class="custom-button" type="button" id="btnEngagementPublish" onclick="onEngagementPublishClick()">Engagement Publish</button>
+            </div>
+        }
+
+        <div>
+            @*<button style="float: right; width: 5em; margin-right: 1em; background-color: LIGHTGREY; font-weight: bold; " class="custom-button" type="button" id="btncancel" onclick="onCancelEditViewClick()">Release for Review</button>*@
+            <button disabled style=" float: right; width: 10vw; margin-left: -7px; font-size: 1vw" class="custom-button" type="button" id="btnReview" onclick="onReviewClick()">Release for Review</button>
+        </div>
+    </div>
+</div>
+
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" style="width: 272px;">
+        <div class="modal-body">
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+                    <label style="width: 17vw; margin-left: 1em; ">Sorry an error occured</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+                    <label id="successlabel" style="width: 17vw; margin-left: 1em;"></label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="validationAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+            <div class="alert alert-danger" id="lblErr2" style="display:none">
+                <div style="display:flex">
+                    <label id="validatelabel" style="width: 33vw; margin-top: 4px; margin-left: 1em;"></label>
+                    <button style="margin-top: -5px; margin-left: 1.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function Downloaduploadedfile(fid) {
+
+        var mod = {
+            fileId: fid
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/DownloaduploadedfileAction")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                     x = fid;
+                    window.location = '@Html.Raw(@Url.Action("DownloaduploadedfileAction", "Assessment"))' + '?fileId=' + x;
+                },
+                error: function (err, response) {
+                }
+            })
+    }
+
+    $(window).on("load", function () {
+        var status = @Html.Raw(Json.Encode(Model.Status));
+        var UserRole = @Html.Raw(Json.Encode(Model.UserRole));
+        if (status == "Review") {
+            //document.getElementById("btnPublish").disabled = false;
+            document.getElementById("btnReview").disabled = true;
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnPublish").title = "Engagement team has to publish";
+            } else if (UserRole == "User"){
+                document.getElementById("btnEngagementPublish").disabled = false;
+            }
+        }
+        if (status == "Analysis") {
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnReview").disabled = false;
+            } else if (UserRole == "User"){
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+        }
+        if (status == "Engagement Published") {
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = false;
+            } else if (UserRole == "User"){
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+            document.getElementById("btnReview").disabled = true;
+
+        }
+
+
+        if (status == "Published" || status == "Preparation" || status == "Initiated" || status == "Draft") {
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnReview").disabled = true;
+            } else if (UserRole == "User"){
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+            console.log(status)
+
+        }
+
+      });
+
+
+    function getAssessment() {
+       // console.log("in getAssessment ");
+        var SurveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+        var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+      //  console.log("assessment id is : " + AssessmentID + ", " + SurveyTypeID);
+        return {
+            SurveyTypeID: SurveyTypeID,
+            AssessmentID: AssessmentID
+        };
+
+    }
+
+
+
+ function viewAssessmentOverview(AssessmentID, QuestionId) {
+       // console.log(AssessmentID, QNo);
+
+       baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDGView?AssessmentID=")';
+       window.location.href = baseurl1 + AssessmentID + "&QuestionId=" + QuestionId;
+
+
+
+    }
+
+    function editAssessment(AssessmentID, QuestionId) {
+        console.log(AssessmentID, QuestionId);
+        var UserRole = @Html.Raw(Json.Encode(Model.UserRole));
+        //var QNo1 = JSON.stringify(SQNo);
+        //console.log("string QNo1", QuestionId);
+       baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDG?AssessmentID=")';
+      // window.location.href = baseurl1 + AssessmentID + "&QNo=QNo";
+        window.location.href = baseurl1 + AssessmentID + "&QuestionId=" + QuestionId + "&UserRole=" + UserRole ;
+
+
+
+    }
+
+    var addedOwner;
+    function checkallvalidation() {
+         var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+        var mod = {
+            AssessmentID: AssessmentID
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/Checkvalidation")';
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    addedOwner = data;
+                   // console.log(addedOwner)
+                    if (data != false) {
+                        $('#validationAlertModal').modal('show');
+                        $('#lblErr2').show();
+                        $('#validatelabel').text(data);
+
+                    }
+                }
+            })
+
+    }
+    var allQRes;
+    function checkallQRes() {
+          var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+                var mod = {
+                    AssessmentID: AssessmentID
+                };
+
+                var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/CheckQResvalidation")';
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            allQRes = data;
+                           // console.log(addedOwner)
+                            if (data != false) {
+                                $('#validationAlertModal').modal('show');
+                                $('#lblErr2').show();
+                                $('#validatelabel').text(data);
+
+                            }
+                        }
+                    })
+    }
+
+    function onEngagementPublishClick() {
+        checkallQRes();
+        if (allQRes == false) {
+            var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                Action: "Engagement Published"
+            };
+
+            var data1 = JSON.stringify(mod);
+            baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/ReviewAssessment")';
+
+            $.ajax(
+                {
+                    url: baseurl1,
+                    type: 'post',
+                    data: data1,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        document.getElementById('AssessmentStatus').innerHTML = "Engagement Published";
+                        $("#AssessmentStatus").data("kendoTextBox").value("Engagement Published");
+                        document.getElementById("btnEngagementPublish").disabled = true;
+
+                        //console.log("Published");
+                        $('#saveAlertModal').modal('show');
+                        $('#lblErr').hide();
+                        $('#lblSuccess1').show();
+                        $('#successlabel').text("Status of the Assessment has been changed to 'Engagement Published'");
+                    }
+                })
+        }
+    }
+   
+    function onPublishClick() {
+           var temp= checkallvalidation(true);
+           if(addedOwner==false){
+            console.log(addedOwner+"  addedOwner  ")
+            var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                Action:"Published"
+            };
+
+            var data1 = JSON.stringify(mod);
+            baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/ReviewAssessment")';
+
+            $.ajax(
+                {
+                    url: baseurl1,
+                    type: 'post',
+                    data: data1,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        document.getElementById('AssessmentStatus').innerHTML = "Published";
+                        $("#AssessmentStatus").data("kendoTextBox").value("Published");
+                        document.getElementById("btnPublish").disabled = true;
+                        //console.log("Published");
+                        $('#saveAlertModal').modal('show');
+                        $('#lblErr').hide();
+                        $('#lblSuccess1').show();
+                        $('#successlabel').text("Status of the Assessment has been changed to 'Published'");
+                    }
+                })
+    }
+    }
+
+    function checkReviewvalidation() {
+       var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+             var mod = {
+                 AssessmentID: AssessmentID
+             };
+
+             var data1 = JSON.stringify(mod);
+             baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/CheckQReviewvalidation")';
+             $.ajax(
+                 {
+                     url: baseurl1,
+                     type: 'post',
+                     data: data1,
+                     async: false,
+                     contentType: 'application/json; charset=utf-8',
+                     success: function (data) {
+                         checkreviewval = data;
+                        // console.log(addedOwner)
+                         if (data != false) {
+                             $('#validationAlertModal').modal('show');
+                             $('#lblErr2').show();
+                             $('#validatelabel').text(data);
+
+                         }
+                     }
+                 })
+ }
+
+    var checkreviewval;
+    function onReviewClick() {
+
+        var temp = checkReviewvalidation(true);
+        console.log(temp);
+        if (checkreviewval == false) {
+            var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+
+            var mod = {
+                AssessmentID: AssessmentID,
+                Action: "Review"
+            };
+
+            var data1 = JSON.stringify(mod);
+            baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/ReviewAssessment")';
+
+            $.ajax(
+                {
+                    url: baseurl1,
+                    type: 'post',
+                    data: data1,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+
+
+                        document.getElementById('AssessmentStatus').innerHTML = "Review";
+                        $("#AssessmentStatus").data("kendoTextBox").value("Review");
+                        document.getElementById("btnReview").disabled = true;
+
+
+                        $('#saveAlertModal').modal('show');
+                        $('#lblErr').hide();
+                        $('#lblSuccess1').show();
+                        $('#successlabel').text("Status of the Assessment has been changed to 'Review'");
+
+                    }
+                })
+        }
+    }
+
+
+    function onExcelExport(e) {
+        var AssessmentID = $("#AssessmentName").data("kendoDropDownList").text();
+        var SurveyTypeID = $("#AssessmentID").data("kendoDropDownList").text();
+        e.workbook.fileName = SurveyTypeID +"_"+AssessmentID + ".xlsx";
+    }
+
+
+
+    function onSelectAssessmentType(e) {
+
+        $("#QVerTxtBox").data("kendoTextBox").value("");
+        $("#AssessmentStatus").data("kendoTextBox").value("");
+        var UserRole;
+            if (e.item) {
+                var dataItem = this.dataItem(e.item);
+               // console.log("event :: select (" + dataItem.Text + " : " + dataItem.Value + ")");
+                var mod = {
+                    AssessmentTypeID: dataItem.Value,
+
+                };
+
+                var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetAssessmentNameList")';
+
+
+
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                          //  console.log(data);
+                            UserRole = data.UserRole;
+                            console.log(UserRole);
+                            var dropdownlist = $("#AssessmentName").data("kendoDropDownList");
+                            dropdownlist.setDataSource(data.AssessmentList);
+                            dropdownlist.value(data.AssessmentList[0].Value);
+                            $("#QVerTxtBox").data("kendoTextBox").value(data.VersionID);
+                            $("#AssessmentStatus").data("kendoTextBox").value(data.Status);
+                            if (data.Status == "Engagement Published") {
+                                if (UserRole == "Admin") {
+
+                                    document.getElementById("btnPublish").disabled = false;
+                                }
+                                else if (UserRole == "User") {
+
+                                    document.getElementById("btnEngagementPublish").disabled = true;
+                                }
+
+                                document.getElementById("btnReview").disabled = true;
+                            }
+                        }
+                    })
+
+
+
+
+
+            } else {
+               // console.log("event :: select");
+
+            }
+        var status = $("#AssessmentStatus").data("kendoTextBox").value();
+      //  console.log("status : " + status);
+
+        if (status == "Review") {
+          //  console.log("status : " + status);
+
+            //document.getElementById("btnPublish").style.display = 'block';
+            //document.getElementById("btnReview").style.display = 'none';
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnPublish").title = "Engagement team has to publish";
+            } else if (UserRole == "User") {
+                document.getElementById("btnEngagementPublish").disabled = false;
+            }
+            document.getElementById("btnReview").disabled = true;
+        }
+        if (status == "Analysis") {
+            //document.getElementById("btnPublish").style.display = 'none';
+            //document.getElementById("btnReview").style.display = 'block';
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnReview").disabled = false;
+            } else if (UserRole == "User")  {
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+        }
+        if (status == "Published") {
+            //document.getElementById("btnPublish").style.display = 'none';
+            //document.getElementById("btnReview").style.display = 'block';
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+            } else if (UserRole == "User")  {
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+            document.getElementById("btnReview").disabled = true;
+        }
+    }
+
+
+     function onSelectAssessmentName(e) {
+         var UserRole;
+
+        var datares;
+            if (e.item) {
+                var dataItem = this.dataItem(e.item);
+                //console.log("event :: select (" + dataItem.Text + " : " + dataItem.Value + ")");
+                var mod = {
+                    AssessmentID: dataItem.Value,
+
+                };
+
+                var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetVersionAndStatus")';
+
+
+
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                           // console.log(data);
+                            UserRole = data.UserRole;
+                            //var QVersion = $("#QVerTxtBox").data("kendoTextBox");
+                            //QVersion.value(data[0].VersionID);
+
+                            var AssessmentStatus = $("#AssessmentStatus").data("kendoTextBox");
+                            AssessmentStatus.value(data.Status);
+
+                            $("#QVerTxtBox").data("kendoTextBox").value(data.VersionID);
+
+
+                            //if (data[0].Status == 'Analysis') {
+
+                            //}
+                            //else if (data[0].Status == 'Review') {
+
+                            //}
+                      }
+                    })
+
+
+            } else {
+              //  console.log("event :: select");
+
+            }
+
+        var status = $("#AssessmentStatus").data("kendoTextBox").value();
+      //  console.log("status : " + status);
+
+        if (status == "Review") {
+         //   console.log("status : " + status);
+
+            //document.getElementById("btnPublish").style.display = 'block';
+            //document.getElementById("btnReview").style.display = 'none';
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnPublish").title = "Engagement team has to publish";
+            } else if (UserRole == "User") {
+                document.getElementById("btnEngagementPublish").disabled = false;
+            }
+            document.getElementById("btnReview").disabled = true;
+         }
+         if (status == "Engagement Published") {
+             if (UserRole == "Admin") {
+
+                 document.getElementById("btnPublish").disabled = false;
+             }
+             else if (UserRole == "User")  {
+
+                 document.getElementById("btnEngagementPublish").disabled = true;
+             }
+
+             document.getElementById("btnReview").disabled = true;
+         }
+        if (status == "Analysis") {
+            //document.getElementById("btnPublish").style.display = 'none';
+            //document.getElementById("btnReview").style.display = 'block';
+            if (UserRole == "Admin") {
+                document.getElementById("btnPublish").disabled = true;
+                document.getElementById("btnReview").disabled = false;
+            } else if (UserRole == "User")  {
+                document.getElementById("btnEngagementPublish").disabled = true;
+            }
+        }
+         if (status == "Published" || status == "Preparation" || status == "Initiated" || status == "Draft") {
+             //document.getElementById("btnPublish").style.display = 'none';
+             //document.getElementById("btnReview").style.display = 'block';
+
+             if (UserRole == "Admin") {
+                 document.getElementById("btnPublish").disabled = true;
+             } else if (UserRole == "User")  {
+                 document.getElementById("btnEngagementPublish").disabled = true;
+             }
+             document.getElementById("btnReview").disabled = true;
+         }
+    }
+
+
+    function onSearchClick() {
+      //  $("#AssessmentOverviewGrid").data("kendoGrid").dataSource.read();
+        $("#AssessmentOverviewTreeList").data("kendoTreeList").dataSource.read();
+
+    }
+    function ExportAssessmentOverview() {
+        var SurveyTypeID = $("#AssessmentID").data("kendoDropDownList").value();
+        var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+        var version= $("#QVerTxtBox").data("kendoTextBox").value();
+        var baseurl = '@Url.Content("~/AssessmentManager/Assessment/ExportAssessmentoverview")' + "?SurveyTypeID=" + SurveyTypeID + "&AssessmentID=" + AssessmentID + "&version=" + version;
+          window.location.replace(baseurl);
+    }
+
+</script>
+<script id="DisplayQuestionDesc" type="text/x-kendo-template">
+    @{
+        //var template = kendo.template("<div id='box'>#= Description #</div>");
+        if (true)
+        {
+            <label>#: Question #<span class="custom-tooltip">#: Question #</span></label>
+
+        }
+        else
+        {
+            <label>#: Question #</label>
+        }
+    }
+
+</script>
+<script id="DisplayQuestionResponse" type="text/x-kendo-template">
+    @{
+        //var template = kendo.template("<div id='box'>#= Description #</div>");
+        if (true)
+        {
+            <label>#: Response #<span class="custom-tooltip">#: Response #</span></label>
+
+        }
+        else
+        {
+            <label>#: Response #</label>
+        }
+    }
+
+</script>
+
+<script id="DisplayAreaOfImprovement" type="text/x-kendo-template">
+    @{
+        //var template = kendo.template("<div id='box'>#= Description #</div>");
+        if (true)
+        {
+            <label>#: AreasofImprovement #<span class="custom-tooltip">#: AreasofImprovement #</span></label>
+
+        }
+        else
+        {
+            <label>#: AreasofImprovement #</label>
+        }
+    }
+
+</script>

@@ -1,0 +1,415 @@
+﻿@using WebUI.Dto;
+
+@model MFAModel
+
+@{
+    ViewBag.Title = "NTT Data | NextGen Tools | Authorize";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    Layout = "~/Views/Shared/_AppLayout_MFA.cshtml";
+    var Tempuser = (MFAUserLogin)Session["MFAUserLogin"];
+    var userMail = "";
+    if (Tempuser != null)
+    {
+        userMail = Tempuser.UserName;
+    }
+    else
+    {
+        userMail = User.Identity.Name;
+    }
+}
+
+<style>
+    .form-view-section {
+	width: 500px;
+    padding: 0;
+    border-color: #000000;
+    border: 1px solid;
+    border-radius: 5px;	    
+}
+.form-view-section form {
+    padding: 10px 10px 30px 10px;
+}
+.form-view-section h4 {
+	text-align: center;
+	margin-top: 30px;
+}
+.display-errors label {
+    margin-top: 25px;
+    margin-bottom: 0;
+}
+.contain-radio {
+	display: inline;
+    position: relative;
+    padding-left: 27px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin-right: 20px;
+}
+.contain-radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.contain-radio input:checked ~ .checkmark-radio {
+    background-color: #2196F3;
+}
+.checkmark-radio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 50%;
+}
+.contain-radio input:checked ~ .checkmark-radio:after {
+    display: block;
+}
+.contain-radio .checkmark-radio:after {
+    top: 7px;
+    left: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+}
+.checkmark-radio:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+#countdown-timer {
+    margin-bottom: 10px;
+    margin-left: 5px;	
+}
+.phone-number .form-group {
+	display: inline-block;
+}
+.phone-number .form-group:nth-child(2) {
+	width: 391px;
+}
+.dropdown-countrycode {
+	width: 70px;
+    margin-right: 12px;	
+}
+.display-text {
+	font-size: 15px;
+    color:#fff;
+    padding:5px;
+    margin:7px;
+}
+</style>
+    <div class="container" style="height:700px;">
+
+       
+        <div class="auth-section" style="color:#000000; margin-top:50px;">
+            <div class="row">
+                <div class="col-lg-3 col-lg-offset-3">
+                    <div class="form-view-section">
+                        <h4 style="font-weight:bold">2-Step Verification</h4>
+                        <hr style="color:#000000;width:300px"/>
+                      
+                        <div class="display-text" style="color:#000000;">
+                            In order to access your account you will need to verify a sign-in code sent to you by phone/e-mail
+                        </div>
+                        <form name="send-otp">
+
+                            <label class="contain-radio">
+                                Email
+                                <input type="radio" class="otpMode"  name="otpMode" value="Email">
+                                <span class="checkmark-radio"></span>
+                            </label>
+
+                            <label class="contain-radio">
+                                Mobile
+                                <input type="radio" class="otpMode" checked="checked" name="otpMode" value="Phone">
+                                <span class="checkmark-radio"></span>
+                            </label>
+
+                            <div class="form-group email-id hide">
+                                <label for="emailID"></label>
+                                <input class="form-control" data-val="true" name="emailID" placeholder="Enter Email Id" type="text" value="@userMail" readonly="">
+                                <br />
+                                <div class="button-group">
+                                    <input class="btn btn-primary" onclick="sendEmailClick()" value="Send OTP" id="btnSave">
+                                </div>
+                            </div>
+
+                            <div class="form-group phone-number ">
+                                
+
+                                <div>
+                                    @if (Model.IsPhoneNull || !Model.IsPhoneVerfied)
+                                    {
+                                        <div class="form-group">
+                                            <select class="dropdown-countrycode" id="codetextbox" style="color:#000">
+                                                <option value="91">+91</option>
+                                                <option value="1">+1</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+
+                                            <label for="phoneNumber"></label>
+                                            <input class="form-control" id="phonetextbox" data-val="true" name="phoneNumber" placeholder="Enter Phone Number" type="text" value="@Model.PhoneNumber">
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <label for="phoneNumber"></label>
+                                        <input class="form-control" data-val="true" name="phoneNumber" placeholder="Enter Phone Number" type="text" value="@Model.MphoneNum" readonly="">
+
+                                        @*<span>phone number **923980**</span>*@
+                                    }
+                                </div>
+                                <br />
+                                <div class="button-group">
+                                    <input class="btn btn-primary" onclick="sendSmsClick()" value="Send OTP" id="btnSave">
+                                </div>
+
+                            </div>
+
+                            @*<div class="button-group">
+                                <input type="submit" class="btn btn-primary" onclick="VerifyUserCodeFunc()" value="Send OTP" id="btnSave">
+                            </div>*@
+
+                            <div class="display-errors">
+                                <label class="alert alert-danger" role="alert" hidden>Please enter correct phone number</label>
+                            </div>
+                        </form>
+                    </div>
+
+
+                    <div class="form-view-section hide">
+                        <h4 font-weight:bold">2-Step Verification</h4>
+                        <hr style="width:300px" />
+
+                        <div class="display-text" style="color:#000">
+                            In order to access your account you will need to verify a sign-in code sent to you by phone/e-mail
+                        </div>
+                        <form name="enter-otp">
+
+
+                            <div class="form-group otp-number">
+                                <label for="otpNumber"></label>
+                                <input class="form-control" data-val="true" name="otpNumber" placeholder="Enter OTP Number" id="otptextbox" type="text" value="">
+                            </div>
+                            <div id="countdown-timer"></div>
+
+                            <div class="button-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input id="rememberDevice" type="checkbox" name="rememberDevice" class="custom-control-input">
+                                    <label class="custom-control-label" for="rememberDevice">Remember Device</label>
+                                </div>	
+                                <input class="btn btn-primary" onclick="VerifyUserCodeFunc()" value="Validate" id="btnSave">
+                                <a href="" class="btn btn-default back-button">Back</a>
+                            </div>
+
+                            <div class="display-errors">
+                                <label class="alert alert-danger" role="alert" hidden>Please enter correct OTP number</label>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+<script type="text/javascript">
+			//$(document).ready(function(){
+
+				$('.otpMode').click(function(){
+
+					var radioValue = $("input[name='otpMode']:checked"). val();
+					if(radioValue == "Phone") {
+						$('.email-id').addClass('hide');
+						$('.phone-number').removeClass('hide');
+					} else {
+						$('.email-id').removeClass('hide');
+						$('.phone-number').addClass('hide');
+					}
+
+				});
+
+			    //This should be replaced by onclick events of buttons
+
+				//$('form').submit(function(){
+				//	countDownTimer();
+				//	document.getElementById("countdown-timer").innerHTML = '';
+				//	$('.form-view-section').toggleClass('hide');
+				//	return false;
+				//});
+
+
+				$('.back-button').click(function(){
+						timeleft = 90;
+						document.getElementById("countdown-timer").innerHTML = '';
+						clearInterval(downloadTimer);
+						$('.form-view-section').toggleClass('hide');
+						return false;
+				});
+
+			//});
+
+			var downloadTimer = '';
+			var timeleft = 90;
+
+			function countDownTimer(){
+				timeleft = 90;
+				downloadTimer = setInterval(function(){
+				  document.getElementById("countdown-timer").innerHTML = timeleft + " seconds remaining";
+				  timeleft -= 1;
+				  if(timeleft <= 0){
+				    //clearInterval(downloadTimer);
+				    document.getElementById("countdown-timer").innerHTML = "<a href='' onclick='resendSmsClick()'>Resend OTP</a>";
+				  }
+				}, 1000);
+			}
+@*</script>
+<script>*@
+    //VerifyUserCode
+    function VerifyUserCodeFunc() {
+        var rememberMe = $('#rememberDevice:checked').val() ? true : false;
+        var indexurl = '@Url.Content("~/")';
+        mod = {
+            code: $("#otptextbox").val(),
+            RememberThisDevice: rememberMe
+        }
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/Account/VerifyUserCode")';
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            data:data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                if (data.success) {
+                    window.location.href = indexurl+data.success;
+                }
+                else {
+                    alert(data.failure);
+                }
+            },
+            failure: function (err) {
+
+            }
+        });
+    }
+
+
+    function sendEmailClick() {
+
+        countDownTimer();
+        document.getElementById("countdown-timer").innerHTML = '';
+        $('.form-view-section').toggleClass('hide');
+
+        var baseurl = '@Url.Content("~/MFA/SendOTPEmail")';
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //alert(data);
+                },
+                failure: function (err){
+
+                }
+            });
+        }
+
+    function resendSmsClick(){
+    
+        var baseurl = '@Url.Content("~/MFA/ReSendOTPSMS")';
+        $.ajax(
+           {
+               url: baseurl,
+               type: 'post',
+               async: false,
+               contentType: 'application/json; charset=utf-8',
+               success: function (data) {
+
+                   //alert(data);
+                   countDownTimer();
+                   document.getElementById("countdown-timer").innerHTML = '';
+               },
+               failure: function (err) {
+
+               }
+           });
+
+
+    }
+
+    function sendSmsClick() {
+
+        //countDownTimer();
+        //document.getElementById("countdown-timer").innerHTML = '';
+        //$('.form-view-section').toggleClass('hide');
+
+        var baseurl = '@Url.Content("~/MFA/SendOTPSMS")';
+
+        mod = {
+            phone: $("#phonetextbox").val(),
+            CountryCode: $("#codetextbox").val()
+        }
+        var data = JSON.stringify(mod);
+        if ('@Model.IsPhoneNull'.toLowerCase() == 'true') {
+            console.log('inside');
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    //alert(data);
+                    countDownTimer();
+                    document.getElementById("countdown-timer").innerHTML = '';
+                    $('.form-view-section').toggleClass('hide');
+                },
+                failure: function (err) {
+
+                }
+            });
+        }
+        else {
+            console.log('outside');
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //if (data.success) {
+
+                    //}
+                    //else {
+
+                    //}
+                    //alert(data);
+                    countDownTimer();
+                    document.getElementById("countdown-timer").innerHTML = '';
+                    $('.form-view-section').toggleClass('hide');
+                },
+                failure: function (err) {
+
+                }
+            });
+        }
+    }
+</script>
+
+

@@ -1,0 +1,76 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Areas.DemandManager;
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.App_Start;
+
+@model DMTaskAndActivitiesModel
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var taskList = ViewBag.TaskList;
+    //var stageList = ViewBag.StageList;
+    var stageList = DMHelper.GetListOfStage(client.ClientId);
+    var taskList = DMHelper.GetListOfTask(client.ClientId);
+}
+
+<div class="edit-popup">
+    <div class="edit-popup-item">
+        <label>Task:</label>
+        @(Html.Kendo().DropDownListFor(m => m.TaskId)
+                                    .Name("TaskId")
+                                    .OptionLabel("Select Task..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(taskList)
+                                    .AutoBind(true)
+
+         )
+    </div>
+    <div class="edit-popup-item">
+        <label>Start Date:</label>
+        @(Html.Kendo().DatePickerFor(m => m.StartDate).Value(DateTime.Now).Name("StartDate").Format("MM/dd/yyyy"))
+    </div>
+    <div class="edit-popup-item">
+        <label>End Date:</label>
+        @(Html.Kendo().DatePickerFor(m => m.EndDate).Value(DateTime.Now).Name("EndDate").Format("MM/dd/yyyy"))
+    </div>
+    <div class="edit-popup-item">
+        <label>Description:</label>
+        @Html.TextAreaFor(m => m.Description, new { style = "text-overflow:ellipsis; display:block; width:50%; height:100%;" })
+    </div>
+    <div class="edit-popup-item">
+        <label>Assigned To:</label>
+        @Html.TextAreaFor(m => m.AssignedTo)
+    </div>
+    <div class="edit-popup-item">
+        <label>Stage:</label>
+        @(Html.Kendo().DropDownListFor(m => m.StageId)
+                                    .Name("StageId")
+                                    .OptionLabel("Select Stage..")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(stageList)
+                                    .AutoBind(true)
+
+         )
+    </div>
+    <div class="edit-popup-item">
+        <label>Comments:</label>
+        @Html.TextAreaFor(m => m.Comments, new { style = "text-overflow:ellipsis; display:block; width:50%; height:100%;" })
+    </div>
+    
+</div>

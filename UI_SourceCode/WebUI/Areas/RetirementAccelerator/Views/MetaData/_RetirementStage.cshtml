@@ -1,0 +1,50 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@{
+    ViewBag.Title = "_RetirementStage";
+
+    //var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new MetaDataController();
+    var RPhaseList = cont.GetRetirePhasesList(client.ClientId);
+}
+
+
+
+
+
+<div>
+    <div style="margin:10px">
+        <h5 style="text-align:center">Retirement Stage</h5>
+       
+        <div style="margin:10px; padding:5px; padding-top:0px;"class="custom-kendo-grid">
+            @(Html.Kendo().Grid<RetirementStageModel>()
+        .Name("RetirementStageGrid")
+                .Columns(column =>
+                {
+                    column.Bound(e => e.Id).Hidden();
+                    column.ForeignKey(p => p.RetirementPhaseId, RPhaseList, "Value", "Text").Width(300).Title("Retirement Phase").EditorTemplateName("RetirementPhaseDropDown");
+                    // column.Bound(e => e.RetirementPhaseId).Title("Retirement Phase").EditorTemplateName("RetirementPhaseDropDown").ClientTemplate("#:RetirementPhaseId#");
+                    column.Bound(e => e.RetirementStage);
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+                .Sortable()
+                .Scrollable()
+                 .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Retirement Stage"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetRetirementStage", "MetaData"))
+                      .Create(create => create.Action("AddRetirementStage", "MetaData"))
+                      .Update(update => update.Action("EditRetirementStage", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteRetirementStage", "MetaData"))
+
+                          ))
+        </div>
+    </div>
+</div>

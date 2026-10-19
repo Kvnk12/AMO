@@ -1,0 +1,30 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VerticalAndSubVerticalInput 
+
+
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Industry Vertical </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddVertical">Add</button>
+                      </div>
+                    </div>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Industry Vertical</th>
+                        </tr>
+                        @{
+                             if(Model.verticalList.Count()> 0 && Model.verticalList.Count() != null)
+                      {
+                            foreach(var item in Model.verticalList)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.VerticalName,"DisplayVerticalSubVerticals","VerticalSubVerticalsGrid", new {VerticalId=item.Id,VerticalName = @item.VerticalName,tabs="Tab2"}, null)</td>
+                                   
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

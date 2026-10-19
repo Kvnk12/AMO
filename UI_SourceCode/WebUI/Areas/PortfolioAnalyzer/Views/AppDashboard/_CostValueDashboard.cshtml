@@ -1,0 +1,296 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+
+<style>
+    #CostSummaryChart path {
+        opacity: 0.9;
+    }
+</style>
+<div class="costValueDashboard">
+    <div style="margin-bottom:2em;">
+        <div class="costvalue-drp">
+            <span class="custom-blue-label">Select Year :</span>
+            <div class="custom-dropdown">
+                @(Html.Kendo().DropDownList()
+    .Name("costyear")
+    .DataValueField("Value")
+    .OptionLabel("OverAll Cost")
+    .DataTextField("Text")
+    .DataSource(datasource => datasource
+    .Read(read => read.Action("getAppYears", "AppDashboard").Data("GetAppID")))
+    .Events(eve => eve.Change("RefreshCostChart"))
+    )
+            </div>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+            <div style="width:49%">
+                <div class="costValueHeader"> Application Cost Summary <span>- Cost Report(s)</span></div>
+                <div>
+
+
+                    @(Html.Kendo().Chart<_costSummary>(Model.CostSummary)
+        .Name("CostSummaryChart")
+        .Legend(legend => legend
+        .Visible(false)
+        )
+        .Events(e => e
+
+                .SeriesClick("CostChartClick")
+            )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        )
+ .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                }).Series(series =>
+                                                                {
+                                                                    series.Donut(model => model.amount, model => model.CostType,null)
+                                                                       .Labels(labels => labels
+                                                                       .Template("#= category #: \n #= kendo.toString(value, 'c0')#")
+                                                                        .Background("transparent")
+                                                                         .Visible(true)
+                                                                         .Position(ChartPieLabelsPosition.OutsideEnd)
+                                                                         .Format("{0:C}")
+                                                                    )
+                                                                     .Overlay(ChartPieSeriesOverlay.None)
+                                                                    .StartAngle(150);
+                                                                })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#")
+        )
+                                )
+                </div>
+            </div>
+            <div style="width:50%">
+                <div class="costValueHeader"> Application FTE Cost <span>- Cost Report(s)</span></div>
+                <div>
+                    @(Html.Kendo().Chart<_labor>(Model.Labor)
+        .Name("LaborChart")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Top)
+        )
+        .Series(series =>
+        {
+            series.Column(model => model.InternalLabor).Name("Internal Labour").Color("#3eeaf0").CategoryField("WorkType");
+            series.Column(model => model.ExternalLabor).Name("External Labour").Color("#3ed643").CategoryField("WorkType");
+
+        })
+        .ChartArea(x => x.Width(550))
+        .CategoryAxis(axis => axis
+                .Categories(cat => cat.WorkType)
+            .Labels(labels => labels.Rotation(-90))
+            .MajorGridLines(lines => lines.Visible(false))
+        )
+        .ValueAxis(axis => axis.Numeric()
+            .Labels(labels => labels.Format("{0:N0}"))
+            .Title("Cost")
+            .Min(0)
+            .Line(line => line.Visible(false))
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Format("{0:N0}")
+        )
+        .Events(e => e
+
+                .SeriesClick("LaborChartClick")
+            )
+        .Pannable(pannable => pannable
+            .Lock(ChartAxisLock.Y)
+        )
+        .Zoomable(zoomable => zoomable
+            .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+            .Selection(selection => selection.Lock(ChartAxisLock.Y))
+        )
+                                )
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="costValueHeader"> Application Rating By Perspective Type <span>- Values</span></div>
+        <div class="costvalue-drp">
+            <span class="custom-blue-label">Select Survey :</span>
+            <div class="custom-dropdown">
+                @(Html.Kendo().DropDownList()
+    .Name("appsurvey")
+    .OptionLabel("OverAll Rating")
+    .DataValueField("Value")
+    .DataTextField("Text")
+    .DataSource(datasource=>datasource
+    .Read(read=>read.Action("getSurveyForApp","AppDashboard").Data("GetAppID"))
+
+    )
+    .Events(eve=>eve.Change("RefreshRatingChart"))
+    )
+            </div>
+        </div>
+        <div style="display:flex">
+            <div style="width:50%;margin-left:1em;">
+                @(Html.Kendo().Chart<_ratingSummary>(Model.RatingSummary)
+.Name("RatingSummaryChart")
+.DataSource(d =>
+{
+    d.Model(f => f.Id(e => e.PerspectiveId));
+})
+//.Title("Site Visitors Stats \n /thousands/")
+.Legend(l=>l.Visible(false))
+        .Events(eve=>eve.SeriesClick("SummaryChartClick"))
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        )
+        .Series(series =>
+        {
+            series.Bar(Mod => Mod.Rating).CategoryField("PerspectiveName").ColorHandler("BarChartColor");
+            //series.Bar(model => model.Rating).Name("Average");
+            // series.Bar(model => model.Poor).Name("Poor");
+        })
+        .ChartArea(x => x.Width(526).Height(350))
+        .CategoryAxis(axis => axis
+            .Labels(labels => labels.Rotation(0))
+            .MajorGridLines(lines => lines.Visible(false))
+        )
+        .ValueAxis(axis => axis
+            .Numeric()
+             .Min(0)
+            .Line(line => line.Visible(false))
+            .MajorGridLines(lines => lines.Visible(true))
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= series.name #: #= value #")
+        )
+                                            )
+
+            </div>
+            <div style="margin-top: 22em">
+                <div style="display: flex; margin-bottom:5px"><div style="width:1em;height:1em;background-color:red;margin-top:2px;margin-right:1em"></div>Poor</div>
+                <div style="display: flex; margin-bottom: 5px"><div style="width: 1em; height: 1em; background-color: yellow; margin-top: 2px; margin-right: 1em"></div>Average </div>
+                <div style="display: flex; margin-bottom: 5px"><div style="width: 1em; height: 1em; background-color: #3ed643; margin-top: 2px; margin-right: 1em "></div>Good </div>
+          
+            </div>
+        </div>
+    </div>
+
+
+    @(Html.Kendo().Window()
+    .Name("FTEGridWindow")
+    .Title("Ticket details")
+    .Content(@<text>
+      @(Html.Kendo().Grid<_labor>(Model.Labor)
+.Name("FTEGrid")
+.Columns(column =>
+{
+    column.Bound(m => m.WorkType);
+    column.Bound(m => m.InternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+    column.Bound(m => m.ExternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+
+})
+
+//.Scrollable()
+
+.HtmlAttributes(new { @style = "width:460px" })
+.Pageable()
+.DataSource(data => data
+.Ajax()
+.PageSize(5)
+))
+    </text>)
+
+         .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+)
+    @(Html.Kendo().Window()
+    .Name("CostGridWindow")
+    .Title("Ticket details")
+    .Content(@<text>
+        @(Html.Kendo().Grid<_costSummary>(Model.CostSummary)
+.Name("CostGrid")
+.Columns(column =>
+{
+    column.Bound(m => m.CostType);
+    column.Bound(m => m.amount).HtmlAttributes(new { @style = "text-align:right" });
+
+})
+
+//.Scrollable()
+.HtmlAttributes(new { @style = "width:460px" })
+.Pageable()
+.DataSource(data => data
+.Ajax()
+.PageSize(5)
+)
+        )
+    </text>)
+         .Visible(false)
+         //.HtmlAttributes(new { @style = "padding:10px" })
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+)
+    @(Html.Kendo().Window()
+    .Name("RatingGridWindow")
+    .Title("Rating: Table View ")
+    .Events(e => e.Open("refreshRatingGrid"))
+    .Content(@<text>
+        @(Html.Kendo().Grid<PerspectiveTypeRatingSummary>()
+.Name("RatingGrid")
+//.Pageable()
+//.Events(e => e.DataBound("LineItems_Databound"))
+.Columns(column =>
+{
+    column.Bound(m => m.Hint);
+    //column.Bound(m => m.OriginalRating).Width(100).ClientTemplate("#= LineItems_Databound(OriginalRating)#").HtmlAttributes(new { @style = "text-align:right;" });
+    column.Bound(m => m.FinalRating).Width(100).ClientTemplate("#= LineItems_Databound(FinalRating)#").HtmlAttributes(new { @style = "text-align:right;" });
+    column.Bound(m => m.Comments).Width(100);
+
+})
+.HtmlAttributes(new { @style = "height:450px;" })
+//.TableHtmlAttributes(new { @style="padding-left:5px; padding-right:5px; width:430px; align:center;"})
+.Scrollable()
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+.Read(read => read.Action("PerspectiveTypeRating", "AppDashboard").Data("ForPerspectiveRating"))
+)
+        )
+    </text>)
+
+         .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(650)
+    .Height(470)
+    .AutoFocus(true)
+    .Modal(true)
+
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+)
+
+</div>
+<script>
+  
+</script>

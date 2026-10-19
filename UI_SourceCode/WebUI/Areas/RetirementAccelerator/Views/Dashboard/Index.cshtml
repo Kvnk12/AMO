@@ -1,0 +1,194 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.RetirementAccelerator.Controllers;
+@using WebUI.Areas.RetirementAccelerator.Models;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions
+@using System.Data;
+@model  RADashboardModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Framework Builder";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/framework_builder_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+}
+
+
+<div class="content-main dark-bg">
+
+        <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Framework Builder</li>
+       
+        <li>Dashboard</li>
+    </ol>
+  
+
+    <div>
+        <div style="margin:5px; margin-bottom:10px; display:flex">
+
+
+        
+            <label class="custom-white-label" style="margin-right:10px">Select Application :</label>
+            @(Html.Kendo().DropDownList().Name("ApplicationName").DataTextField("Text").DataValueField("Value").OptionLabel("Select Application...")
+                                .Events(e => e.Change("OnApplicationChangeDisp"))
+                                .AutoBind(true)
+                                .DataSource(d => d
+                                    .Read(read => read.Action("GetApplications", "Dashboard"))
+                                )      )
+
+
+        </div>
+        <div class="custom-kendo-tabstrip">
+            @(Html.Kendo().TabStrip()
+                                 .Name("tabstrip")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Application Dashboard")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_raDashboard"));
+
+                                     tabstrip.Add().Text("Rating Results")
+                                         .Content(m => Html.Partial("_raRatingSummary"));
+
+
+                                 })
+    )
+        </div>
+    </div>
+    </div>
+
+    <style>
+        .RadGrid {
+            line-height: 22px;
+            font: normal;
+            border: 1px solid #d9d9d9;
+        }
+    </style>
+
+
+    <script type="text/javascript">
+
+  function GetAppId() {
+        var name = $("#ApplicationName").data("kendoDropDownList");
+        return {
+            ApplicationId:name.value()
+        }
+  }
+
+
+
+
+    function OnApplicationChangeDisp() {
+        var ApplicationDD = $("#ApplicationName").data("kendoDropDownList");
+        var approved = $('#RATaskModelGrid').data('kendoGrid');
+        approved.dataSource.read();
+       // $('input[name=ArchiveData]').attr('checked', false);
+       // $('input[name=IsDeCommissioned]').attr('checked', false);
+       // $('input[name="ArchiveData"]').prop('checked', false);
+       // $('input[name="IsDeCommissioned"]').prop('checked', false);
+    $('[name="ArchiveData"]').removeAttr('checked');
+    $('[name="IsDeCommissioned"]').removeAttr('checked');
+      $('[name="ReplaceAction"]').removeAttr('checked');
+      $('[name="ArchivalAction"]').removeAttr('checked');
+      $('[name="DecommAction"]').removeAttr('checked');
+      $('[name="ReplacementScope"]').removeAttr('checked');
+        var AppId = ApplicationDD.value();
+        var mod = {
+            AppId: AppId
+        };
+        $("#ratingResultsTable tbody").empty();
+        var data = JSON.stringify(mod);
+        var ReadURl = '@Url.Content("~/RetirementAccelerator/Dashboard/OnAppClick")';
+        $.ajax(
+            {
+                url: ReadURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //$('input[name=ArchiveData]').attr('checked', false);
+                    //$('input[name=IsDeCommissioned]').attr('checked', false);
+                    $("#BusinessContact").val(data.BusinessFunction);
+                    $("#TechnicalContact").val(data.TechnicalOwner);
+                    $("#RetirementPhase").val(data.RetirementPhase);
+                    $("#RetirementStage").val(data.RetirementStage);
+                    $("#Notes").val(data.GeneralNotes);
+
+                    $("input[name=ReplaceAction][value=" + data.ReplaceAction + "]").prop('checked', 'checked');
+                    $("input[name=ArchivalAction][value=" + data.ArchivalAction + "]").prop('checked', 'checked');
+                    $("input[name=DecommAction][value=" + data.DecommAction + "]").prop('checked', 'checked');
+
+                    $("input[name=ReplacementScope][value=" + data.ReplacementScopeId + "]").prop('checked', 'checked');
+
+                    $("input[name=ArchiveData][value=" + data.ArchiveData + "]").prop('checked',  true);
+                    $("input[name=IsDeCommissioned][value=" + data.IsDeCommissioned + "]").prop('checked', true);
+                    var row = '';
+                    var OldVal = '';
+                    $.each(data.FinalRates, function (index, item) {
+
+                        var table = '';
+                        var fontColor = '#ffffff';
+                        var AvgbackgroundCol = '';
+                        var backgroundCol = '';
+                        if (item.AvgRating >= 3) {
+                            AvgbackgroundCol = 'green';
+                        }
+                        else {
+                            AvgbackgroundCol = 'red';
+                        }
+                        if (item.Rate >= 3) {
+                            backgroundCol = 'green';
+                        }
+                        else {
+                            backgroundCol = 'red';
+                        }
+                        if (item.PerspectiveCategory !== OldVal) {
+
+                            row += "<tr><th scope='row'>" + item.PerspectiveCategory + "</th><td style='color:" + fontColor + "; background-color:" + AvgbackgroundCol + ";'>" + item.AvgRating +
+                                        "</td><td>" + item.PerspectiveType + "</td><td style='color:" + fontColor + "; background-color:" + backgroundCol + ";'>" + item.Rate + "</td></tr>";
+                        }
+                        else {
+                            row += "<tr><td colspan='2'></td><td>" + item.PerspectiveType + "</td><td style='color:" + fontColor + "; background-color:" + backgroundCol + ";'>" + item.Rate + "</td></tr>";
+                        }
+                        OldVal = item.PerspectiveCategory;
+
+                    });
+
+                    $("#ratingResultsTable tbody").append(row);
+
+
+                    //  if (data.ArchiveData == true) {
+                    //    $("input[name=ArchiveData][value=" + data.ArchiveData + "]").attr('checked', 'checked');
+
+                    //}
+                    //if (data.ArchiveData == false) {
+                    //    $("input[name=ArchiveData][value=" + data.ArchiveData + "]").attr('checked', 'checked');
+                    //}
+
+                    //if (data.IsDeCommissioned == true) {
+                    //    $("input[name=IsDeCommissioned][value=" + data.IsDeCommissioned + "]").attr('checked', 'checked');
+
+                    //}
+                    //if (data.IsDeCommissioned == false) {
+                    //    $("input[name=IsDeCommissioned][value=" + data.IsDeCommissioned + "]").attr('checked', 'checked');
+                    //}
+
+
+                }
+            })
+
+    }
+    </script>

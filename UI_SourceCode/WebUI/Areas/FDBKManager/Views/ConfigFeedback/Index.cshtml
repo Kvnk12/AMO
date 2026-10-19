@@ -1,0 +1,239 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@{
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Feedback Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+
+
+}
+<div class="content-main dark-bg im-metadata-screen">
+    <div>
+        <ol class="breadcrumb">
+            <li>Feedback Manager</li>
+            <li class="active">Meta Data</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-tabstrip im-metadata-tab">
+        @(Html.Kendo().TabStrip()
+                          .Name("FMtabstrip")
+                          .Items(tabstrip =>
+                          {
+                              tabstrip.Add().Text("Feedback Type")
+                                  .Selected(true)
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                              @(Html.Kendo().Grid<FeedbackTypeModel>()
+                                                  .Name("FeedbackType")
+                                                  .Columns(columns =>
+                                                  {
+                                                     columns.Bound(e => e.FeedbackType).Title("FeedbackType");
+                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                  })
+                                                  .Sortable()
+                                                  .Scrollable()
+                                                  //.Pageable()
+                                                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                  .ToolBar(toolbar => toolbar.Create().Text("New Feedback Type"))
+                                                  //.HtmlAttributes(new { style = "height:550px;" })
+                                                  .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    //.PageSize(10)
+                                                    .Model(model => model.Id(f => f.Id))
+                                                    .Read(read => read.Action("GetFeedbackType", "ConfigFeedback"))
+                                                    .Create(create => create.Action("AddFeedbackType", "ConfigFeedback"))
+                                                    .Update(update => update.Action("EditFeedbackType", "ConfigFeedback"))
+                                                    .Destroy(destroy => destroy.Action("DeleteFeedbackType", "ConfigFeedback"))
+                                                  )
+                                                  .Events(events => events
+                                                    .Save("SaveFeedbackType"))
+                                              )
+                                           </div>
+                                         </text>
+                                   );
+
+                              tabstrip.Add().Text("Product/Application")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<FeedbackProductModel>()
+                                                  .Name("FeedbackProduct")
+                                                  .Columns(columns =>
+                                                  {
+                                                     columns.Bound(e => e.Product).Title("Product/Application");
+                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                  })
+                                                  .Sortable()
+                                                  .Scrollable()
+                                                  //.Pageable()
+                                                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                  .ToolBar(toolbar => toolbar.Create().Text("New Product/Application"))
+                                                  //.HtmlAttributes(new { style = "height:550px;" })
+                                                  .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    //.PageSize(10)
+                                                    .Model(model => model.Id(f => f.Id))
+                                                    .Read(read => read.Action("GetProuctApp", "ConfigFeedback"))
+                                                    .Create(create => create.Action("AddProductApp", "ConfigFeedback"))
+                                                    .Update(update => update.Action("EditProuctApp", "ConfigFeedback"))
+                                                    .Destroy(destroy => destroy.Action("DeleteProuctApp", "ConfigFeedback"))
+                                                  )
+                                                  .Events(events => events
+                                                    .Save("SaveProuctApp"))
+                                              )
+                                           </div>
+                                        </text>
+                                  );
+
+                              tabstrip.Add().Text("Digital Offerings")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<FeedbackDigitalOfferModel>()
+                                                  .Name("FeedbackDigitalOffering")
+                                                  .Columns(columns =>
+                                                  {
+                                                     columns.Bound(e => e.DigitalOffering).Title("Digital Offering");
+                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                  })
+                                                  .Sortable()
+                                                  .Scrollable()
+                                                  //.Pageable()
+                                                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                  .ToolBar(toolbar => toolbar.Create().Text("New Digital Offering"))
+                                                  //.HtmlAttributes(new { style = "height:550px;" })
+                                                  .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    //.PageSize(10)
+                                                    .Model(model => model.Id(f => f.Id))
+                                                    .Read(read => read.Action("GetDigitalOff", "ConfigFeedback"))
+                                                    .Create(create => create.Action("AddDigitalOff", "ConfigFeedback"))
+                                                    .Update(update => update.Action("EditDigitalOff", "ConfigFeedback"))
+                                                    .Destroy(destroy => destroy.Action("DeleteDigitalOff", "ConfigFeedback"))
+                                                  )
+                                                  .Events(events => events
+                                                    .Save("SaveDigitalOff"))
+                                              )
+                                           </div>
+                                        </text>
+                                  );
+
+                              tabstrip.Add().Text("Internal Client")
+                                  .Content(@<text>
+                                           <div class="custom-kendo-grid im-metadata-grid">
+                                               @(Html.Kendo().Grid<FeedbackInternClientModel>()
+                                                  .Name("FeedbackInternClient")
+                                                  .Columns(columns =>
+                                                  {
+                                                     columns.Bound(e => e.Intern_Client).Title("Internal Client");
+                                                     columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                                  })
+                                                  .Sortable()
+                                                  .Scrollable()
+                                                  //.Pageable()
+                                                  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                  .ToolBar(toolbar => toolbar.Create().Text("New Internal Client"))
+                                                  //.HtmlAttributes(new { style = "height:550px;" })
+                                                  .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    //.PageSize(10)
+                                                    .Model(model => model.Id(f => f.Id))
+                                                    .Read(read => read.Action("GetInternClient", "ConfigFeedback"))
+                                                    .Create(create => create.Action("AddInternClient", "ConfigFeedback"))
+                                                    .Update(update => update.Action("EditInternClient", "ConfigFeedback"))
+                                                    .Destroy(destroy => destroy.Action("DeleteInternClient", "ConfigFeedback"))
+                                                  )
+                                                  .Events(events => events
+                                                    .Save("SaveInternClient"))
+                                              )
+                                           </div>
+                                        </text>
+                                  );
+
+
+
+
+
+                          })
+                        )
+    </div>
+
+</div>
+
+<script>
+
+
+    function SaveFeedbackType(e) {
+        var FeedbackType = e.model.FeedbackType.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].FeedbackType.toUpperCase().replaceAll(' ', '') === FeedbackType && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Feedback Type ' + '"' + FeedbackType + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+    function SaveProuctApp(e) {
+        var Product = e.model.Product.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Product.toUpperCase().replaceAll(' ', '') === Product && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Product/Application ' + '"' + Product + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+    function SaveDigitalOff(e) {
+        var DigitalOffering = e.model.DigitalOffering.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].DigitalOffering.toUpperCase().replaceAll(' ', '') === DigitalOffering && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Digital Offering ' + '"' + DigitalOffering + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+    function SaveInternClient(e) {
+        var Intern_Client = e.model.Intern_Client.toUpperCase().replaceAll(' ', '');
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Intern_Client.toUpperCase().replaceAll(' ', '') === Intern_Client && data[i].Id != Id) {
+                e.preventDefault();
+                alert('Internal Client ' + '"' + Intern_Client + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+
+
+</script>
+
+
+
+
+
+
+

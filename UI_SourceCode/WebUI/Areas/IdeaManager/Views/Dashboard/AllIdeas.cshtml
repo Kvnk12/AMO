@@ -1,0 +1,139 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+@{
+
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayOutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+    var clientlist = GetDropDownListItems.ClientList;
+}
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+    td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>
+
+<div>
+
+    <div class="content-main dark-bg">
+       
+            <ol class="breadcrumb" style="margin-bottom:8px">
+                <li>Idea Manager</li>
+                <li>Dashboard</li>
+                <li class="active">All Ideas</li>
+            </ol>
+      
+        <div class="custom-kendo-grid">
+
+            @(Html.Kendo().Grid<IdeaDashboardModel>()
+                                                            .Name("IdeaGrid")
+                                                            .Columns(columns =>
+                                                            {
+                                                                columns.Bound(p => p.IdeaSource).Title("Idea Source").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Team).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.IdeaNumber).Title("Idea Number").Width(120);
+                                                                columns.Bound(p => p.ItemName).Title("Idea Name").Width(120);
+                                                                columns.Bound(p => p.ImplementationPriority).Title("Implementation Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Priority).Title("Priority").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Problem).Width(120);
+                                                                columns.Bound(p => p.Goal).Title("Goal/Opportunity").Width(120);
+                                                                columns.Bound(p => p.Solution).Width(120);
+                                                                columns.Bound(p => p.OfflineApprover).Width(120);
+                                                                columns.Bound(p => p.BusinessBenefits).Width(120);
+                                                                columns.Bound(p => p.PlannedStartDate).Title("Planned Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ActualStartDate).Title("Actual Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.PlannedEndDate).Title("Planned End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ActualEndDate).Title("Actual End Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ImplementationHealth).Title("Implementation Health").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.ImplementationStatus).Title("Implementation Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Status).Title("Idea Status").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.TargetProgress).Title("Target Progress").Width(120);
+                                                                columns.Bound(p => p.ImplementationProgress).Title("Actual Progress").Width(120);
+                                                                columns.Bound(p => p.LastUpdatedDate).Title("Last Updated Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.CreatedDate).Title("Created Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.CompletedDt).Title("Completed Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.CompletedNextSteps).Title("Completed And Next Steps").Width(120);
+                                                                columns.Bound(p => p.Analysis).Title("Analysis/Rootcause").Width(120);
+                                                                columns.Bound(p => p.IdeaType).Title("Idea Type").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.InternalInitiative).Title("Internal Initiative").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Complexity).Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.CreatedBy).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.SubmittedForReviewDt).Title("Review Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ApprovedDate).Title("Approved Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                                                columns.Bound(p => p.ApprovedBy).Title("Approved By").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.ImplementationManager).Title("Implementation Manager").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.LOBDepartment).Title("LOB Department").Width(120).Filterable(ftb => ftb.Multi(true));
+                                                                columns.Bound(p => p.Quantification).Width(120);
+                                                                columns.Bound(p => p.ITSavings).Width(120);
+                                                                columns.Bound(p => p.RiskMitigation).Width(120);
+                                                                columns.Bound(p => p.Metrics).Width(120);
+                                                                columns.Bound(p => p.Comments).Width(120);
+                                                                columns.Bound(p => p.ImpComments).Title("OverAll Status/ Updates").Width(120);
+                                                                columns.Bound(p => p.Classification).Title("Classification").Width(225);
+                                                                columns.Bound(p => p.SystemImpactedService).Title("SystemImpactedService").Width(225);
+
+
+                                                            })
+                                                            .ToolBar(tools => tools.Excel())
+                                                            .Pageable()
+                                                              .Filterable()
+                                                            .Sortable()
+                                                            .Scrollable(e => e.Endless(true))
+                                                            .Groupable()
+                                                            .Excel(excel => excel.FileName("Ideas Export.xlsx")
+                                                            .Filterable(true)
+                                                            .AllPages(true)
+                                                            .ProxyURL(Url.Action("Export_Ideas_Save", "Dashboard"))
+                                                            )
+                                                            .Reorderable(r => r.Columns(true))
+                                                            .Resizable(r => r.Columns(true))
+                                                            .ColumnMenu()
+                                                            .DataSource(dataSource => dataSource.Ajax()
+                                                            .PageSize(50)
+                                                            .Read(read => read.Action("ReadAllIdeas", "Dashboard"))
+                                                            )
+                )
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+
+
+
+</script>

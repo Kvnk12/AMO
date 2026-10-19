@@ -1,0 +1,248 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.ClientProfileManager.ViewModel;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    var Table = ViewData["Table"];
+    var reportNames = ViewData["reportName"];
+}
+<style>
+    .bg-image {
+        background-repeat: no-repeat;
+        width: 1em;
+        height: 1em;
+        margin-top: 2px;
+        margin-left: 1em;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+    }
+
+    input[type="file"] {
+        border: unset !important;
+        width: 0em;
+        height: 0em !important;
+        padding: unset !important;
+    }
+
+    .forTooltips1 {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+</style>
+<div class="content-main dark-bg">
+    <div>
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li>Consolidated Analysis</li>
+            <li class="active">Support</li>
+        </ol>
+    </div>
+    <p hidden id="reportH">@reportNames</p>
+    <div class="content-wrapper" style="margin-top:2em">
+        <div class="custom-kendo-grid">
+
+            @(Html.Kendo().Grid<RTPJobDetailModel>()
+             .Name("RPTJobDetailList")
+              .Columns(columns =>
+              {
+                  columns.Bound(p => p.Id).Hidden();
+                  columns.Bound(p => p.TelerikReportName).Hidden();
+                  columns.Bound(p => p.ReportName).Title("Report Name/Job ID");
+                  columns.Bound(p => p.Recipients).Title("Recipients").Width(130).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                  .ClientTemplate("<div class=\"forTooltips1\">#=Recipients#</div>");
+                  columns.Bound(p => p.ScheduleType).Title("Frequency");
+                  columns.Bound(p => p.JobScheduledDate).Title("Schedule Date").Format("{0:MM-dd-yyyy}");
+                  columns.Bound(p => p.ReportParameters).Title("Report Criteria").Width(150).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips\">#=ReportParameters#</div>");
+                  columns.Bound(p => p.ReportFormat).Title("Report Format");
+                  columns.Bound(p => p.ReportDocument).Title("Action").Width(100)
+                                  .ClientTemplate("#if(data.ReportDocument!=null ||data.RPTJobUrl!=null ){#<div style='display:flex;'> <button title='Download' class='bg-image' style = 'background-image: url(" + @Url.Content("~/Content/images/download.svg") + ");' onclick='downloadRptDocument(#:Id#);' ></button><button  title='Archive' class='bg-image' style = 'background-image: url(" + @Url.Content("~/Content/images/archive.svg") + ");' onclick='archiveRptDocument(#:Id#);' ></div></div>#}#")
+                                  .Width(130).Filterable(false);
+              })
+
+            .Pageable(pager => pager.AlwaysVisible(true))
+            .Sortable()
+            .Scrollable(e => e.Endless(false))
+            .Filterable()
+
+            .Reorderable(r => r.Columns(true))
+            .Resizable(r => r.Columns(true))
+            .DataSource(dataSource => dataSource
+            .Ajax()
+
+            .PageSize(10)
+            .Batch(true)
+            .Read(read => read.Action("GetReportJobDetail", "ReportSubscription").Data("getReportName1")))
+            )
+
+        </div>
+    </div>
+    @(Html.Kendo().Tooltip()
+                  .For("#RPTJobDetailList")
+                  .Filter(".forTooltips")
+                  .ContentHandler("getDescriptionToolTip")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+    @(Html.Kendo().Tooltip()
+                  .For("#RPTJobDetailList")
+                  .Filter(".forTooltips1")
+                  .ContentHandler("getDescriptionToolTipRec")
+                  .Position(TooltipPosition.Right)
+                  .AutoHide(true)
+        )
+</div>
+
+
+
+<script>
+    function downloadRptDocument(Id) {
+        console.log(Id);
+        var TelerikReportName = "";
+        var data = $("#RPTJobDetailList").data("kendoGrid").dataSource._data;
+        for (i = 0; i < data.length; i++) {
+            if (data[i].Id == Id) {
+                TelerikReportName = data[i].TelerikReportName;
+                console.log(data[i].TelerikReportName);
+            }
+        }
+
+        var x = Id;
+        var mod1 = {
+            Id: Id
+        }
+        var mod = JSON.stringify(mod1);
+        if (TelerikReportName != null) {
+            baseurl = '@Url.Content("~/ReportSubscription/DownloadRptJOB")';
+
+            console.log("telerik");
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: mod,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    window.location = '@Html.Raw(@Url.Action("DownloadRptJOB", "ReportSubscription"))' + '?Id=' + Id;
+                },
+                error: function (err, response) {
+                    // alert(err.responseText);
+                }
+            });
+        }
+        else {
+            console.log("analysis");
+            loadAnalysis(Id);
+
+        }
+    }
+    function loadAnalysis(Id) {
+        var x = Id;
+        var mod1 = {
+            Id: Id
+        }
+        var mod = JSON.stringify(mod1);
+
+        baseurl1 = '@Url.Content("~/ReportSubscription/DownloadRptAnalysJOB")';
+        $.ajax({
+            type: 'post',
+            url: baseurl1,
+            async: false,
+            data: mod,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                console.log("analysis download")
+                //window.location = response;
+                var a = document.createElement('a');
+                a.href = response;
+                a.setAttribute('target', '_blank');
+                a.click();
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+    }
+    function getDescriptionToolTip(e) {
+        var dataItem = $("#RPTJobDetailList").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ReportParameters;
+        return content;
+    }
+
+    function getDescriptionToolTipRec(e) {
+        var dataItem = $("#RPTJobDetailList").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Recipients;
+        return content;
+    }
+
+    function archiveRptDocument(Id) {
+            baseurl = '@Url.Content("~/ReportSubscription/ArchiveRptJOB")';
+            var mod2 = {
+                Id: Id
+            }
+            var mod = JSON.stringify(mod2);
+             $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: mod,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    $("#RPTJobDetailList").data("kendoGrid").dataSource.read();
+                },
+                error: function (err, response) {
+                   // alert(err.responseText);
+                }
+            });
+    }
+
+    function getReportName1() {
+        var reportName = document.getElementById("reportH").innerHTML;
+        console.log("reportName is " + reportName);
+
+        return {
+            reportBy1: reportName
+        };
+
+    }
+
+</script>
+

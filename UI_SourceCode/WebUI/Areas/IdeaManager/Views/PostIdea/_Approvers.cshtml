@@ -1,0 +1,368 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@model  IdeaViewModel
+
+<div class="im-postidea-approver">
+    @*<div class="text-center"><h5><strong>Add New Users to Survey</strong></h5></div>*@
+    <div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess1" hidden>
+            <ul>
+                <li>Idea submitted for Review.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess22" hidden>
+            <ul>
+                <li>Approver added Successfully.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger1" hidden>
+            <ul>
+                <li>Error while assigning.</li>
+            </ul>
+        </div>
+
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList1" hidden>
+            <ul>
+                <li>Please select the approver(s).</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="noidea1" hidden>
+            <ul>
+                <li>Please select/submit Idea!.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="custom-grid" id="selectApproverGridDiv">
+        @(Html.Kendo().Grid<ApproverModel>()
+        .Name("userGrid")
+
+
+        .Columns(columns =>
+        {
+            columns.Select().Width(100).Title("Select All");
+            columns.Bound(e => e.Id).Hidden();
+            columns.Bound(e => e.Name).Title("Approver Name");
+            columns.Bound(e=>e.ApprovedOrNot).Title("Approver Action");
+        })
+        .Scrollable()
+        //.HtmlAttributes(new { @style="height:250px;" })
+        .PersistSelection()
+        //.Selectable()
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model => { model.Id(f => f.Id);
+
+        })
+        .Read(read => read.Action("ListOfAdminsforApprover", "PostIdea", new { ideaId = Model.IdeaId }))
+        )
+
+            )
+
+
+        <div class="im-post-approver-bottom right">
+            <button class="im-custom-button im-btn-submitforreview" type="button" onclick="onbtnClick(this)" id="SelectApprovers">Submit For Review</button>
+            @if (Model.IdeaStatusID == (int)IMStatus.Created || Model.IdeaStatusID == (int)IMStatus.Revised || Model.IdeaStatusID == (int)IMStatus.SubmitForRevision)
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" onclick="saveApprovers()">Save</button>
+            }
+            else if (Model.IsSysAdmin == true)//(Model.IdeaStatusID == (int)IMStatus.SubmitForReview ||Model.IdeaStatusID == (int)IMStatus.SubmitForApproval|| Model.IdeaStatusID == (int)IMStatus.Approved || Model.IdeaStatusID == (int)IMStatus.Planned || Model.IdeaStatusID == (int)IMStatus.Initiated|| Model.IdeaStatusID == (int)IMStatus.SubmitForPlanning || Model.IdeaStatusID == (int)IMStatus.Hold )&& Model.IsSysAdmin == true)
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" onclick="saveApprovers()">Save</button>
+            }
+            else
+            {
+                <button class="im-custom-button im-btn-save" type="button" id="ApproverSave" disabled>Save</button>
+            }
+
+        </div>
+
+        <br />
+    </div>
+
+
+    <div class="im-postidea-benefitsgrid" id="im-offlineApproval-grid">
+        <label class="custom-blue-label" style="font-size:16px" title="Add Approvers who gave their approval offline">Offline Approvals</label>
+        <br />
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<OfflineApproverModel>()
+                     .Name("OfflineApprovalGrid")
+
+    .Columns(columns =>
+    {
+        columns.Bound(e => e.Id).Hidden();
+        columns.Bound(e => e.IdeaId).Hidden();
+        columns.Bound(e => e.ApproverName).Title("Approver Name");
+        columns.Bound(e => e.Comments).Title("Comments");
+        columns.Bound(e => e.ApprovedOn).Title("Approved On").Format("{0:MM/dd/yyyy}");
+       columns.Bound(p => p.ClientId).Title("File Attached").ClientTemplate("#= data.OffApprovalAttachment ? data.OffApprovalAttachment.map(a => a.filename).join(', ') : '' #");
+        // columns.Bound(p => p.ClientId).Title("File Attached").ClientTemplate("#= JSON.stringify(data) #");
+
+
+        columns.Command(command => { command.Edit().UpdateText("Save").CancelText("Cancel").Text(" "); command.Destroy().Text(" "); }).Width(200).Title("Action");
+
+    })
+    .Scrollable()
+    //.HtmlAttributes(new { @style="height:250px;" })
+    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .ToolBar(toolbar => toolbar.Create().Text("Add New Approver Detail"))
+    //.Selectable()
+    //.Events(events => events.RequestEnd("onRequestEnd"))
+    .DataSource(dataSource => dataSource
+    .Ajax()
+
+    .Model(model => { model.Id(f => f.Id);
+        //  model.Field(f => f.CreatedDate).Editable(false);
+
+    })
+      .Read(read => read.Action("ReadOfflineApprover", "PostIdea", new { IdeaId = Model.IdeaId }))
+  .Create(create => create.Action("CreateNewApprover", "PostIdea", new { IId = Model.IdeaId }))
+  .Events(ev => ev.RequestEnd("onRequestEnd"))
+  .Update(update => update.Action("EditOfflineApprover", "PostIdea"))
+  .Destroy(destroy => destroy.Action("DeleteOfflineApprover", "PostIdea"))
+
+    )
+
+    )
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+            function saveApprovers() {
+                $("#SelectedRowList1").hide();
+                $("#noidea1").hide();
+                $("#msgDanger1").hide();
+                $("#msgSuccess22").hide();
+                $("#msgSuccess1").hide();
+                        var grid = $("#userGrid").getKendoGrid();
+                        var selValues = grid.selectedKeyNames().join(", ");
+                        if(selValues!=""||selValues!=","||@Model.IdeaId!='0')
+                        {
+                            var mod = {
+                        IdeaId: @Model.IdeaId,
+                        ApproverIds: selValues
+
+                    };
+                        var data = JSON.stringify(mod);
+                        baseurl = '@Url.Content("~/IdeaManager/PostIdea/SaveAdmins")';
+                    $.ajax(
+                    {
+                            url: baseurl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            console.log(data)
+                                if(data=="Success")
+                                {
+                                    $("#msgSuccess22").show();
+
+                                }
+                                else if(data.Message=="1")
+                                {
+                                $("#SelectedRowList1").show();
+                                }
+                                else if(data.Result=="ERROR")
+                                {
+                                    alert("Server Error");
+                                }
+                                else
+                                {
+                                $("#noidea1").show();
+                                }
+                            }
+                        })
+                }
+                else{
+                    $("#SelectedRowList1").show();
+                    return false;
+                }
+                return false;
+            }
+
+
+            function onbtnClick(arg) {
+                    var grid = $("#userGrid").getKendoGrid();
+                    var selValues = grid.selectedKeyNames().join(", ");
+                    if(selValues!=""||selValues!=","||@Model.IdeaId!='0')
+                    {
+                        var mod = {
+                        IdeaId: @Model.IdeaId,
+                        ApproverIds: selValues
+
+                    };
+                    var data = JSON.stringify(mod);
+                    baseurl = '@Url.Content("~/IdeaManager/PostIdea/AddSelectedAdmins")';
+                    $.ajax(
+                    {
+                        url: baseurl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+
+                            if(data=="Success")
+                            {
+                                $('#msgSuccess1').show();
+                                setTimeout(
+                                    function () {
+                                    var urrll = '@Url.Content("~/IdeaManager/PostIdea")';
+                                    window.location.href = urrll+'?IdeaId='+'@Model.IdeaId';
+                                }, 3000);
+                            }
+                            else if(data.Message=="1")
+                            {
+                                $("#SelectedRowList1").show();
+                            }
+                            else if(data.Result=="ERROR")
+                            {
+                                alert("Server Error");
+                            }
+                            else
+                            {
+                                $("#noidea1").show();
+                            }
+                        }
+                    })
+                }
+                else{
+                    $("#SelectedRowList1").show();
+                    return false;
+                }
+                return false;
+            }
+
+            @*function UpdateApprovers(){
+    saveApprovers();
+      setTimeout(
+      function () {
+      var urrll = '@Url.Content("~/IdeaManager/PostIdea")';
+      window.location.href = urrll+'?IdeaId='+'@Model.IdeaId';
+      }, 3000);
+
+    }*@
+    function onRequestEnd(e) {
+        console.log("e.type->" + e.type)
+        if (e.type === "create" && e.response) {
+            console.log(e.response)
+            document.getElementById("Id").value = e.response.Data[0].Id;
+            console.log("on end" + document.getElementById("Id").value)
+
+            var uploadfile = $("#RefFiles").data("kendoUpload");
+            uploadfile.upload();
+        } else if (e.type === "update" && e.response) {
+            var uploadfile = $("#RefFiles").data("kendoUpload");
+            uploadfile.upload();
+        }
+
+    }
+        function onUpload(e) {
+            var apprid = document.getElementById("Id").value;
+            console.log(apprid)
+       e.data = {
+           apprid: apprid,
+       };
+
+    }
+
+   function onSelect(e) {
+       var fileid = e.response;
+       console.log("e.response fileid", fileid);
+       var filename = "";
+       $.map(e.files, function (file) {
+           filename = file.name;
+       }).join(", ");
+       console.log("e.response filename", filename);
+       $("<div class='fileAttachment' id='attach_" + fileid + "'>" + filename + "<span aria-hidden='true' class='fileAtt-delbtn' onclick='removeFile(" + fileid + ")'>&times;</span></div>").appendTo($("#fileAttach"));
+
+   }
+
+   function onSuccess(e) {
+       console.log("e.response onSuccess", e.response);
+
+       var fileid = e.response;
+       $("#refId").text(fileid);
+       var filename = "";
+       $.map(e.files, function (file) {
+           filename = file.name;
+       }).join(", ");
+
+       var inp = document.getElementById('attach_undefined');
+
+       inp.id = "attach_"+fileid;
+
+       console.log("new inp id", inp.id);
+
+       //$("<div class='fileAttachment' id='attach_" + fileid + "'>" + filename + "<span aria-hidden='true' class='fileAtt-delbtn' onclick='removeFile(" + fileid + ")'>&times;</span></div>").appendTo($("#fileAttach"));
+
+   }
+   function removeFile(Id) {
+       if (Id != null) {
+           $("#refId").text(Id);
+       }  
+}
+
+function deleteFileRef() {
+    var Id = $("#refId").text();
+    console.log("ref id", Id);
+    var mod = {
+			fileId: Id,
+    };
+		var data1 = JSON.stringify(mod);
+		baseurl1 = '@Url.Content("~/IdeaManager/PostIdea/RemoveFile")';
+
+		$.ajax(
+			{
+				url: baseurl1,
+				type: 'post',
+				data: data1,
+				async: false,
+				contentType: 'application/json; charset=utf-8',
+				success: function (data) {
+                    $('#deleteDraftModal').modal('hide');
+                    $("#attach_" + Id).css("display", "none");
+				}
+            })
+   }
+
+
+        function Downloaduploadedfile(fid) {
+
+        var mod = {
+            fileId: fid
+        };
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/IdeaManager/PostIdea/DownloaduploadedfileAction")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                     x = fid;
+                    window.location = '@Html.Raw(@Url.Action("DownloaduploadedfileAction", "PostIdea"))' + '?fileId=' + x;
+                },
+                error: function (err, response) {
+                }
+            })
+    }
+</script>

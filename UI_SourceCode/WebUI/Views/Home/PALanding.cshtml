@@ -1,0 +1,56 @@
+﻿@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/portfolio.png");
+    ViewBag.ImagePathTwo = null;
+    ViewBag.PALanding = "PALanding";
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+   <div class="container bamlpcontainer">
+    <div class="bamlpleft">
+      <div class="qArea">
+        <p>Do you have an accurate inventory of all apps across the enterprise</p>
+        <p class="pasecrow">Did you rationalize your portfolio and created consensus with business about application value and cost</p>
+        <p>Do you have an actionable roadmap to replace and retire applications</p>
+      </div>
+      <div class="pagArea">
+      		<ul>
+            	<li><strong>95%</strong> of companies lack an accurate application inventory</li>
+                <li><strong>40-50%</strong> of applications could be replaced or retired</li>
+                <li>Redundant applications generate atleast <strong>30%</strong> of incidents and represent <strong>20-30%</strong> of TCO</li>
+                <li><strong>80%</strong> of critical apps have business and technical risks</li>
+            </ul>
+      </div>
+    </div>
+    <!-- left part ends here--> 
+    
+    <!-- right part starts here-->
+    <div class="bamlpright">
+      <div class="palpbanner"></div>
+      <!--this section contains the banner image -->
+      <div class="pakeyArea">
+        <div class="palphd"> <img src="@Url.Content("~/Content/images/portfolio.png")" alt="Portfolio Analyzer" height="37" width="57"></img>&nbsp;&nbsp;NextGen <strong>Portfolio Analyzer</strong> </br>
+          <p><strong>can help you</strong></p>
+        </div>
+        <div class="pahelp">Ongoing management of application portfolio inventory, value, risk and cost</div>
+        <div class="pahelp top">Insightful analytics to build an actionable roadmap and business case</div>
+        <div class="bambtnsection pull-right">
+          <button class="btn btn-default bambtn">Learn More</button>
+
+ @if (!@User.IsInRole("User") || !@User.IsInRole("CustomerUser"))
+                        {
+          <a href="@Url.Action("PortfolioAnalyzer", "Home",new { area = "" }, null)" target="_blank"  title="Portfolio Analyzer" class="btn btn-primary bambtn">Try App</a>
+     }
+            else
+            {
+          <a href="#"   title="Portfolio Analyzer" class="btn btn-primary bambtn">Try App</a>
+     }
+
+
+        </div>
+      </div>
+      <!-- end of bamkeyArea--> 
+    </div>
+    <!-- right part ends here--> 
+    
+  </div>

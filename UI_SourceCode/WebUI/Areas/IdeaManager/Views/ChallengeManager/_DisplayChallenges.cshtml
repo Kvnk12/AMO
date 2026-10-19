@@ -1,0 +1,153 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Objects
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.IdeaManager.Dto;
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+@*@model IPagedList<IMPostChallenge>*@
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.IMPostChallengeModel>
+
+@*<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/JScript/jquery.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>*@
+
+
+@*@{
+        ViewBag.Title = "Idea Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+        Layout = "~/Views/Shared/_AppLayout.cshtml";
+        var Client = (Client)Session["Client"];
+        var ClientID = Client.Id;
+    }*@
+
+
+<div>
+    <!--valchainContent-->
+    @{
+
+        //if(Model.ClientId > 0)
+        //    {
+
+        //var Client = (Client)Session["Client"];
+        //var ClientID = Client.Id;
+
+        <div style="height:1000px">
+            <div class="row">
+                <div class="col-sm-2">
+                    <button tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">Post New Challenge</button>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <div>
+                        @*<div class="grid_4 height400">*@
+                        <table class="table" id="pp38Home" cellpadding="0" cellspacing="0" style="width:100%">
+                            <thead>
+                                <tr>
+                                    @*<th width="45%" scope="col">Challenges</th>
+                            <th width="45%" scope="col">Status</th>*@
+                                    <th><u>@Html.ActionLink("Last Modified Date", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Challenges", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.Challenges }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Posted by", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Status Comments", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                    <th><u>@Html.ActionLink("Created Date", "DisplayChallenges", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                </tr>
+                            </thead>
+
+                            @{
+                                //if (Model.ClientId > 0)
+                                //    {
+                                var uid = (int)Session["UserId"];
+
+                                //IList<IMPostChallenge> postItems = Model.GetChallengeItems;
+                                foreach (var vwItem in Model)
+                                {
+
+                                    //IdeaManagerHelper XC = new IdeaManagerHelper();
+                                    var name = (IMStatus)vwItem.StatusId;
+
+                                    <tr>
+
+                                        <td> @vwItem.LastUpdatedDate </td>
+                                        <td>
+                                            @if ((vwItem.StatusId == (int)IMStatus.Created || vwItem.StatusId == (int)IMStatus.Declined) && (vwItem.CreatedBy == uid))
+                                            {
+                                                @Html.ActionLink(vwItem.ItemName, "DisplayHomePage", "ChallengeManager", new { ClientId = vwItem.ClientId, ItemId = vwItem.Id, SaveData = "", TabName = "home" }, null)
+                                            }
+                                            else
+                                            {
+                                                @vwItem.ItemName
+                                            }
+                                        </td>
+
+                                        <td> @vwItem.CreatedByUser </td>
+
+                                        <td>
+                                            @if (vwItem.StatusId == (int)IMStatus.Approved && (vwItem.CreatedBy == uid))
+                                            {
+                                                <div data-toggle="tooltip" data-placement="right" title="Click here if Challenge is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                    @name <br /> (@Html.ActionLink("Mark as Implemented", "implementedStatus", "ChallengeManager", new { idid = vwItem.Id }, null))
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @name
+                                            }
+                                        </td>
+
+                                        <td> @vwItem.StatusComments </td>
+                                        <td> @vwItem.CreateDateString </td>
+
+                                        @*<td>@Model.PostIdeaInput.StatusName </td>*@
+                                        @*<td>@vwItem.StatusId</td>*@
+                                    </tr>
+
+
+
+                                }
+
+                                //}
+
+
+                            }
+
+
+                        </table>
+                        <div class="pagination">
+                            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            @Html.PagedListPager(Model, page => Url.Action("DisplayChallenges", new { page = page, sortOrder = Request["sortOrder"] }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                                //}
+    }
+</div>
+
+                <!--.valchainContent-->
+                <!--/.treeMenuContent container-->
+                @*<div class="pagination">
+                        @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                        @Html.PagedListPager(Model, page => Url.Action("DisplayIdeas", new { page = page, sortOrder = Request["sortOrder"] }))
+                    </div>*@
+
+
+
+<style>
+    .table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td
+    {
+        padding: 11px;
+        line-height: 1.42857;
+        border: 1px solid #DDD;
+    }
+</style>

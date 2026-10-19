@@ -1,0 +1,173 @@
+﻿
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.Data;
+
+@model IList<EngagementQuestionnaireModel>
+
+<style>
+    .listItem{
+        cursor:pointer;
+    }
+</style>
+<div id="HeatmapTable">
+    <div class="custom-html-grid table-col-fix">
+
+        <table id="tbl-Heatmap">
+            <thead>
+                <tr>
+                    <th rowspan="1" class="fixed" style="left: 0; border-bottom: none; border-right: none !important;"></th>
+                    <th rowspan="1" class="fixed" style="left: 0; border-left: 1px solid darkgrey; border-right: none !important; "></th>
+                    <th rowspan="1" colspan=@Model[0].DisciplineList.Count() class="fixed" style="left: 0; border-left: none !important;">A3 Discipline</th>
+                </tr>
+                <tr>
+                    <th rowspan="1" style="left: 0; border-top:none;">A3 Component</th>
+                    @{
+                        //loop to display years
+                        foreach (var i in Model[0].DisciplineList)
+                        {
+                            <th colspan="1" style="width:17em" scope="colgroup">@i.Text</th>
+                        }
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @{
+
+                    var cmp = 0;
+                    foreach (var comp in Model[0].ComponentList)
+                    {
+
+                        var cmpName = "Cmp_"+cmp++;
+                                <tr>
+                                    
+                                    <td class="fixed listItem" onclick="cmpNameClick('@cmpName')"><span id="@cmpName">@comp.Text</span></td>
+
+                                    @foreach (var dis in Model[0].DisciplineList)
+                                    {
+                                        var avg = (from x in Model
+                                                   where x.DisciplineName == dis.Text && x.ComponentName == comp.Text
+                                                   select x.MaturityLevelAVG).FirstOrDefault();
+                                        avg = Math.Round(avg, 2);
+                                        if (avg != 0)
+
+                                        {
+                                            // int avg = Convert.ToInt32(item.MaturityLevel);
+                                            if (avg >= 1 && avg < 2)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName)"><div class="level1"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                            }
+                                            else if (avg >= 2 && avg < 3)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName)"><div class="level2"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+
+                                            }
+                                            else if (avg >= 3 && avg < 4)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName)"><div class="level3"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                            }
+                                            else if (avg >= 4 && avg < 5)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName)"><div class="level4"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                            }
+                                            else if (avg == 5)
+                                            {
+                                                <td><div style="display:flex;" class="listItem" onclick="cmpClick(@cmpName)"><div class="level5"></div><div style="margin-left: 1em;">@avg</div></div> </td>
+                                            }
+
+                                        }
+
+                                        else
+                                        {
+                                            <td><div class="notAppl"></div> </td>
+                                        }
+
+                                       
+                                    }
+                                </tr>
+                    }
+                }
+                <tr>
+                    <td class="fixed" style="font-weight:bold;">Average score</td>
+                    @foreach (var dis in Model[0].DisciplineList)
+                                {
+                                    Db db = new Db();
+
+                                    var MatAvg = (from x in Model
+                                                  where x.DisciplineName == dis.Text
+                                                  select  x.MaturityLevelAVG).ToList();
+
+                                    var sum = 0.00;
+                                    foreach (var ite in MatAvg)
+                                    {
+                                        sum = sum + Convert.ToDouble(ite);
+                                    }
+                                    var avg1 = sum/MatAvg.Count();
+                                    avg1 = Math.Round(avg1, 2);
+                                    if (avg1>= 1)
+                                    {
+                                        if (avg1 >= 1 && avg1 < 2)
+                                        {
+                                <td><div style="display:flex;"><div class="level1"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 >= 2 && avg1 < 3)
+                            {
+                                <td><div style="display:flex;"><div class="level2"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+
+                            }
+                            else if (avg1 >= 3 && avg1 < 4)
+                    {
+                                <td><div style="display:flex;"><div class="level3"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 >= 4 && avg1 < 5)
+                    {
+                                <td><div style="display:flex;"><div class="level4"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                            else if (avg1 == 5)
+                    {
+                                <td><div style="display:flex;"><div class="level5"></div><div style="margin-left: 1em;">@avg1</div></div> </td>
+                            }
+                        }
+                        else
+                    {
+
+                            <td><div class="notAppl"></div> </td>
+                        }
+
+                    }
+                </tr>
+                <tr>
+                    <td class="fixed" colspan="12" style="padding:15px;">
+                        <div style="display: flex; font-size: 1.02vw;">
+                            <div style="padding-right:2em;">Maturity Assessment Legend</div>
+                            <div class="level1"></div>
+                            <div style="padding-right:2em">Level 1</div>
+                            <div class="level2"></div>
+                            <div style="padding-right:2em">Level 2</div>
+                            <div class="level3"></div>
+                            <div style="padding-right:2em">Level 3</div>
+                            <div class="level4"></div>
+                            <div style="padding-right:2em">Level 4</div>
+                            <div class="level5"></div>
+                            <div style="padding-right:2em">Level 5</div>
+                            <div class="notAppl"></div>
+                            <div style="padding-right:2em">Not Applicable</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+</div>

@@ -1,0 +1,57 @@
+﻿@using WebUI.Dto;
+@{
+    var client = "";
+    //var clientId = "";
+    //if (Session["Client"] != null)
+    //{
+    //    var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //    client = objclient.ClientName;
+    //    //clientId = objclient.Id.ToString();
+    //}
+    if (Session["SessionClient"] != null)
+    {
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        //clientId = objclient.Id.ToString();
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title - OptimizationPortal</title>
+    <!-- Bootstrap core CSS -->
+    <link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+    <link href="~/Content/jHtmlArea/jHtmlArea.css" rel="stylesheet" />
+
+    <link href="~/Content/themes/base/all.css" rel="stylesheet" />
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/jquery-1.12.4.js")'></script>*@
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-3.5.1.js")'></script>
+
+</head>
+
+<body class="short-menu">
+
+
+
+
+    <div id="wrap">
+        @{ Html.RenderPartial("_Header_MFA"); }
+        @RenderSection("featured", required: false)
+        <section class="content-wrapper main-content clear-fix">
+            @RenderBody()
+        </section>
+    </div>
+
+    @{ Html.RenderPartial("Footer"); }
+
+
+</body>
+
+</html>

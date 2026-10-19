@@ -1,0 +1,141 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions
+
+
+@model SurveyReportModel
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+
+@{
+
+            ViewBag.Title = "Client Profile Manager";
+            // var clientlist = GetDropDownListItems.ClientList;
+            ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+            // Layout = "~/Views/Shared/_AppLayout.cshtml";
+            //  Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+            Layout = "~/Views/Shared//GenericLayOut.cshtml";
+        }
+
+
+<div id="wrap">
+    <div>
+        <div><label><strong>Survey Status : </strong></label></div>
+        <div>
+            @(Html.Kendo().Grid<SurveyReportModel>()
+.Name("surveyGrid1")
+
+
+.Columns(columns =>
+{
+            columns.Bound(e => e.PersonnelName).Title("Personnel Name");
+            columns.Bound(e => e.surveyName).Title("Survey Name");
+            columns.Bound(e => e.SurveyFor).Title("Survey For");
+            columns.Bound(e => e.SurveyStatus).Title("Survey Status");
+            columns.Bound(e => e.SyrveyCompletedDate).Title("Survey Taken on");
+            columns.Bound(e => e.surveyEndDate).Title("Survey End Date").Hidden();
+            columns.Bound(e => e.SyrveyCompletedDate).Hidden();
+
+        })
+.Pageable()
+.Scrollable()
+// .ToolBar()
+.Sortable()
+.Groupable()
+//.Editable(e => e.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to remove? "))
+.Events(e=>e.DataBound("HideGroupedColumn"))
+.HtmlAttributes(new { style = "height:850px;" })
+.DataSource(dataSource => dataSource
+
+.Ajax()
+.Group(g=>g.Add(p=>p.surveyName))
+.Group(g => g.Add(p => p.surveyEndDate))
+.PageSize(10)
+
+.Read(read => read.Action("SurveyStatus", "Survey"))
+
+)
+
+
+            )
+        </div>
+        <br />
+        <br />
+        @*<div class="left"><label style="color:red"><strong> ** </strong>The remainder notificaiton email will not be sent to the participant(s) if the survey has expired.</label></div>*@
+        <div class="right"><button type="submit" class="btn btn-primary" onclick="sendRemainder(this)" tabindex="30">Send Remainder</button></div>
+
+    </div>
+
+</div>
+
+<style>
+    .k-grid-header th.k-header > .k-link {
+        font-weight: bold;
+    }
+
+    .k-grouping-header {
+        background-color: #0892DA;
+    }
+
+    .k-group-indicator > .k-link {
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .k-grid {
+        border-color: #003F59;
+    }
+
+    .k-i-close::before, k-grouping-header {
+        color: #ffffff;
+    }
+</style>
+<script>
+
+    function HideGroupedColumn(o){
+        var g = $("#surveyGrid1").data("kendoGrid");
+        for(var i=0;i<g.columns.length-2;i++){
+            g.showColumn(i);
+        }
+        $("div.k-group-indicator").each(function (i, v) {
+            g.hideColumn($(v).data("field"));
+        });
+        }
+
+
+
+    function sendRemainder(arg) {
+
+
+        baseurl1 = '@Url.Content("~/Survey/SendRemainderLink")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+
+                    alert("Survey remainder Sent Successfully");
+
+            }
+
+        })
+    }
+
+</script>

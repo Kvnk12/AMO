@@ -1,0 +1,257 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.HomeInput
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@{
+    ViewBag.Title = "NTT Data | Optimization Tools | Login";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+
+    // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = 0;
+    if(client!=null)
+    {
+        clientId = client.ClientId;
+    }
+    //ViewBag.PPMaitaintUrlClientId = System.Configuration.ConfigurationManager.AppSettings["PPMaitaintUrlClientId"].ToString();
+    //ViewBag.PPMaitaintUrlReportId = System.Configuration.ConfigurationManager.AppSettings["PPMaitaintUrlReportId"].ToString();
+}
+
+<div class="container" style="padding-top:100px;">
+    <h4><b>NTT DATA Optimization Tools</b></h4>
+    <ol class="breadcrumb">
+        @*<li><a href="@Url.Action("Dashboard")">About NextGen Tools</a></li>*@
+        <li><a href="#">Optimization Tools</a></li>
+    </ol>
+    <div class="apps">
+        <table>
+            <tr>
+                <td colspan="2">
+                    <h4>
+                        <b>
+                            AM Strategy & Design,
+                            RUN Service Optimization
+                        </b>
+                    </h4>
+                </td>
+                <td>
+                    <h4><b>Modernization Roadmap</b></h4>
+                </td>
+                <td>
+                    <h4><b>Modernization Execution</b></h4>
+                </td>
+                <td>
+                    <h4><b>Other Tools</b></h4>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#" title="AMO Roadmap Assessment title">
+                        <img src="~/Content/images/AMORoadmapAssessment.png" alt="AMO Roadmap Assessment" />
+                    </a>
+                </td>
+                <td>
+                    @if (Model.IdeaManager == true)
+                    {
+                        
+                            <a href="@Url.Action("", "ViewIdea", new { area = "IdeaManager", controller="ViewIdea" })" title="Captures improvement and innovation ideas from transition through to transformation.  Ideas range from SLA improvements and productivity enhancements to continuous improvement that increases the business value of the application." >
+        
+                                  <img src="~/content/images/IdeaManagerNew.png" alt="Idea Manager" /></a>
+}
+                    else
+                    {
+                      <a href="#" class="disablelink" title="Captures improvement and innovation ideas from transition through to transformation.  Ideas range from SLA improvements and productivity enhancements to continuous improvement that increases the business value of the application." >
+                          <img src="~/content/images/IdeaManagerNew.png" alt="Idea Manager" /></a>
+
+                  }
+                    </td>
+                    <td>
+                        @if (Model.PortfolioAnalyzer == true)
+                        {
+                            <a href="@Url.Action("Landing", "Dashboard", new { area = "PortfolioAnalyzer", controller="ApplicationInformation" })"  title="Maintain an understanding of the health of applications with intention of developing disposition recommendations and informed application decisions based on data and analysis.">
+                                <img src="~/content/images/PortfolioAnalyzerNew.png" alt="Portfolio Analyzer" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" class="disablelink" title="Maintain an understanding of the health of applications with intention of developing disposition recommendations and informed application decisions based on data and analysis.">
+                                <img src="~/content/images/PortfolioAnalyzerNew.png" alt="Portfolio Analyzer" />
+                            </a>
+
+                        }
+                    </td>
+
+                    <td>
+                        @if (Model.RetirementAccelerator == true)
+                        {
+                            <a href="@Url.Action("RetirementAccelerator", "Home", new { area = "" }, null)" target="_blank" title="Identifies applications suited for retirement, automates the planning to sunset, and ensures each application has a detailed decommissioning and data archival plan.">
+                                <img src="~/content/images/RetirementAcceleratorNew.png" alt="Framework Builder" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" title="Identifies applications suited for retirement, automates the planning to sunset, and ensures each application has a detailed decommissioning and data archival plan.">
+                                <img src="~/content/images/RetirementAcceleratorNew.png" alt="Framework Builder" />
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.ClientProfileManager == true)
+                        {
+                            <a href="@Url.Action("AllClientsForUser", "Dashboard", new { area = "ClientProfileManager" }, null)" title="Client Profile Manager">
+                                <img src="~/content/images/ClientProfileManager.png" alt="Client Profile Manager" />
+                            </a>
+                        }
+                        else
+                        {
+
+                            <a href="#" title="Client Profile Manager">
+                                <img src="~/content/images/ClientProfileManager.png" alt="Client Profile Manager" />
+                            </a>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        @if (Model.IncidentNavigator == true)
+                        {
+                            <a href="@Url.Action("Index", "DashboardNew", new { area = "IncidentNavigator" }, null)" title="Analyzes incidents to identify areas that affect the stability of the applications supported.  Automatically identify repeated incidents and improve root cause analysis and problem management. ">
+                                <img src="~/content/images/IncidentNavigatorNew.png" alt="Incident Navigator" />
+                            </a>
+                        }
+                        else
+                        {
+
+                            <a href="#" title="Analyzes incidents to identify areas that affect the stability of the applications supported.  Automatically identify repeated incidents and improve root cause analysis and problem management. ">
+                                <img src="~/content/images/IncidentNavigatorNew.png" alt="Incident Navigator" />
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        <a href="#" title="Articulate" class="not-active">
+                            <img src="~/content/images/Articulate.png" alt="Articulate" />
+                        </a>
+                    </td>
+
+                    <td>
+                        @if (Model.CodeAnalyzer == true)
+                        {
+                            <a href="#" title="Provides cloud migration  planning, tracking, and checklist, accelerators" class="not-active">
+                                <img src="~/content/images/CodeAnalyzerNew.png" alt="Code Analyzer" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" title="Provides cloud migration  planning, tracking, and checklist, accelerators" class="not-active">
+                                <img src="~/content/images/CodeAnalyzerNew.png" alt="Code Analyzer" />
+                            </a>
+
+                        }
+                    </td>
+                    <td>
+                        @if (Model.MigrationPlanner == true)
+                        {
+                            <a href="@Url.Action("MigrationPlanner", "Home", new { area = "" }, null)" target="_blank" title="Identifies applications suited for migration to a new platform, risks associated with migration, impact on business users, resources required, and ensures each application has an accurate and well-constructed migration plan." class="not-active">
+                                <img src="~/content/images/MigrationPlannerNew.png" alt="Migration Planner" />
+                            </a>
+                        }
+                        else
+                        {
+
+                            <a href="#" title="Identifies applications suited for migration to a new platform, risks associated with migration, impact on business users, resources required, and ensures each application has an accurate and well-constructed migration plan." class="not-active">
+                                <img src="~/content/images/MigrationPlannerNew.png" alt="Migration Planner" />
+                            </a>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        @if (Model.KnowledgeManager == true)
+                        {
+                            <a href="@Url.Action("KnowledgeMgr", "Home", new { area = "" }, null)" target="_blank" title="Repository of all artifacts used by engagement team to provide application outsourcing services.">
+                                <img src="~/content/images/KnowledgeManagerNew.png" alt="Knowledge Manager" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" title="Repository of all artifacts used by engagement team to provide application outsourcing services.">
+                                <img src="~/content/images/KnowledgeManagerNew.png" alt="Knowledge Manager" />
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.SLAManager == true)
+                        {
+                            <a href="@Url.Action("GetViewPssHM", "IncidentDashboard", new { area = "", cid=clientId}, null)" title="Metrics catalogue tailored to clients.  Monitors conformance to SLAs and metrics targets. Provides reporting and trending of standard service levels and new engagement metrics ">
+                                <img src="~/Content/images/SLAManagerNew.png" alt="SLA Manager" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" title="Metrics catalogue tailored to clients.  Monitors conformance to SLAs and metrics targets. Provides reporting and trending of standard service levels and new engagement metrics ">
+                                <img src="~/Content/images/SLAManagerNew.png" alt="SLA Manager" />
+                            </a>
+                        }
+                    </td>
+
+                    <td>
+                        @if (Model.PerformancePredictor == true)
+                        {
+                            <a href="@Url.Action("Index", "ALMHeatMap", new { area = "AlignmentManager", cid= clientId})" title="Provide advanced analytics to enable predictions of performance and capacity problems before they occur.">
+                                <img src="~/content/images/PerformancePredictorNew.png" alt="Performance Predictor" />
+                            </a>
+                        }
+                        else
+                        {
+
+                            <a href="#" class="disablelink" title="Provide advanced analytics to enable predictions of performance and capacity problems before they occur.">
+                                <img src="~/content/images/PerformancePredictorNew.png" alt="Performance Predictor" />
+                            </a>
+                        }
+                    </td>
+
+                    <td>
+                        <a href="#" title="Provides cloud migration  planning, tracking, and checklist, accelerators">
+                            <img src="~/content/images/CloudMigratorNew.png" alt="Cloud Migrator" />
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="#" title="Global Management One" class="not-active">
+                            <img src="~/content/images/GlobalManagementOne.png" alt="Global Management One" />
+                        </a>
+
+                    </td>
+                    <td>
+                        <a href="#" title="CUE2" class="not-active">
+                            <img src="~/content/images/CUE2.png" alt="CUE2" />
+                        </a>
+
+                    </td>
+                    <td>
+                        @if (Model.BusinessAlignment == true)
+                        {
+                            <a href="@Url.Action("DisplayVerticalSubVerticals", "VerticalSubVerticalsGrid", new { area = "" }, null)" title="Enables NTT to understand business capabilities and the degree they are supported by client’s current application portfolio.">
+                                <img src="~/content/images/BusinessAlignementNew.png" alt="Business Allignment" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="#" title="Enables NTT to understand business capabilities and the degree they are supported by client’s current application portfolio.">
+                                <img src="~/content/images/BusinessAlignementNew.png" alt="Business Allignment" />
+                            </a>
+                        }
+
+                    </td>
+                    <td>
+                        <a href="#" title="App Mode Suite" class="not-active">
+                            <img src="~/content/images/AppModeSuite.png" alt="App Mode Suite" />
+                        </a>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div><!--/.container-->

@@ -1,0 +1,335 @@
+﻿@using WebUI.Dto;
+@using System.Web.Configuration;
+@{
+    var client = "";
+
+    if (Session["SessionClient"] != null)
+    {
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        //clientId = objclient.Id.ToString();
+    }
+    var ECOpassword = WebConfigurationManager.AppSettings["ECOpassword"];
+    var ECOapiEndpoint = WebConfigurationManager.AppSettings["ECOapiEndpoint"];
+    var ECOINemailId = WebConfigurationManager.AppSettings["ECOINemailId"];
+    var ECOIMemailId = WebConfigurationManager.AppSettings["ECOIMemailId"];
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewBag.Title - OptimizationPortal</title>
+    <!-- Bootstrap core CSS -->
+    <link href="@Url.Content("~/Content/css/bootstrap.css")" rel="stylesheet">
+
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">
+
+
+    <link href="@Url.Content("~/Content/css/datepicker.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/bootstrap-select.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Content/css/jquery.treeview.css")" rel="stylesheet">
+    <link href="~/Content/jHtmlArea/jHtmlArea.css" rel="stylesheet" />
+
+    <link href="~/Content/themes/base/all.css" rel="stylesheet" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+
+
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-3.6.0.min.js")'></script>
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap.min.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/menu.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/script.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/tab.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/modal.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-3.6.0.js")'></script>
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap-select.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/bootstrap-datepicker.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.treeview.js")'></script>
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/demo.js")'></script>*@
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/jquery.fixedheadertable.js")'></script>*@
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.number.js")'></script>
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery.number.min.js")'></script>
+    <script src="~/Scripts/modal.js"></script>
+    <script src="~/Scripts/jHtmlArea-0.8.js"></script>
+    @*<script src="~/Content/HowTo/intro.js"></script>
+        <link href="~/Content/HowTo/introjs.css" rel="stylesheet" />
+        <link href="~/Content/HowTo/demo.css" rel="stylesheet" />*@
+
+    @*<script type="text/javascript" src='@Url.Content("~/Scripts/jquery-ui-1.8.20.min.js")'></script>*@
+
+    <script type="text/javascript" src='@Url.Content("~/Scripts/jquery-ui-1.12.1.min.js")'></script>
+
+
+    <!-- Validation engine style file -->
+    <link href="@Url.Content("~/Scripts/validationEngine/validationEngine.jquery.css")"
+          rel="stylesheet" type="text/css" />
+
+    <!-- Validation engine script file and english localization -->
+    <script type="text/javascript"
+            src="@Url.Content("~/Scripts/validationEngine/jquery.validationEngine.js")">
+    </script>
+    <script type="text/javascript"
+            src="@Url.Content("~/Scripts/validationEngine/jquery.validationEngine-en.js")">
+    </script>
+  
+
+
+</head>
+
+
+<body>
+    <div id="wrap">
+
+        @{ Html.RenderPartial("_GenericHeader"); }
+
+        @{ Html.RenderPartial("GenericLeftMenu"); }
+
+        @*-----ECO------*@
+
+        @*<link rel="stylesheet" href="https://ecolib.appliediphub.com/css/eco-feedback-v1.3.min.css">*@
+
+        @*<script src="https://ecolib.appliediphub.com/js/eco-feedback-v1.3.min.js"></script>*@
+
+
+        @*-----/ECO------*@
+
+        <div class="pushContainer1Content">
+            <!--.container-->
+            @RenderSection("featured", required: false)
+            <section class="content-wrapper main-content clear-fix">
+                @RenderBody()
+            </section>
+
+
+        </div><!--/.end of pushContainer1Content-->
+        <!--end pushContainer1-->
+        <script>
+
+            /*  $.noConflict();*/
+            jQuery(document).ready(function () {
+                var userNameAMO = '@ViewData["GetStringResult"]';
+                console.log(userNameAMO);
+
+                var options = {
+                    enterpriseCode: 'nttdata',
+                    applicationName: 'Idea Manager',
+                    ecoapiEndpoint: '@ECOapiEndpoint',
+                    emailId: '@ECOIMemailId',
+                    userId: userNameAMO,
+                    password: '@ECOpassword'
+                };
+                console.log(options);
+                ///*var feedback = initializeFeedback(options);*/
+                //var ideaManagerUserJourney = {};
+                //ideaManagerUserJourney = new ECO.Component.UserJourneyMap({ numberOfEntries: 50 });
+                ////track the pages where user visited by tracking all a href clicks
+                //var $triggerButton = $('a');
+                //$triggerButton.on('click', function (e) {
+                //    ideaManagerUserJourney.setHistory(this);
+                //});
+
+             //   var feedback = initializeFeedback(options);
+                //var udf = $('#ecoFeedbackBtn').data() || {};
+                ////add any additional information
+                //udf.Location = window.location.href;
+                ////store the user navigation folow
+                //udf.UserJourneyMap = ideaManagerUserJourney.getHistory();
+                ////get feedback Channel by looking at user agent
+                //if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                //    udf.Channel = 'Mobile';
+                //} else {
+                //    udf.Channel = 'Desktop';
+                //}
+                //udf.UserAgent = navigator.userAgent;
+                ////get the OS platform from where the feedback was given
+                //udf.Platform = navigator.platform;
+                ////add the application's user. Could be Portal ID or name
+                //if ($("#anonymousSubmission").is(":checked")) {
+                //    setECOUser("Anonymous");
+                //    udf.userId = "Anonymous";
+                //}
+                //feedback.setUdf(udf);
+                //feedback.resetUdf('view');
+            });
+
+        </script>
+    </div> <!--end wrap-->
+
+
+
+
+    @RenderSection("scripts", required: false)
+
+    <script>
+        $(function () {
+            cbpHorizontalMenu.init();
+        });
+    </script>
+
+    @*<script>
+            $('.selectpicker').selectpicker();
+        </script>
+        <script>
+            $('#sandbox-container .input-append.date').datepicker({
+                keyboardNavigation: false,
+                autoclose: true,
+                todayHighlight: true
+            });
+        </script>*@
+    <script type="text/javascript" src='@Url.Content("~/Scripts/timepicker.js")'></script>
+    <script>
+        $('#timepicker1').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: true,
+            template: 'dropdown'
+
+        });
+        $('#timepicker2').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: true,
+            template: 'dropdown'
+        });
+        $('#timepicker3').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: true,
+            template: 'dropdown'
+        });
+        $('#timepicker4').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: true,
+            template: 'dropdown'
+        });
+        $('#monStart').timepicker({
+            //defaultTime: 'current',
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#monEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tueStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tueEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#wedStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#wedEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#thurStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#thurEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#friStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#friEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#satStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#satEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#sunStart').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#sunEnd').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tab2stdt').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tab2enddt').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tab2stdtnew').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+        $('#tab2enddtnew').timepicker({
+            defaultTime: false,
+            minuteStep: 1,
+            disableFocus: false,
+            template: 'dropdown'
+        });
+
+
+
+
+
+
+
+    </script>
+
+
+
+</body>
+</html>
+

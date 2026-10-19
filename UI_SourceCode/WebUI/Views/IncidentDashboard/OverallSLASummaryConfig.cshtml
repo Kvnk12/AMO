@@ -1,0 +1,136 @@
+﻿
+@model NTTData.AMOPortal.WebUI.Dto.MetricSpecificationInput
+@using NTTData.AMOPortal.Domain.Entities;
+@using WebUI.Dto;
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/slam.png");
+  //  Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    Model.ClientId= client.ClientId;
+}
+
+@*@using (Html.BeginForm("GetViewOverallSummaryConfig", "IncidentDashboard", FormMethod.Post, new { @class = "form-horizontal" }))
+ {
+        <div id="wrap">*@
+        <!-- Fixed navbar -->
+        <!--/nav bar div closes here -->
+        <!--.container-->
+        <div class="selectappArea">
+            <!-- Wrap all page content here -->
+            <div class="container">
+                <div class="selectApp form-horizontal">
+                    <div class="form-group">
+                        <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                        <div class="col-sm-5">
+                            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientId), "", new { @class = "selectpicker", id = "drpClientId", tabindex = "6", @disabled = "disabled"  })
+                        </div>
+                    </div>
+                </div>
+                <!--/.selectApp-->
+                @*<div class="selectyearArea form-horizontal">
+                    <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>-->
+                    <!-- hidden for sprint two-->
+                </div>*@
+                <!--/.selectyearArea-->
+            </div>
+            <!--/.container-->
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+            <!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li class="active">SLA Manager</li>
+            <li class="active">Overall Summary Dashboard Configuration</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+        	<!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+        
+        
+            <div class="treeMenuArea" id="treeMenuArea">
+                @if (Model.ClientId == 0)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+                }
+               @* <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>*@
+           @*     @Html.Partial("_DBCatelog")*@
+                <div class="treeMenuContent">
+                	<div class="container" style="padding:0;">
+                        <div class="well well-sm">SLA Dashboard : Overall Summary Dashboard Configuration</div>  
+                        <div class="slaleftpane">
+                            <div class="clearfix"></div><!--This is to clear the floats-->
+                         @if (Model.ClientId != 0)
+                         {
+                            <div class="clear clearfix">&nbsp;</div>
+                            <iframe src='@Url.Content("~/Reports/DashbordOverallSummaryConfigReport.aspx?ClientID="+Model.ClientId)' border="0" frameborder="0" height="800px" width="1100px"></iframe>
+                         }
+                         else
+                         {
+                                <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                         }
+                         </div>
+                        <!--END OF LEFTAREA-->   
+                  		<!--/.slarightpane -->
+                    </div><!--/.treeMenuContent container-->
+                </div><!--/.treeMenuContent-->
+
+            </div><!--/.treeMenuArea-->
+        
+        </div><!--/.container-->
+
+       <!--/.container-->
+
+@*    </div>*@
+    <!--.wrap-->
+}
+
+<script>
+    $('select#drpClientId').change(function () {
+        var SelectedclientId = $('#drpClientId :selected').val();
+        var reportname = $('#reportname').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'IncidentDashboard') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetViewOverallSummary/?cid={clientid}'
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetViewOverallSummary/?cid={clientid}'
+        }
+
+        baseurl = baseurl.replace("{clientid}", SelectedclientId);
+
+        window.location = baseurl;
+
+    });
+  
+</script>

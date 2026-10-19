@@ -1,0 +1,59 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model Integration_ReportListModel
+<div class="graph-3 dashbord-integrated">
+    <div class="top-content-heading">
+        <label id="LeverChartlabel">Integration Report By Lever</label>
+        <div class="top-content-right">
+           <span class="expand-view" title="Maximise the chart" onclick="maximiseChartLever()"></span>
+
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area1 " align="center" style="padding-left:3px; padding-right:30px;margin-top:1em" id="LeverChart">
+            @(Html.Kendo().Chart<Integration_ReportModel>
+    ()
+    .Name("IntegrationReport_ByTowerandLever")
+    .Legend(legend => legend.Position(ChartLegendPosition.Bottom).Visible(false)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    )
+       .AutoBind(false)
+    .DataSource(ds => ds.Read(read => read.Action("GetIntegrationReport_ByLeverForTower", "Integration_Report").Data("GetTowerandLever")))
+    .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+    "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+    "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+    "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+    "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+    })
+
+    .Series(series =>
+    {
+    series.Donut(model => model.IncidentCount, model => model.Lever, null)
+    .Labels(labels => labels
+    .Template("#= value#, #= kendo.format('{0:P}', percentage)#")
+    .Background("transparent")
+    .Visible(true)
+    .Position(ChartPieLabelsPosition.OutsideEnd)
+    )
+    .Overlay(ChartPieSeriesOverlay.None)
+    .StartAngle(90);
+
+    })
+    .Tooltip(tooltip => tooltip
+    .Visible(true)
+    .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+    )
+
+    )
+
+        </div>
+    </div>
+</div>

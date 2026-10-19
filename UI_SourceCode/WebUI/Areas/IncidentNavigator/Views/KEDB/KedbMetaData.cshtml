@@ -1,0 +1,247 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity
+
+@{
+     <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+     <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+     <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+     <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+     <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+     <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+     <script src="~/Scripts/JScript/jszip.min.js"></script> 
+     ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+
+<style>
+    .k-grid tbody .k-button {
+        min-width: 5px;
+    }
+
+    .rightarea .form-group input {
+        text-align: left;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+</style>
+<div class="content-main dark-bg" id="wrap" style="height:900px">
+    <div>
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li class="active">KEDB Meta Data</li>
+        </ol>
+    </div>
+    <div>
+        <h4>
+            <span class="alert alert-danger" id="errorlabel" style='position: center;font-family:Courier New, monospace;font-weight:bold; display: none; color: red;margin-left:1em; padding-left: 0.5em; padding-right: 1em; padding-top: 0.5em; padding-bottom: 0.5em; '></span>
+        </h4>
+    
+        
+        @*<div class="export-wrapper">
+            <span class="export-label">Export - </span>
+            <button type="submit" class="export-improvement-progress"></button>
+        </div>*@
+
+    </div>
+    <ul class="nav nav-tabs" role="tablist" id="configtab" style="background-color:white;margin:unset;">
+        <li><a href="#issueType" role="tab" data-toggle="tab" class="active"> Issue Type</a></li>
+        <li><a href="#busFunct" role="tab" data-toggle="tab"> Business Function</a></li>
+        <li><a href="#solCat" role="tab" data-toggle="tab"> Solution Category</a></li>
+    </ul>
+
+    <div class="tab-content" style="background-color:white">
+        <div class="tab-pane" id="issueType">
+            <div class="custom-kendo-grid" style="margin:0 1em;">
+                @(Html.Kendo().Grid<KEDBIssueTypeModel>()
+                         .Name("KedbIssueType")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.IssueType).Title("Issue Type");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Issue Type"))
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetIssueType", "KEDB"))
+                      .Create(create => create.Action("AddIssueType", "KEDB"))
+                      .Update(update => update.Action("EditIssueType", "KEDB"))
+                      .Destroy(destroy => destroy.Action("DeleteIssueType", "KEDB"))
+                      .Events(events => events.Error("errorFuncIssueType"))
+                          )
+            .Events(events => events
+               .Save("SaveIssueType"))
+                )
+            </div>
+        </div>
+
+        <div class="tab-pane" id="busFunct">
+            <div class="custom-kendo-grid" style="margin:0 1em;">
+                @(Html.Kendo().Grid<KEDBBusinessFunctionModel>()
+                         .Name("KedbBusiFunct")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.BusinessFunction).Title("Business Function");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Busniess function"))
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetBusSolu", "KEDB"))
+                      .Create(create => create.Action("AddBusSolu", "KEDB"))
+                      .Update(update => update.Action("EditBusSolu", "KEDB"))
+                      .Destroy(destroy => destroy.Action("DeleteBusSolu", "KEDB"))
+                      .Events(events => events.Error("errorFuncBusFunc"))
+                          )
+            .Events(events => events
+               .Save("SaveBusinSolu"))
+                )
+
+            </div>
+        </div>
+        <div class="tab-pane" id="solCat">
+            <div class="custom-kendo-grid" style="margin:0 1em;">
+                @(Html.Kendo().Grid<KEDBSolutionCategoryModel>()
+                         .Name("KedbSoluCat")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.SolCategory).Title("Solution Category");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Solution Category"))
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetSolCategrory", "KEDB"))
+                      .Create(create => create.Action("AddSolCategrory", "KEDB"))
+                      .Update(update => update.Action("EditSolCategrory", "KEDB"))
+                      .Destroy(destroy => destroy.Action("DeleteSolCategrory", "KEDB"))
+                      .Events(events => events.Error("errorFuncSolCat"))
+                          )
+                          .Events(events => events
+               .Save("SaveSolCategory"))
+
+                )
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    function SaveIssueType(e) {
+        var IssueType = e.model.IssueType.toUpperCase();
+        var CalId = e.model.CalId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].IssueType.toUpperCase() === IssueType && data[i].CalId != CalId) {
+                e.preventDefault();
+                alert('Issue Type ' + '"' + IssueType + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+
+    function SaveSolCategory(e) {
+        var SolCategory = e.model.SolCategory.toUpperCase();
+        var CaId = e.model.CaId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].SolCategory.toUpperCase() === SolCategory && data[i].CaId != CaId) {
+                e.preventDefault();
+                alert('Solution Category ' + '"' + SolCategory + '"' + 'Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+    function SaveBusinSolu(e) {
+        var BusinessFunction = e.model.BusinessFunction.toUpperCase();
+        var CTId = e.model.CTId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].BusinessFunction.toUpperCase() === BusinessFunction && data[i].CTId != CTId) {
+                e.preventDefault();
+                alert('Business Function  ' + '"' + BusinessFunction + '"' + ' Already Exists. Please Enter Unique Name!');
+            }
+        }
+
+    }
+
+
+
+    function errorFuncIssueType(e) {
+        console.log(e.errors["IssueType"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["IssueType"].errors + " </span>";
+        document.getElementById('errorlabel').style.display = 'unset';
+        var grid = $('#KedbIssueType').data('kendoGrid');
+        grid.dataSource.read();
+        setTimeout(
+            function () {
+                document.getElementById('errorlabel').style.display = 'none';
+            }, 4000);
+    }
+
+    function errorFuncBusFunc(e) {
+        console.log(e.errors["BusinessFunction"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["BusinessFunction"].errors + " </span>";
+        document.getElementById('errorlabel').style.display = 'unset';
+        var grid = $('#KedbBusiFunct').data('kendoGrid');
+        grid.dataSource.read();
+        setTimeout(
+            function () {
+                document.getElementById('errorlabel').style.display = 'none';
+            }, 4000);
+    }
+
+    function errorFuncSolCat(e) {
+        console.log(e.errors["SolutionCategory"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["SolutionCategory"].errors + " </span>";
+        document.getElementById('errorlabel').style.display = 'unset';
+        var grid = $('#KedbSoluCat').data('kendoGrid');
+        grid.dataSource.read();
+        setTimeout(
+            function () {
+                document.getElementById('errorlabel').style.display = 'none';
+            }, 4000);
+    }
+
+
+</script>
+
+
+
+

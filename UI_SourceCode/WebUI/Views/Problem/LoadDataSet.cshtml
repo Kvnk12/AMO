@@ -1,0 +1,97 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.MaintenanceRequestInput
+
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+   
+
+}
+
+
+
+        <!--.container-->
+        <div class="selectappArea">
+          <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                 <div class="col-sm-5">
+                 <select class="selectpicker" tabindex="1" name="clientName" disabled="disabled">
+                  </select>
+@*                    Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text",Model.ClientId), "", new { class = "selectpicker", id = "ddlClient", tabindex = "1" })
+                    Html.HiddenFor(m =>m.ClientId)*@
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal">
+              <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>-->
+              <!-- hidden for sprint two-->
+            </div>
+            <!--/.selectyearArea-->
+          </div>
+          <!--/.container-->
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+          <!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li><a href="#">Data Administration</a></li>
+            <li class="active">Data Maintanence</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+          <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DMCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div style="min-height:700px">
+                  <div class="timeZonearea">
+                    <div class="left timeLeft">
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label" for="sametime">Please select the Data Set from navigation panel</label>
+                      </div>
+                    </div>
+                    <!--.left-->
+                    
+                    <!--/.right-->
+                  </div>
+                  <!--/.well-->
+                  
+                </div>
+                <!--END OF LEFTAREA-->
+              </div>
+              <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+          </div>
+          <!--/.treeMenuArea-->
+        </div>
+        <!--/.container-->
+     
+

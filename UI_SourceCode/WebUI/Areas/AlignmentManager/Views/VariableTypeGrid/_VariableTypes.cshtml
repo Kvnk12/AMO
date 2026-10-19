@@ -1,0 +1,145 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VariableTypesInput 
+<div class="col-xs-6 col-sm-4 accountCont">
+    <div class="accContracthdr">
+        <div class="left">
+            Variable Type Details
+        </div>
+        <div class="right">
+            <button class="btn btn-primary" tabindex="2900" type="button" id="btnAddVarType">Add</button>
+        </div>
+    </div>
+    <div class="cptblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="80%" scope="col">VariableTypes</th>
+                <th width="20%" scope="col">Inactive</th>
+            </tr>
+            
+            @{ 
+                foreach (var item in Model.VariableTypes)
+                    
+                    {  
+                    <tr>
+                    <td>@Html.ActionLink(@item.VariableType,"DisplayVarTypeDetails","VariableTypeGrid", new {VarTypeid=item.Id, GridToDisplay="VartypeGrid"}, null)</td>
+                        <td>@Html.CheckBoxFor( m => item.IsDeleted, new { @class = "metricchk", @disabled = "disabled"})</td>
+                    </tr>
+                    }
+            }
+            
+
+        </table>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+
+        
+        $('#btnAddVarType').click(function () {
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?vartypeCreate=varcreate&GridToDisplay=VartypeGrid';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?vartypeCreate=varcreate&GridToDisplay=VartypeGrid';
+            }
+            window.location = baseurl;
+            return false;
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?vartypeCreate=varcreate&GridToDisplay=VartypeGrid");
+            
+            //window.location = strUrl;
+
+
+        });
+
+
+        $('#btnVarDelete').click(function () {
+
+            
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            var vartypeId = "@Model.VarTypeId";
+
+            if (vartypeId != "") {
+                var confirm = window.confirm('Are you sure to delete the variable type?');
+                if (!confirm) 
+                {
+                    return false;
+                }
+                             
+
+                    //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DeleteVarType/?VartypeId=@Model.VarTypeId");
+
+                    //window.location = strUrl;
+                    //return false;
+                //}
+            }
+
+
+        });
+
+
+
+
+
+        $('#typecancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?GridToDisplay=VartypeGrid';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?GridToDisplay=VartypeGrid';
+                }
+                window.location = baseurl;
+                return false;
+
+                //var localToServer = "/";
+                //var sPageURL = window.location.search.substring(1);
+                //var sURLVariables = sPageURL.split('&');
+
+                //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                //}
+
+                //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DisplayVarTypeDetails/?GridToDisplay=VartypeGrid");
+
+                //window.location = strUrl;
+                //return false;
+            }
+            else { return false; }
+
+        });
+    
+        
+    });
+
+</script>

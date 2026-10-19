@@ -1,0 +1,49 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+<div class="grpArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Application Mapping</h4>
+                    </div>
+                        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                   
+                  </div>
+                  <div class="form-horizontal">
+                           <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+                         <input hidden id="LOBId" value="@Model.LOBId.ToString()"  />
+           
+            <input hidden id="Cancel" value="CancelClick" />
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpID">Application Name</label>
+                      <div class="col-sm-3">
+                       
+@Html.DropDownListFor(m => m.applicationLOBJunctionInput.AppId, new SelectList(Model.AppList, "value", "text", Model.applicationLOBJunctionInput.AppId), "", new { @class = "selectpicker", id = "AppId", tabindex = "5", name = "AppId"})  
+
+                      </div>
+                    </div>
+                 
+                  </div>
+     <div class="accdetailacction">
+                     @* <button class="btn btn-primary" tabindex="29" type="button">Edit</button>
+                      <button class="btn btn-primary" tabindex="30" type="button">Save</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Cancel</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Delete</button>*@
+           <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+            @*<button type="submit" class="btn btn-default" id="deleteSubVertical"  @((Model.SubVerticalId == 0) ? "disabled" : "")  tabindex="22" onclick="location.href='@Url.Action("DelSubVertical", "VerticalSubVerticalsGrid", new { id = Model.SubVerticalId })'; return false;">Delete</button>*@
+
+                    </div>
+                </div>
+}

@@ -1,0 +1,345 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+
+
+
+
+@using (Html.BeginForm("SavePostIdea", "IdeaManager2", new { ClientId = Model.ClientId}, FormMethod.Post))
+    {
+    
+    
+    
+    
+    
+      <div class="treeMenuContent" style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+           @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container", id="danger" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container", id="success" })
+                }
+            else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+               
+                   <!--end of grid-->             
+                @*<div class="addvalaction"> <a href="#" class="btn btn-primary">Back</a> *@
+
+          <div class="ideaManagerContent">
+                <h4>Post Idea</h4>
+
+         <!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist" id="ideatab">
+  <li class="active"><a href="#home" role="tab" data-toggle="tab">Home</a></li>
+  @*<li><a href="#idea" role="tab" data-toggle="tab">Idea</a></li>*@
+  <li><a href="#benefits" role="tab" data-toggle="tab">Benefits</a></li>
+  <li><a href="#itsavings" role="tab" data-toggle="tab">IT Savings</a></li>
+  <li><a href="#comments" role="tab" data-toggle="tab">Comments</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="home">
+      @Html.Hidden("IdeaId", @Model.Id) 
+      <div class="leftarea form-horizontal">
+
+          <div class="form-group">
+              <label id="lblIdeaName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Idea Name</label>
+              <div class="col-sm-5">
+                  @Html.TextBoxFor(m => m.postIdeaInput.IdeaName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtidea" })
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-sm-5 control-label" for="Account">Account </label>
+              <div class="col-sm-5">
+                  @Html.TextBoxFor(m => m.postIdeaInput.Account, new { @class = "form-control", placeholder = "", tabindex = "2", id = "txtaccount" })
+                  
+                  @*<input type="text"  value="@Model.postChallengeInput.QtyFication.ToString()" class = "form-control" style="width:150px;margin-left:27%"  tabindex="2", id="txtqtfyidea" name="txtqtfyidea" onkeypress = "return isNumberKey(this)" maxlength="5"  />*@
+              </div>
+          </div>
+          <div class="form-group">
+              <div>
+                  <label for="desc" class="col-sm-5 control-label">Description</label>
+                  @Html.TextAreaFor(m => m.postIdeaInput.Description, new { @class = "", rows = "10", style="width:100%", placeholder = "Description", tabindex = "3", id = "txtdescription" })
+                  
+              </div>
+          </div>
+
+
+          <div id="action">
+              <button class="btn btn-primary" id="btnSave" name="command" value="saveidea"  style="margin-left: 40%">Post Idea</button>
+              <button class="btn btn-default" id="cancelIdea">Cancel</button>
+              <button class="btn btn-primary" id="homepage">Home</button>
+          </div>
+          <!--/.form-horizontal-->
+      </div>
+
+     
+
+  </div>
+  <div class="tab-pane" id="idea">
+      @Html.Partial("_AssignItemCategory",Model)
+  </div>
+  <div class="tab-pane" id="benefits">Yet to design</div>
+  <div class="tab-pane" id="itsavings">Yet to design</div>
+  <div class="tab-pane" id="comments">Yet to design</div>
+</div>
+                    
+
+                
+                <!--/.leftarea-->
+                
+                
+
+
+                <!--/.rightarea-->
+              
+              </div>
+                
+         </div>
+    
+                  
+    }
+         
+
+<script>
+
+    $(document).ready(function () {
+
+
+        
+        //$(function () {
+
+        //    $("#accordion").accordion({
+
+        //        collapsible: true
+
+        //    });
+
+        //});
+
+
+
+
+        //$('#txtdescription').htmlarea();
+
+        $('#txtdescription').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter","justifyright","Increasefontsize", "decreasefontsize","Forecolor","horizontalrule"],
+                    ["cut", "copy", "paste"],
+            ]
+        });
+
+
+@*        var blndataSetNameExists = false;
+
+        $('#btnAdd').click(function () {
+
+
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager")
+            {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add");
+
+            window.location = strUrl;
+            return false;
+
+           });*@
+
+
+@*        $('#cancelregDataSetMap').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+        });*@
+
+
+@*        $('#btnDelete').click(function () {
+
+            var RegDataSetid = $('#RegDataSetid')[0].value;
+
+            var DataSetName = $('#txtDataSetName')[0].value;
+            
+            if (RegDataSetid == 0)
+            { return false; }
+            var confirm = window.confirm('Do you want delete this data Set: '+DataSetName+'?');
+            if (confirm) {
+
+
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DeleteDatSetName/?ClientId=@Model.ClientId");
+                strUrl  += "&RegDataSetId=" + RegDataSetid;
+                
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+           });*@
+
+
+    })
+
+  @*  $('#btnBack').click(function () {
+       
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+       
+     });*@
+
+        
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+
+
+        //if (charCode != 46 && charCode > 31
+        //&& (charCode < 48 || charCode > 57))
+        //    return false;
+
+        if ((charCode < 48 || charCode > 57))
+            if (charCode != 46 && charCode != 44 && charCode > 31
+              && (charCode < 48 || charCode > 57))
+                return false;
+
+        return true;
+    }
+
+
+    $('#btnSave').click(function () {
+        
+        var SelectedclientId = $('#ClientId :selected').val();
+        if (SelectedclientId == "" || SelectedclientId == "0") {
+            alert('Please Select Client name from the list');
+            return false;
+        }
+
+        if ($('#txtidea').val() == "") {
+            alert('Please enter name');
+            $('#txtidea').focus();
+            return false;
+        }
+        else {
+            
+            var ideaName = $('#txtidea').val();
+            var ideaId = $('#IdeaId')[0].value;
+
+            IdeaNameExists(ideaName, ideaId);
+            if (blnIdeaNameExists) {
+                alert('Idea name already exists, please change');
+                $('#txtidea').focus();
+                return false;
+
+            }
+        }
+
+
+
+       
+    });        
+
+
+    function IdeaNameExists(IdeaName, IdeaId) {
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager2/CheckIdeaName");
+            
+             {
+                $.ajax({
+                    url: strUrl,
+                    type: 'POST',
+                    data: { IdeaName: IdeaName, IdeaId: IdeaId},
+                    success: checkItemSuccess,
+                    failure: errorItem,
+                    async: false
+
+                })
+            }
+            
+        }
+
+    function checkItemSuccess(status) {
+
+
+        blnIdeaNameExists = status;
+            
+            
+            
+        }
+
+    function errorItem() {
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+        
+
+        $('.tab-pane a').click(function (e) {
+            $("#success").hide();
+            $("#danger").hide();
+            
+        })
+    
+</script>
+         

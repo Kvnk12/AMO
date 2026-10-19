@@ -1,0 +1,102 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+<style>
+
+    #ViewCmpDetails .CompTitle {
+        background-color: rgb(91,121,171);
+        color: white;
+        padding: 5px;
+        border-bottom: 1px solid;
+        font-size: 1vw;
+    }
+</style>
+<html>
+<body>
+    <div class="DashBoardCmpDetails">
+        @(Html.Kendo().Window()
+    .Name("ViewSingleCmpDetails")
+    .Title("Component Details")
+    .Content(@<text>
+             <div class="CompTitle"><span id="cmpName" style="color:#fff;position: absolute; z-index: 9;"></span></div>
+             <div class="custom-kendo-grid report-drilldowm" style=" margin-top: -1vw; position: relative;">
+                    @(Html.Kendo().Grid<DashModel>()
+                                                                .Name("SingleDashboardDetail")
+                                                                .AutoBind(false)
+                                                                .Columns(columns =>
+                                                                {
+
+                                                                    columns.Bound(p => p.AspectName).Title("Aspect").Width(100);
+                                                                    columns.Bound(p => p.MaturityLevel).Title("Current Maturity Level").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                                    columns.Bound(p => p.Comment).Title("Comments").Width(225).Encoded(false);
+
+                                                                })
+                                                                .ToolBar(tools =>
+                                                                {
+                                                                    tools.Excel().Text("Export -");
+                                                                })
+                                                                .Events(e => e.ExcelExport("exportexcelCmp"))
+                                                                .Resizable(r => r.Columns(true))
+                                                                .DataSource(dataSource => dataSource
+                                                                .Ajax()
+                                                                .PageSize(100)
+                                                                .Model(model =>
+                                                                {
+                                                                    model.Id(p => p.AspectName);
+
+                                                                })
+                                                                .Read(read => read.Action("ComponentDeatils", "Assessment").Data("GetCmpDetails"))
+                                                                )
+                    )
+
+             </div>
+
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    //.Width(900)
+    //.Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+
+</body>
+</html>
+
+<script>
+
+    function exportexcelCmp(e) {
+        var sheet = e.workbook.sheets[0];
+        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+            var row = sheet.rows[rowIndex];
+            var cmtdata = row.cells[2].value;
+            cmtdata = cmtdata.replaceAll("<br>", " ; ");
+            cmtdata = cmtdata.replaceAll("&nbsp;", "");
+
+            console.log(row.cells[2].value);
+            console.log(cmtdata);
+            row.cells[2].value = cmtdata;
+
+        }
+
+    }
+</script>

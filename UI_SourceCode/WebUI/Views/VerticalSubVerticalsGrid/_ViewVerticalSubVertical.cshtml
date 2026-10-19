@@ -1,0 +1,43 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VerticalAndSubVerticalInput 
+
+
+<div class="leftarea form-horizontal" style="background: #F5F5F5; width: 30%; height: 51em; overflow: auto;">
+                <div class="bamtreemenu" >
+                  <div class="well well-sm" style="padding: 1em;">
+                    <h5 class="pull-left">Industry Vertical / Sub-Vertical</h5>
+                    @*<button tabindex="30" type="button" class="btn btn-primary" id="btnEdit" style="margin-left:80px">Edit</button>*@
+                  </div>
+                  <ul class="bamtreeMenuUl">
+                      @if (Model.verticalList.Count() > 0 && Model.verticalList.Count() != null)
+                      {
+                      foreach (var item in Model.verticalList)
+                      {
+                          <li><a href="#">@item.VerticalName</a>
+                               <ul>
+                                       @foreach (var subitem in Model.subVerticalList)
+                      {
+                             if(subitem.VerticalId == item.Id)
+                             {
+                                 
+                         
+                        @*<li><a href="JavaScript:Fillvertical(@subitem.Id, '@item.VerticalName-@subitem.SubVerticalName')">@subitem.SubVerticalName</a></li>*@
+                                   
+                    <li> @Html.ActionLink(subitem.SubVerticalName,"DisplayVerticalSubVerticals","VerticalSubVerticalsGrid", new {subVId=subitem.Id,title = item.VerticalName+" / "+subitem.SubVerticalName }, null)</li>
+                             }
+                             }
+                                    </ul>
+                         </li>
+                      }
+                      }
+                      else
+                      {
+                          @Html.ValidationSummary(false, "Please enter industry vertical/Subvertical type in the Industry Vertical types", new { @class = "alert alert-danger container" }) 
+                      }
+                    
+                  </ul>
+
+
+                </div>
+                <!--/.bamtreemenu--> 
+              </div>
+

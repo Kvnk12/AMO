@@ -1,0 +1,117 @@
+﻿<style>
+    div#dtl_desc img {
+        height: 4em;
+        width: 4em;
+    }
+</style>
+<div id="detail_view" style="display:none">
+    <div class="fdbk-dtlDiv">
+        <div style="display:flex;"><div class="fdbk-title" id="dtl_title"> </div><span class="copy-icon"></span></div>
+        <div style="display: flex; justify-content: space-between;">
+            <div style=" width: 26em;">
+                <span hidden id="dtl_fdbkId"></span>
+                <div id="feature_view" style="display:none">
+                    <div class="fdbk-prd">Product : <span id="dtl_prod"></span></div>
+                    <div class="fdbk-type">Feedback Type : <span>New Nucleus Feature</span></div>
+                </div>
+                <div id="business_view" style="display:none">
+                    <div class="fdbk-prd">Digital Offering : <span id="dtl_Digi"></span></div>
+                    <div class="fdbk-type">Feedback Type : <span>New Business Feature</span></div>
+                </div>
+            </div>
+            <div>
+                <div class="fdbk-submtBy">Submitted by : <span id="dtl_submtBy"></span></div>
+                <div class="fdbk-lastActy">Last Activity : <span id="dtl_lastAct"></span></div>
+            </div>
+            <div style="margin-top:-1em;">
+                <div class="fdbk-status" id="dtl_status"></div>
+                <div class="fdbk-action">
+                    <span hidden id="vote"></span>
+                    <div class="fdbk-vote vote"  style="display:none;"><span id="dtl_vote"></span></div>
+                    <div class="fdbk-vote voted" style="display:none"><span id="dtl_voted"></span></div>
+                    <div class="fdbk-comment" id="dtl_comment">02</div>
+                </div>
+            </div>
+        </div>
+        <div class="fdbk-desc" id="dtl_desc"></div>
+    </div>
+    <div style="border-bottom: 1px solid #ccc;">
+        <div class="fdbk-comment-section">
+            <div class="comment-view">
+                <div class="userName">Patel, Rajeshwari   <span>5hr ago</span></div>
+                <div class="userComment">A long-awaited feature  <span class="comment-userIcon"></span><span class="copy-icon"></span></div>
+                <div class="comment-view">
+                    <div class="userName">Patel, Rajeshwari    <span>3hr ago</span></div>
+                    <div class="userComment">A long-awaited feature  <span class="comment-userIcon"></span><span class="copy-icon"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fdbk-comment-btn">
+        <button class="addCmt-btn" id="addCmt" onclick="commentclick()">Add Comment</button>
+        <div id="commentBox" style="display:none">
+            <textarea class="newCommentBox" id="newCmment" placeholder="Write a Comment......"></textarea>
+            <div style=" text-align: right;"><button id="postCmt" class="addCmt-btn" onclick="postCommentclick()">Post</button></div>
+        </div>
+    </div>
+</div>
+<script>
+    $(".vote").click(function () {
+        $(".voted").css("display", "unset");
+        $(".vote").css("display", "none");
+        //$(this).toggleClass("voted");
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+        var baseurl = 'ViewFeedback/SaveVoteofUser';
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) + parseInt(1);
+                console.log(vsum, vcount);
+                $("#dtl_voted").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    $(".voted").click(function () {
+        $(".voted").css("display", "none");
+        $(".vote").css("display", "unset");
+        //$(this).toggleClass("voted");
+        var voteid = "vote-" + $("#dtl_fdbkId").text();
+
+        var baseurl = 'ViewFeedback/SaveVoteofUser';
+        var model = {
+            voteid: voteid
+        };
+        var data = JSON.stringify(model);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                voteid: voteid
+            },
+            success: function (temp) {
+                console.log("save successfully");
+                var vcount = $("#vote").text();
+                const vsum = parseInt(vcount) - parseInt(1);
+                console.log(vsum, vcount);
+                $("#dtl_vote").text(vsum);
+            },
+            error: function (err, data) {
+                console.log(arguments);
+            }
+        });
+    });
+    
+</script>

@@ -1,0 +1,67 @@
+﻿@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions
+@using WebUI.Areas.ClientProfileManager.Dto
+
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //   Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+}
+
+
+<div class="content-main dark-bg" >
+      
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li>Client Administration</li>
+                <li class="active">2-step Auth Details</li>
+            </ol>
+        
+
+        <div class="custom-kendo-grid" style="margin-top:1em;">
+            @(Html.Kendo().Grid<LogModel>
+    ()
+    .Name("clientAccess")
+    .Columns(columns =>
+    {
+
+        columns.Bound(e => e.UserName).Title("User Name").ClientFooterTemplate("Total Users: #=count#")
+                .ClientGroupFooterTemplate("Count: #=count#");
+        columns.Bound(e => e.Auth).Title("Authentication Type").ClientFooterTemplate("Total Count: #=count#")
+            .ClientGroupFooterTemplate("Count: #=count#");
+        columns.Bound(e => e.IsVerified).Title("Verified?").ClientFooterTemplate("Total Verified: #=count#")
+            .ClientGroupFooterTemplate("Count: #=count#");
+        columns.Bound(e => e.Date).Title("Date?").Format("{0:MM/dd/yyyy hh:mm tt}");
+    })
+    .Scrollable()
+    .Groupable()
+    //.HtmlAttributes(new { style = "height: 600px;" })
+    .Sortable()
+    .DataSource(dataSource => dataSource
+
+    .Ajax()
+    .Sort(sort => sort.Add("Date").Descending())
+     .Aggregates(aggregates =>
+     {
+         aggregates.Add(p => p.Auth).Count();
+         aggregates.Add(p => p.UserName).Count();
+         aggregates.Add(p => p.IsVerified).Count();
+     })
+    .Read(read => read.Action("GetUserAuthLogDetails", "Dashboard"))
+
+    )
+    )
+        </div>
+  
+</div>

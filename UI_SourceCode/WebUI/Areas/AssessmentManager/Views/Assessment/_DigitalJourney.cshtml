@@ -1,0 +1,147 @@
+﻿@using Kendo.Mvc.UI;
+<style>
+    .a3mm-dashboard li {
+        list-style-type: disc !important;
+    }
+    .listItem {
+        cursor: pointer;
+        display: inline-block;
+    }
+</style>
+<div id="digiJourney" class="digiJourneyDiv">
+   
+   
+    <span hidden id="SelAccount">@Model.Account</span>
+    <div class="a3mm-dashboard" id="A3mmdashboard">
+        <div class="a3mm-dashboard-header">Digital Journey</div>
+        <div class="a3mm-dashboard-content">
+            <div class="a3mm-dgtlJrny-left">
+                <div class="contract-duration">Contract Duration : @Model.ContractDuration</div>
+                @*<img src="~/Content/images/A3MMDgtlJourney2.png" style="width: auto; margin: 3em 4em; height: 41.5em;"/>*@
+                <div class="a3mm-dgtlJrny-graph">
+                    <div class="level-5">
+                        <ul>
+                            @if (Model.EngagementList != null)
+                            {
+                                var count =  0;
+                                foreach (var item in Model.EngagementList)
+                                {
+                                    if (item.level == "5")
+                                    {
+                                        count++;
+                                        var cmpid = "lvl5_" + count;
+                                            <li>
+                                                <div class="listItem" onclick="cmpClick(@cmpid)">@item.EnggComponent</div>
+                                                <span hidden id="@cmpid">@item.EnggComponent</span>
+                                            </li>
+                                      }
+                                 }
+                             }
+                        </ul>
+                    </div>
+                    <div class="level-4">
+                        <ul>
+                            @if (Model.EngagementList != null)
+                            {
+                                var count = 0;
+                                foreach (var item in Model.EngagementList)
+                                {
+                                    if (item.level == "4")
+                                    {
+                                        count++;
+                                        var cmpid = "lvl4_" + count;
+                                        <li>
+                                            <div class="listItem" onclick="cmpClick(@cmpid)">@item.EnggComponent</div>
+                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="level-3">
+                        <ul>
+                            @if (Model.EngagementList != null)
+                            {
+                                var count = 0;
+                                foreach (var item in Model.EngagementList)
+                                {
+                                    if (item.level == "3")
+                                    {
+                                        count++;
+                                        var cmpid = "lvl3_" + count;
+                                        <li>
+                                            <div class="listItem" onclick="cmpClick(@cmpid)">@item.EnggComponent</div>
+                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="level-2">
+                        <ul style="height: 4.5vw;">
+                            @if (Model.EngagementList != null)
+                            {
+                                var count = 0;
+                                foreach (var item in Model.EngagementList)
+                                {
+                                    if (item.level == "2")
+                                    {
+                                        count++;
+                                        var cmpid = "lvl2_" + count;
+                                        <li>
+                                            <div class="listItem" onclick="cmpClick(@cmpid)">@item.EnggComponent</div>
+                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="level-1">
+                        <ul style="height:5em">
+                            @if (Model.EngagementList != null)
+                            {
+                                var count = 0;
+                                foreach (var item in Model.EngagementList)
+                                {
+                                    if (item.level == "1")
+                                    {
+                                        count++;
+                                        var cmpid = "lvl1_" + count;
+                                        <li>
+                                            <div class="listItem" onclick="cmpClick(@cmpid)">@item.EnggComponent</div>
+                                            <span hidden id="@cmpid">@item.EnggComponent</span>
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="a3mm-dgtlJrny-right">
+                @if (Model.NAEngagementList.Count != 0)
+                {
+                    <span>Not Applicable</span>
+                    <ul>
+                        @foreach (var items in Model.NAEngagementList)
+                        {
+                            <li>@items  </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $("#btnExp").click(function () {
+        console.log("export clicked");
+
+        window.print();
+
+    });
+</script>

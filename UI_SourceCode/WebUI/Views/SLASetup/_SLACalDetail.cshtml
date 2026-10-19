@@ -1,0 +1,83 @@
+﻿@model IList<NTTData.AMOPortal.Domain.Entities.SlaCalSetup>
+
+<div class="form-horizontal" style="width:61%">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+    }
+    @if (TempData["SLACreatedDeleted"] != null)
+    {
+        <p class="alert alert-success" style="width:100%"> 
+            <strong>Success:</strong><label>@TempData["SLACreatedDeleted"].ToString()</label>
+        </p>
+    }
+</div>
+
+<div class="MetricSetup tab-pane opened" id="SLACalDetail">
+    <div class="form-group">
+
+        <table class="table table-striped" style="width:75%"  cellpadding="0">
+            <thead>
+                <tr>
+                    <th width="40px;">Field Name</th>
+                    <th width="40px;">Field Value</th>
+                    <th width="20px;">Preference</th>
+                    <th width="20px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    if (Model != null && Model.Count()>0)
+                    {
+
+                        var curVal = "";
+                        foreach (var item in Model)
+                        {
+                            var dispVal = item.InputFiled;
+                            if (curVal == dispVal)
+                            {
+                                dispVal = "";
+                            }
+                            curVal = item.InputFiled;
+                            <tr>
+                                <td>@dispVal</td>
+                                <td>@item.IFiledColValue</td>
+                                <td>@item.IPriority.ToString()</td>
+                                <td><button type="button" data-id="@item.Id" class="btn btn-default" name="hrefClass">Remove</button></td>
+                            </tr>
+                        }
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var href = window.location.href.split('/');
+    var baseurl = '';
+    if (href[3].toLowerCase() == 'slasetup') {
+        baseurl = href[0] + '//' + href[2] + '/SLASetup/DelSLAcal';
+    }
+    else {
+        baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'SLASetup/DelSLAcal';
+    }
+    $(".btn-default").click(function () {
+        var dataToPost = {
+            slasetupid: $(this).attr("data-id")
+        };
+       // alert('post' + baseurl);
+        $.ajax(
+        {
+            url: baseurl ,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#partialDiv").html(data);
+            },
+            error: function () {
+             //   $("#divLoading").hide();
+            }
+        });
+    });
+</script>

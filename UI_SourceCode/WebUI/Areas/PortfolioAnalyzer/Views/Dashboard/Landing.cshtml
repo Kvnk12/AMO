@@ -1,0 +1,1233 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model DashboardModel
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Scripts/jquery-3.6.0.js"></script>
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    @*<script src="@Url.Content("~/Scripts/pako.min.js")"></script>*@
+    ViewBag.Title = "Portfolio Analyzer";
+    //var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    //var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new DashboardController();
+    var PortfolioNameList = v.portfolioNameList(client.ClientId);
+    var PerspectiveTypeList = v.perspectiveTypeList(client.ClientId);
+    var surveyList = v.surveyList(client.ClientId);
+    //var HintList = v.hintList(client.Id);
+}
+<style>
+    .custom-kendo-tabstrip .k-tabstrip > .k-content {
+        border: unset !important;
+    }
+
+    .k-widget.k-combobox.k-combobox-clearable {
+        width: 240px;
+    }
+
+    .k-chart, .k-stockchart {
+        height: 321px;
+    }
+</style>
+<div class="content-main dark-bg">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li class="active">Dashboard</li>
+        </ol>
+    </div>
+    <input type="hidden" id="category" name="category">
+    <input type="hidden" id="charttype" name="charttype">
+    <div class="custom-kendo-tabstrip apr-landing">
+        @(Html.Kendo().TabStrip()
+      .Name("tabstrip")
+      .Animation(animation =>
+          animation.Open(effect =>
+              effect.Fade(FadeDirection.In)))
+      .Items(tabstrip =>
+      {
+          tabstrip.Add().Text("Overview")
+           .Selected(true)
+          .Content(@<text>
+            <div class="apr-dashboard-chart">
+                <div class="apr-dashboard-row">
+                    <div class="apr-chart">
+                        <div class="apr-chart-title">
+                            <label class="custom-blue-label">  Portfolio Breakdown</label>
+                            <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c1"><span id="d1c1_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart1()"></span>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                            @(Html.Kendo().Chart<DashboardModel>()
+        .Name("DashboardPortfolioBreakdown")
+
+        .Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(false)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterPortfolioBreakdown")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        })
+         .Series(series =>
+         {
+             series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                .Labels(labels => labels
+                .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                 .Background("transparent")
+             //.Visible(true)
+             //   .Position(ChartPieLabelsPosition.OutsideEnd)
+
+             )
+                .Overlay(ChartPieSeriesOverlay.None)
+             .StartAngle(150);
+         })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+        )
+        .Events(events => events.SeriesClick("onChart1Click"))
+
+                                    )
+                            </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart1Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Portfolio BreakDown").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart1")))
+
+                                )
+
+                          </div>
+                    </div>
+                    <div class="apr-chart">
+                         <div class="apr-chart-title">
+                             <label  class="custom-blue-label"> Source Code Type Breakdown</label>
+                              <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c2"><span id="d1c2_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart2()"></span>
+                            </div>
+                         </div>
+                        <div class="chart-content">
+                          @(Html.Kendo().Chart<DashboardModel>()
+        .Name("DashboardSourceCodeType")
+
+        .Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(false)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataPortfolio")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        })
+        .Series(series =>
+        {
+
+            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+               .Labels(labels => labels
+               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                .Background("transparent")
+               //  .Visible(true)
+                // .Position(ChartPieLabelsPosition.OutsideEnd)
+
+            )
+               .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(120);
+        })
+
+
+
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+        )
+                    .Events(events => events.SeriesClick("onChart2Click"))
+                            )
+                            </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart2Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Source Code Type").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart2")))
+
+                                )
+
+                          </div>
+                    </div>
+                    <div class="apr-chart">
+                         <div class="apr-chart-title">
+                        <label class="custom-blue-label">Business Function</label>
+                              <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c3"><span id="d1c3_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart3()"></span>
+                            </div>
+                             </div>
+                        <div class="chart-content">
+                          @(Html.Kendo().Chart<DashboardModel>()
+        .Name("DashboardPieChartsBusinessFunction")
+
+        .Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(false)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataBusinessFunction")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        }).Series(series =>
+        {
+
+            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+               .Labels(labels => labels
+               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                .Background("transparent")
+            )
+             .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(90);
+        })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+        )
+                            .Events(events => events.SeriesClick("onChart3Click"))
+        )
+                        </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart3Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Business Function").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart3")))
+
+                                )
+
+                          </div>
+                    </div>
+                </div>
+                <div class="apr-dashboard-row" style="display:flex">
+                    <div class="apr-chart">
+                          <div class="apr-chart-title">
+                            <label class="custom-blue-label">  Application Division</label>
+                               <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c4"><span id="d1c4_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart4()"></span>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                        @(Html.Kendo().Chart<DashboardModel>()
+                                    .Name("DashboardPieCharts")
+                                    .Legend(legend => legend
+                                    .Visible(false)
+                                    )
+                                    .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                    )
+                                     .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterData")))
+                                       .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                    "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                    "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                    "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                    "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                })
+                                       .Series(series =>
+                                         {
+                                            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                            .Labels(labels => labels
+                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                            .Background("transparent")
+                                        )
+                                        .Overlay(ChartPieSeriesOverlay.None)
+                                        .StartAngle(60);
+                                    })
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                    )
+                                                 .Events(events => events.SeriesClick("onChart4Click"))
+                                    )
+                            </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart4Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Criticality").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart4")))
+
+                                )
+
+                          </div>
+                    </div>
+                    <div class="apr-chart">
+                        <div class="apr-chart-title">
+                            <label class="custom-blue-label">Overall Disposition</label>
+                             <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c5"><span id="d1c5_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart5()"></span>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                         @(Html.Kendo().Chart<DashboardModel>()
+                                                        .Name("DashboardPieChartsDisposition")
+                                                        .Legend(legend => legend
+                                                        .Visible(false)
+                                                        )
+                                                        .ChartArea(chartArea => chartArea
+                                                            .Background("transparent")
+                                                        )
+                                                         .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataDisposition")))
+                                                         .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                    "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                    "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                    "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                    "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                          })
+                                                        .Series(series =>
+                                                        {
+                                                            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                                               .Labels(labels => labels
+                                                               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                .Background("transparent")
+                                                            )
+                                                            .Overlay(ChartPieSeriesOverlay.None)
+                                                            .StartAngle(30);
+                                                        })
+                                                        .Tooltip(tooltip => tooltip
+                                                            .Visible(true)
+                                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                        )
+                                                                   .Events(events => events.SeriesClick("onChart5Click"))
+                                                             )
+                            </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart5Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Disposition").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart5")))
+
+                                )
+
+                          </div>
+                    </div>
+                    <div class="apr-chart">
+                        <div class="apr-chart-title">
+                            <label class="custom-blue-label">Application/Service Type</label>
+                             <div class="top-content-right">
+                               <p class="view-type graph-view" id="d1c6"><span id="d1c6_span"></span>Table/Graph</p>
+                               <span class="expand-view" title="Maximise the chart" onclick="maximiseChart6()"></span>
+                            </div>
+                        </div>
+                        <div class="chart-content">
+                        @(Html.Kendo().Chart<DashboardModel>()
+                            .Name("DashboardPieChartsAppType")
+                            .Legend(legend => legend
+                            .Visible(false)
+                            )
+                            .ChartArea(chartArea => chartArea
+                                .Background("transparent") )
+                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataAppType")))
+                                .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                            })
+                            .Series(series =>
+                            {
+                                series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                    .Labels(labels => labels
+                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                    .Background("transparent"))
+                                    .Overlay(ChartPieSeriesOverlay.None)
+                                .StartAngle(150);
+                            })
+                            .Tooltip(tooltip => tooltip
+                                .Visible(true)
+                                .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                            )
+                                                .Events(events => events.SeriesClick("onChart6Click"))
+                            )
+                            </div>
+                          <div class="table-content hide" style="color: #000;padding: 0 18px;">
+                             @(Html.Kendo().Grid<DashboardModel>()
+                                .Name("chart6Grid")
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(e => e.PieChartColumnName).Title("Application Type").ClientFooterTemplate("Total");
+                                    columns.Bound(e => e.AppCount).Title("Application Count").ClientFooterTemplate("#=sum#");
+                                })
+                                .Scrollable()
+                                .AutoBind(false)
+                                .Sortable()
+                                .HtmlAttributes(new { style = "height:290px;" })
+                                .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                    .Aggregates(agg =>
+                                    {
+                                        agg.Add(p => p.AppCount).Sum();
+                                    })
+                                    .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("GetParameterchart6")))
+
+                                )
+
+                          </div>
+                    </div>
+                </div>
+
+            </div>
+        </text>);
+
+tabstrip.Add().Text("Cost")
+.Content(@<div style="width:100%;height:100%">
+           @* <iframe id="frameTrendig" href='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/DashboardCostReport.aspx")' border="0" frameborder="0" height="1000" width="1100"></iframe>*@
+           @* <a id="frameTrendig" href='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/DashboardCostReport.aspx")'></a>*@
+                           @* <a id="frameTrendig" href="~/Areas/PortfolioAnalyzer/AspxReport/DashboardCostReport.aspx">a</a>*@
+
+                </div>
+);
+tabstrip.Add().Text("Rating")
+        //.Content(p => Html.Partial("_ratingHeatMap"));
+ .Content(@<text>
+                <div>
+                        @*<iframe id="frameTrendig" src='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/RatingHeatMap.aspx")' border="0" frameborder="0" height="1000" width="1380"></iframe>*@
+                           @* <a id="frameTrendig" href='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/RatingHeatMap.aspx")'></a>*@
+
+</div></text>);
+tabstrip.Add().Text("Portfolio Rating Summary")
+          .Content(@<div>
+            <div class="apr-land-Rating">
+                <div class="apr-rating-column">
+                    <div class="custom-group">
+                        <div class="label-part">
+                            <Label class="custom-blue-label">Survey Name </Label>
+                        </div>
+                        <div class="input-part">
+                             <div class="apr-rating-input">
+                                    @(Html.Kendo().ComboBox()
+                                            .Name("surveyName")
+                                            .Filter("contains")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .BindTo(surveyList)
+                                            .Events(e => e
+                                               .Change("SurveyChange")
+                                            )
+                                            //.Value("All")
+                                            .Enable(true)
+                                            .AutoBind(true)
+                                    )
+                              </div>
+                        </div>
+                    </div>
+                     <div class="custom-group">
+                         <div class="label-part">
+                        <label class="custom-blue-label">Perspective Type </label>
+                         </div>
+                         <div class="input-part">
+                        <div class="apr-rating-input custom-kendo-multiselect">
+                        @(Html.Kendo().MultiSelect()
+                                .Name("perspectiveType")
+                                .Placeholder("Select Perspective Type")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .AutoClose(false)
+                                .Filter(FilterType.Contains)
+                                .BindTo(PerspectiveTypeList)
+                                //.Events(e => e
+                                //  .Change("PerspectiveTypeChange")
+                                //)
+                                .Value(PerspectiveTypeList.ToList())
+                                .Enable(true)
+                                .AutoBind(true)
+                      //.HtmlAttributes(new { style = "width:350px;" })
+                      )
+                            </div>
+                            </div>
+                    </div>
+
+                </div>
+                <div class="apr-rating-column">
+                    <div class="custom-group">
+                        <div class="label-part">
+                            <Label class="custom-blue-label">Portfolio Name </Label>
+                             </div>
+                        <div class="input-part">
+                        <div class="apr-rating-input">
+                             @(Html.Kendo().ComboBox()
+                                    .Name("portfolioName")
+                                    .Filter("contains")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(PortfolioNameList)
+                                    .Events(e => e
+                                       .Change("PortfolioChange")
+                                    )
+                                    .Value("All")
+                                    .Enable(true)
+                                    .AutoBind(true)
+                                //.CascadeFrom("fabric")
+                                //.HtmlAttributes(new { style = "width:200px;" })
+                                )
+                            </div>
+                            </div>
+                    </div>
+                    <div class="custom-group">
+                          <div class="label-part">
+                         <Label class="custom-blue-label">Hint  </Label>
+                          </div>
+
+                        <div class="input-part">
+                        <div class="apr-rating-input custom-kendo-multiselect">
+
+                          @(Html.Kendo().MultiSelect()
+                                        .Name("hintList")
+                                        .Placeholder("Select Hint")
+                                        .DataTextField("Text")
+                                        .DataValueField("Value")
+                                        .AutoClose(false)
+                                        .Filter(FilterType.Contains)
+                                        .DataSource(datasource =>
+                                                datasource.Read(read => read.Action("hintList", "Dashboard").Data("checkSurveySelected")))
+                                        //.BindTo(HintList)
+                                        //.Events(e => e
+                                        //  .Change("HintChange")
+                                        //)
+                                        //.Value("All")
+                                        .Enable(true)
+                        //.AutoBind(true)
+                        //.HtmlAttributes(new { style = "width:350px;" })
+                        )
+                            </div>
+                            </div>
+                    </div>
+
+                </div>
+            </div>
+           <div class="apr-button-group">
+                             @(Html.Kendo().Button()
+            .Name("Filter")
+            .Content("Filter")
+            .HtmlAttributes(new { @class = "k-primary" })
+            .Events(ev => ev.Click("onFilterClick")))
+
+
+    <button class='export-pdf k-button'>Export as PDF</button>
+
+    <button class='export-img k-button'>Export as Image</button>
+
+                 </div>
+                <div style="background:white;padding:15px">
+                    @(Html.Kendo().Chart<AprStackedGraphModel>()
+.Name("stackedGraphRating")
+.Title("Portfolio Rating Summary")
+.Legend(legend => legend
+  .Position(ChartLegendPosition.Bottom)
+)
+.DataSource(ds => ds.Read(read => read.Action("StackedGraph", "Dashboard").Data("dataToGraph")))
+.SeriesDefaults(seriesDefaults =>
+  seriesDefaults.Bar().Stack(ChartStackType.Stack100)
+)
+  .ChartArea(x => x.Width(1130).Height(400))
+.Series(series =>
+{
+    series.Bar(model => model.PoorRatingCount).Name("Poor").Color("red");
+    series.Bar(model => model.AvgRatingCount).Name("Average").Color("yellow");
+    series.Bar(model => model.GoodRatingCount).Name("Good").Color("green");
+})
+.CategoryAxis(axis => axis
+.Min(0)
+            .Max(10)
+  .Categories(model => model.Hint)
+  .MajorGridLines(lines => lines.Visible(false))
+)
+.ValueAxis(axis => axis
+  .Numeric()
+  .Line(line => line.Visible(false))
+  .MajorGridLines(lines => lines.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+  .Visible(true)
+  .Template("#= series.name #: #= value #")
+)
+     .Pannable(pannable => pannable
+            .Lock(ChartAxisLock.X)
+        )
+        .Zoomable(zoomable => zoomable
+            .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+            .Selection(selection => selection.Lock(ChartAxisLock.X))
+        )                )
+                </div>
+
+</div>
+
+                );
+
+      })
+                .Events(events => events
+                  .Select("onSelect"))
+                )
+    </div>
+    @Html.Partial("_PopupCharts", Model)
+    <div id="chartseriesModalDrilldown" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-popup-title">
+                <label class="custom-white-label" id="gridlabel1"></label>
+                <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<ExAppInventoryDataModel>()
+                                                    .Name("AppliationDrillDown")
+                                                     .Columns(col =>
+                    {
+                        col.Bound(c => c.Id).Hidden();
+                        col.Bound(c => c.ApplicationName).Width(150);
+                        col.Bound(c => c.Description).Width(150);
+                        col.Bound(c => c.ClientApplicationNumber);
+                        col.Bound(c => c.BusinessFunction);
+                        col.Bound(c => c.AppCriticality).Width(100);
+                        col.Bound(c => c.ArchitectureType).Width(100);
+                        col.Bound(c => c.SourceType).Width(100);
+                        col.Bound(c => c.AvgConcurrentUsers).Width(100);
+                        col.Bound(c => c.AppSize).Width(100);
+                        col.Bound(c => c.LOBName).Width(100);
+                        col.Bound(c => c.DispositionName).Width(100);
+                        col.Bound(c => c.AppType).Width(100);
+
+
+                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export - ");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                    .Filterable()
+                                                    .Sortable()
+                                                    .Pageable()
+                                                    .AutoBind(false)
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Dashboard_DrillDown_Report.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+
+                                                    })
+                                                    .PageSize(100)
+                                                    .Read(read => read.Action("GetAppsdrilldown", "Dashboard").Data("GetdrilldownParameter"))
+                                                    )
+        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    function FilterBySurvey(e)
+    {
+        var getvallll = $("#surveyName1").data("kendoDropDownList");
+        var SurveyName1 = getvallll.value();
+        //surveyId: $("#surveyName1").val()
+        return {
+            surveyId:SurveyName1
+        }
+    }
+
+    function LineItems_Databound(x) {
+
+        if (x < 3) {
+            return "<div style='background: red'>" + x + " </div>";
+        }
+        else if(x >= 3 && x < 4)
+        {
+            return "<div style='background: yellow'>" + x + " </div>";
+        }
+        else if(x >= 4)
+        {
+             return "<div style='background: green'>" + x + " </div>";
+        }
+        else {
+            return x;
+        }
+
+    }
+
+    function checkSurveySelected()
+    {
+        var SurveyName = $("#surveyName").val()
+        if (SurveyName.toUpperCase() == "ALL" || SurveyName=="") {
+           // alert("Please select the Survey!");
+            return false;
+        }
+        else {
+            return {
+                surveyId: $("#surveyName").val()
+            }
+        }
+
+    }
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        //setTimeout(function () {
+            kendo.ui.progress(element, false);
+        //}, 1000);
+    }
+
+    function PortfolioChange() {
+
+        updateDashboard();
+
+    }
+
+    function updateDashboard() {
+        displayLoading("#container");
+        var stackGraph = $("#stackedGraphRating").data("kendoChart");
+        stackGraph.dataSource.read();
+        stackGraph.refresh();
+    }
+
+    function PerspectiveTypeChange() {
+
+        updateDashboard();
+    }
+    //This is not working!!
+    function noOFAppssss() {
+        var tempval = $("#surveyName1").data("kendoDropDownList");
+        var dat = {
+            Id: tempval.value()
+        };
+
+        var dataa = JSON.stringify(dat);
+        //alert(dataa);
+        var baseurl1 = '@Url.Content("~/APRAjaxService/UnassignedApps")';
+        if (tempval.value() != "") {
+            $.ajax({
+                //async: false,
+                type: "post",
+                url: baseurl1,
+                data: dataa,
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //alert(response);
+                    $("#message").show();
+                    $("#cd").empty();
+                    $("#an").empty();
+                    $("#cd").append(document.createTextNode(response.cd));
+                    $("#an").append(document.createTextNode(response.an));
+                },
+                error: function (response) {
+                    alert("Error Occured!");
+                }
+
+            })
+        }
+    }
+
+    function SSSurveyChange1(e)
+    {
+        noOFAppssss();
+        //var ratingheatmap = $("#ratingheatmapgrid").data("kendoGrid");
+        //ratingheatmap.dataSource.read();
+        //ratingheatmap.refresh();
+        helperAjaxHeatMap();
+    }
+
+    function SurveyChange() {
+        //to fill up the hintList: Kendo MultiSelect
+        updateDashboard();
+        //var hintListt = $("#hintList").data("kendoMultiSelect");
+        //hintListt.dataSource.read();
+        //hintListt.refresh();
+
+    }
+    function HintChange()
+    {
+        var SurveyName = $("#surveyName").val()
+        if (SurveyName.toUpperCase() == "ALL") {
+            alert("Please select the Survey!");
+            return false;
+        }
+    }
+    function onFilterClick() {
+        updateDashboard();
+    }
+
+    function dataToGraph(e) {
+        var perspectivetype = $("#perspectiveType").data("kendoMultiSelect");
+        var hintlist = $("#hintList").data("kendoMultiSelect");
+        var sidd = $("#surveyName").val();
+        if (sidd == ""){
+            sidd = "0";
+        }
+        return {
+            PortfolioName: $("#portfolioName").val(),
+            PerspectiveType: encodeURIComponent(JSON.stringify(perspectivetype.value())),
+            SurveyName: sidd,
+            Hints: encodeURIComponent(JSON.stringify(hintlist.value())),
+        };
+    }
+
+    function ParameterData(e) {
+        return {
+            filterOption: 1,
+        };
+    }
+    function GetParameterchart4(e) {
+        return {
+            filterOption: 1,
+        };
+    }
+    $("#d1c4").click(function () {
+        var grid = $("#chart4Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart4() {
+        var chart4 = $("#winChart4").data("kendoChart");
+        chart4.dataSource.read();
+        var popup = $("#chart4Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function ParameterDataPortfolio(e) {
+        return {
+            filterOption: 3,
+        };
+    }
+    function GetParameterchart2(e) {
+        return {
+            filterOption: 3,
+        };
+    }
+    $("#d1c2").click(function () {
+        var grid = $("#chart2Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart2() {
+        var chart2 = $("#winChart2").data("kendoChart");
+        chart2.dataSource.read();
+        var popup = $("#chart2Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function ParameterPortfolioBreakdown(e) {
+        return {
+            filterOption: 6,
+        };
+    }
+    function GetParameterchart1(e) {
+        return {
+            filterOption: 6,
+        };
+    }
+    $("#d1c1").click(function () {
+        var grid = $("#chart1Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart1() {
+        var chart1 = $("#winChart1").data("kendoChart");
+        chart1.dataSource.read();
+        var popup = $("#chart1Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function ParameterDataAppType(e) {
+        return {
+            filterOption: 2,
+        };
+    }
+    function GetParameterchart6(e) {
+        return {
+            filterOption: 2,
+        };
+    }
+    $("#d1c6").click(function () {
+        var grid = $("#chart6Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart6() {
+        var chart6 = $("#winChart6").data("kendoChart");
+        chart6.dataSource.read();
+        var popup = $("#chart6Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function ParameterDataBusinessFunction(e) {
+        return {
+            filterOption: 5,
+        };
+    }
+    function GetParameterchart3(e) {
+        return {
+            filterOption: 5,
+        };
+    }
+    $("#d1c3").click(function () {
+        var grid = $("#chart3Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart3() {
+        var chart3 = $("#winChart3").data("kendoChart");
+        chart3.dataSource.read();
+        var popup = $("#chart3Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    function ParameterDataDisposition(e) {
+        return {
+            filterOption: 4,
+        };
+    }
+    function GetParameterchart5(e) {
+        return {
+            filterOption: 4,
+        };
+    }
+    $("#d1c5").click(function () {
+        var grid = $("#chart5Grid").data("kendoGrid");
+        grid.dataSource.read();
+    });
+    function maximiseChart5() {
+        var chart5 = $("#winChart5").data("kendoChart");
+        chart5.dataSource.read();
+        var popup = $("#chart5Window").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    $('.graph-view').on('click', function () {
+        if ($(this).hasClass('graph-view')) {
+            $(this).addClass('table-view');
+            $(this).removeClass('graph-view');
+        }
+        else {
+            $(this).addClass('graph-view');
+            $(this).removeClass('table-view');
+        }
+        $(this).parents('.apr-chart-title').siblings('.chart-content').toggleClass('hide');
+        $(this).parents('.apr-chart-title').siblings('.table-content').toggleClass('hide');
+    });
+    function helperAjaxHeatMap() {
+
+        var getvallll = $("#surveyName1").data("kendoDropDownList");
+        var SurveyName1 = getvallll.value();
+        //alert(SurveyName1);
+        var dat = {
+            surveyId: SurveyName1
+        }
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/Dashboard/APRRatingHeatMap")';
+        if (SurveyName1.Value != "") {
+            $.ajax({
+                async: false,
+                type: "post",
+                url: baseurl1,
+                data: dataa,
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    //labor Summary
+
+                    //$("#datatable").val(response);
+                    //var labor = response;
+                    //var labourDataSource = new kendo.data.DataSource({
+                    //    data: labor
+                    //});
+                    //var heatmppGrid = $('#ratingheatmapgrid').data('kendoGrid');
+                    //heatmppGrid.refresh();
+                    //heatmppGrid.setDataSource(labourDataSource);
+                    //internal
+                   // alert("dasdadasdasd");
+
+
+
+                },
+                error: function (response) {
+                alert("error occured");
+            }
+
+            });
+        }
+        else {
+            return null;
+        }
+
+    }
+
+    $(".export-pdf").click(function () {
+        var chart = $("#stackedGraphRating").getKendoChart();
+        chart.exportPDF({ paperSize: "auto", margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" } }).done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "chart.pdf",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+    $(".export-img").click(function () {
+        var chart = $("#stackedGraphRating").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "chart.png",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+    $(function () {
+        $(document).bind("kendo:skinChange", updateTheme);
+    });
+
+    function updateTheme() {
+        $("#stackedGraphRating").getKendoChart().setOptions({ theme: kendoTheme });
+    }
+
+    function onSelect(e) {
+        var selectedTab = $(e.item).index();
+        console.log(selectedTab);
+
+        if (selectedTab == 1) {
+            console.log("cost");
+            window.location.href = '@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/DashboardCostReport.aspx")';
+        }
+        else if (selectedTab == 2) {
+            console.log("rating");
+            window.location.href = '@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/RatingHeatMap.aspx")';
+
+        }
+    }
+    function onChart1Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "LOBName";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.hideColumn("AppCriticality");
+        gridpriority.hideColumn("ArchitectureType");
+        gridpriority.hideColumn("SourceType");
+        gridpriority.hideColumn("AppType");
+        gridpriority.showColumn("LOBName");
+        gridpriority.hideColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function onChart2Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "SourceType";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.showColumn("AppCriticality");
+        gridpriority.showColumn("ArchitectureType");
+        gridpriority.showColumn("SourceType");
+        gridpriority.showColumn("AppType");
+        gridpriority.hideColumn("LOBName");
+        gridpriority.hideColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function onChart3Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "BusinessFunction";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.showColumn("AppCriticality");
+        gridpriority.showColumn("ArchitectureType");
+        gridpriority.showColumn("SourceType");
+        gridpriority.showColumn("AppType");
+        gridpriority.hideColumn("LOBName");
+        gridpriority.hideColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function onChart4Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "AppCriticality";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.showColumn("AppCriticality");
+        gridpriority.showColumn("ArchitectureType");
+        gridpriority.showColumn("SourceType");
+        gridpriority.showColumn("AppType");
+        gridpriority.hideColumn("LOBName");
+        gridpriority.hideColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function onChart5Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "DispositionName";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.hideColumn("AppCriticality");
+        gridpriority.hideColumn("ArchitectureType");
+        gridpriority.hideColumn("SourceType");
+        gridpriority.hideColumn("AppType");
+        gridpriority.hideColumn("LOBName");
+        gridpriority.showColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function onChart6Click(e) {
+        document.getElementById("category").value = e.category;
+        document.getElementById("charttype").value = "AppType";
+        document.getElementById('gridlabel1').innerHTML = "Application List by - " + e.category;
+        var gridpriority = $("#AppliationDrillDown").data("kendoGrid");
+        gridpriority.showColumn("AppCriticality");
+        gridpriority.showColumn("ArchitectureType");
+        gridpriority.showColumn("SourceType");
+        gridpriority.showColumn("AppType");
+        gridpriority.hideColumn("LOBName");
+        gridpriority.hideColumn("DispositionName");
+        gridpriority.dataSource.read();
+        $('#chartseriesModalDrilldown').modal('show');
+    }
+    function GetdrilldownParameter() {
+        return {
+            ChartType: document.getElementById("charttype").value,
+            Category: document.getElementById("category").value
+        };
+    }
+</script>
+
+
+

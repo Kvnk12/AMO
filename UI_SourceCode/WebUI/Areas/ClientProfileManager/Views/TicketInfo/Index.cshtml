@@ -1,0 +1,132 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@model ticketInfoInput
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+<div class="content-main">
+    @using (Html.BeginForm("AddTictetInfo", "TicketInfo", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+
+        <div class="container" style="padding: 0;">
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+                <div class="treeMenuContent" style="min-height: 700px">
+                    <div class="well well-sm"><strong>Client Ticket Info</strong></div>
+                    <div class="">
+                        <div class="form-horizontal">
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                            }
+                        </div>
+                        <div class="container_12">
+                            <table cellpadding="5" cellspacing="2">
+                                <tr>
+                                    <td style="width:75px;"><strong>@Html.Label("From Date")</strong></td>
+                                    <td style="width:100px;">
+                                        <div class="input-append date">
+                                            @Html.HiddenFor(m => m.ClientId, new { @id = "hidClientId" })
+                                            @Html.TextBoxFor(m => m.fromDt, new { @class = "form-control datefield", @id = "fromDate" })
+                                        </div>
+                                    </td>
+                                    <td style="width:70px;"><strong>@Html.Label("To Date")</strong></td>
+                                    <td style="width:100px;">
+                                        @Html.TextBoxFor(m => m.toDt, new { @class = "form-control datefield", @id = "toDate" })
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div>
+                            <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" width="10%"></th>
+                                        <th scope="col" width="10%">Incidents</th>
+                                        <th scope="col" width="10%">Problems</th>
+                                        <th scope="col" width="10%">User Support SR</th>
+                                        <th scope="col" width="10%">Enhancements</th>
+                                        <th scope="col" width="10%">Comments</th>
+                                    </tr>
+                                </thead>
+
+                                @for (int i = 0; i < Model.ticketInfoInputList.Count(); i++)
+                                {
+                                    var bgColor = "";
+                                    if (Model.ticketInfoInputList[i].TicketInfoTypeId == 3)
+                                    {
+                                        bgColor = "gray";
+                                    }
+
+                                    <tr>
+                                        <td style='background-color: @bgColor'>
+                                            @Html.HiddenFor(m => m.ticketInfoInputList[i].TicketInfoTypeId)
+                                            @Html.HiddenFor(m => m.ticketInfoInputList[i].ClientId, new { @value = Model.ClientId })
+
+                                            <strong>
+
+                                                @Html.DisplayFor(m => m.ticketInfoInputList[i].TicketInfoType)
+                                            </strong>
+
+
+                                        </td>
+                                        <td style='background-color: @bgColor'>@Html.TextBoxFor(m => m.ticketInfoInputList[i].Incidents, new { @class = "form-control", placeholder = "", tabindex = "2", onkeypress = "return isNumbersKey(event)" })</td>
+                                        <td style='background-color: @bgColor'>@Html.TextBoxFor(m => m.ticketInfoInputList[i].Problems, new { @class = "form-control", placeholder = "", tabindex = "2", onkeypress = "return isNumbersKey(event)" })</td>
+                                        <td style='background-color: @bgColor'>@Html.TextBoxFor(m => m.ticketInfoInputList[i].UserSupportSR, new { @class = "form-control", placeholder = "", tabindex = "2", onkeypress = "return isNumbersKey(event)" })</td>
+                                        <td style='background-color: @bgColor'>@Html.TextBoxFor(m => m.ticketInfoInputList[i].Enhancements, new { @class = "form-control", placeholder = "", tabindex = "2", onkeypress = "return isNumbersKey(event)" })</td>
+                                        <td style='background-color: @bgColor'>@Html.TextBoxFor(m => m.ticketInfoInputList[i].Comments, new { @class = "form-control", placeholder = "", tabindex = "2" })</td>
+                                    </tr>
+
+                                }
+                                <tr>
+                                    <td colspan="6">
+                                        <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Save</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="partialDivTicket">
+                            @Html.Partial("_TicketInfoDetail", Model.ticketInfoList)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>
+<script>
+
+    function isNumbersKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+
+        $(function () {
+            $(".datefield").datepicker();
+
+        });
+
+
+
+    });
+
+    
+</script>

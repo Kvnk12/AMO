@@ -1,0 +1,188 @@
+﻿@using WebUI.Areas.PortfolioAnalyzer.Models;
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+
+
+    <div class="apr-demographics-finacial">
+        <div class="apr-cost-basicinfo">           
+                    
+                <div class="apr-column-grid">
+                        <div class="custom-kendo-grid">
+                            @(Html.Kendo().Grid<APRFinancialModel>()
+.Name("GridFinance")
+.Columns(columns =>
+{
+    //columns.Bound(p => p.AppId).Title("AppId");
+
+    columns.Bound(p => p.Year).Title("Year");
+    columns.Group(group => group.Title("Total Cost ($)").Columns(cost =>
+    {
+        cost.Bound(p => p.TotalInternalCost).Title("Internal").Format("{0:c}").HtmlAttributes(new { style = "text-align: right;" });
+        cost.Bound(p => p.TotalExternalCost).Title("External").Format("{0:c}").HtmlAttributes(new { style = "text-align: right;" });
+    }));
+    columns.Group(group => group.Title("Total FTE").Columns(cost =>
+    {
+        cost.Bound(p => p.TotalInternalFTEs).Title("Internal").HtmlAttributes(new { style = "text-align: right;" });
+        cost.Bound(p => p.TotalExternalFTEs).Title("External").HtmlAttributes(new { style = "text-align: right;" });
+    }));
+    //columns.Bound(p => p.TotalInternalCost).Title("Total Internal Cost");
+    //columns.Bound(p => p.TotalExternalCost).Title("Total External Cost");
+    //columns.Bound(p => p.TotalInternalFTEs).Title("Total Internal FTEs");
+    //columns.Bound(p => p.TotalExternalFTEs).Title("Total External FTEs");
+
+
+    columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Title("Action");
+    //columns.Bound(p => p.Id).ClientTemplate("<a href='#' data-id='" + "/#= Id #'" + ">Edit</a>");
+})
+//.HtmlAttributes(new { style = "height: 100%;width:100%" })
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+.Sortable()
+.Pageable()
+.ToolBar(
+   tools =>
+   {
+       //tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" });
+
+       //tools.Custom().Text("Cost Summary").HtmlAttributes(new { style = "float:left;", @class = "btn-primary",id="customButtonCost" });
+       tools.Create();
+       tools.Custom().Text("Cost Summary").HtmlAttributes(new {  @class = "", id = "customButtonCost" });
+
+   }
+
+
+
+
+                            )
+                    .Events(events => events
+  .Edit("onEdit")
+
+)
+.Editable(editable => { editable.Mode(GridEditMode.PopUp); })
+    //.Scrollable(scr => scr.Height(100))
+    .Scrollable()
+    .AutoBind(false)
+    .Resizable(resize => resize.Columns(true))
+
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(p => p.Id).Editable(false);
+            model.Field(p => p.AppId).Editable(true);
+        })
+          .Read(read => read.Action("GetApplicationinFinanceDetail", "DataCollection").Data("ApplicationIDValue"))
+           .Create(update => update.Action("CreateFinancial", "DataCollection"))
+
+        .Update(update => update.Action("UpdateFinancial", "APRAjaxService"))
+        .Destroy(update => update.Action("DestroyFinancial", "DataCollection"))
+
+     )
+                            )
+                        </div>
+
+                </div>
+
+                <div class="apr-column">
+                    <div class="custom-group">
+                        <label class="custom-blue-label" for="metownder" id="">Notes:</label>
+                        @Html.TextAreaFor(m => m.FinancialNotes, new { @class = "", placeholder = "Description", tabindex = "15",style= "width:70%;height:300px;" })
+                    </div>
+                </div>
+            </div>            
+    </div>
+    <div>
+        <footer class="apr-footer">
+            <div class="apr-footer-button">
+                @(Html.Kendo().Button()
+                .Name("Previous5")
+                .Content("Previous")
+                .Events(ev => ev.Click("onPreviousClick")))
+                @(Html.Kendo().Button()
+                .Name("Next5")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+                </div>
+        </footer>
+    </div>
+    <div class="apr-chart-window">
+        @(Html.Kendo().Window()
+    .Name("costSummary")
+    .Title("Cost Summary")
+    .Content(@<text>
+        <div class="">
+    @(Html.Kendo().Chart<APRFinancialModel>()
+        .Name("chart")
+        .Title("Cost Summary")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Bottom)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetApplicationinCostSummary", "APRAjaxService").Data("ApplicationIDValue")))
+        .Series(series =>
+        {
+            series.Line(model => model.TotalDiscretionaryCost).Name("Discretionary").CategoryField("Year");
+            series.Line(model => model.TotalEnhancementCost).Name("Enhancement").CategoryField("Year");
+            series.Line(model => model.TotalInfrastructureCost).Name("Infrastructure").CategoryField("Year");
+            series.Line(model => model.TotalLicensingCost).Name("Licensing").CategoryField("Year");
+            series.Line(model => model.TotalSupportCost).Name("Support").CategoryField("Year");
+            series.Line(model => model.TotalBusinessCost).Name("Business").CategoryField("Year");
+            series.Line(model => model.TotalOtherCost).Name("Other").CategoryField("Year");
+        })
+        .ChartArea(x => x.Height(400))
+        .CategoryAxis(axis => axis
+            .Labels(labels => labels.Rotation(-90))
+            .Crosshair(c => c.Visible(true))
+        )
+        .ValueAxis(axis => axis.Numeric()
+            .Labels(labels => labels.Format("{0:c}"))
+        //.MajorUnit(10000)
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:c}")
+        )
+    )
+</div>
+    </text>)
+    .Draggable()
+    .Resizable()
+    .Width(850)
+    .Height(450)
+    .AutoFocus(true)
+    .Modal(true)
+     .Position(settings =>
+        settings.Top(70).Left(200)
+    )
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+    .Events(ev => ev.Close("onClose"))
+)
+    </div>
+
+
+<script>
+    $("#customButtonCost").click(function (e) {
+        e.preventDefault();
+        var chart = $("#chart").data("kendoChart");
+        chart.dataSource.read();
+        chart.refresh();
+        $("#costSummary").data("kendoWindow").open();
+        //$("#customButtonCost").hide();
+      //put custom logic here
+    });
+
+    function onClose() {
+        $("#customButtonCost").show();
+    }
+</script>
+
+<style>
+    .k-chart .k-tooltip, .k-chart-crosshair-tooltip, .k-chart-shared-tooltip, .k-sparkline .k-tooltip {
+       
+    color: black;
+}
+</style>

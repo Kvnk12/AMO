@@ -1,0 +1,8 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+                   <ul style="margin-top:20px;margin-left:20px;padding-bottom:10px" >
+                            <li style="float:left;margin-right:25px">@Html.ActionLink("1. Data Set Configuration", "SetupHeatMapBuilder", "HeatMapSetupBuilder",  new { clientId = @Model.ClientId, ReportId = @Model.ReportId, ReportType="Edit" }, null)</li>
+                       <li style="float:left;margin-right:25px">@Html.ActionLink("2. Filters", "GetHeatMapFilters", "HeatMapSetupBuilder",  new { clientId = @Model.ClientId, ReportId = @Model.ReportId, ReportType="Edit" }, null)</li>
+                       <li style="float:left;margin-right:25px">@Html.ActionLink("3. Algorithm", "GetHeatMapAlgorithmSetup", "HeatMapSetupBuilder",  new { clientId = @Model.ClientId, ReportId = @Model.ReportId, ReportType="Edit" }, null)</li>
+                       <li style="float:left;margin-right:25px">@Html.ActionLink("4. Threshold", "GetHeatMapThreshold", "HeatMapSetupBuilder",  new { clientId = @Model.ClientId, ReportId = @Model.ReportId, ReportType="Edit" }, null)</li>
+                </ul>

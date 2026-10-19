@@ -1,0 +1,155 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto; 
+@{
+    // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new APRAjaxServiceController();
+    var ApplicationList = v.ApplicationList(client.ClientId);
+
+}
+
+
+        <div class="apr-header-filter">
+            <label class="custom-white-label">Application/Service Name: </label>
+            <div class="custom-combobox">
+                @(Html.Kendo().ComboBox()
+.Name("AppName")
+.Filter("contains")
+.Placeholder("Select Application")
+.DataTextField("Text")
+.DataValueField("Value")
+.Events(e => e.Change("AppNameChange"))
+.BindTo(ApplicationList)
+.Enable(true)
+.AutoBind(true)
+                //.CascadeFrom("fabric")
+                //.HtmlAttributes(new { style = "width:350px;" })
+                )
+
+
+            </div>
+        </div>
+
+    
+
+
+    
+
+
+@*<script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#product").kendoComboBox({
+                name: "product",
+                dataTextField: "Text",
+                dataValueField: "Value",
+                dataSource: sharedDataSource,
+
+                filter: "contains",
+                suggest: true,
+                template: "<input type='checkbox' checked id='chk_product_#=data.Value#' onclick='UpdateIdinHF(this);' value='#=data.Value #' name='product' />" + " " + "${ data.Text }",
+                close: onClose,
+                change: onChange,
+
+            });
+
+        });
+        var sharedDataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: ('@Url.Action("GetCascadeType","AjaxService")'),
+                    dataType: "JSON"
+                }
+            },
+
+
+        });
+
+
+        var IsItemChecked = false;
+
+        function UpdateIdinHF(obj) {
+
+            var id = $(obj).attr('id');
+
+            var name = $(obj).attr('name');
+
+            var value = $(obj).attr('value');
+
+            var IsChecked = $(obj).is(':checked');
+            var hf = $("#hf_" + name).get(0);
+
+            if (value != "All") {
+                UpdateIdInHiddenField(hf, value, IsChecked);
+
+                var totalchk = $('input[id*="chk_' + name + '"]').not("#chk_" + name + "_0").length;
+                var checkedchk = $('input[id*="chk_' + name + '"]:checked').not("#chk_" + name + "_0").length;
+                if (totalchk == checkedchk) {
+                    $("#chk_" + name + "_0").prop("checked", true);
+                }
+                else {
+                    $("#chk_" + name + "_0").prop("checked", false);
+                }
+            }
+            else {
+                $('input[id*="chk_' + name + '"]').each(function () {
+                    if ($(this).val() != "All") {
+                        if (IsChecked == true) {
+                            $(this).prop("checked", true);
+                            UpdateIdInHiddenField(hf, $(this).val(), IsChecked);
+                        }
+                        else {
+                            $(this).prop("checked", false);
+                            UpdateIdInHiddenField(hf, $(this).val(), IsChecked);
+                        }
+                    }
+                });
+            }
+            IsItemChecked = true;
+        }
+        function onClose(e) {
+            if (IsItemChecked == true) {
+                IsItemChecked = false;
+                e.preventDefault();
+            }
+            else {
+                ShowSelectedItem();
+            }
+        }
+        function ShowSelectedItem() {
+            $("#spanproduct").html($("#hf_product").val());
+        }
+
+        function UpdateIdInHiddenField(hf, id, IsAdd) {
+
+            if (hf.value == "") {
+                hf.value = ",";
+            }
+
+            if (IsAdd == true) {
+                if (hf.value.indexOf("," + id + ",") == -1) {
+                    hf.value = hf.value + id + ",";
+                }
+            }
+            else if (IsAdd == false) {
+                if (hf.value.indexOf("," + id + ",") >= 0) {
+                    hf.value = hf.value.replace("," + id + ",", ",");
+                }
+            }
+        }
+        function onChange(e) {
+            e.sender.value(null);
+        }
+        window.onload = onPageLoad();
+
+        function onPageLoad() {
+
+        }
+    </script>*@

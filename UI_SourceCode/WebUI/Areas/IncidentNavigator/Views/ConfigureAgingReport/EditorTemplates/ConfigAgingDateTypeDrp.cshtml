@@ -1,0 +1,27 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model String
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new ConfigureAgingReportController();
+    var dateTypeList = cont.GetListOfDateType();
+
+ }
+
+    @(Html.Kendo().DropDownListFor(m => m)
+    .Name("Datetype")
+    .OptionLabel("Select Date Type")
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .BindTo(dateTypeList)
+    //.AutoBind(true)
+    )
+
+

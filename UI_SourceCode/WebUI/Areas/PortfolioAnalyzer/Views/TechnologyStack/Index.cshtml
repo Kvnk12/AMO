@@ -1,0 +1,190 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model ApplicationInformationModel
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+
+            <li class="active">Technology Stack</li>
+        </ol>
+    </div>
+    <div>
+        <!-- Wrap all page content here -->
+        @Html.Partial("_APRHeaderFilters")
+    </div>
+
+    <div class="custom-kendo-tabstrip">
+        @*<div class="demo-section k-content">*@
+
+        @(Html.Kendo().TabStrip()
+  .Name("tabstrip")
+  //.Animation(animation =>
+  //    animation.Open(effect =>
+  //        effect.Fade(FadeDirection.In)))
+  .Items(tabstrip =>
+  {
+      tabstrip.Add().Text("Hardware")
+       .Selected(true)
+        .Content(p => Html.Partial("_apphardware", Model));
+      tabstrip.Add().Text("Software")
+     .Content(p => Html.Partial("_appsoftware", Model));
+
+  })
+            )
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#form :input").prop("disabled", true);
+        if ($("#AppName").val()) {
+            AppNameChange();
+
+           
+        }
+    });
+
+        function AppNameChange() {
+           // alert('here1');
+            var GridAppHardware = $("#GridAppHardware").data("kendoGrid");
+            GridAppHardware.dataSource.read();
+
+            var softwareGrid = $("#softwareGrid").data("kendoGrid");
+            softwareGrid.dataSource.read();
+
+        }
+
+        function onAddClick(e) {
+
+            // to call, use:
+            resetForm($('#form'));
+            //e.preventDefault();
+
+            //tabs.select(getTabAtIndex(currentIndex + 1));
+            //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            //financeGrid.dataSource.read();
+        }
+
+        function onEditClick(e) {
+
+            $("#form :input").prop("disabled", false);
+            e.preventDefault();
+
+            //tabs.select(getTabAtIndex(currentIndex + 1));
+            //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            //financeGrid.dataSource.read();
+        }
+
+        function onCancelClick(e) {
+
+            $("#form :input").prop("disabled", true);
+            resetForm($('#form'));
+            e.preventDefault();
+            //e.preventDefault();
+
+            //tabs.select(getTabAtIndex(currentIndex + 1));
+            //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+            //financeGrid.dataSource.read();
+        }
+
+        function onSaveClick(e) {
+
+            
+            e.preventDefault();
+            InsertUpdateHost();
+            //tabs.select(getTabAtIndex(currentIndex + 1));
+            var GridAppHardware = $("#GridAppHardware").data("kendoGrid");
+
+            GridAppHardware.dataSource.read();
+        }
+
+        function resetForm($form) {
+            $form.find('input:text, input:password, input:file, select, textarea').val('');
+            $form.find('input:radio, input:checkbox')
+                 .removeAttr('checked').removeAttr('selected');
+        }
+
+       
+
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+
+        function InsertUpdateHost() {
+            var $form = $("#form");
+            var data = JSON.stringify(getFormData($form));
+
+            //var model=JSON.stringify( $("#form").serializeArray() );
+            //alert(data);
+            var RootUrl = '@Url.Content("~/")';
+            //var model = {
+            //    AppId: appid
+            //};
+
+            //alert(myArray[0].id + " ," + myArray[0].value);
+            //var data1 = { 'listObject': myArray };
+            //var data = JSON.stringify(model)
+
+            $.ajax({
+
+                type: 'post',
+                url: RootUrl + 'APRAjaxService/InsertUpdateHostlist',
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+
+                },
+                error: function (err, response) {
+                    alert(err.responseText);
+                }
+            });
+        }
+    function ApplicationIDValue() {
+
+        var appid = $("#AppName").val();
+        //alert('check here'+appid);
+        return {
+            ApplicationID: appid
+        };
+    }
+
+    </script>

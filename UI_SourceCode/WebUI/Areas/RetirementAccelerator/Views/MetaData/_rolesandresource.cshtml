@@ -1,0 +1,18 @@
+﻿
+<div>
+@(Html.Kendo().TabStrip()
+    .Name("roleresourcetabstrip")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Roles")
+                                         .Selected(true)
+
+                                         .Content(m => Html.Partial("_Roles"));
+
+                                     tabstrip.Add().Text("Resource Group")
+
+                                         .Content(m => Html.Partial("_ResourceGroup"));
+
+                                 })
+    )
+</div>

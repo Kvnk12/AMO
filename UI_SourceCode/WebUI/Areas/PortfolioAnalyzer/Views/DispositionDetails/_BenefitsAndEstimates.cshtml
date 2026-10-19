@@ -1,0 +1,179 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model DispositionDetailsModel
+<div style="padding:1em">
+    <div style="padding:0;">
+        <table>
+            <tr>
+                <td width="38%">FTE Imapct :</td>
+                <td width="12%">@(Html.Kendo().TextBoxFor(m => m.FTEImpact)
+                         .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+                <td width="38%">IT Disposition Benegit-Annual Support Savings(FTEs):</td>
+                <td width="12%">@(Html.Kendo().TextBoxFor(m => m.ITDispostionSupportFTEs)
+                        .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+            </tr>
+            <tr>
+                <td>IT Disposition Benegit-Annual Dev Savings (FTEs):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.ITDispostionDevFTEs)
+                         .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+                <td>Vendor Disposition Benefit-Annual Commercial Licence Savings($):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.VendorDisCommercialLicenceSavings)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+            </tr>
+            <tr>
+                <td>Vendor Disposition Benefit-Annual support Savings($):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.VendorDisSupportSavings)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+                <td>Business Disposition Benefit-Annual Support Savings(FTEs):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.BusinessDisSupportFTEs)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+            </tr>
+            <tr>
+                <td>Hardware Dispositions Benefit-Annual Support Savings($):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.HardwareDisSupportSavings)
+    .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+                <td>Hardware Disposition Benefits-Annual Amount of CPU Freed:</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.HardwareDisAmountofCPUFreed)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+            </tr>
+            <tr>
+                <td>Operational Efficency Benefits-Efficiency Units:</td>
+                <td>
+                    @(Html.Kendo().TextBoxFor(m => m.OperationalEfficiencyUnits)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                    )
+            </td>
+                
+                <td>Operational Efficency Benefits-Annual Efficency Amount:</td>
+                <td>
+                    @(Html.Kendo().TextBoxFor(m => m.OperationalEfficiencyAmount)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )
+            </td>
+            </tr>
+            <tr>
+                <td>Planned Disposition Date:</td>
+                <td>@(Html.Kendo().DatePickerFor(m => m.PlannedDispositionDate)
+                             .Name("PlannedDispositionDate")
+                             .Value("12/12/2015")
+                             .HtmlAttributes(new { style = "width:100px;text-align:right", title = "datepicker" })
+                )</td>
+                <td>Disposition Duration (days):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.DispositionDuration)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )
+</td>
+            </tr>
+            <tr>
+                <td>Disposition Hours (Hours):</td>
+                <td>@(Html.Kendo().TextBoxFor(m => m.DispositionEfforts)
+                            .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                )</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <th scope="col" width="15%"> </th>
+                            <th scope="col" width="15%"> Disposition Effort(Hours) </th>
+                            <th scope="col" width="15%"> Rate </th>
+                            <th scope="col" width="15%"> Cost </th>
+                        </tr>
+                        <tr>
+                            <td><label>IT</label></td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.ITDispositionEffort)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.ITDispositionRate)
+                               .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.ITDispositionCost)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Vendor</label></td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.VendorDispositionEffort)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.VendorDispositionRate)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.VendorDispositionCost)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Business</label></td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.BusinessDispositionEffort)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.BusinessDispositionRate)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBoxFor(m => m.BusinessDispositionCost)
+                                .HtmlAttributes(new { @style = "text-align:right;width:100px;" })
+                                )
+                            </td>
+
+                        </tr>
+
+                    </table>
+                </td>
+            </tr>
+        </table>
+      
+    </div>
+    <div>
+        <footer class="col-xs-12 form-group text-right" style="text-align:right">
+            @(Html.Kendo().Button()
+                .Name("Previous1")
+                .Content("Previous")
+                .HtmlAttributes(new { @class = "btn-primary" })
+                .Events(ev => ev.Click("onPreviousClick")))
+            @*<input type="submit" class="btn-primary" onclick="onNextClick(this);" id="btnNext" value="Next" />*@
+            @(Html.Kendo().Button()
+                .Name("btnFinish")
+                .Content("Finish")
+                .HtmlAttributes(new { @class = "k-primary btn-primary" })
+                .Events(ev => ev.Click("onFinishClick"))
+            //.HtmlAttributes(new { @class = "k-primary", @type = "submit" })
+
+            )
+        </footer>
+    </div>
+
+</div>

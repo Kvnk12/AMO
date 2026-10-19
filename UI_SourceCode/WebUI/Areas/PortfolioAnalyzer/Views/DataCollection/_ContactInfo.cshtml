@@ -1,0 +1,175 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+@{
+    //var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new APRAjaxServiceController();
+    var APRAppTypeList = v.APRAppTypeList(client.ClientId);
+    var APRDomainList = v.APRDomainList(client.ClientId);
+    var APROwningCompaniesList = v.APROwningCompaniesList(client.ClientId);
+    var ApplicationClassificationList = v.ApplicationClassificationList(client.ClientId);
+    var ExternalHostingList = v.ExternalHostingList(client.ClientId);
+
+
+}
+
+
+<div class="apr-cost-basicinfo">
+
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Number:</label>
+            <div class="custom-textbox">
+                @*@(Html.Kendo().TextBox(m => m.ClientApplicationNumber))*@
+                @(Html.Kendo().TextBox()
+                        .Name("ClientApplicationNumber")
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Business Function:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.BusinessFunction))
+
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Type:</label>
+            <div class="custom-dropdown">
+                @(Html.Kendo().DropDownListFor(m => m.AppTypeId)
+                            .Name("AppTypeId")
+                          .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRAppTypeList)
+                    .AutoBind(true)
+                )
+
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Migration Date:</label>
+            <div class="custom-datepicker">
+                @(Html.Kendo().DatePickerFor(m => m.MigrationDate)
+                             .Name("MigrationDate")
+                             //.Value("12/12/2015")
+                             .HtmlAttributes(new {title = "datepicker" })
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Classification:</label>
+            <div class="custom-dropdown">
+                @*@Html.DropDownListFor(m => m.ApplicationClassificationId, new SelectList(ApplicationClassificationList, "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6",  style = "width:70%;" })*@
+                @(Html.Kendo().DropDownListFor(m => m.ApplicationClassificationId)
+                            .Name("ApplicationClassificationId")
+                          .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(ApplicationClassificationList)
+                    .AutoBind(true)
+                )
+
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">External Hosting:</label>
+            <div class="custom-dropdown">
+                @*@Html.DropDownListFor(m => m.ExternalHostingId, new SelectList(ExternalHostingList, "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6",  style = "width:70%;" })*@
+                @(Html.Kendo().DropDownListFor(m => m.HostingTypeId)
+                            .Name("HostingTypeId")
+                          .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(ExternalHostingList)
+                    .AutoBind(true)
+                )
+            </div>
+        </div>
+    </div>
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="metownder" id="">Alias Name:</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.AliasName))
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Owning Companies:</label>
+            <div class="custom-dropdown">
+                @*@(Html.Kendo().TextBoxFor(m => m.OwningCompanies))*@
+                @(Html.Kendo().DropDownListFor(m => m.APROwningCompanyId)
+                    .Name("APROwningCompanyId")
+                    .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APROwningCompaniesList)
+                    .AutoBind(true)
+                )
+
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Domain:</label>
+            <div class="custom-dropdown">
+                @(Html.Kendo().DropDownListFor(m => m.AppDomainId)
+                                .Name("AppDomainId")
+                                 .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRDomainList)
+                    .AutoBind(true)
+                )
+
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Planned Retirement Date:</label>
+            <div class="custom-datepicker">
+                @(Html.Kendo().DatePickerFor(m => m.PlannedRetirementDate)
+                             .Name("PlannedRetirementDate")
+                             //.Value("12/12/2015")
+                             .HtmlAttributes(new {title = "datepicker" })
+                )
+            </div>
+        </div>
+        <div class="custom-group">
+            <label class="custom-blue-label" for="" id="">Legacy Reason Exists:</label>
+            <div class="">
+                @Html.TextAreaFor(m => m.LegacyReasonExists, new { @class = "" })
+            </div>
+        </div>
+    </div>
+    <div class="apr-column">
+        <div class="custom-group">
+            <label class="custom-blue-label" for="metownder" id="">Description:</label>
+            <div class="" >
+                @Html.TextAreaFor(m => m.Description, new { @class = "", cols="25", rows = "12", placeholder = "Description", tabindex = "15"})
+            </div>
+        </div>
+    </div>
+
+</div>
+<div>
+    <footer class="apr-footer">
+        <div class="apr-footer-button">
+            @(Html.Kendo().Button()
+                .Name("Next1")
+                .Content("Next")
+                //.HtmlAttributes(new { @class = "" })
+                .Events(ev => ev.Click("onNextClick")))
+        </div>
+    </footer>
+</div>
+
+
+
+
+

@@ -1,0 +1,83 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+<div class="grpArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Line of Business-Sub Capabilities</h4>
+                    </div>
+                        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                   
+                  </div>
+                  <div class="form-horizontal">
+ <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+
+     <input hidden id="level1Name" value="@Model.CLevel1Name.ToString()"   />
+
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   /> 
+         
+           <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+ 
+             <input hidden id="level2Id" value="@Model.CLevel2Id.ToString()"  />
+
+     <input hidden id="level2Name" value="@Model.CLevel2Name.ToString()"   />
+                      
+                       <input hidden id="level3Id" value="@Model.CLevel3Id.ToString()"  />
+
+@*     <input hidden id="level3Name" value="@Model.CLevel3Name.ToString()"   />*@
+
+            <input hidden id="Cancel" value="CancelClick" />
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpID">Line of Business</label>
+                      <div class="col-sm-3">
+                       
+@*                        @Html.TextBoxFor(m => m.businessCapabilitiesLevel3Input.Level3, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtsubVerticalname" })*@
+@Html.DropDownListFor(m => m.junctionLOBClientBCInput.LOBId, new SelectList(Model.LOBList, "value", "text", Model.junctionLOBClientBCInput.LOBId), "", new { @class = "selectpicker", id = "LOBId", tabindex = "5", name = "LOBId"})  
+
+                      </div>
+                    </div>
+                    
+                          <div class="form-group">
+                                <label class="col-sm-5 control-label" for="AppSupport" id="">App Support</label>
+                                <div class="col-sm-1">
+                                @Html.CheckBoxFor(m => m.junctionLOBClientBCInput.CBCLevel3_AppSupport, new { tabindex = "" })
+                                </div>
+						   </div>
+
+                         <div class="form-group">
+                                <label class="col-sm-5 control-label" for="ManualSupport" id="">Manual Support</label>
+                                <div class="col-sm-1">
+                                @Html.CheckBoxFor(m => m.junctionLOBClientBCInput.CBCLevel3_ManualSupport, new { tabindex = "" })
+                                </div>
+						   </div>
+
+                         <div class="form-group">
+                                <label class="col-sm-5 control-label" for="ExternalSupport" id="">External Support</label>
+                                <div class="col-sm-1">
+                                @Html.CheckBoxFor(m => m.junctionLOBClientBCInput.CBCLevel3_ExternalSupport, new { tabindex = "" })
+                                </div>
+						   </div>
+                  </div>
+     <div class="accdetailacction">
+                     @* <button class="btn btn-primary" tabindex="29" type="button">Edit</button>
+                      <button class="btn btn-primary" tabindex="30" type="button">Save</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Cancel</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Delete</button>*@
+           <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+@*             <button type="submit" class="btn btn-default" id="deleteSubVertical"  @((Model.Level3Id == 0) ? "disabled" : "")  tabindex="22" onclick="location.href='@Url.Action("DelLevel3", "BusinessCapabilitiesLevels", new { Level3Id = Model.Level3Id,Level3Name = Model.Level3Name, Level2Id=Model.Level2Id,Level2Name=Model.Level2Name,Level1Id = Model.Level1Id,Level1Name = Model.Level1Name,InExValue = Model.InExValue,subVId=@Model.subVId })'; return false;">Delete</button>*@
+
+                    </div>
+                </div>
+}

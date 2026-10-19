@@ -1,0 +1,78 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using NTTData.AMOPortal.WebUI.Dto;
+@{
+
+    ViewBag.Title = "Configuration Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/configuration_manager_white.svg");
+    //Layout = "~/Views/Shared/_MainLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    //  Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = 0;
+    if (client != null)
+    {
+        clientId = client.ClientId;
+    }
+}
+
+<div class="content-main dark-bg">
+    <div id="breadcrumb">
+        <!--<ol class="breadcrumb">-->
+        @*<li><a href="@Url.Action("Dashboard")">About NextGen Tools</a></li>*@
+        <!--<li><a href="#">Optimization Tools/Configuration Manager</a></li>
+        </ol>-->
+        <ol class="breadcrumb">
+            <li>Optimization Tools</li>
+            <li class="active">Configuration Manager</li>
+        </ol>
+    </div>
+    <div class="configManagerContent">
+        <div class="configManager">
+            <div class="dataDiv">
+                <div class="dataText"><h4 class="spanText">Tools</h4></div>
+                <div class="dataDivContent">
+                    <ul>
+                        <li class="list-bullet">@Html.ActionLink("Idea Manager", "Complexity1", new { area = "IdeaManager", controller = "Config" })
+                        <li class="list-bullet">@Html.ActionLink("SLA Manager", "MetricLibraryView", "SLAManager", new { area = "" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Survey", "Index", "PerspectiveConfiguration", new { area = "ClientProfileManager" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Incident Navigator", "", "INIncidentServicehours", new { area = "IncidentNavigator" }, null)</li>
+                        <li class="list-bullet">@Html.ActionLink("Cluster Configuration", "Index", "Configuration", new { area = "ClientProfileManager" }, null)</li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+            {
+                <div class="dataDiv">
+                    <div class="dataText"><h4 class="spanText">Data Interface</h4></div>
+                    <div class="dataDivContent">
+                        <ul>
+                            <li class="list-bullet">@Html.ActionLink("Data Mapping", "", "DataMapping", new { area = "ClientProfileManager" }, null)</li>
+                            <li class="list-bullet">@Html.ActionLink("Data Masking", "", "PIDataMask", new { area = "ClientProfileManager" }, null)</li>
+                            <li class="list-bullet">@Html.ActionLink("Data Upload", "DataFileUpload", "DataUpload", new { area = "ClientProfileManager" }, null)</li>
+                            <li class="list-bullet">@Html.ActionLink("Job Scheduler", "JobScheduling", "DataUpload", new { area = "ClientProfileManager" }, null)</li>
+                            <li class="list-bullet">@Html.ActionLink("Job Detail", "", "DataUpload", new { area = "ClientProfileManager" }, null)</li>
+                        </ul>
+                    </div>
+                </div>
+
+            <div class="dataDiv">
+                <div class="dataText"><h4 class="spanText">User Management</h4></div>
+                <div class="dataDivContent">
+                    <ul>
+                        @*<li class="list-bullet">@Html.ActionLink("User Setup", "Register", "Account", new { area = "" }, null)</li>*@
+                        <li class="list-bullet">@Html.ActionLink("User Access Management", "Users", "Account", new { area = "" }, null)</li>
+                        @*<li class="list-bullet">@Html.ActionLink("User List Report", "NextGenUserReport", "Dashboard", new { area = "ClientProfileManager" }, null)</li>*@
+                        <li class="list-bullet"><a href="~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx">User List Report</a></li>
+
+                    </ul>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+

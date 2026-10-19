@@ -1,0 +1,152 @@
+﻿
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@model FileUploadViewModel
+@{
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+}
+<div class="content-main dark-bg">
+
+    @using (Html.BeginForm("UploadFile", "DataUpload", FormMethod.Post, new { enctype = "multipart/form-data", onSubmit = "return Upload1()" }))
+    {
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Client Profile Manager</li>
+                <li>Client Administration</li>
+                <li class="active">Data Upload</li>
+            </ol>
+        </div>
+        <div class="data-file-upload">
+            <label class="custom-blue-label">Upload Data File</label>
+            <div class="file-upload-container">
+                
+                @*<div id="data-upload-alertModal" class="modal fade" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-body">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>*@
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                            }
+                            @if (TempData["SuccessFileUploadMsg"] != null)
+                            {
+                                var str = new HtmlString(@TempData["SuccessFileUploadMsg"].ToString());
+                                <label class="alert alert-success" id="lblSuccess1">
+                                    Success:@Html.Raw(str)
+                                </label>
+                            }
+                        @*</div>
+                    </div>
+                </div>*@
+                <div class="file-upload-group">
+                    <div class="file-upload-label">
+                        <label class="custom-blue-label">AM-Optimization Tool</label>
+                    </div>
+                    <div class="file-upload-input">
+                        @Html.DropDownListFor(m => m.StoreApplicationId, new SelectList(GetDropDownListItems.UserApplications((int)Session["UserId"], Model.ClientId), "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6", id = "drpAppId", style = "border:none;border-bottom: 1px solid #333;height: 25px;border-radius: 0px !important;width:200px " })
+                    </div>
+                </div>
+                <div class="file-upload-group">
+                    <div class="file-upload-label">
+                        <label class="custom-blue-label">File to upload</label>
+                    </div>
+                    <div class="file-upload-input">
+                        <div class="input-group">
+                            @Html.TextBoxFor(M => M.DataFileName, new { placeholder = "Filename will display here...", @class = "form-control input-browse", style = "readonly:true;width:200px", type = "text", id = "reaOnlyFileName", title = "Title", @readonly = "readonly" })
+                            <label class="input-group-btn" id="lblid">
+                                <span class="custom-button" id="btnbrowse">Browse&hellip;@Html.TextBoxFor(m => m.httpPostedFileData, new { style = "display:none;", accept = ".xls,.xlsx,.txt,.csv", type = "file", id = "FileToUpload" })</span>
+                            </label>
+                            @*<input type="text" id="reaOnlyFileName" class="form-control" disabled>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="data-file-bottom">
+                    <div class="data-file-note">
+                        @*<div class="info-icon"></div>*@
+                      Note:-  Uploading file name should match with template identifier. Please go to data mapping page to find correct Template identifier.
+                    </div>
+                    <div class="data-file-button">
+                        <button type="submit" name="btnUpload" value="upload" class="custom-button" tabindex="30">Upload</button>
+                        <button type="submit" name="btnUpload" value="execute" class="custom-button" tabindex="30">Upload and Execute</button>
+                        <button type="reset" class="custom-button btn-disable" tabindex="31" id="btnReset">Reset</button>
+                        <button type="button" id="btnCancel" class="custom-button btn-disable" onclick="location.href='@Url.Action("index","DataUpload", new { ClientId= Model.ClientId})';return false;">Job Detail</button>
+                    </div>
+
+                </div>
+                
+            </div>
+
+
+        </div>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+                $('input#FileToUpload').change(function () {
+
+                    var filename = $('#FileToUpload').val();
+
+                    var fNameParts = filename.split("\\");
+
+                    if (fNameParts.length > 0) {
+
+                        $('#reaOnlyFileName').val(fNameParts[fNameParts.length - 1]);
+                        document.getElementById('reaOnlyFileName').setAttribute('title', fNameParts[fNameParts.length - 1]);
+                    }
+
+                    else {
+
+                        $('#reaOnlyFileName').val(filename);
+                        document.getElementById('reaOnlyFileName').setAttribute('title', filename);
+                    }
+
+                });
+                $('input#FileToUpload').change(function () {
+
+                    var selectedformat = ($('#drpFileFormat :selected').text());
+
+                    var upload = $('input#FileToUpload').val().split('.').pop().toLowerCase().toString();
+
+                });
+            var InvDate = '@TempData["SuccessFileUploadMsg"]';
+        if (InvDate == "") {
+            $('#data-upload-alertModal').modal('hide');
+            }
+           else {
+               $('#data-upload-alertModal').modal('show');
+        }
+
+    })
+
+            function Upload1() {
+                // alert('tfg');
+                var filectrl  = document.getElementById("FileToUpload");
+                if (typeof (filectrl.files) == null) {
+                    alert("Please select the file.");
+                    return false;
+                }
+                else
+                {
+                    //alert('size');
+                    var size = parseFloat(filectrl.files[0].size / 1024).toFixed(2);
+                    // alert(size + " KB.");
+                    if (size > 10240) {
+                        alert("Please check the file size before uploading(Maximum file size is 10MB).");
+                        return false;
+                    }
+                    else
+                        return true;
+                }
+
+
+    }
+
+</script>
+

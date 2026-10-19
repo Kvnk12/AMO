@@ -1,0 +1,154 @@
+﻿@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Dto;
+@model IdeaImplementationDates
+
+@*@using (Html.BeginForm("saveIdeaDetails", "IdeaProgress", FormMethod.Post))
+{
+<div class="form-group">
+
+   @Html.HiddenFor(m => m.PosIdeaId)
+    <label>Planned Start Date:</label>&nbsp;&nbsp;
+
+    @(Html.Kendo().DateTimePickerFor(m => m.PlannedStartDate)
+        .Name("PlannedStartDate")
+        //.BindTo(Model.PlannedStartDate)
+    )
+
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label>Planned End Date:</label>&nbsp;&nbsp;
+    @(Html.Kendo().DateTimePickerFor(m => m.PlannedEndDate)
+        .Name("PlannedEndDate")
+        //.BindTo()
+    )
+
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label>Progress Status:</label>&nbsp;&nbsp;
+    @(Html.Kendo().DropDownListFor(m => m.ProgressStatusId)
+             .Name("ProgressStatusId")
+                 .DataTextField("Status")
+                 .DataValueField("ProgressId")
+                 .OptionLabel("Select Progress Status")
+                 .DataSource(d => d.Read(e => e.Action("GetProgressStatus", "IdeaProgress")))
+                 .HeaderTemplate("<div class=\"dropdown-header k-widget k-header\">" +
+                            "<span>Color</span>" +
+                            "<span>Status</span>" +
+                        "</div>")
+                 .Template("<span class=\"k-state-default\" style='background-color:#:data.Color#'></span>" +
+                        "<span class=\"k-state-default\"><p>#: data.Status #</p></span>")
+                  .ValueTemplate("<span class=\"selected-value\" style='background-color:#:data.Color#'></span>" + "<span>#:data.Status#</span>")
+
+
+    )
+    
+    @*<label title="Select Idea to save the Dates">
+        @(Html.Kendo().Button()
+             .Name("IdeaDates")
+             .Content("Save")
+             .Enable(false)
+           //.Events(ev => ev.Click("saveIdeaDetails"))
+        )
+
+    </label>
+    <br />
+    
+    <label>Actual Start Date:</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    @(Html.Kendo().DateTimePickerFor(m => m.ActualStartDate)
+                 .Name("ActualStartDate")
+    //.BindTo()
+    )
+    &nbsp;&nbsp;&nbsp;&nbsp;
+    <label>Actual End Date:</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    @(Html.Kendo().DateTimePickerFor(m => m.ActualEndDate)
+                 .Name("ActualEndDate")
+    //.BindTo()
+    )
+    &nbsp;&nbsp;&nbsp;
+    <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Save</button>
+</div>
+}*@
+
+
+
+ @*@using (Html.BeginForm("saveIdeaDetails", "IdeaProgress", FormMethod.Post))
+        {
+        <div>
+            <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label>Planned Start Date:</label>
+                    </td>
+                    <td>
+        @(Html.Kendo().DateTimePickerFor(m => m.PlannedStartDate)
+                .Name("PlannedStartDate")
+                .HtmlAttributes(new { @style="width:220px;"})
+                )
+                    </td>
+                    <td>
+                        <label>Planned End Date:</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().DateTimePickerFor(m => m.PlannedEndDate)
+                .Name("PlannedEndDate")
+                .HtmlAttributes(new { @style = "width:220px;" })
+                        //.BindTo()
+                        )
+                    </td>
+                    <td>
+                        <label>Progress Status:</label>
+
+                    </td>
+                    <td>
+                        @(Html.Kendo().DropDownListFor(m => m.ProgressStatusId)
+                     .Name("ProgressStatusId")
+                         .DataTextField("Status")
+                         .DataValueField("ProgressId")
+                         .OptionLabel("Select Progress Status")
+                         
+                         .DataSource(d => d.Read(e => e.Action("GetProgressStatus", "IdeaProgress")))
+                         .HeaderTemplate("<div class=\"dropdown-header k-widget k-header\">" +
+                                    "<span>Color</span>" +
+                                    "<span>Status</span>" +
+                                "</div>")
+                         .Template("<span class=\"k-state-default\" style='background-color:#:data.Color#'></span>" +
+                                "<span class=\"k-state-default\"><p>#: data.Status #</p></span>")
+                          .ValueTemplate("<span class=\"selected-value\" style='background-color:#:data.Color#'></span>" + "<span>#:data.Status#</span>")
+
+
+                        )
+                    </td>
+                    <td>
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Actual Start Date:</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().DateTimePickerFor(m => m.ActualStartDate)
+                         .Name("ActualStartDate")
+                        //.BindTo()
+                        .HtmlAttributes(new { @style = "width:220px" })
+                        )
+                    </td>
+                    <td>
+                        <label>Actual End Date:</label>
+                    </td>
+                    <td>
+                        @(Html.Kendo().DateTimePickerFor(m => m.ActualEndDate)
+                         .Name("ActualEndDate")
+                        .HtmlAttributes(new { @style = "width:220px" })
+                        )
+                    </td>
+                    <td>
+                        @Html.HiddenFor(m => m.PosIdeaId, new { @id = "hiddenpId" })
+                        <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Save</button>
+                    </td>
+                   
+                </tr>
+
+            </tbody>
+        </table>
+        </div>
+    }*@

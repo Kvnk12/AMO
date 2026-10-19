@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/config
+/.vs/NTTData.AMOPortal/v14/.suo
+/Core/obj/Release/Core.csprojResolveAssemblyReference.cache
+/Service/bin/Release
+/WebUI/bin
+/WebUI/bin
+/Service/bin/Debug
+/Core/bin/Debug

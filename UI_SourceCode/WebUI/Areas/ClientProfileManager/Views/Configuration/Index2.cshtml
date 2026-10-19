@@ -1,0 +1,385 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using System.Web.Mvc;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using WebUI.App_Start;
+
+@model INClusterListModel
+@{
+    ViewBag.Title = "Configuration Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <link href="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/css/bootstrap-multiselect.css" rel="stylesheet" type="text/css" />
+    <script src="http://cdn.rawgit.com/davidstutz/bootstrap-multiselect/master/dist/js/bootstrap-multiselect.js" type="text/javascript"></script>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.3/css/bootstrap.min.css"  rel="stylesheet" type="text/css" />
+
+    var userRole = Helper.HasRole((int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Sysadmin);
+}
+<style>
+    .mycombo {
+        width: 90%;
+    }
+
+    a:hover {
+        color: #9A1A4A;
+    }
+
+    .custWord-div {
+        border-radius: 3px;
+        background-color: #9a9d9f;
+        color: white;
+        margin: 2px;
+        padding: 0.5px 0.5px 0.5px 4.5px;
+        font-size: 12px;
+        font-weight: normal;
+        display: inline-block;
+    }
+
+    .exclude-icon {
+        background-image: url(../Content/images/add_down.svg);
+        background-repeat: no-repeat;
+        width: 13px;
+        height: 13px;
+        display: inline-block;
+        background-size: 13px;
+        vertical-align: middle;
+        cursor: pointer;
+        margin-top: -3px;
+        margin-right: 3px;
+    }
+
+    .excustWord {
+        border-radius: 3px;
+        color: #4978b2;
+        border: 1px solid #4978b2;
+        margin: 2px;
+        padding: 0.5px;
+        font-size: 12px;
+        font-weight: normal;
+        display: inline-block;
+    }
+
+    input#ExcludeWords::placeholder {
+        color: darkgrey;
+    }
+</style>
+<div class="content-main dark-bg">
+
+    @using (Html.BeginForm("Editing_Update", "Configuration", new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        <!--start of breadcrumb         , FormMethod.Post, new { enctype = "multipart/form-data" }   -->
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li>Client Administration</li>
+            <li class="active">Cluster Configuration</li>
+        </ol>
+
+        <div class="cluster-content-heading">
+            <h5>Cluster Configuration</h5>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+            }
+            @if (TempData["SaveErrMsg"] != null)
+            {
+                var str = new HtmlString(@TempData["SaveErrMsg"].ToString());
+                <p class="alert alert-danger">
+                    <strong>Error :</strong><label>@Html.Raw(str)</label>
+                </p>
+            }
+            @if (TempData["ValidationSuccessMsg"] != null)
+            {
+                var str = new HtmlString(@TempData["ValidationSuccessMsg"].ToString());
+                <p class="alert alert-success">
+                    <strong>Success :</strong><label>@Html.Raw(str)</label>
+                </p>
+            }
+        </div>
+        <div class="cluster-container">
+
+
+            <div class=" cluster-content-main">
+
+
+                <div class="cluster-content-main-left">
+                    <table class="custom-table table" cellpadding="0">
+                        <thead>
+                            <tr>
+                                <th width="3%" hidden></th>
+                                <th width="30%">Parameter Name</th>
+                                <th width="30%" style="z-index:1">Parameter Value</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                for (int i = 0; i < Model.s.Count; i++)
+                                {
+                                    <tr>
+                                        <td style="word-break: break-word;" hidden>
+                                            <div> @Html.HiddenFor(model => Model.s[i].Id)</div>
+                                            <div>
+                                                @Html.HiddenFor(model => model.s[i].ParameterName)
+                                                @Html.HiddenFor(model => Model.s[i].KeyId)
+                                                @Html.HiddenFor(model => Model.s[i].UpdatedBy)
+                                                @Html.HiddenFor(model => Model.s[i].UpdatedDt)
+                                                @Html.HiddenFor(model => Model.s[i].UpdatedBy)
+                                                @Html.HiddenFor(model => Model.s[i].ActiveFlag)
+                                                @Html.HiddenFor(model => Model.s[i].MultiSelectFlag)
+                                                @Html.HiddenFor(model => Model.s[i].ClientId)
+                                                @Html.HiddenFor(model => Model.s[i].CreatedBy)
+                                                @Html.HiddenFor(model => Model.s[i].CreatedDt)
+                                                @Html.HiddenFor(model => Model.s[i].Description)
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <label>
+                                                @Model.s[i].ParameterName
+
+                                                <i class="description-icon" data-toggle="tooltip" data-placement="right" data-html="true" title="<b>Description:</b> @Model.s[i].Description"></i>
+
+                                            </label>
+                                        </td>
+                                        <td>
+                                            @if (Model.s[i].ParameterName != "StartDate" && Model.s[i].ParameterName != "EndDate" && Model.s[i].MultiSelectFlag != 1)
+                                            {
+                                                //var ClustervalueList = Model.s[i].INClusterParameterValueList;
+                                                @*@(Html.Kendo().DropDownListFor(m => m.s[i].ParameterValue)
+                                                      .Name("s[i].ParameterValue")
+                                                    //.OptionLabel("Select Email Address..")
+                                                      .DataTextField("Text")
+                                                      .DataValueField("Value")
+                                                      .BindTo(ClustervalueList)
+                                                      .AutoBind(true)
+                                                    )*@
+                                                @Html.DropDownListFor(m => Model.s[i].ParameterValue, new SelectList(Model.s[i].INClusterParameterValueList, "Value", "Text", Model.s[i].ParameterValue), new { @class = "custom-dropdownList", @onChange = "EnableButtons()" })
+
+                                            }
+                                            else
+                                            {
+
+                                                if (Model.s[i].ParameterName != "StartDate" && Model.s[i].ParameterName != "EndDate")
+                                                {
+                                                    var sele = Model.s[i].INClusterParameterValueList;
+                                                    var lst = Model.s[i].extraProp.ToList();
+                                                    @Html.HiddenFor(m => m.s[i].ParameterValue, new { @id = "valueField" + i.ToString() })
+                                                    @(Html.Kendo().MultiSelectFor(m => m.s[i].ParameterValue)
+                                                                                   .Name("MultiSelectProp")
+                                                                                    .DataTextField("Text")
+                                                                                    .DataValueField("Value")
+                                                                                    .Value(lst)
+                                                                                    .HtmlAttributes(new { @class = "mycombo", @onChange = "ParameterData(" + i.ToString() + ")" })
+                                                                                    .BindTo(sele)
+                                                                                    .AutoClose(false)
+                                                                                    .AutoBind(true)
+                                                                                   //.Events(eve =>eve.Change(Func()))
+                                                                                   )
+                                                }
+                                                else
+                                                {
+                                                    var dt = Convert.ToDateTime(Model.s[i].ParameterValue);
+                                                    if (Model.s[i].ParameterName == "StartDate")
+                                                    {
+                                                        <div class="custom-datepicker">
+                                                            @(Html.Kendo().DatePicker().Name("StartDate").Value(dt).Format("MM/dd/yyyy").HtmlAttributes(new { @type = "" , @onChange= "setStValues("+i.ToString() + ")" }))
+                                                            @Html.HiddenFor(m => m.s[i].ParameterValue, new { @class = "custom-datepicker", @id = "valueDtStField" + i.ToString().Trim() })
+                                                        </div>
+                                                        @*@(Html.Kendo().DatePicker().Name("StartDate").Value(dt).Format("MM/dd/yyyy").HtmlAttributes(new { @type = "" , @onChange= "setStValues("+i.ToString() + ")" }))*@
+                                                        @*@Html.HiddenFor(m => m.s[i].ParameterValue, new { @class = "custom-datepicker", @id = "valueDtStField" + i.ToString().Trim() })*@
+                                                    }
+                                                    else if (Model.s[i].ParameterName == "EndDate")
+                                                    {
+                                                        <div class="custom-datepicker">
+                                                            @(Html.Kendo().DatePicker().Name("EndDate").Value(dt).Format("MM/dd/yyyy").HtmlAttributes(new { @type = "" , @onChange= "setEnValues("+i.ToString() + ")" }))
+                                                            @Html.HiddenFor(m => m.s[i].ParameterValue, new { @class = "custom-datepicker", @id = "valueDtEnField" + i.ToString().Trim() })
+                                                        </div>
+                                                    }
+                                                }
+
+                                            }
+                                        </td>
+
+
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <div class="cluster-actions">
+                        <button type="reset" onclick="DisbleButtons()" name="btnCancel" id="btnCancel" value="Cancel" class="btn btn-primary" tabindex="8">Cancel</button>
+                        <button type="submit" disabled name="btnSubmit" id="btnSubmit" value="Save" class="btn btn-primary" tabindex="6">Save</button>
+                    </div>
+                </div>
+
+                <div class="cluster-content-main-right">
+                    <div class="cluster-content-top">
+                        <div class="cluster-heading"> &nbsp;Cluster Words <span style="font-size: 11px; padding:3px 0 0 7px ">( Last Clustered Date: @ViewBag.LastClusterDate )</span> </div>
+                        <div class="cluster-word scrollbar-rail">
+                            @{
+                                var ids = 0;
+                                if (Model.listofclusterword != null || Model.listofclusterword.Count() != 0)
+                                {
+                                    foreach (var ii in Model.listofclusterword)
+                                    {
+                                        ids++;
+                                        <div class="custWord-div" id="@ids">
+                                            <span style="padding-right:1px"> @ii.keywords</span>
+                                            <i class="exclude-icon" onclick="addToExclude('@ids','@ii.keywords')" data-word="@ii.keywords" data-toggle="tooltip" title="Add to exclude list"></i>
+                                        </div>
+                                        @*<span id="custWord"> &nbsp; @ii.keywords &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>*@
+                                    }
+
+                                }
+                                if (Model.listofclusterword.Count() == 0)
+                                {
+                                    <span style="color:red">*Clustered word list is empty</span>
+                                }
+
+                            }
+                        </div>
+                    </div>
+                    <div id="excludepartialDiv">
+                        @Html.Partial("~/Areas/ClientProfileManager/Views/Configuration/_excludeClusterView.cshtml", Model)
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="cluster-note">
+                <span style="text-align: right; font-style:italic; color: red; "><b>Note:</b> Re-cluster is required to exclude word from Clustering</span>
+            </div>
+            @if(userRole)
+            {
+            <div class="cluster-actions">
+                <button name="btnReCluster" id="btnReCluster" value="ReCluster" class="btn btn-primary" tabindex="6" onclick="reClusterClick()">Re-Cluster</button>
+            </div>
+            }
+        </div>
+
+    }
+
+</div>
+
+
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script>
+    var id = 0;
+    $(document).ready(function () {
+        console.log('@userRole');
+    });
+
+    
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.scrollbar-rail').scrollbar();
+    function ParameterData(e) {
+        //alert(e);
+        //console.log({"E":e} );
+        var ticketType = $("#MultiSelectProp").data("kendoMultiSelect");
+        var valuess = ticketType.value();
+        //alert("here");
+        var idd = $("#valueField" + e);
+        idd.val(valuess);
+        //alert(valuess);
+        EnableButtons();
+
+    }
+
+    function setStValues(e) {
+        var StartDate = kendo.toString($("#StartDate").data("kendoDatePicker").value(), 'MM/dd/yyyy');
+        //  console.log(StartDate);
+        // console.log(e);
+        var dt = $("#valueDtStField" + e);
+        dt.val(StartDate);
+        //  console.log(dt.val());
+        EnableButtons();
+    }
+    function setEnValues(e) {
+        var EndDate = kendo.toString($("#EndDate").data("kendoDatePicker").value(), 'MM/dd/yyyy');
+        //  console.log(EndDate);
+        // console.log(e);
+        var dt = $("#valueDtEnField" + e);
+        dt.val(EndDate);
+        //  console.log(dt.val());
+        EnableButtons();
+    }
+    function onChange(i) {
+        var mnn = $("#extraProp").data("kendoMultiSelect").dataItems()
+        //var multiselect = $("#extraProp").data("kendoMultiSelect");
+        // $("#extraProp").data("kendoMultiSelect").input.val()
+        //var param = multiselect.value()
+        // alert(param);
+        console.log(mnn);
+
+    }
+
+    $(document).on('change', '.mycombo', function () {
+        EnableButtons();
+    });
+    function EnableButtons() {
+        $("#btnSubmit").prop("disabled", false);
+        //$("#btnReCluster").prop("disabled", false);
+
+    }
+    $("#btnSubmit").click(function () {
+        var StartDate = kendo.toString($("#StartDate").data("kendoDatePicker").value(), 'MM/dd/yyyy');
+        // console.log(StartDate);
+        var EndDate = kendo.toString($("#EndDate").data("kendoDatePicker").value(), 'MM/dd/yyyy');
+        // console.log(EndDate);
+        var j = 0;
+        setValues();
+
+    });
+    //$("#btnReCluster").click(function () {
+    function reClusterClick() {
+        console.log("Recluster Click");
+        $.ajax({
+            url: '@Url.Action("ExcecuteCreateJobSp", "Configuration")',
+            type: 'post',
+            success: function (data) {
+                console.log("Reclustered successfully");
+            },
+            error: function (data) {
+                console.log("error");
+            }
+        });
+    }
+    //});
+    function DisbleButtons() {
+        $("#btnSubmit").prop("disabled", true);
+    }
+    function addToExclude(id,word) {
+        console.log(word);
+        $('#' + id).css('display', 'none');
+        $.ajax({
+            url: '@Url.Action("AddExcludeWords", "Configuration")',
+            type: 'post',
+            data: { 'word': word, 'delimiter': "" },
+            success: function (data) {
+                $("#excludepartialDiv").html(data);
+            },
+            error: function (data) {
+                console.log("error");
+            }
+        });
+    }
+</script>

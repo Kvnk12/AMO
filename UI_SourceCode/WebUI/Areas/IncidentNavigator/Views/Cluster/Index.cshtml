@@ -1,0 +1,329 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+@model ClusterInput
+@{
+    ViewBag.Title = "Incident Navigator";
+    // var clientlist = GetDropDownListItems.ClientList;
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+        Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    }
+
+
+
+<div class="content-main custom-grid dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb ">
+            <li>Incident Navigator</li>
+            <li class="active">Cluster Management</li>
+        </ol>
+    </div>
+
+    <div class="content-wrapper">
+
+                    <div class="in-cluster-word-cloud" style="width:100%;">
+
+                        @(Html.Kendo().Splitter()
+      .Name("splitter")
+     .HtmlAttributes(new { style = "height: 650px;width:100% !important" })
+      .Panes(panes =>
+      {
+      panes.Add()
+          .HtmlAttributes(new { id = "leftpane" })
+                            .Size("300px")
+                            .Collapsible(true)
+          .Content(Html.Kendo().Splitter()
+                    .Name("horizontal")
+                    .HtmlAttributes(new { style = "height: 100%;" })
+                    .Orientation(SplitterOrientation.Vertical)
+                    .Panes(horizontalPanes =>
+                    {
+                    horizontalPanes.Add()
+                            .HtmlAttributes(new { id = "InnerTopLeftpane" })
+                            .Size("400px")
+                            .Collapsible(false)
+                            .Content(@<div class="pane-content in-cluster-pane">
+                    <div class="in-cluster-textbox">
+                        <div class="in-cluster-text">
+                        @(Html.Kendo().TextBox()
+                        .Name("SearchBox")
+                        .HtmlAttributes(new { @class = "k-textbox" ,@placeholder = "Type Cluster Name or Id..", style = "width:180px;" })
+                        )
+                        </div>
+                        <div class="in-cluster-filter">
+                        @(Html.Kendo().Button()
+                        .Name("btnSearch")
+                        .Tag("a")
+                        .Icon("filter")
+                        .Content("Filter")
+                        )
+                   </div>
+                    </div>
+
+
+                    <div class="demo-section k-content wide in-cluster-list-view">
+                        @(Html.Kendo().ListView<ClusterlistModel>()
+    .Name("listView")
+    .TagName("div")
+    .ClientTemplateId("template")
+    .DataSource(dataSource =>
+    {
+        dataSource.Model(model => model.Id("ClusterIDfromCluster"));
+        dataSource.Read(read => read.Action("GetClustersWordcloud", "AjaxService"));
+
+        dataSource.Update(update => update.Action("Cluster_Update", "AjaxService"));
+
+        //dataSource.PageSize(5);
+    })
+    .Pageable()
+    .Editable()
+
+    .Selectable(selectable => selectable.Mode(ListViewSelectionMode.Single))
+     .Events(e => e
+            .Change("ClusterListviewChange")
+        )
+
+                        )
+                    </div>
+
+                    <script type="text/x-kendo-tmpl" id="template">
+                        <div class="treeMenuUl">
+                            <table style="background-color:transparent">
+                                <tr>
+                                    <td style="width:200px;">
+                                        #:ClusterLablefromCluster#
+                                    </td>
+                                    <td>
+                                        <div class="edit-buttons">
+                                            @*<a class="k-button k-button-icontext k-edit-button" href="\\#"><span class="k-icon k-edit"></span></a>*@
+                                            <a class="k-button k-edit-button" href="\\#"><span class="k-icon k-i-edit"></span></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            @*<dl>
+
+                                <dd></dd>
+
+                            </dl>
+                            <div class="edit-buttons">
+                                <a class="k-button k-button-icontext k-edit-button" href="\\#"><span class="k-icon k-edit"></span></a>
+                            </div>*@
+
+                        </div>
+                    </script>
+                </div>);
+
+
+
+                        horizontalPanes.Add()
+                            .HtmlAttributes(new { id = "InnerBottomleftpane" })
+                            .Collapsible(true)
+                            .Size("250px")
+                            .Content(@<div class="pane-content">
+                    <a href="#" class="dairy-photos"> <img id="imageCluster" style="border: 0px; width: 300px; height: 240px;" /></a>
+                    @(Html.Kendo().Tooltip()
+    .For("#imageCluster")
+    .Filter("a")
+    .ContentTemplateId("template")
+    .Position(TooltipPosition.Top)
+    .Width(400)
+    .Height(200)
+                    )
+
+                    <script id="template" type="text/x-kendo-template">
+                        <img id="ClusterImagetooltip" />
+                        @*<p>#=target.data('title')#</p>*@
+                    </script>
+
+                    <style>
+
+
+
+                            .dairy-photos a {
+                                display: block;
+                                width: 100px;
+                                height: 155px;
+                                padding: 0 0 0 10px;
+                                font-size: .9em;
+                                line-height: 1.2em;
+                                text-transform: uppercase;
+                                color: #777;
+                                background-color: rgba(255,255,255,0.8);
+                                -moz-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
+                                -webkit-box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
+                                box-shadow: 0 1px 2px 0 rgba(0,0,0,0.2);
+                            }
+
+                                .dairy-photos a:hover {
+                                    color: #fff;
+                                    background-color: #000;
+                                }
+
+                                .dairy-photos a img {
+                                    margin: 0 0 5px -10px;
+                                }
+
+                        .k-tooltip-content {
+                            vertical-align: middle;
+                        }
+
+                            .k-tooltip-content img,
+                            .k-tooltip-content p {
+                                float: left;
+                            }
+
+                            .k-tooltip-content p {
+                                font-size: 1.4em;
+                                padding: 20px;
+                                width: 160px;
+                                text-align: left;
+                            }
+                    </style>
+                </div>);
+                    }).ToHtmlString());
+
+      panes.Add().Content(@<div class="pane-content custom-kendo-grid">
+                    @(Html.Kendo().Grid<IncidentsClusterlistModel>()
+                @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+
+        columns.Bound(p => p.Incidentid).Title("Incident ID").Locked(false).Width(120);
+        columns.Bound(p => p.Type).Title("Ticket Type").Locked(false).Width(120);
+        columns.Bound(p => p.ConfigItemName).Title("CI Name").Locked(false).Width(120);
+        columns.Bound(p => p.CreatedDateTime).Title("Created Date").Format("{0:MM/dd/yyyy }").Width(120);
+        columns.Bound(p => p.ResolutionDateTime).Title("Resolved Date").Format("{0:MM/dd/yyyy }").Width(120);
+        columns.Bound(p => p.ResolutionDescription).Title("Resolution Description").Width(200);
+        columns.Bound(p => p.ClosedDateTime).Title("Closed Date").Format("{0:MM/dd/yyyy }").Width(120);
+        columns.Bound(p => p.ClosureCategory).Title("Cause").Width(120);
+        columns.Bound(p => p.Severity).Title("Severity").Width(120);
+        columns.Bound(p => p.DescriptionfromIncident).Title("Description").Width(300);
+        columns.Bound(p => p.ClusterLablefromCluster).Title("Cluster Name").Width(120);
+        columns.Bound(p => p.Assignedtosupportgroup).Title("Assignement Group").Width(150);
+        columns.Bound(p => p.elapsedtime).Title("Elapsed Time(DD:HH:MM:SS)").Width(150);
+    })
+    //.HtmlAttributes(new { style = "height: 100%;width:100%" })
+    //.Pageable(pageable => pageable
+    //   .Input(true)
+    //   .Numeric(false)
+    // )
+    .Filterable()
+    .Groupable()
+    .Sortable()
+    .Pageable()
+    .ToolBar(tools => tools.Excel())
+ .Excel(excel => excel
+        .FileName("IncidentsCluster.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+.Scrollable(scr => scr.Height(500))
+.AutoBind(false)
+.Resizable(resize => resize.Columns(true))
+.DataSource(dataSource => dataSource
+    .Ajax()
+      //.PageSize(20)
+
+      .Read(read => read.Action("GetIncidentClustersList", "AjaxService").Data("ParameterData"))
+ )
+                    )
+                </div>);
+      }))
+
+
+
+                    </div>
+
+    </div>
+</div>
+                          <!--Waiting -->
+    <div id="divLoading" style="margin: 0px; padding: 0px; position: fixed; right: 0px; top: 0px; width: 100%; height: 100%; background-color: #666666; z-index: 30001;opacity: .8; filter: alpha(opacity=70);display:none">
+        <p style="position: absolute; top: 30%; left: 45%; color: White;">
+            Please wait...<img src="~/Content/images/ajax-loader.gif">
+        </p>
+    </div>
+                    <!--End waiting-->
+
+<script type="text/javascript">
+
+
+
+    function ParameterData(e) {
+        var dbConnObj = $("#listView").data("kendoListView");
+        var index = dbConnObj.select().index(),
+                            dataItem = dbConnObj.dataSource.view()[index];
+        var _id = dataItem.id;
+        //var ticketType = $("#TicketType").data("kendoMultiSelect");
+        return {
+           
+          
+            ClusterId: _id
+
+        }
+    }
+  
+
+    function ClusterListviewChange(arg) {
+        var dbConnObj = $("#listView").data("kendoListView");
+        var index = dbConnObj.select().index(),
+                            dataItem = dbConnObj.dataSource.view()[index];
+   
+      
+        $("#imageCluster").attr("src", '@Url.Content("~/Content/WordCloud/")' + dataItem.imagePerCluster);
+        $("#ClusterImagetooltip").attr("src", '@Url.Content("~/Content/WordCloud/")' + dataItem.imagePerCluster);
+            var grid = $("#Grid").data("kendoGrid");
+            grid.dataSource.read();
+
+
+
+            @*$("#imageCluster").attr("src", '@Url.Content("~/Areas/IncidentNavigator/AspxReport/INTrendingReport.aspx?ClientId=")' + _id);*@
+        }
+
+</script>
+
+
+<script>
+$('#btnSearch').on("click", function (e) {
+
+refreshList();
+
+return false;
+
+});
+
+function refreshList() {
+$filter = new Array();
+$filter.push({ field: "ClusterLablefromCluster", operator: "contains", value: $('#SearchBox').val() });
+
+var list = $("#listView").data("kendoListView");
+list.dataSource.filter($filter);
+
+}
+</script>
+<style>
+    .breadcrumb {
+        margin-bottom: 5px !important;
+    }
+    .k-splitbar .k-resize-handle {
+        z-index:9;
+    }
+</style>

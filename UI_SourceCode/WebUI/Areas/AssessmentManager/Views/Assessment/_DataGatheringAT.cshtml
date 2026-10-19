@@ -1,0 +1,207 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+
+    .k-input.k-textarea {
+        width: 29em !important;
+        resize: none;
+        height: 5em;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="dataGathringATpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("DatagathringATpopUp")
+    .Title("Assessment - Data Gathering - Assessment Team ")
+    .Content(@<text>
+
+         <div class="datagathringAT" style="margin-top:-1.6em;">
+             <div class="dataGathringDetails">
+                  <div class="popUpfirstrow">
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 2.5em;">
+                       <span class="custom-blue-label" style="margin-right: 2em; width: 13em;">Assessment Type :</span>
+                          <div class="custom-dropdown AssessmentType" style="width:11em;margin-left: -2.5em;">
+                              @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+                              .Name("AssessmentID_dg")
+                              .HtmlAttributes(new { style = "width: 167.5%;margin-right:4em;margin-left: -2em;" })
+                               )
+                          </div>
+                    </div>
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em; ">
+                         <span class="custom-blue-label" style="margin-right: 2em; width: 9em;">Assessment Name :</span>
+                          <div class="custom-textbox Assessment-name" style="margin-left: -0.8em; width: 16.1em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("AssessmentName_dg")
+                             .Value("Loblaw-A3MM-2022-Q1")
+                             .HtmlAttributes(new { style = "width: 114.5%;" })
+                            )
+                           </div>
+                    </div>
+
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em;">
+                         <span class="custom-blue-label" style="margin-right: 2em; width: 8em;">Discipline :</span>
+                          <div class="custom-dropdown Discipline" style="width: 12em; margin-left: 4.5em;">
+                               @(Html.Kendo().DropDownListFor(m => m.DisciplineId)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.DisciplineList)
+                               .Name("DisciplineId_dg")
+                               .HtmlAttributes(new { style = "width: 154%;margin-left: -4.5em;" })
+                               )
+                          </div>
+                    </div>
+
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em;">
+                          <span class="custom-blue-label" style="margin-right: 2em;width: 10em;">Component :</span>
+                          <div class="custom-dropdown" style=" margin-left: -3.1em; width: 18.2em;">
+                              @(Html.Kendo().DropDownListFor(m => m.ComponentId)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.ComponentList)
+                              .Name("ComponentId_dg")
+                              .HtmlAttributes(new { style = "width: 102%;margin-left: 1.2em;" })
+                              )
+
+
+                           </div>
+                    </div>
+
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em;">
+                       <span class="custom-blue-label" style="margin-right: 2em; width: 5em;">Aspect :</span>
+                       <div class="custom-dropdown Aspect" style="width:17.6em;margin-left: 3em;">
+                           @(Html.Kendo().DropDownListFor(m => m.AspectID)
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(Model.AspectList)
+                             .Name("AspectID_dg")
+                             .HtmlAttributes(new { style = "width:105%;margin-left:-0.2em" })
+                             )
+                       </div>
+                   </div>
+
+
+
+                   <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em; ">
+                        <span class="custom-blue-label" style="margin-right: 2em; width: 9em;">Questionaire Version # :</span>
+                          <div class="custom-textbox" style="margin-left: -0.8em; width: 16em;">
+                           @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox_dg")
+                             .Value("Ver - 0.1")
+                             .HtmlAttributes(new { style = "width: 114.5%;" })
+                            )
+                          </div>
+                    </div>
+
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: -1em;">
+                       <div class="questionComponent" style="display: flex; margin-top: 2em;">
+                         <span class="custom-blue-label" style="width: 5em;">Question :</span>
+                           <div class="textBoxScroll" style="margin-left: 3em;">
+                              @Html.TextAreaFor(m => m.Question, new { @class = "k-textbox scrollbar-rail", id = "Question_dg", rows = 5, cols = 10, style = "width:27em !important;resize:none; height:5em; overflow:auto;box-shadow:none;margin-left: 1.5em;" })
+                           </div>
+                       </div>
+                    </div>
+
+                    <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em;">
+                       <div class="AnswerComponent" style="display:flex">
+                           <span class="custom-blue-label" style="width: 5em;">Example Answer :</span>
+                           <div class="textBoxScroll" style="margin-left: 3em;">
+                              @Html.TextAreaFor(m => m.ExampleAnswer, new { @class = "k-textbox scrollbar-rail", id = "ExampleAnswer_dg", rows = 5, cols = 10, style = "width:27em !important;resize:none; height:5em; overflow:auto;box-shadow:none;margin-left: 1.5em;" })
+                           </div>
+                       </div>
+                    </div>
+
+                     <div class="firstrowFields" style="display: flex; width: 28em; margin-left: 2em; margin-top: 1em;">
+                       <span class="custom-blue-label" style="width: 7em;">Maturity Level :</span>
+                       <div class="custom-dropdown Aspect" style="width:17.6em;margin-left: 3em;">
+                           @(Html.Kendo().DropDownListFor(m => m.AspectID)
+                             .DataTextField("Text")
+                             .DataValueField("Value")
+                             .BindTo(Model.AspectList)
+                             .Name("maturityLevel_dg")
+                             .HtmlAttributes(new { style = "width:105%;margin-left:-0.2em" })
+                             )
+                       </div>
+                     </div>
+
+
+                        
+
+                      
+
+                  </div>
+
+
+
+             </div>
+
+
+
+
+
+
+
+             <div class="actionButtons" style="margin-top: 1em;">
+                    <div style="margin: 0 1em 0 0;">
+                       <button style="float: right; width: 5em;" class="custom-button" type="button" id="btnCanceldg" onclick="onCanceldgClick()">CANCEL</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style="float: right; width: 5em; margin-right: 1em;" class="custom-button" type="button" onclick="onSavedgClick()" id="btnSave">SAVE</button>
+                     </div>
+              </div>
+         </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(1100)
+    .Height(560)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+</body>
+</html>
+
+

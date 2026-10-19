@@ -1,0 +1,347 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using System.Web.Configuration;
+@using NTTData.AMOPortal.WebUI.Dto
+@using Telerik.Reporting
+@using Telerik.ReportViewer.Mvc
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model INReportObservationModel
+
+@{
+    ViewBag.Title = "Incident Navigator";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    ////var cont = new ConfigureReportController();
+    ////var INReportList = cont.GetINReportList();
+
+
+    var repSiteLink = WebConfigurationManager.AppSettings["TelerikReportServer"];
+    var repSiteUserName = WebConfigurationManager.AppSettings["TelerikReportServerUser"];
+    var repSitePassword = WebConfigurationManager.AppSettings["TelerikReportServerPass"];
+    var RepJsResources = repSiteLink + "api/reports/resources/js/telerikReportViewer";
+
+}
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+
+<link href="https://kendo.cdn.telerik.com/2018.2.620/styles/kendo.common.min.css" rel="stylesheet" />
+
+<script src="@RepJsResources"></script>
+<style>
+
+    #reportViewerClustering {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+
+    .breadcrumb {
+        margin-bottom: 5px !important;
+    }
+
+    #wrap {
+        min-height: 100%;
+        height: auto;
+        padding: 0 0 0 0 !important;
+    }
+
+    #reportViewer1 {
+        position: relative;
+        /*width: 1400px;*/
+        height: 900px;
+        font-family: Verdana, Arial;
+    }
+</style>
+<div class="content-main dark-bg support-body-container">
+    @*<div id="wrap">*@
+    <div>
+        <ol class="breadcrumb ">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Consolidated Analysis</li>
+            <li class="active">Clustering</li>
+        </ol>
+        <input type="hidden" id="clusterlabel" name="clusterlabel">
+        <input type="hidden" id="Configitemname" name="Configitemname">
+        <input type="hidden" id="ReportnameH" name="ReportnameH">
+
+    </div>
+
+
+    <div class="content-wrapper">
+        @Html.HiddenFor(m => m.ClusterPath)
+
+        <div style="padding:0;padding-top: 15px;width:100%;margin:8px" id="reportPartialID">
+            <div>
+
+                <div>
+
+
+
+                    @(Html.TelerikReporting().ReportViewer()
+                            // Each report viewer must have an id - it will be used by the initialization script
+                            // to find the element and initialize the report viewer.
+                            .Id("reportViewerClustering")
+                            .ViewMode(ViewMode.Interactive)
+                            // The settings of the report server that hosts the reports - URL, username and password.
+                            // If username and password are not provided or are set to null, the server's Guest account will be used.
+                            // The report server should have its Guest account enabled along with configured permissions for accessing the report.
+                            // For more information see http://www.telerik.com/help/reporting/html5-report-viewer-howto-use-it-with-reportserver.html.
+                            .ReportServer(new ReportServer()
+                            {
+                                Url = repSiteLink,
+                                Username = repSiteUserName,
+                                Password = repSitePassword
+                            })
+                            // The URL for the report viewer template. The template can be edited -
+                            // new functionalities can be added and unneeded ones can be removed.
+                            // For more information please check http://www.telerik.com/help/reporting/html5-report-viewer-templates.html.
+                            //
+                            // The report source value contains Category and ReportName in the following format: {Category/ReportName}.
+                            .ReportSource("IncidentNavigator/Clustering"
+                                    , new Dictionary<string, object>() {
+                                    { "IncidentClientid", Model.ClientId },
+                                    { "IncidentStartDate", Model.FromYear },
+                                    { "IncidentEndDate", Model.ToYear },
+                                    { "ObservationDateRange", Model.DateRange },
+                                    { "SystemPath", Model.ClusterPath },
+                                    { "ClientName", Model.ClientName},
+                                    { "UserName", Model.UserName },
+                                    {"DateTimeNow",Model.CreatedDt } }
+                                            )
+                            // Specifies whether the viewer is in interactive or print preview mode.
+                            // PrintPreview - Displays the paginated report as if it is printed on paper. Interactivity is not enabled.
+                            // Interactive - Displays the report in its original width and height with no paging. Additionally interactivity is enabled.
+                            .ViewMode(ViewMode.Interactive)
+                            // Sets the scale mode of the viewer.
+                            // Three modes exist currently:
+                            // FitPage - The whole report will fit on the page (will zoom in or out), regardless of its width and height.
+                            // FitPageWidth - The report will be zoomed in or out so that the width of the screen and the width of the report match.
+                            // Specific - Uses the scale to zoom in and out the report.
+                            .ScaleMode(ScaleMode.Specific)
+                            // Zoom in and out the report using the scale
+                            // 1.0 is equal to 100%, i.e. the original size of the report
+                            .Scale(1.0)
+                            // Sets whether the viewer’s client session to be persisted between the page’s refreshes(ex. postback).
+                            // The session is stored in the browser’s sessionStorage and is available for the duration of the page session.
+                            .PersistSession(false)
+
+                            // Sets the print mode of the viewer.
+                            .PrintMode(PrintMode.AutoSelect)
+                            //If set to true shows the Send Mail Message toolbar button
+                            .SendEmail(new SendEmail { Enabled = false })
+                            //Switches accessibility mode ON or OFF.
+                            .EnableAccessibility(true)
+
+                            //----------------------//
+                            //Added to remove the parameter specifying area
+                            .ParametersAreaVisible(true)
+                            .Parameters(new Parameters { Editors = new Editors { SingleSelect = EditorTypes.ComboBox, MultiSelect = EditorTypes.ComboBox } })
+                                                                                                        
+                            .ClientEvents(
+                                events => events
+                                    .InteractiveActionEnter("InteractiveEnter")
+                                    .InteractiveActionExecuting("InteractiveActionResolution")
+                                    .InteractiveActionLeave("InteractiveLeave")
+                                )
+                        )
+
+
+
+
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="custom-popup-grid modal fade" id="CluserPopUp" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-popup-title">
+            <label class="custom-white-label" id="ClusterLabel"></label>
+            <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-content">
+            <div class="modal-body">
+                @*<label>Welcome to popup</label>*@
+                <div class="custom-kendo-grid report-drilldowm">
+                    @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                                .Name("GridClusterTickets")
+                                                                .AutoBind(false)
+                                                                .Columns(columns =>
+                                                                {
+
+                                                                    columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                                    columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                                    columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                                    .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                                    columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                                    columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                                    columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                                    columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                                    columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                                    columns.Bound(p => p.Resolutiontime1).Title("Resolution Time").Width(100);
+                                                                    columns.Bound(p => p.ResolutionTimeMetSLA).Title("Met Sla").Width(100);
+                                                                    columns.Bound(p => p.ResolutionExceptionIndicator).Title("Waive Indicator").Width(100);
+                                                                    columns.Bound(p => p.ResolutionExceptionReason).Title("Waive reason").Width(100);
+                                                                    columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                                    columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                                    columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100);
+                                                                    columns.Bound(p => p.Track).Title("Tower/Track").Width(100).Filterable(ftb => ftb.Multi(true));
+
+                                                                })
+                                                                .ToolBar(tools =>
+                                                                {
+                                                                    tools.Excel().Text("Export -");
+                                                                })
+                                                                .Scrollable(e => e.Endless(true))
+                                                                .Filterable()
+                                                                .Sortable()
+                                                                .Pageable()
+                                                                .Groupable()
+                                                                .Excel(excel => excel.FileName("Clustering_DrillDown_Report.xlsx")
+                                                                .Filterable(true)
+                                                                .AllPages(true)
+                                                                .ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+                                                                )
+                                                                .Resizable(r => r.Columns(true))
+                                                                .DataSource(dataSource => dataSource
+                                                                .Ajax()
+                                                                .PageSize(100)
+                                                                .Model(model =>
+                                                                {
+                                                                    model.Id(p => p.Id);
+
+                                                                })
+                                                                .Read(read => read.Action("getClusterTickets", "ConfigureReport").Data("GetdrilldownClusterParameter"))
+                                                                )
+                    )
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<script src="~/Content/js/bootstrap.min.js"></script>
+<script>
+
+
+
+    function GetdrilldownClusterParameter(e) {
+
+
+        var Reportnames = document.getElementById("ReportnameH").value;
+
+        var clusterlabel = document.getElementById("clusterlabel").value;
+        var Configitemname = document.getElementById("Configitemname").value;
+        
+        return {
+            clusterlabel: clusterlabel,
+            Configitemname: Configitemname,
+            ReportSelected: Reportnames
+            
+        };
+    }
+
+    var color = "";
+
+    function InteractiveEnter(e, args) {
+        if (args.action.Type === 'customAction') {
+            color = $(args.element).css("background-color");
+            $(args.element).css({ 'font-weight': 'bolder', 'background-color': '#d1d1d1' });
+        }
+    }
+
+
+    function InteractiveActionResolution(e, args) {
+             if (args.action.Type === 'customAction') {
+
+            var title = '';
+            var param1 = '';
+            var param2 = '';
+            var param3 = '';
+
+                //clusterlabel
+                if (args.action.Value.Parameters[0] != undefined) {
+                    param1 = args.action.Value.Parameters[0].Value;
+                    console.log("param1 is " + param1);
+                                    }
+                //Configitemname
+                if (args.action.Value.Parameters[1] != undefined) {
+                    param2 = args.action.Value.Parameters[1].Value;
+                    console.log("param2 is " + param2);
+
+                }
+                //MissedSLA1
+                if (args.action.Value.Parameters[2] != undefined) {
+                    param3 = args.action.Value.Parameters[2].Value;
+                    console.log("param3 is " + param3);
+                }
+
+                 document.getElementById("clusterlabel").value = param2;
+                 document.getElementById("Configitemname").value = param3;
+               
+                 document.getElementById("ReportnameH").value = param1;
+                 if (param1 == 'TicketClusterAnalysis') {
+                     document.getElementById('ClusterLabel').innerHTML = " " + param1 + " Report details for     Cluster - " + param2;
+                 }
+                 else {
+                     document.getElementById('ClusterLabel').innerHTML = " " + param1 + " Report details for     Configitem - " + param3 +  "           Cluster  - " + param2;
+                 }
+
+                //alert("Success");
+                //alert('You clicked on a column from series ' + paramX + ' and value ' + paramY);
+                var gridpriority = $("#GridClusterTickets").data("kendoGrid");
+                gridpriority.dataSource.read();
+                 $('#CluserPopUp').modal('show');
+
+            }
+
+        }
+
+
+
+    function InteractiveLeave(e, args) {
+        if (args.action.Type === 'customAction') {
+            //$(args.element).css({ 'font-weight': 'normal', 'background-color': '#EEF4FB' });
+            $(args.element).css({ 'font-weight': 'normal', 'background-color': color });
+
+        }
+    }
+
+
+</script>

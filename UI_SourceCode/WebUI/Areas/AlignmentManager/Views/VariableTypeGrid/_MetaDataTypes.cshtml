@@ -1,0 +1,143 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VariableTypesInput 
+<div class="col-xs-6 col-sm-4 accountCont">
+    <div class="accContracthdr">
+        <div class="left">
+            Meta Data Details
+        </div>
+        <div class="right">
+            <button class="btn btn-primary" tabindex="2900" type="button" id="btnAddMetaData">Add</button>
+        </div>
+    </div>
+    <div class="cptblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="80%" scope="col">Meta Data Type</th>
+                <th width="20%" scope="col">Inactive</th>
+                
+            </tr>
+            
+                    @{ 
+                foreach (var item in Model.MDTypes)
+                    
+                    {  
+                    <tr>
+                    <td>@Html.ActionLink(@item.TypeName,"DisplayMetaDataDetails","VariableTypeGrid", new {MetaDataId=item.Id, GridToDisplay="VarmetaGrid"}, null)</td>
+                        <td>@Html.CheckBoxFor( m => item.IsDeleted, new { @class = "metricchk", @disabled = "disabled"})</td>
+                    </tr>
+                    }
+            }
+
+
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        
+        $('#btnAddMetaData').click(function () {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?MetaDataCreate=metadatacreate&GridToDisplay=VarmetaGrid';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?MetaDataCreate=metadatacreate&GridToDisplay=VarmetaGrid';
+            }
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?MetaDataCreate=metadatacreate&GridToDisplay=VarmetaGrid");
+            
+            window.location = baseurl;
+            return false;
+
+
+        });
+
+
+        $('#btnVarDelete').click(function () {
+
+
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            var varcatId = "@Model.MetaDataId";
+
+              if (varcatId != "") {
+                  var confirm = window.confirm('Are you sure to delete the meta data type?');
+                  if (!confirm) {
+                      return false;
+                  }
+
+
+                  //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DeleteVarType/?VartypeId=@Model.VarTypeId");
+
+                //window.location = strUrl;
+                //return false;
+                //}
+            }
+
+
+          });
+
+        $('#metacancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?GridToDisplay=VarmetaGrid';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?GridToDisplay=VarmetaGrid';
+                }
+                window.location = baseurl;
+                return false;
+
+                //var localToServer = "/";
+                //var sPageURL = window.location.search.substring(1);
+                //var sURLVariables = sPageURL.split('&');
+
+                //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                //}
+
+                //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/VariableTypeGrid/DisplayMetaDataDetails/?GridToDisplay=VarmetaGrid");
+
+                //window.location = strUrl;
+                //return false;
+            }
+            else { return false; }
+
+        });
+    
+        
+    });
+
+</script>

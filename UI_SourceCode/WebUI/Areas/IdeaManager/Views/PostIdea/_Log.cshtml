@@ -1,0 +1,119 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  IdeaViewModel
+<div class="im-postidea-benefitsgrid">
+    <!---->
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Priority History</label>
+        @(Html.Kendo().Grid<IMIdeaPriorityHistoryModel>()
+                         .Name("IMIdeaPriorityHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.OldPriorityId).Title("Old Priority");
+                             columns.Bound(e => e.NewPriorityId).Title("New Priority");
+                             columns.Bound(e => e.Comments).Title("Comments");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.LastUpdatedDate).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadPriorityHistory", "PostIdea").Data("GetIdeaId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Implementation Priority History</label>
+        @(Html.Kendo().Grid<IMImpPriorityHistoryModel>()
+                         .Name("IMImpPriorityHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.OldImpPriority).Title("Old Priority");
+                             columns.Bound(e => e.NewImpPriority).Title("New Priority");
+                             columns.Bound(e => e.Comments).Title("Comments");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.UpdatedDt).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadImpPriorityHistory", "PostIdea").Data("GetIdeaId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Status History</label>
+        @(Html.Kendo().Grid<IMIdeaStatusHistoryModel>()
+                         .Name("IMIdeaStatusHistoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(e => e.OldStatus).Title("Old Status");
+                             columns.Bound(e => e.NewStatus).Title("Approver Action");
+                             columns.Bound(e => e.Comments).Title("Comments/ Updates");
+                             columns.Bound(e => e.PostedBy).Title("Posted By");
+                             columns.Bound(e => e.LastUpdatedDate).Title("Posted On").Format("{0:MM/dd/yyyy}");
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("ReadStatusHistory", "PostIdea").Data("GetIdeaId"))
+                         )
+
+            )
+    </div>
+    <br />
+    <div class="custom-kendo-grid">
+        <label class="custom-blue-label">Idea Created by/Reassign To</label>
+        @(Html.Kendo().Grid<IMIdeaReassignModel>()
+                        .Name("ReassignHistory")
+                        .Columns(columns =>
+                        {
+                           
+                            columns.Bound(e => e.Status).Title("Status");
+                            columns.Bound(e => e.CreatedByName).Title("Earlier User");
+                            columns.Bound(e => e.AssignedToUserName).Title("Reassigned To");
+                            columns.Bound(e => e.AssignedDateTime).Title("Reassigned On").Format("{0:MM/dd/yyyy}");
+                        })
+                     .Sortable()
+                     .Scrollable()
+                     .DataSource(dataSource => dataSource
+                     .Ajax()
+                     .PageSize(10)
+                     .Model(model => model.Id(f => f.Id))
+                     .Read(read => read.Action("ReadReassignDetail", "PostIdea").Data("GetIdeaId"))
+                        )
+
+           )
+    </div>
+</div>
+
+
+
+
+
+
+
+

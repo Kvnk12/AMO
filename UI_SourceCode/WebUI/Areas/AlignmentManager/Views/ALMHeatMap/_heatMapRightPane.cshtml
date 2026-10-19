@@ -1,0 +1,159 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto
+@model heatMapInput 
+
+
+
+            <div class="dependancyArea" style="width:95%">
+              @*<div class="dAhead"> <a href="#" title="" class="rightNav rightNavoneClose"> </div>*@
+                  
+                  @*<span class="glyphicon glyphicon-chevron-right"></span>*@
+                
+                <b>@Model.heatMapVariableName</b>
+
+
+            	<ul class="list-group">
+
+ @{
+                    if(Model.detailId != null &&  Model.detailId != "")
+                        {
+                    DataRow[] drows = Model.heatMapData.GetHeatMapDataTable.Select("Identityid=" + Model.detailId);
+                    
+                    if(drows.Length > 0)
+                        {
+
+                        List<String> lstColumns = Model.heatMapData.ListOfColumnsToDisplay(Model.ClientId, Model.HeatMapReportId == null ? 0 : Convert.ToInt32(Model.HeatMapReportId));
+                            foreach(DataRow drow in drows)
+                               {
+                               DataColumnCollection dcolCollection = drow.Table.Columns;
+                                int counter = 0;
+                                 foreach(var item in drow.ItemArray)
+                                     {
+                                          if(lstColumns.Contains(dcolCollection[counter].ColumnName))
+                                              {   
+                                          <li class="list-group-item">@dcolCollection[counter].ColumnName:<b>@item.ToString()</b></li>
+                                              }
+                                              counter++;
+                                     }
+                               }
+                        }
+                        }
+                        else
+                        {
+                        }
+                 }
+               </ul>
+            	@*<img src="images/predictiveGraph.png">*@
+            </div>
+            <!--.dependancyArea-->
+            @*<div class="dAreaOpen" style="display: none;"> <a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a> </div>*@
+
+
+
+            <div class="otherInfoArea" style="width:95%">
+@*              <div class="dAhead"> <a href="#" title="" class="rightNav rightNavtwoClose"> <span class="glyphicon glyphicon-chevron-right"></span>Details</a></div>*@
+                                 
+                  <div class="container_12">
+                      <ul>
+                      <li>
+                         @* @if(Model.heatMapVariableName != "" && Model.heatMapVariableName != null)
+                              {
+                                      
+                                    <a  href="#" target="_blank" class="" id="detailReport" >@(Model.heatMapVariableName+  " Details")  </a>
+                              }*@
+
+                          @if (Model.HeatMapReportId > 0 && Model.heatMapVariableName != null && Model.heatMapVariableName != "")
+                              {
+                                      <ul class="nav nav-tabs">
+                                          <li>
+                                              <a  href="#" target="_blank" class="" id="detailReport" >@(Model.heatMapVariableName+  " Details")</a>
+                                          </li>
+                                      </ul>
+                              }
+                          @if (Model.HeatMapReportId > 0)
+                          {
+                                <ul class="nav nav-tabs">
+                                          <li>
+                                              <a  href="#" target="_blank" class="" id="ReportData" >@(Model.HeatMapReportName+  " Details")</a>
+                                          </li>
+                                      </ul>
+                          }
+                      </ul>
+                      </div>
+               
+              <!--.dAhead-->
+              
+           @*<img src="images/predictionsGraph.png">*@
+            </div>
+            <!--.otherInfoArea-->
+            
+            <div class="oAreaOpen" style="display: none;"> <a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a> </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        @*        $("#detailReport").click(function (e) {
+            var mywindow;
+            var urlName = window.location.href + "&ssrsReport=HeatMapReport&ReportDisplay=ReportDisplay&ReportId=@(Model.HeatMapReportId)&variableName=@(Model.heatMapVariableName)";
+            urlName = urlName.replace("#", "");
+
+            var windowName = $(this).attr('id');
+            if (mywindow != null) {
+                mywindow.close();
+            }
+            mywindow = window.open(urlName, windowName, "height=750,width=750,resizable=yes,scrollbars=yes");
+            mywindow.focus();
+            return false;
+        });*@
+
+
+        $("#detailReport").click(function (e) {
+            var mywindow;
+            var urlName = window.location.href + "&variableName=@(Model.heatMapVariableName)&ReportToDisplay=FilterData";
+            urlName = urlName.replace("#", "");
+
+            var windowName = $(this).attr('id');
+            if (mywindow != null) {
+                mywindow.close();
+            }
+            mywindow = window.open(urlName, windowName, "height=750,width=750,resizable=yes,scrollbars=yes");
+            mywindow.focus();
+            return false;
+                });
+
+
+
+        $("#ReportData").click(function (e) {
+            var mywindow;
+            //var urlName = window.location.href + "&ssrsReport=HeatMapReport&ReportDisplay=ReportDisplay&ReportId=@(Model.HeatMapReportId)&variableName=@(Model.heatMapVariableName)";
+            var urlName = window.location.href + "&ReportId=@(Model.HeatMapReportId)&ReportToDisplay=ReportData";
+            urlName = urlName.replace("#", "");
+
+            var windowName = $(this).attr('id');
+            if (mywindow != null) {
+                mywindow.close();
+            }
+            mywindow = window.open(urlName, windowName, "height=750,width=750,resizable=yes,scrollbars=yes");
+            mywindow.focus();
+            return false;
+                });
+
+
+
+       @* $("#detailChart").click(function (e) {
+            var mywindow;
+            var urlName = window.location.href + "&ssrsReport=HeatMapTrend&ReportDisplay=ReportDisplay&ReportId=@(Model.HeatMapReportId)&variableName=@(Model.heatMapVariableName)";
+            urlName = urlName.replace("#", "");
+
+            var windowName = $(this).attr('id');
+            if (mywindow != null) {
+                mywindow.close();
+            }
+            mywindow = window.open(urlName, windowName, "height=750,width=750,resizable=yes,scrollbars=yes");
+            mywindow.focus();
+            return false;
+        });*@
+
+
+    });
+</script>

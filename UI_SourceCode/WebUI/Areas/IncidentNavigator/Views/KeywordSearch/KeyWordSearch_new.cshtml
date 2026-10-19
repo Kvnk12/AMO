@@ -1,0 +1,396 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+@model  KeywordSearchModel
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<div class="content-main dark-bg">
+    <div class="keyword-search">
+        <div style="display: flex; justify-content: space-between;">
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Incident Navigator</li>
+                <li class="active">Keyword Search</li>
+            </ol>
+
+        </div>
+        <div class="parameter-slider-overlay"></div>
+
+
+        <div class="keyword-search-content">
+            <div id="partialDiv" style="padding-left:3px; padding-right:3px;">
+                @Html.Partial("~/Areas/IncidentNavigator/Views/KeywordSearch/_keywordSearch.cshtml", Model)
+            </div>
+            <div class="key-grid-count" style="text-align:right;margin-right:2em;">
+                <label class="custom-blue-label">Total Incident Count: @Model.TotalIncidents</label>
+            </div>
+            <div class="keyword-partial-content custom-kendo-grid">
+
+                @(Html.Kendo().Grid<KeywordReportListModel>
+    ()
+    .Name("ReportList")
+    .Columns(columns =>
+    {
+        columns.Bound(e => e.Id).Hidden();
+        columns.Bound(e => e.WordValue).Title("Word Value").Filterable(true);
+        columns.Bound(e => e.WordTotIncCount).Title("Word Incident Count").HtmlAttributes(new { style = "text-align:right;" }).HeaderHtmlAttributes(new { style = "text-align:right;" }).Filterable(true);
+        columns.Bound(e => e.WordIncidentPer).Title("Word Incident %").HtmlAttributes(new { style = "text-align:right;" }).HeaderHtmlAttributes(new { style = "text-align:right;" });
+    })
+    .Pageable()
+    .Scrollable()
+    .Sortable()
+    //.Groupable()
+    //.Selectable(selectable => selectable
+    //                  .Type(GridSelectionType.Cell))
+    .Events(e => e.ExcelExport("KeywordReport")/*.Change("onRowSelected").DetailInit("keywordincidentDetails")*/)
+    .ToolBar(tools => {
+        tools.Custom().Text("Keyword Search Result");
+        tools.Custom().Text("Export Tickets")
+                      .HtmlAttributes(new { id = "ExportTicketBtn", @style = "margin-left: 46.9em;border: 1px solid white;margin-top: 7px;margin-bottom: unset;background-image: url(../../Content/images/export_excel.svg);background-repeat: no-repeat;background-size: 19px;background-position: right;width: 10em;padding-right: 28px;" })
+                      .Url(Url.Action("ExportTicketData", "KeywordSearch"));
+        tools.Excel();
+    })
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(10)
+    .Model(model => { model.Id(f => f.Id); model.Field(f => f.Id).Editable(false); })
+    .Read(read => read.Action("New_KeywordReportList", "KeywordSearch").Data("GetKeys"))
+    )
+
+    )
+</div>
+
+            <div id="KeywordCountModal" class="custom-popup-grid modal fade" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-popup-title">
+                        <label class="custom-white-label" id="gridwordlabel">Keyword Incident List</label>
+                        <button type="button" class="close" title="Close" data-bs-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <div class="custom-kendo-grid">
+                                @(Html.Kendo().Grid<SLAMaintenenceModel>()
+                                                    .Name("KeywordTickets")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100);
+                                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                                        .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+                                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                                        columns.Bound(p => p.Resolutiontype).Title("Resolution type").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                        columns.Bound(p => p.Track).Title("Track/Tower").Width(100).Filterable(ftb => ftb.Multi(true));
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Scrollable(e => e.Endless(true))
+                                                   .Pageable()
+                                                    .Filterable()
+                                                    .AutoBind(false)
+                                                    .Sortable()
+                                                    .Groupable()
+                                                    .Excel(excel => excel.FileName("Keyword_TicketList.xlsx")
+                                                    .Filterable(true)
+                                                    .AllPages(true)
+
+                                                    .ProxyURL(Url.Action("Export_Tickets_Save", "Dashboard"))
+                                                    )
+                                                    .Resizable(r => r.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                   .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.Id);
+                                                    })
+                                                    .Read(read => read.Action("GetKeywordDrilldownGrid", "KeywordSearch").Data("GetKeyworddrilldownParameter"))
+                                                    )
+        )
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script src="~/Content/plugins/scrollbar/js/jquery.scrollbar.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#WordValue').val('');
+        $("#popupGeneric").attr("checked", true);
+        $("#popupCustom").attr("checked", true);
+        $("#popupCluster").attr("checked", true);
+        $("#mainGeneric").attr("checked", true);
+        $("#mainCustom").attr("checked", true);
+        $("#mainCluster").attr("checked", true);
+        $("#ExportTicketBtn").css("pointer-events", "none");
+        //$(".k-grid-excel").text("My NEW Text");
+    });
+    
+    $('#ExportTicketBtn').click(function () {
+        var href = $(this).attr("href");
+        href += "?selectedWordList=" + selectedWordList ;
+        $(this).attr("href", href);
+    });
+     
+    function dataBound() {
+        detailExportPromises = [];
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    var detailExportPromises = [];
+
+
+    function KeywordReport_detailInit(e) {
+
+
+        var deferred = $.Deferred();
+
+        // get the index of the master row
+        var masterRowIndex = e.masterRow.index(".k-master-row");
+
+        // add the deferred to the list of promises
+        detailExportPromises.push(deferred);
+
+        var detailGrid = e.detailRow.find("[data-role=grid]").data("kendoGrid");
+
+        detailGrid.bind("excelExport", function (e) {
+            // prevent saving the file
+            e.preventDefault();
+
+            // resolve the deferred
+            deferred.resolve({
+                masterRowIndex: masterRowIndex,
+                sheet: e.workbook.sheets[0]
+            });
+        });
+    }
+
+    function KeywordReport(e) {
+        // prevent saving the file because we will update the workbook
+        e.preventDefault();
+
+        var workbook = e.workbook;
+
+        // Export all detail grids
+        $("[data-role=grid]", this.element).each(function () {
+            $(this).data("kendoGrid").saveAsExcel();
+        });
+
+        // wait for all detail grids to finish exporting
+        $.when.apply(null, detailExportPromises)
+            .then(function () {
+                // get the export results
+                var detailExports = $.makeArray(arguments);
+
+                // sort by masterRowIndex
+                detailExports.sort(function (a, b) {
+                    return a.masterRowIndex - b.masterRowIndex;
+                });
+
+                // add an empty column
+                workbook.sheets[0].columns.unshift({ width: 30 });
+
+                // prepend an empty cell to each row
+                for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
+                    workbook.sheets[0].rows[i].cells.unshift({});
+                }
+
+                // merge the detail export sheet rows with the master sheet rows
+                // loop backwards so the masterRowIndex doesn't need to be updated
+                for (var i = detailExports.length - 1; i >= 0; i--) {
+                    var masterRowIndex = detailExports[i].masterRowIndex + 1;
+                    var sheet = detailExports[i].sheet;
+
+                    // prepend an empty cell to each row
+                    for (var ci = 0; ci < sheet.rows.length; ci++) {
+                        if (sheet.rows[ci].cells[0].value) {
+                            sheet.rows[ci].cells.unshift({});
+                        }
+                    }
+                    // insert the detail sheet rows after the master row
+                    [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
+                }
+
+                // save the workbook
+                kendo.saveAs({
+                    dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
+                    fileName: "KeywordReport.xlsx"
+                });
+            });
+    }
+    var selectedWordList = "";
+    function GetKeys() {
+        //alert('keys');
+        ////var chkArray = [];
+        var chkWords = [];
+        $(".new_checkbox:checked").each(function () {
+            var type = $(this).attr('name');
+            //if ($(this).css('display') == 'none') {
+            //    console.log($(this).val());
+            //}
+            //console.log(type);
+            if (type == "generic" && !($('.main-generic-label').is(":checked"))) {
+                chkWords.push($(this).val());
+                console.log("select generic");
+            }
+            if (type == "custom" && !($('.main-custom-label').is(":checked"))) {
+                chkWords.push($(this).val());
+                console.log("select custom");
+            }
+            if (type == "cluster" && !($('.main-cluster-label').is(":checked"))) {
+                chkWords.push($(this).val());
+                console.log("select cluster");
+            }
+
+        });
+        var selectedWords = chkWords.join(',');
+        //alert('check here' + selectedINs);
+        selectedWordList = selectedWords;
+        console.log(selectedWordList);
+        if (selectedWordList != "") {
+            $("#ExportTicketBtn").css("pointer-events", "unset");
+        }
+        else
+            $("#ExportTicketBtn").css("pointer-events", "none");
+        return {
+            // selectedINs: selectedINs,
+            selectedWords: selectedWords
+        };
+    }
+
+
+    function RunReport(){
+        // alert('xx');
+        var grid = $("#ReportList").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+
+    var WordValue;
+    $("#ReportList").click(function (e) {
+        
+            // console.log(e.target);
+            var word = e.target.parentNode.cells[0].parentNode.cells[1].childNodes[0].data;
+            console.log(word);
+            WordValue = word;
+            var gridpriority = $("#KeywordTickets").data("kendoGrid");
+            gridpriority.dataSource.read();
+            document.getElementById('gridwordlabel').innerHTML = WordValue + " KeyWord Ticket List";
+            $('#KeywordCountModal').modal('show');
+            // console.log("changed");
+       
+    });
+    function GetKeyworddrilldownParameter() {
+        return {
+            WordValue: WordValue
+
+        }
+    }
+
+    $('.scrollbar-rail').scrollbar();
+
+    $('.keyword-search-listkey').on('click', function () {
+        console.log("Keyword List");
+        $('#KeywordListModal').modal('show');
+
+    });
+
+    function mycheck() {
+
+        $(".Alphacheck:checked").each(function () {
+            alpha = $(this).val();
+            // console.log($(this).val());
+            $("." + alpha).prop("checked", true);
+            $("." + alpha).prop("checked", true);
+            $("." + alpha).prop("checked", true);
+        });
+
+        $(".Alphacheck:not(:checked)").each(function () {
+            alpha = $(this).val();
+            // console.log("unchecked");
+            $("." + alpha).prop("checked", false);
+            $("." + alpha).prop("checked", false);
+            $("." + alpha).prop("checked", false);
+
+        });
+
+    }
+
+    function valueChanged() {
+        if ($('.main-generic-label').is(":checked"))
+            $(".generic-label-hidden").hide();
+        else
+            $(".generic-label-hidden").show();
+        if ($('.main-custom-label').is(":checked"))
+            $(".custom-label-hidden").hide();
+        else
+            $(".custom-label-hidden").show();
+        if ($('.main-cluster-label').is(":checked"))
+            $(".cluster-label-hidden").hide();
+        else
+            $(".cluster-label-hidden").show();
+        if ($('.popup-generic-label').is(":checked"))
+            $(".popup-generic-label-hidden").hide();
+        else
+            $(".popup-generic-label-hidden").show();
+        if ($('.popup-custom-label').is(":checked"))
+            $(".popup-custom-label-hidden").hide();
+        else
+            $(".popup-custom-label-hidden").show();
+        if ($('.popup-cluster-label').is(":checked"))
+            $(".popup-cluster-label-hidden").hide();
+        else
+            $(".popup-cluster-label-hidden").show();
+
+    }
+
+    function uncheck() {
+        $('input[type="checkbox"]:checked').prop('checked', false);
+    }
+
+
+</script>
+
+

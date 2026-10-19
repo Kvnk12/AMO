@@ -1,0 +1,138 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities.PortfolioAnalyzer
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script type="text/javascript">
+
+</script>
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+ //   Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+}
+<div class="content-main dark-bg">
+
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Meta Data</li>
+            <li class="active">Disposition Solution</li>
+        </ol>
+    </div>
+
+    <div class="custom-kendo-grid apr-grid-toolbar">
+            <div class="custom-white-label"><strong>Disposition Solution</strong></div>
+            @(Html.Kendo().Grid<DispositionModel>()
+                    .Name("DispGrid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(e => e.DispId).Hidden();
+                        columns.Bound(e => e.DispositionName).Title("Disposition");
+
+                    })
+                    .Pageable()
+                    .Scrollable()
+                    .DataSource(dataSource => dataSource
+                     .Ajax()
+                     .PageSize(10)
+                     .Model(model => { model.Id(f => f.DispId); })
+                     .Read(read => read.Action("GetDispositions", "MetaData"))
+                      )
+                      .ClientDetailTemplateId("DispSolutionTemplate")
+            )
+        </div>
+    </div>
+
+<script id="DispSolutionTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<DispNDispSlnModel>()
+                    .Name("DispSlnGrid#=DispId#")
+                    .Columns(columns =>
+                    {
+                        columns.ForeignKey(p => p.DispSolutionId, (IEnumerable<APRDispositionSolution>)ViewData["DispSolutions"], "Id", "DispositionSolution").Title("Disposition Solution");
+            //columns.ForeignKey(p => p.DispSolution, (IEnumerable<SelectListItem>)ViewData["DispSolutions"], "Value", "Text").Title("Disposition Solution");
+            columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(250).Title("Action");
+                    })
+            .Sortable()
+            .Editable(editable => editable.Mode(GridEditMode.InLine)
+                //.ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?")
+                )
+            .Pageable()
+             .ToolBar(
+           tools =>
+           {
+               tools.Create().Text("Disposition Solution");
+           })
+            .Scrollable()
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .ServerOperation(false)
+                .Model(model =>
+                {
+                    model.Id(o => o.MapId);
+                })
+                .PageSize(10)
+                .Read(read => read.Action("GetDispSolutionsForDisp", "MetaData", new { DispositionId = "#=DispId#" }))
+                .Create(create => create.Action("CreateDispSolutionSln", "MetaData", new { DispositionId = "#=DispId#" }))
+                .Update(update => update.Action("EditDispSolution", "MetaData"))
+                .Destroy(delete => delete.Action("DeleteDispSolution", "MetaData"))
+            )
+            .Events(events => events
+            .Save("Grid_Save")
+            )
+            .ToClientTemplate())
+
+</script>
+
+
+
+<script>
+    function Grid_Save(e) {
+
+        console.log(e);
+
+
+
+        //e.model.set("AppId", appid);
+
+    }
+
+
+
+    function returnfalse() {
+        return false;
+    }
+
+
+
+
+
+
+</script>
+

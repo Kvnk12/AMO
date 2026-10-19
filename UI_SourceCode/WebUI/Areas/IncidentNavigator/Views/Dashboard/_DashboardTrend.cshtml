@@ -1,0 +1,150 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+
+<div>
+    <div class="top-content-heading">
+        <div class="top-content-head ticket-trend-chart">
+            <h6>Ticket Trend by </h6>
+            <div class="chart-type">
+                @(Html.Kendo().DropDownListFor(m => m)
+                                             .Name("DrpValTrend")
+                                             .OptionLabel("")
+                                             .DataTextField("Text")
+                                             .DataValueField("Value")
+                                             .Value("Week")
+                                             .Events(e => e.Change("DrpValTrendChange"))
+                                             .BindTo(new List<SelectListItem>() {
+                                                                                     new SelectListItem() {
+                                                                                     Text = "Day",
+                                                                                     Value = "Day"
+                                                                                     },
+                                                                                     new SelectListItem() {
+                                                                                     Text = "Week",
+                                                                                     Value = "Week"
+                                                                                     },
+                                                                                     new SelectListItem() {
+                                                                                     Text = "Month",
+                                                                                     Value = "Month"
+                                                                                     },
+                                                                                     new SelectListItem() {
+                                                                                     Text = "Year",
+                                                                                     Value = "Year"
+                                                                                     }
+                                             })
+                                             .AutoBind(true)
+                )
+            </div>
+        </div>
+        <div class="graph-type inflow-outflow-graph">
+            <input type="checkbox" id="inflowOutflow" />
+            <label for="inflowOutflow">Inflow-Outflow</label>
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c1"><span class="active"></span>Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartTrend()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>()
+                                        .Name("chartTrend")
+                                        // .Title("Ticket Trend by Year/Month")
+                                        .Legend(legend => legend
+                                        .Visible(true)
+                                        .Align(ChartLegendAlign.Start)
+                                        .Position(ChartLegendPosition.Bottom)
+                                        //.Offset(1, 1)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboardTrend", "Dashboard").Data("ParameterDataTrend")))
+
+                                        .Series(series =>
+                                        {
+                                            series.Line(model => model.IncidentCount).Name("No. of Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#19BDFF").Visible(true)).Color("#19BDFF");
+                                            series.Line(model => model.ResolvedCount).Name("No. of Resolved Tickets").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#2FB447").Padding(0, 0, -30, 0).Visible(true)).Color("#2FB447").Visible(false);
+                                            series.Line(model => model.TrendVal).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(true);
+                                            series.Line(model => model.ResolvedTrend).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(false);
+
+                                        })
+                                        .CategoryAxis(axis => axis
+                                        .Min(0)
+                                         .Max(12)
+                                        .Categories(model => model.DrpCategory)
+                                        .MajorGridLines(lines => lines.Visible(false))
+
+                                        .Labels(labels => labels.Rotation("auto"))
+                                        .AxisCrossingValue(0, 1000)
+                                            .Crosshair(c => c.Visible(true).DashType(ChartDashType.Dot))
+                                        //.Title(title => title.Text("Year/Month").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+
+                                        .ValueAxis(axis => axis.Numeric("TktCnt")
+                                                .Labels(labels => labels.Format("{0:N0}"))
+                                                     //.Visible(true)
+                                                     //  .MajorGridLines(lines => lines.Visible(true))
+                                                     .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                // .Title(title => title.Text("# of Tickets").Font("12px Arial,Helvetica,sans-serif"))
+                                                //.MajorUnit(100)
+                                                )
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= series.name #: #= value #"))
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                .Events(events => events
+
+            .DataBound("Inflow_onDataBound")
+            .SeriesClick("onTrendSeriesClick")
+        // .Render("onRender")
+        )
+        )
+        </div>      
+    </div>
+    <div class="table-content hide" style="color: #000;padding: 0 18px;">
+        @(Html.Kendo().Grid<INChartDashboardModel>
+                                        ()
+                                        .Name("TrendTable")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.DrpCategory).Title("TicketTrend").ClientFooterTemplate("Total");
+                                            columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#");
+                                            columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                                        })
+                                        .AutoBind(false)
+                                        .Sortable()
+                                        .HtmlAttributes(new { style = "height:235px;" })
+                                        .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                          .Aggregates(agg =>
+                                          {
+                                              agg.Add(p => p.IncidentCount).Sum();
+                                              agg.Add(p => p.Percent).Sum();
+                                          })
+                                            //.Read(read => read.Action("GetDashboardTrendnewGrid", "AjaxService").Data("ParameterDatanew"))
+                                           .Read(read => read.Action("GetDashboardTrendGrid", "Dashboard").Data("ParameterDataTrend"))
+         )
+                                          .Events(events => events
+                                            .DataBound("TrendTable_onDataBound")
+                                            // .SeriesClick("onSeriesClick")
+                                        )
+        )
+
+    </div>
+
+</div>
+<script>
+
+
+</script>

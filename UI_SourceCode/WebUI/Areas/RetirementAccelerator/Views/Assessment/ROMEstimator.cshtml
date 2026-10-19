@@ -1,0 +1,162 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "ROM Estimator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/retirement-accelerator.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    
+}
+}
+
+<div class="content-main dark-bg">
+    <div style="margin:8px 8px 8px 8px; min-height:800px;">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb" style="margin-bottom:0px;">
+                <li>Framework Builder</li>
+                <li>Assess</li>
+                <li class="active">ROM Estimator</li>
+            </ol>
+        </div>
+        <br />
+        <div>
+            <h5 style="text-align: center; margin: 0px; color: #fff" ><strong>ROM Estimator</strong></h5>
+            <div>
+
+                <div style="display:flex">
+                    <label style="margin: 10px; margin-bottom: 0px; color: #fff">Application:</label>
+                    @(Html.Kendo().DropDownList().Name("ApplicationName").DataTextField("Text").DataValueField("Value").OptionLabel("Select Application...")
+                                .Events(e => e.Change("OnAppDropDownChange"))
+                                .AutoBind(true)
+                                .DataSource(d => d
+                                    .Read(read => read.Action("GetApplications", "Assessment"))
+                                )      )
+                    
+                </div>
+
+
+                <div style="margin:10px;">
+                    <div class="custom-kendo-tabstrip">
+
+                        @(Html.Kendo().TabStrip()
+                                 .Name("RomEstimateLevel1")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("ROM Estimate Calculator")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_RomCalculator"));
+                                 })
+
+
+                )
+                    </div>  
+
+                
+
+
+
+
+
+
+                </div>
+        </div>
+    </div>
+</div>
+    </div>
+    <script type="text/javascript">
+
+    function GetAppId() {
+        var name = $("#ApplicationName").data("kendoDropDownList");
+        return {
+            ApplicationId: name.value()
+        }
+    }
+
+    function GetAppId2() {
+        var name = $("#ApplicationName").data("kendoDropDownList");
+        return {
+            AppId: name.value()
+        }
+    }
+
+    function OnAppDropDownChange() {
+
+        var ECGrid = $("#ExecutionCostGrid").data("kendoGrid");
+        ECGrid.dataSource.read();
+        var PMgGrid = $("#ProjManageGrid").data("kendoGrid");
+        PMgGrid.dataSource.read();
+        var SCGrid = $("#SupportCostGrid").data("kendoGrid");
+        SCGrid.dataSource.read();
+        var OASGrid = $("#OngoingArchivalGrid").data("kendoGrid");
+        OASGrid.dataSource.read();
+        var ROMEstimatorGrid = $("#ROMEstimatorGrid").data("kendoGrid");
+        ROMEstimatorGrid.dataSource.read();
+
+    }
+
+    function FileUpload(e,rowid,whichtable) {
+        console.log(e.files);
+        console.log(rowid);
+        console.log(whichtable);
+        var formdata = new FormData();
+        formdata.append(e.files[0].name, e.files[0]);
+        formdata.append('dbrowid', rowid);
+        formdata.append('gridname', whichtable);
+        console.log(formdata);
+        var baseurl = '@Url.Content("~/Assessment/NewFileUpload")';
+        $.ajax(
+        {
+        url: baseurl,
+        type: 'post',
+        data: formdata,
+        async: false,
+        processData: false,
+        contentType: false,
+        cache: false,
+        //dataType: 'json',
+        success: function (data) {
+                OnAppDropDownChange();
+            }
+        })
+    }
+
+
+    function deleteFile(rowid, whichtable) {
+        var mod = {
+            rowId: rowid,
+            table: whichtable
+        };
+        var data = JSON.stringify(mod);
+        var ReadURl = '@Url.Content("~/RetirementAccelerator/Assessment/FileDestroy")';
+        $.ajax(
+            {
+                url: ReadURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    OnAppDropDownChange();
+                }
+            })
+    }
+
+    </script>

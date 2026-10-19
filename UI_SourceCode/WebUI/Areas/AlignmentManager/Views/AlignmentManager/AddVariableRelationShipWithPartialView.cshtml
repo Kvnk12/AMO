@@ -1,0 +1,322 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string form_name = "frmSaveItemDetails";
+}
+
+@*@Html.HiddenFor(m => m.VariableCatId)
+    @Html.HiddenFor(m => m.VariableLabelId)*@
+
+
+ 
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @Html.Partial("_ClientList", Model)
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+<div class="container" style="padding: 0;">
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+  <div class="treemenu">
+            <div class="hdr">
+                <h3>Performance Predictor</h3>
+                <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </div>
+            <!-- add the tree menu here-->
+            @*<div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))</div>*@
+        <div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.PPTreeViewRoot)</div>
+        </div>
+
+
+@*        <div class="treemenu">
+            <div class="hdr">
+                <h3>Performance Predictor</h3>
+                <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </div>
+            <!-- add the tree menu here-->
+            @Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))
+        </div>*@
+
+
+        <!-- treemenu ends-->
+        <div class="treeMenuContent">
+            <div class="container" style="padding: 0;">
+                <div class="amgrcontentLeft">
+                    <div class="well well-sm"><strong>Sibling RelationShip  for Variable @ViewData["VarName"]</strong> </div>
+                    <div>
+                        @*@Html.Partial("_AddVariablePartial", Model)*@
+                        @Html.Partial("_AddVariableRelationShip",Model)
+                    </div>
+                    
+
+                </div>
+
+                <!--/.amgrcontentLeft-->
+                <!--END OF LEFTAREA-->
+@*                <div class="amgrcontentRight">
+                    @Html.Partial("valuechainrightpane", Model)
+                </div>*@
+
+                 <div class="amgrcontentRight">
+                    @Html.Partial("_valuechainrightpane", Model)
+                </div>
+
+
+
+                <!-- end of right areaa-->
+
+            </div>
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+
+</div>
+
+
+    
+
+
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#navigation").treeview({
+                //persist: "location",
+                collapsed: true,
+                unique: true
+            });
+        });
+    </script>
+}
+
+<script>
+
+    
+    $(document).ready(function () {
+        $('.score, .weight').keypress(function (evt) {
+            return(isNumberKey(evt));
+        });
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (
+           (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+</script>
+@*<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+
+    $(document).ready(function () {
+
+        $('.selectpicker').selectpicker();
+        //$('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+                
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+                
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'ClientAccountGrid') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+
+            window.location = baseurl + SelectedclientId;
+
+        });
+
+
+
+    })
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode != 44 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+    function CalcFTE() {
+        var OffshoreVal = $('#txtAvgFTEoffShore').val();
+        var OnshoreVal = $('#txtAvgFTEOnShore').val();
+        var re = /,/gi;
+        //alert(OnshoreVal);
+        OnshoreVal = OnshoreVal.replace(re, "");
+        OffshoreVal = OffshoreVal.replace(re, "");
+        //alert(OnshoreVal);
+        //alert(OffshoreVal);
+        var AverageVal = parseFloat(OnshoreVal) + parseFloat(OffshoreVal);
+        if(isNaN(AverageVal))
+            AverageVal=0;
+        //alert(AverageVal);
+        $('#txtAvgFTE').val(AverageVal);
+        $("#txtAvgFTE").prop('readonly', true);
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        if ($('#chkAvgFTE').prop('checked'))
+        {
+            $("#txtAvgFTE").prop('readonly', true);
+            
+        }
+
+        //Check box  calculate implementation
+        $('#chkAvgFTE').click(function () {
+            
+            if ($('#chkAvgFTE').prop('checked')) {
+                //$("#txtAvgFTE").attr("readonly", true);
+                CalcFTE();
+
+            }
+            else { $('#txtAvgFTE').prop('readonly', false); }
+        });
+
+
+        $('#txtAvgFTEOnShore, #txtAvgFTEoffShore').change(function () {
+
+            //alert($('#chkAvgFTE').prop('checked'));
+            //if ($('#chkAvgFTE').attr('checked')) {
+            if ($('#chkAvgFTE').prop('checked')) {
+                CalcFTE();
+
+            }
+        });
+
+        //$('#txtAvgFTEoffShore').change(function () {
+
+        //    if ($('#chkAvgFTE').attr('checked')) {
+        //        CalcFTE();
+
+        //    }
+        //});
+
+        $('#btnAddContract').click(function () {
+            var clientId = $("#clientId").val().toString();
+            var AccountId = $("#AccountId").val().toString();
+            var AccountName = $("#AccountName").val().toString();
+
+            if (clientId == "0" || AccountId == "0") {
+                alert('Please select Client & Account to create New Contract');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientAccountGrid') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+
+
+            var url = baseurl + clientId + "&AccountId=" + AccountId + "&Contract=Contractcreate" + "&AccountName=" + AccountName;
+            window.location = url;
+
+        });
+
+        $('#btnAddAccount').click(function () {
+            var clientId = $("#clientId").val().toString();
+            if (clientId == "0") {
+                alert('Please select Client to create new Account');
+                return false;
+            }
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'ClientAccountGrid') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientAccountGrid/DisplayClientAccountContracts/?ClientId='
+            }
+
+            var url = baseurl + clientId + "&AccountCreate=Accountcreate";
+            window.location = url;
+
+        });
+    });
+
+</script>
+
+<script>
+
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+
+</script>*@
+
+
+    

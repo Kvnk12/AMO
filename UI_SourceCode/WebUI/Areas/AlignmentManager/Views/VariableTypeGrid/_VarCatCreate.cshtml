@@ -1,0 +1,61 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.VariableTypesInput  
+
+@using (Html.BeginForm("SaveCatTypes","VariableTypeGrid", new {VarCatId=Model.mdmVariableCategoryInput.Id, VarCatCreate=Model.VarCatCreate},  FormMethod.Post))
+    {       
+    <div class="accdetailArea">
+        <div class="accdetailhdr">
+            <div class="accdetailhd">
+                <h4>Variable Category Details</h4>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+        </div>
+
+
+        
+        <div class="leftarea form-horizontal">
+            <div class="form-group">
+                <label id="lblAccountName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Category Type</label>
+                <div class="col-sm-5">
+                    @Html.TextBoxFor(m => m.mdmVariableCategoryInput.VariableCategory,  new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtaccname" })
+                </div>
+            </div>
+                        <div class="form-group">
+                <label class="col-sm-5 control-label" for="grpdesc">Inactive</label>
+                <div class="col-sm-5">
+                    @Html.CheckBoxFor(m => m.mdmVariableCategoryInput.IsDeleted, new { @class = "metricchk", id = "chkAvgFTE", tabindex = "110" })
+                </div>
+            </div>
+
+        </div>
+        <!--/.leftarea-->
+        <div class="rightarea">
+        </div>
+        <!--/.rightarea-->
+        <div class="accdetailacction">
+            <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            @{if(Model.VarCatId > 0)
+                  {
+            <button type="Submit" tabindex=""   class="btn btn-primary" id="btnVarDelete" name="command" value="delete">Delete</button>
+                }
+                }
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="catcancel">Cancel</button>
+        </div>
+
+    </div>
+    <!--./accdetailArea-->                        
+    }
+
+

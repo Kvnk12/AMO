@@ -1,0 +1,25 @@
+﻿@using WebUI.Areas.IdeaManager.Controllers
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model string
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostIdeaController();
+    var servList = cont.GetListOfAdmin(client.ClientId);
+
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+                                .Name("ImpManagers")
+                                .OptionLabel("Select Imp Manager( avoid duplication)")
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .BindTo(servList)
+                                //.AutoBind(true)
+                                )

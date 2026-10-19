@@ -1,0 +1,44 @@
+﻿
+
+
+
+@*@(Html.Kendo().ComboBoxFor(m => m)
+        .DataValueField("CategoryID")
+        .DataTextField("CategoryName")
+        .BindTo((System.Collections.IEnumerable)ViewData["categories"])
+)*@
+
+@*@(Html.Kendo().DropDownListFor(m => m.IsSurveyParticipant).Name("IsSurveyParticipant")
+     .OptionLabel("Select")
+          .DataTextField("Text")
+         
+          .DataValueField("Value")
+          .ValuePrimitive(true)
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Business",
+                  Value = "Business"
+              },
+              new SelectListItem() {
+                  Text = "Technical",
+                  Value = "Technical"
+              },
+               new SelectListItem() {
+                  Text = "Both",
+                  Value = "Both"
+              },
+
+          }))*@
+
+@(Html.Kendo().DropDownListFor(m => m)
+                         .Name("IsSurveyParticipant")
+                         .OptionLabel("Select")
+                         .DataTextField("Text")
+                         .DataValueField("Text")
+                         .ValuePrimitive(true)
+                         // .BindTo(applicationlist)
+                         .DataSource(dataSource => dataSource
+                           .Read(read => read.Action("GetPerspectiveCategory", "DataCollection")))
+                         .HtmlAttributes(new { style = "width: 250px" })
+)
+

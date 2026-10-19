@@ -1,0 +1,256 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@model A3MMModel
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+<style>
+    .k-picker-wrap.k-state-default {
+        margin-top: -8px;
+    }
+
+    .k-widget.k-datepicker {
+        width: 365px;
+    }
+
+    .sidebar-wrapper {
+        height: 39.5em;
+    }
+
+    .eye-icon {
+        background-image: url(../../Content/images/view_blue.svg);
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-left: 1.7em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .hide-icon {
+        background-image: url(../../Content/images/hide.svg);
+        background-position: left;
+        background-repeat: no-repeat;
+        background-size: 16px;
+        padding-left: 1.7em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .arrowdownBG {
+        background-image: url(../../Content/images/arrow_down_blue.svg);
+        background-repeat: no-repeat;
+        background-size: 9px;
+        background-position: left;
+        padding-left: 1em;
+        margin-right: -1em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .arrowBG {
+        background-image: url(../../Content/images/arrow_right_blue.svg);
+        background-repeat: no-repeat;
+        background-size: 6px;
+        background-position: left;
+        padding-left: 1em;
+        margin-right: -1em;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        cursor: pointer;
+    }
+
+    .searchPanel {
+        display: flex;
+        width: 100%;
+        border-bottom: 1.5px solid rgb(91,121,171);
+        padding-bottom: 0.4em;
+    }
+
+    .searchCriteria {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .breadcrumb {
+        padding-left: 1em;
+        padding-top: 2em;
+    }
+
+    .assessment-search-content {
+        width: 100%;
+        height: auto;
+        background-color: white;
+        border-top: 8px solid rgb(91,121,171);
+    }
+
+    .searchCriteria .collapsible {
+        color: rgb(91,121,171);
+        font-size: 1.1vw;
+        cursor: pointer;
+        padding-top: 10px;
+    }
+    .custom-blue-label {
+        font-size:1vw!important;
+    }
+    .plain-button.export-button {
+        font-size: 1vw !important;
+        background-size:1vw!important;
+    }
+</style>
+
+<div>
+    <div class="assessment-search">
+        <div class="assessment-search-content">
+            <div class="searchPanel">
+                <div class="arrowBG" onclick="switchVisible();" id="arrow-bg"  style="display:none;"></div>
+                <div class="arrowdownBG" onclick="switchVisible();" id="arrowdown-bg"></div>
+                <div class="eye-icon" onclick="switchVisible();" id="eye-icon"></div>
+                <div class="hide-icon" onclick="switchVisible();" id="hide-icon" style="display:none;"></div>
+                <div class="searchCriteria">
+                    <label class="collapsible" id="search-criteria" onclick="switchVisible();">Hide Assessment Criteria:</label>
+                </div>
+
+            </div>
+        
+            <div class="searchQueryDiv" id="search-query" style="display:block">
+                <div class="searchFilter scrollbar-rail" style="padding-bottom: 1em;">
+                    <div class="first-row" style="display:flex;">
+
+                        @*1*@
+                        <div class="all-fields" style="padding-top: 1em;">
+                            <span class="custom-blue-label" style="margin-right: -1.8em; width: 13vw;">Assessment Type :</span>
+                            <div class="custom-dropdown AssessmentType" style=" width: 11vw; margin-top: 5px;">
+                                @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentList)
+                              .Name("AssessmentID")
+                              .Value(Model.SurveyTypeID.ToString())
+                              .HtmlAttributes(new { style = "width: 15vw;border:none;font-size: 1vw;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+                               .Events(e =>
+                               {
+                                   e.Select("onSelectAssessmentType");
+                               })
+                              )
+                            </div>
+                        </div>
+
+                        @*2*@
+                        <div class="all-fields" style="padding-top: 1em; margin-left: -12em;">
+
+                            <span class="custom-blue-label" style="margin-right: 2em; width: 9.5vw; ">Assessment Name :</span>
+
+
+                            <div class="custom-dropdown AssessmentName" style=" width: 11vw; margin-top: 5px;">
+                                @(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.AssessmentNameList)
+                              .Name("AssessmentName")
+                              .Events(e =>
+                              {
+                               e.Select("onSelectAssessmentName");
+                              })
+                              .HtmlAttributes(new { style = "width: 15vw;border:none;font-size: 1vw;border-radius: 0px;box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid #ccc;" })
+                               )
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="second-row" style="display:flex;padding:1em 2em">
+
+                        @*3*@
+                        <div class="all-fields" style=" margin-left: -2em;">
+
+                            <span class="custom-blue-label" style="margin-right: 2em; width: 9vw; ">Question set # :</span>
+
+
+                            <div class="custom-textbox question-version" style=" width: 12.3vw; margin-top: 5px;">
+                                @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox")
+                             .Value(Model.VersionID)
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15vw;font-size:1vw" })
+                            )
+                            </div>
+                        </div>
+
+                        @*4*@
+                        <div class="all-fields" style="margin-left: -12em; ">
+
+                            <span class="custom-blue-label" style="margin-right: 1.5em; width: 10vw; ">Assessment Status :</span>
+
+
+                            <div class="custom-textbox question-version" style=" width: 12.3em; margin-top: 5px;">
+                                @(Html.Kendo().TextBox()
+                             .Name("AssessmentStatus")
+                             .Value(Model.Status)
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15vw;font-size:1vw" })
+                            )
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="actionButton" style="display:flex">
+                        <button style="margin-left: auto; height: 2vw; width: 5vw; margin-top: -3em; font-weight: bold; margin-right: 2em; font-size: 1vw;" class="custom-button" type="button" onclick="onSearchClick()" id="btnLaunch">Search</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+  
+<script>
+    function switchVisible() {
+        var x = document.getElementById("search-criteria");
+        var y = document.getElementById("search-query");
+        if (y.style.display == 'block') {
+            document.getElementById('search-criteria').innerHTML = 'View Assessment Criteria:';
+            document.getElementById('arrow-bg').style.display = "block";
+            document.getElementById('arrowdown-bg').style.display = "none";
+            document.getElementById('eye-icon').style.display = "none";
+            document.getElementById('hide-icon').style.display = "block";
+            //x.style.display = "block";
+            y.style.display = "none";
+        }
+        else {
+            document.getElementById('search-criteria').innerHTML = 'Hide Assessment Criteria:';
+            document.getElementById('arrow-bg').style.display = "none";
+            document.getElementById('arrowdown-bg').style.display = "block";
+            document.getElementById('eye-icon').style.display = "block";
+            document.getElementById('hide-icon').style.display = "none";
+            //x.style.display = "none";
+            //var filter = $("#filter").data("kendoFilter");
+            //var whereclause = filter._previewContainer.text();
+            //$("#search-text").text(whereclause);
+            y.style.display = "block";
+
+        }
+    }
+
+
+    
+
+   
+</script>

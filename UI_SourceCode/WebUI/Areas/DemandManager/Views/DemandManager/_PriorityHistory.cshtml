@@ -1,0 +1,226 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+<div id="DemandContainer">
+
+    @*<div id="divpriority">
+         <div class="form-group">
+           <label  class="col-sm-5 control-label">Status</label>
+           <div class="col-sm-5">
+             @Html.DropDownListFor(m => Model.PostChallengeInput.StatusId, new SelectList(Model.DMItemPriorityList, "value", "text", Model.IMItemPriorityList), "", new { @class = "selectpicker", id = "vartypeid", name = "vartypeid", required = "required" })
+               <button class="btn btn-primary" style="margin-left:40%">Status Update</button>
+           </div>
+         </div>
+
+                     <div class="form-group">
+                           <label for="clientName" class="col-sm-5 control-label"><span class="mandate">*</span>Reason for Update</label>
+                           <div class="col-lg-6">
+                             <textarea class="form-control" rows="5" style = "width:750px;height:250px" ></textarea>
+                           </div>
+            </div>
+
+        </div>*@
+</div>
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+<script type="text/javascript">
+
+
+
+
+
+
+
+    function errorLinkDemandFailure()
+    {
+        alert('Failure');
+    }
+
+
+
+    $(document).ready(function () {
+        var ClientId = "@Model.ClientId";
+        var DemandId = "@Model.Id";
+        var CheckJsonStatus = false;
+        var fullUrl = "";
+
+        $("#btnPriorityUpdate").click(function (e) {
+            var reasonforupdate = $('#txtPriorityComments').val();
+            var SelectedPriorityId = $('#priorityid :selected').val();
+            if (SelectedPriorityId > 0)
+            {
+                if (reasonforupdate == "")
+                {
+                    alert('Enter Comments for update');
+                    return false;
+                }
+
+                 fullUrl = "@this.Url.Action("CheckCurrentPriority", "DemandManager", null, this.Request.Url.Scheme)";
+
+                var baseurl = fullUrl + "?DemandId=" + DemandId + "&selectedPrioiryId=" + SelectedPriorityId;
+                CheckJsonStatus = false;
+                //Check for the existing priority Id if both are same, don't update the priority Id
+                $.ajax({
+                    url: baseurl,
+                    type: 'POST',
+                    success: checkPriority,
+                    failure: errorCheckPriority,
+                    async: false
+                })
+                if (CheckJsonStatus) {
+                    alert('Current Priority & Selected Priority should not be same value');
+                    return false;
+
+                }
+                else
+                {
+
+                    var updateUrl = "@this.Url.Action("UpdatePriorityHistory", "DemandManager", null, this.Request.Url.Scheme)";
+                    $.ajax({
+                        url: updateUrl,
+                        type: 'POST',
+                        data: { DemandId: DemandId, SelectedPriorityId :  SelectedPriorityId, Comments: reasonforupdate },
+                        success: updatePriority,
+                        failure: errorCheckPriority,
+                        async: false
+                    })
+                    //Update Priority Status Values
+
+
+
+                }
+
+            }
+            else
+            {
+                alert('Please Select priority from the list');
+                return false;
+            }
+
+            e.preventDefault();
+            return false;
+        });
+
+
+        function updatePriority()
+        {
+
+            alert('Priority Data updated successfully');
+            return false;
+        }
+
+        function checkCurrentStatus(status)
+        {
+            CheckJsonStatus = status;
+        }
+
+        function checkPriority(status) {
+
+            CheckJsonStatus = status;
+            //if (status)
+            //{
+            //    alert('Current Priority & Selected Priority should not be same value');
+            //}
+
+
+
+            //$.each(status, function (key, value) {
+            //    if (value == true) {
+            //        alert('Data set name already exists, please change');
+            //        return false;
+            //    }
+            //});
+        }
+
+        function errorCheckPriority() {
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+
+        $("#btnStatusUpdate").click(function (e) {
+
+            var reasonforupdate = $('#txtStatusComments').val();
+            var SelectedStatusId = $('#statusid :selected').val();
+            if (SelectedStatusId > 0) {
+                if (reasonforupdate == "") {
+                    alert('Enter Comments for update');
+                    return false;
+                }
+
+                fullUrl = "@this.Url.Action("CheckCurrentStatus", "DemandManager", null, this.Request.Url.Scheme)";
+
+                var baseurl = fullUrl + "?DemandId=" + DemandId + "&SelectedStatusId=" + SelectedStatusId;
+                CheckJsonStatus = false;
+                //Check for the existing priority Id if both are same, don't update the priority Id
+                $.ajax({
+                    url: baseurl,
+                    type: 'POST',
+                    success: checkCurrentStatus,
+                    failure: errorCheckPriority,
+                    async: false
+                })
+                if (CheckJsonStatus) {
+                    alert('Current Status & Selected Status should not be same value');
+                    return false;
+
+                }
+                else {
+
+                    var updateUrl = "@this.Url.Action("UpdateStatusHistory", "DemandManager", null, this.Request.Url.Scheme)";
+                    $.ajax({
+                        url: updateUrl,
+                        type: 'POST',
+                        data: { DemandId: DemandId, SelectedStatusId: SelectedStatusId, Comments: reasonforupdate },
+                        success: updateStatus,
+                        failure: errorCheckPriority,
+                        async: false
+                    })
+                    //Update Priority Status Values
+
+
+
+                }
+
+            }
+            else {
+                alert('Please Select priority from the list');
+                return false;
+            }
+
+            e.preventDefault();
+            return false;
+
+
+
+
+        });
+
+        function updateStatus() {
+
+            alert('Status Data updated successfully');
+            return false;
+        }
+
+
+
+
+    });
+
+
+
+
+</script>

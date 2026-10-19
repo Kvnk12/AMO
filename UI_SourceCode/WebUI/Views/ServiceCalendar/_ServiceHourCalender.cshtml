@@ -1,0 +1,73 @@
+﻿@using Kendo.Mvc.UI;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc.Extensions;
+@model ServiceCalendarModel
+<style>
+    .custom-kendo-grid .k-widget.k-grid .k-grid-content {
+        overflow-y: auto;
+        height: 482.375px !important;
+        background-color: #fff;
+    }
+</style>
+    <div class="sla-holiday-content">
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<ServiceCalendarModel>()
+                         .Name("CalenderServiceGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Calendardate).Title("Date").Format("{0:MM/dd/yyyy}");
+                             columns.Bound(e => e.Daydate).Title("Day");
+                             columns.Bound(e => e.Holidayname).Title("Holiday Name");
+                             columns.Bound(e => e.Servicestarttime).Title("Start Time").Format("{0:hh:mm:ss}").ClientTemplate("#= kendo.format('{0:00}:{1:00}', Servicestarttime.Hours, Servicestarttime.Minutes) #");
+                             columns.Bound(e => e.Serviceendtime).Title("End Time").Format("{0:hh:mm:ss}").ClientTemplate("#= kendo.format('{0:00}:{1:00}', Serviceendtime.Hours, Serviceendtime.Minutes) #");
+                             columns.Bound(e => e.Dayofweekname).Title("Working Day Start");
+                             columns.Bound(e => e.Dayofweekname).Title("Working Day End");
+                             columns.Bound(e => e.nextWorkingStart).Title("Next avail WorkStart Date/Time");
+                             columns.Bound(e => e.nextWorkingEnd).Title("Next avail WorkEnd Date/Time");
+                             columns.Bound(e => e.Monthnumber).Hidden();
+                             columns.Bound(e => e.Calendaryear).Hidden();
+                             columns.Bound(e => e.Clientid).Title("Action")
+                                       .ClientTemplate("#if(data.Clientid!=null){# <div style = 'background-image: url(" + @Url.Content("~/Content/images/edit_icon_blue.svg") + ");background-repeat: no-repeat; width:1em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='EditCalender(#:Daydate#,#:Monthnumber#,#:Calendaryear#);' ></ div >#}#");
+
+                         })
+                      .Scrollable()
+                      .AutoBind(true)
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => model.Id(f => f.Calendardate))
+                      .Read(read => read.Action("ReadServiceCalender", "ServiceCalendar").Data("getServicecalParam"))
+                      // .Update(update => update.Action("UpdateServiceCalender", "ServiceCalendar"))
+                      )
+            )
+        </div>
+    </div>
+    <script>
+        
+        function getServicecalParam() {
+            var accountid = $("#AccountId").data("kendoDropDownList").value();
+            var contractid = $("#ContractId").data("kendoDropDownList").value();
+            var SelectedYear = $("#Calendaryear").data("kendoDropDownList").value();
+            console.log(accountid + " " + contractid + " " + SelectedYear);
+            return {
+                Acccid: accountid,
+                Contrid: contractid,
+                SelectedYear: SelectedYear
+            }
+        }
+        function getcreateParam() {
+            var accountid = $("#AccountId").data("kendoDropDownList").value();
+            var contractid = $("#ContractId").data("kendoDropDownList").value();
+            var SelectedYear = $("#Calendaryear").data("kendoDropDownList").value();
+            return {
+                Acccid: accountid,
+                Contrid: contractid,
+                SelectedYear: SelectedYear
+            }
+        }
+        function getyearParam() {
+            var SelectedYear = $("#Calendaryear").data("kendoDropDownList").value();
+            return {
+                SelectedYear: SelectedYear
+            }
+        }
+    </script>

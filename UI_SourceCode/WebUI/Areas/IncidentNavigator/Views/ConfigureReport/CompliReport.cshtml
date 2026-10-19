@@ -1,0 +1,121 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    var Table = ViewData["Table"];
+}
+<style>
+    .k-grid-header:first-child, .k-grid-toolbar:first-child, .k-grid > .k-grouping-header {
+        border-radius: 3px 3px 0 0;
+        background-color: rgb(91,121,171);
+        color: yellow;
+        font-size: 11px;
+    }
+  
+    .status-name {
+        display: none;
+    }
+    .status-icon:hover{
+        display:none;
+    }
+    .status-icon:hover + .status-name {
+        display: block;
+        color: black;
+    }
+    
+</style>
+<div class="content-main dark-bg">
+    <ol class="breadcrumb">
+        <li>Incident Navigator</li>
+        <li class="active">Compliance Report</li>
+    </ol>
+    <div class="content-wrapper" style="margin-top:2em">
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<CompReportModel>
+    ()
+    .Name("CompReport")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.IncidentID).Title("Incident ID");
+        columns.Bound(p => p.Priority).Title("Priority");
+        columns.Bound(p => p.strCreateddate).Hidden();
+        columns.Bound(p => p.strResStartTime).Hidden();
+        columns.Bound(p => p.strResDueOn).Hidden();
+        columns.Bound(p => p.Createddate).Title("Created Date").ClientTemplate(@"<div>#:data.strCreateddate# </div>");
+        columns.Bound(p => p.Status).Title("Status");
+        columns.Bound(p => p.AssignedTo).Title("Assigned Person");
+        columns.Bound(p => p.AssignedGroup).Title("Assigned Group");
+        columns.Bound(p => p.Tower).Title("Tower");
+        columns.Bound(p => p.SLATarget).Title("SLA Target");
+        columns.Bound(p => p.ResStartTime).Title("Resolution Start Time").ClientTemplate(@"<div>#:data.strResStartTime# </div>");
+        columns.Bound(p => p.PendingTime).Title("Pending Time(mins)").HtmlAttributes(new { style = "text-align:right;" });
+        columns.Bound(p => p.Age).Title("Age(days)").HtmlAttributes(new { style = "text-align:right;" });
+        columns.Bound(p => p.SLAStaus).ClientTemplate(@"<div style='display: flex;margin-left: 1em;'><div class='status-icon' style='background-image: url(" + @Url.Content("~/Content/images/#:data.statusicon#.svg") + ");background-repeat: no-repeat; width:4em;height:2em;'></div><div class='status-name'>#: SLAStaus #</div></div>");
+        columns.Bound(p => p.ResDueOn).Title("Resolution Due On").ClientTemplate(@"<div>#:data.strResDueOn# </div>");
+    })
+    .ToolBar(tools =>
+    {
+        tools.Excel();
+
+    })
+            .Events(e => e.ExcelExport("excelExport"))
+            .Pageable(pager => pager.AlwaysVisible(true))
+            .Sortable()
+            .Scrollable(e => e.Endless(false))
+            .Groupable()
+            .Filterable()
+            .Excel(excel => excel.FileName("Compliance_Report.xlsx")
+            .AllPages(true)
+            //.ProxyURL(Url.Action("Export_Tickets_Save", "ConfigureReport"))
+            )
+            .Reorderable(r => r.Columns(true))
+            .Resizable(r => r.Columns(true))
+            .DataSource(dataSource => dataSource
+            .Ajax()
+
+            .PageSize(100)
+            .Batch(true)
+            .Read(read => read.Action("GetRecords", "ConfigureReport"))
+            )
+            )
+
+</div>
+    </div>
+
+</div>
+<script>
+    function excelExport(e) {
+        var sheet = e.workbook.sheets[0];
+        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+            var row = sheet.rows[rowIndex];
+                row.cells[2].format = "MM-dd-yyyy hh:mm:ss"
+            row.cells[8].format = "MM-dd-yyyy hh:mm:ss"
+            row.cells[12].format = "MM-dd-yyyy hh:mm:ss"
+            
+        }
+    }
+
+  
+</script>

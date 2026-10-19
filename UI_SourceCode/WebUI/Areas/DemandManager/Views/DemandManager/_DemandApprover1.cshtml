@@ -1,0 +1,146 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+
+
+<style>
+    .headdd {
+        font-family: "Segoe UI Semilight","Open Sans","Verdana","Arial","Helvetica","sans-serif";
+        font-weight: 300;
+        font-size: 20px;
+        line-height: 34px;
+        color: #FFF;
+        background-color: #0B67CD;
+    }
+    /*th>content[role="row"]{*/
+    .k-widget > .k-grid-header-wrap .k-auto-scrollable {
+        font-family: "Segoe UI Semilight","Open Sans","Verdana,Arial","Helvetica","sans-serif";
+        font-weight: 300;
+        font-size: 15px;
+        color: #FFF;
+        background-color: #2D89EF;
+    }
+</style>
+
+
+<div class="form-group">
+    @*<div class="text-center"><h5><strong>Add New Users to Survey</strong></h5></div>*@
+    <div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess1" hidden>
+            <ul>
+                <li>Demand submitted for Approval.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger1" hidden>
+            <ul>
+                <li>Error while assigning.</li>
+            </ul>
+        </div>
+
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList1" hidden>
+            <ul>
+                <li>Please select the Admin for Approval.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="noDemand1" hidden>
+            <ul>
+                <li>Please select/Submit Demand!.</li>
+            </ul>
+        </div>
+    </div>
+    <br />
+    <div class="headdd"><div style="margin-left:15px">Demand Approvers</div></div>
+
+    @(Html.Kendo().Grid<SelectListItem>()
+.Name("userGrid")
+
+
+.Columns(columns =>
+{
+    columns.Select().Width(60);
+                columns.Bound(e => e.Value).Hidden();
+                columns.Bound(e => e.Text).Title("Name");
+})
+//.Pageable()
+.Scrollable()
+.PersistSelection()
+//.HtmlAttributes(new { style = "height:450px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+//.PageSize(10)
+.Model(model => model.Id(f => f.Value))
+.Read(read => read.Action("ListOfAdmins", "DemandManager"))
+)
+
+
+    )
+    <br />
+    <div>
+        <div style="padding-left:15px; text-align:left"><p style="font-size:14px; color:red">** Demand cannot be edited once posted.</p></div>
+        <div class="right"><button class="btn btn-primary" type="button" onclick="onChange(this)" id="UserSubmit">Post Demand for Approval</button></div>
+    </div>
+</div>
+
+
+<script>
+
+    function onChange(arg) {
+        var grid = $("#userGrid").getKendoGrid();
+        var selValues = grid.selectedKeyNames().join(", ");
+        //alert(String(selValues));
+        if(selValues!=""||selValues!=",")
+        {
+            var mod = {
+                ItemId: @Model.Id,
+                DemandIds: selValues
+
+            };
+            var data = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/DemandManager/DemandManager/AddSelectedAdmins")';
+            //baseurl = baseurl + '?ApplicationID=' + appid
+            //alert('post' + baseurl + $("ApplicationList").data("kendoComboBox").Value());
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //$('#userGrid1').data('kendoGrid').dataSource.read();
+                    //$('#userGrid1').data('kendoGrid').refresh();
+
+                    if(data=="Success")
+                    {
+                        $('#msgSuccess1').show();
+                    }
+                    else if(data.Message=="1")
+                    {
+                        $("#SelectedRowList1").show();
+                    }
+                    else if(data.Result=="ERROR")
+                    {
+                        alert("Server Error");
+                    }
+                    else
+                    {
+                        $("#noDemand1").show();
+                    }
+                    //alert("Participants Successfully Added");
+                }
+
+            })
+        }
+        else{
+            $("#SelectedRowList1").show();
+            return false;
+        }
+
+        return false;
+
+
+    }
+
+</script>

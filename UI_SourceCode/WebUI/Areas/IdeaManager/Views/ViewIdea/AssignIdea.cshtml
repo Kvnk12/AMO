@@ -1,0 +1,134 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model  IMIdeaReassignModel
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new PostIdeaController();
+    var impList = cont.GetListOfAdmin(client.ClientId);
+
+}
+@*<div class="content-main custom-grid">
+    <div class="content-wrapper">*@
+<div class="content-main dark-bg grid-delete">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">Assign Idea</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-grid">
+
+        @*@(Html.Kendo().Grid<IMIdeaReassignModel>()
+                             .Name("IdeaAssignment")
+
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.Id).Hidden();
+                columns.Bound(e => e.IdeaNumber).Title("Idea No.").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+                columns.Bound(e => e.ItemName).Title("Idea Name").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(300);
+                columns.Bound(p => p.CreatedByName).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+                columns.Bound(p => p.AssignedByUser).Hidden();
+                columns.Bound(e => e.Status).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(300);
+
+                columns.ForeignKey(e => e.ImpManagers, impList, "Value", "Text").Width(300).Title("Assign").EditorTemplateName("ImplementationMgdropdown");
+                // columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); }).Width(200).Title("Action");
+
+            })
+            .Scrollable()
+            .ToolBar(toolbar =>
+            {
+                toolbar.Save();
+            })
+            .Filterable()
+            .Editable(editable => editable.Mode(GridEditMode.InCell))
+
+            .DataSource(dataSource => dataSource
+            .Ajax()
+              .Batch(true)
+            .Model(model => { model.Id(f => f.Id);
+                model.Field(f => f.IdeaNumber).Editable(false);
+                model.Field(f => f.ItemName).Editable(false);
+                model.Field(f => f.CreatedByName).Editable(false);
+
+            })
+              .Read(read => read.Action("ReadAssignIdea", "ViewIdea"))
+             .Update(update => update.Action("UpdateAssignIdea", "ViewIdea"))
+
+            )
+
+            )*@
+
+        @(Html.Kendo().Grid<IMIdeaReassignModel>()
+.Name("IdeaAssignment")
+.Columns(columns =>
+{
+    columns.Bound(e => e.Id).Hidden();
+    columns.Bound(e => e.IdeaNumber).Title("Idea No.").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+    columns.Bound(e => e.ItemName).Title("Idea Name").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(300);
+    columns.Bound(p => p.CreatedByName).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+    columns.Bound(p => p.AssignedByUser).Hidden();
+    columns.Bound(e => e.Status).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(300);
+
+    columns.ForeignKey(e => e.ImpManagers, impList, "Value", "Text").Width(300).Title("Assign").EditorTemplateName("ImplementationMgdropdown");
+
+})
+.ToolBar(toolbar =>
+{
+    toolbar.Save();
+})
+.Editable(editable => editable.Mode(GridEditMode.InCell))
+.Pageable()
+.Navigatable()
+.Sortable()
+.Scrollable()
+.DataSource(dataSource => dataSource
+  .Ajax()
+  .Batch(true)
+  .PageSize(20)
+  .ServerOperation(false)
+
+  .Model(model =>
+  {
+      model.Id(p => p.Id);
+      model.Field(f => f.IdeaNumber).Editable(false);
+      model.Field(f => f.ItemName).Editable(false);
+      model.Field(f => f.CreatedByName).Editable(false);
+  })
+  .Read(read =>
+  {
+      read.Action("ReadAssignIdea", "ViewIdea");
+
+  })
+    .Update("UpdatePersonnelRole", "APRAjaxService")
+)
+        )
+
+    </div>
+</div>
+

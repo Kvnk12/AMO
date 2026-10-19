@@ -1,0 +1,139 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.DemandInput
+@{
+    ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+}
+
+@using (Html.BeginForm())
+{
+    <div id="wrap">
+        <!-- Fixed navbar -->
+        <!--/nav bar div closes here -->
+        <!--.container-->
+        <div class="selectappArea">
+            <!-- Wrap all page content here -->
+            <div class="container">
+                <div class="selectApp form-horizontal">
+                    <div class="form-group">
+                        <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                        <div class="col-sm-5">
+                            @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text", Model.ClientId), "", new { @class = "selectpicker", id = "drpClientId", tabindex = "6" })
+                        </div>
+                    </div>
+                </div>
+                <!--/.selectApp-->
+                <div class="selectyearArea form-horizontal">
+                </div>
+                <!--/.selectyearArea-->
+            </div>
+            <!--/.container-->
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb ">
+                <li>Demand Manager</li>
+                <li class="active">Dashboard</li>
+            </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+                @if (Model.ClientId == 0)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+                }
+                <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                @Html.Partial("_DBCatelog")
+                <!-- treemenu ends-->
+                <div class="treeMenuContent">
+                    <div class="container" style="padding:0;">
+                        <div class="leftslarea">
+                            <h4>Completed Demand - Benefit by LOB Summary</h4>
+                            @if (Model.ClientId != 0)
+                            {
+                                <div class="clear clearfix">&nbsp;</div>
+                                <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptDemandBenefitbyLOB&clientid="+Model.ClientId+"&DemandSub="+Model.DemandSubmittedToClient+"&Demandstatus="+Model.DemandStatus+"&Demandactyear="+Model.DemandActualCompletionDate_Year+"&Demandactmonth="+Model.DemandActualCompletionDate_Month+"")' border="0" frameborder="0" height="750px" width="750px"></iframe>
+                            }
+                            else
+                            {
+                                <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                            }
+                        </div>
+                        <!--END OF LEFTAREA-->
+                        <div class="rightcont form-horizontal" style="float:right;width:34%;margin-top:20px">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><strong>Select Filters</strong></div>
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">Client ID</label>
+                                        <div class="col-sm-5">
+                                            @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control", tabindex = "2", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">SubmittedToClient</label>
+                                        <div class="col-sm-5">
+                                            @Html.DropDownListFor(m => m.DemandSubmittedToClient, new SelectList(Model.DemandSubmittedToClientL, "value", "text", Model.DemandSubmittedToClient), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">Demand Status</label>
+                                        <div class="col-sm-5">
+                                            @Html.DropDownListFor(m => m.DemandStatus, new SelectList(Model.DemandStatusL, "value", "text", Model.DemandStatus), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Chart" class="col-sm-5 control-label">ActualCompletionDate-Year</label>
+                                        <div class="col-sm-5">
+                                            @Html.DropDownListFor(m => m.DemandActualCompletionDate_Year, new SelectList(Model.DemandActualCompletionDate_YearL, "value", "text", Model.DemandActualCompletionDate_Year), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="metricperspective" class="col-sm-5 control-label">ActualCompletionDate-Month</label>
+                                        <div class="col-sm-7">
+                                            @Html.DropDownListFor(m => m.DemandActualCompletionDate_Month, new SelectList(Model.DemandActualCompletionDate_MonthL, "value", "text", Model.DemandActualCompletionDate_Month), "", new { @class = "selectpicker form-control", id = "drpSRCList", name = "src", tabindex = "6" })
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary pull-right mrgnrt30">Submit Filters</button>
+                                </div>
+                                <!--/.panelbody-->
+                            </div>
+                            <!--/.panel panel-info -->
+                        </div>
+                        <!-- end of right areaa-->
+                    </div>
+                    <!--/.treeMenuContent container-->
+                </div>
+                <!--/.treeMenuContent-->
+            </div>
+            <!--/.treeMenuArea-->
+        </div>
+        <!--/.container-->
+
+    </div>
+    <!--.wrap-->
+}
+
+<script>
+    $('select#drpClientId').change(function () {
+        var SelectedclientId = $('#drpClientId :selected').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'DemandDashboard') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'DemandDashboard/GetDemandL/?id='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'DemandDashboard/GetDemandL/?id='
+        }
+
+        window.location = baseurl + SelectedclientId;
+
+    });
+</script>

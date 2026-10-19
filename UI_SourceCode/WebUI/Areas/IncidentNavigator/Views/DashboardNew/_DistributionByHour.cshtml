@@ -1,0 +1,126 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+<div>
+    <div class="top-content-heading">
+        <h6>Distribution by Hour</h6>
+
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d2c3">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartDistributionbyHour()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>
+    ()
+    .Name("HourlyDistributionChart")
+    //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+    .Legend(legend => legend
+    .Visible(true)
+    //.Template("Values in Numbers"
+    .Labels(labels => labels
+    .Template("Values in Numbers")
+    )
+    //.Title(title => title.Text("Priority")
+    //  .Labels(labels => labels.Text("Priority"))
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    )
+    .ChartArea(chartArea => chartArea
+    .Background("transparent")
+    .Height(280)
+    )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DashboardNew").Data("GetDistributionHourParameter")))
+        .AutoBind(false)
+        .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                   .Bar().Visual("D2LabelVisual")
+
+                                                )
+    .Series(series =>
+    {
+        series.Bar(model => model.IncidentCount).Name("Ticket Count").Spacing(0).CategoryField("Dim").Labels(labels => labels.Background("transparent").Template("#= value# #= kendo.format('{0:P}', percentage)#").Visible(true).Position(ChartBarLabelsPosition.InsideEnd)).Color("#19BDFF");
+        //  series.Bar(model => model.Percent).CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Color("LightGray");
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(8)
+    //.Categories(model =>model.)
+    .Line(line => line.Visible(false))
+     .Labels(labels => labels.Visible(false))
+         .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+    //.MajorGridLines(lines => lines.Visible(true))
+    //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+    )
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(false))
+    .Labels(labels => labels.Rotation("auto"))
+    .MajorGridLines(lines => lines.Visible(false))
+    //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+    )
+    .Tooltip(tooltip => tooltip
+    //.Background("transparent")
+    .Visible(true)
+    .Color("#000000")
+    .Template("#= series.name #: #= value #")
+
+    )
+    .Pannable(pannable => pannable
+    .Lock(ChartAxisLock.X)
+    )
+    .Zoomable(zoomable => zoomable
+    .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.X))
+    .Selection(selection => selection.Lock(ChartAxisLock.X))
+    )
+    .Events(events => events
+     .DataBound("hourminmax_onDataBound")
+    .SeriesClick("onHourSeriesClick")
+    )
+    )
+
+        </div>       
+    </div>
+    <div class="table-content fix-grid-head hide" style="color: #000;padding: 0 18px 12px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:149px" onclick="kendoGridHeaderSort('HourlyDistributionChartGrid', 'Dim')">Hour</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('HourlyDistributionChartGrid', 'IncidentCount')">Ticket Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('HourlyDistributionChartGrid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<INChartDashboardModel>
+                ()
+                .Name("HourlyDistributionChartGrid")
+                .Columns(columns =>
+                {
+                    columns.Bound(e => e.Dim).Title("Hour").ClientFooterTemplate("Total").Width(149);
+                    columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#").Width(109);
+                    columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                })
+                .AutoBind(false)
+                .Sortable()
+                .HtmlAttributes(new { style = "height:235px;" })
+                .DataSource(dataSource => dataSource
+                .Ajax()
+                    .Aggregates(agg =>
+                    {
+                        agg.Add(p => p.IncidentCount).Sum();
+                        agg.Add(p => p.Percent).Sum();
+                    })
+                    .Read(read => read.Action("GetDashboard2TrendGrid", "DashboardNew").Data("GetDistributionHourParameter"))
+               )
+
+        )
+    </div>
+
+
+    
+</div>

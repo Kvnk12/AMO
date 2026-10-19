@@ -1,0 +1,29 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.Dto
+@using Kendo.Mvc.UI;
+
+@model QA
+@{
+
+    int qaid = 0;
+    if (Model != null)
+    {
+        qaid = Model.qid;
+    }
+}
+    @(Html.Kendo().DropDownListFor(m=> Model.answerid)
+       //.Filter("contains")
+       .DataSource(dataSource => dataSource
+                           .Read(read => read.Action("GetAnswers", "SurveyUser", new { questionId=qaid } )))
+        .DataValueField("Value")
+        .DataTextField("Text")
+        .Name("tempSurveyAnswer")
+        .AutoBind(true)
+     //.Events(e =>
+     //{
+     //    e.Select("onSelect");
+     //})
+     )
+

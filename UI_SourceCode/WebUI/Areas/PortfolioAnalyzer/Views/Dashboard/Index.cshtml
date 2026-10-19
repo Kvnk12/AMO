@@ -1,0 +1,728 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DashboardModel
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    //var configItemlist = Model.ConfigItemList;
+    //var typeList = Model.TypeList;
+
+    // NTTData.AMOPortal.Domain.Entities.Client userclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //userclient.ClientName
+    //if (menuItemsInput.UserRole.ToLower() != "sysadmin")
+    //{
+    //    clientlist = clientlist.Where(w => w.Value == userclient.Id.ToString()).ToList();
+    //}
+    // ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    //Layout = "~/Areas/PortfolioAnalyzer/Views/Shared/_INLayout.cshtml";
+
+    ViewBag.Title = "Portfolio Analyzer";
+    var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+
+
+
+
+    <div id="wrap">
+        <div class="selectappArea">
+            <!-- Wrap all page content here -->
+            @Html.Partial("_APRHeaderFilters")
+
+        </div>
+        <div class="clear"></div>
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li><a href="#">Portfolio Analyzer</a></li>
+
+                <li class="active"><a href="#">Dashboard</a></li>
+            </ol>
+        </div>
+        <div style="padding:0;">
+            <div class="demo-section k-content">
+                @(Html.Kendo().TabStrip()
+      .Name("tabstrip")
+      .Animation(animation =>
+          animation.Open(effect =>
+              effect.Fade(FadeDirection.In)))
+      .Items(tabstrip =>
+      {
+          tabstrip.Add().Text("Overview")
+           .Selected(true)
+          .Content(@<text>
+               @Html.Label("color", "Select Filter: ")
+                @(Html.Kendo().DropDownList()
+          .Name("ddlFilter")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .Events(e => e.Change("ddlFilterchange"))
+          .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "By Criticality",
+                  Value = "1"
+              },
+              new SelectListItem() {
+                  Text = "By Application/Service Type",
+                  Value = "2"
+              },
+              new SelectListItem() {
+                  Text = "By Source Code Type",
+                  Value = "3"
+              },
+
+               new SelectListItem() {
+                  Text = "By Disposition",
+                  Value = "4"
+              },
+
+               new SelectListItem() {
+                  Text = "By Business Function",
+                  Value = "5"
+              }
+          })
+          .Value("1")
+          .HtmlAttributes(new { style = "width: 300px" })
+                )
+                <br />
+
+            <table id="tblPieChart" style="width:100%;height:100%">
+                <tr style="width:100%;height:100%">
+                    <td style="width:50%;height:100%;padding:2em;">
+                        <div style="width:100%;height:100%">
+                            @(Html.Kendo().Chart<DashboardModel>()
+        .Name("DashboardPieCharts")
+
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Right)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+             .Height(350)
+        )
+         .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterData")))
+          .SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345" , "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+        .Series(series =>
+        {
+
+            series.Pie(model => model.AppCount, model => model.PieChartColumnName, null)
+               .Labels(labels => labels
+                .Template("#= value #")
+                .Background("transparent")
+                .Visible(true)
+                 .Position(ChartPieLabelsPosition.InsideEnd)
+
+            )
+            .StartAngle(150);
+        })
+
+
+
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= series.name #: #= value #")
+        )
+                            )
+
+                        </div>
+                    </td>
+                    <td style="width:50%;height:100%;">
+                        <table style="width:100%;height:100%">
+                            <tr style="width:100%;height:350px">
+                                <td style="width:100%;height:100%;padding-top:1em;">
+                                    @(Html.Kendo().Grid<DashboardModel>()
+                                @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+
+        columns.Bound(p => p.PieChartColumnName).Title("Criticality");
+        columns.Bound(p => p.AppCount).Title("Application Count").Width(150);
+    })
+    //.HtmlAttributes(new { style = "height: 500px;width:100%" })
+    //.Pageable(pageable => pageable
+    //   .Input(true)
+    //   .Numeric(false)
+    // )
+    .Sortable()
+    .Pageable()
+.Scrollable(scr => scr.Height(380))
+.Resizable(resize => resize.Columns(true))
+.Filterable()
+.AutoBind(true)
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("export.xlsx")
+        .Filterable(true)
+        .AllPages(true)
+        .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+.DataSource(dataSource => dataSource
+    .Ajax()
+    .PageSize(20)
+      //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+      .Read(read => read.Action("GetDashboardFilterOptionsGrid", "APRAjaxService").Data("ParameterData"))
+ )
+                                    )
+                                </td>
+                            </tr>
+                            <tr style="width:100%;height:125px">
+                                <td style="width:100%;height:100%"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </text>);
+      tabstrip.Add().Text("Demographics")
+             
+              .Content(
+        @<div id="tbldashboard" class="paDBcontent">
+            <h4> Application/Service Details </h4>
+
+
+            <table class="AppDetails">
+
+
+                <tr>
+
+                    <th style="width:200px">
+                        Client Number
+                    </th>
+                    <th>
+                        Application/Service Description
+                    </th>
+
+
+                </tr>
+                <tr>
+                    <td>
+                        @*@Model.ClientApplicationNumber*@
+                        <div id="ClientAppNumber">
+                            <span></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="AppDescription">
+                            <span></span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+
+            <table>
+                <tr>
+                    <td style="padding-right:2em;">
+                        <h4> Demographics </h4>
+                    </td>
+                    <td>
+                        <h4> Portfolio Details </h4>
+                        @*<h4> Technical Architecture</h4>*@
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding-right:2em;">
+                        <table class="AppDetails">
+
+
+                            <tr>
+
+                                <th>
+                                    Criticality
+                                </th>
+                                <td>
+                                    <div id="AppCriticality">
+                                        <span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    No. of users
+                                </th>
+                                <td>
+                                    <div id="AppUsers">
+                                        <span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    Revenue Impact
+                                </th>
+                                <td>
+                                    <div id="AppRevenueImpact">
+                                        <span></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+
+                                <th>
+                                    Code Type
+                                </th>
+                                <td>
+                                    <div id="AppCodeType">
+                                        <span></span>
+                                    </div>
+                                </td>
+
+
+                            </tr>
+                            <tr>
+
+                                <th>
+                                    App domain
+                                </th>
+                                <td>
+                                    <div id="AppDomain">
+                                        <span></span>
+                                    </div>
+                                </td>
+
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+                                    Security Level
+                                </th>
+                                <td>
+                                    <div id="AppSecurity">
+                                        <span></span>
+                                    </div>
+                                </td>
+
+
+                            </tr>
+                        </table>
+                    </td>
+
+
+
+
+                    <td valign="top">
+
+                        <table>
+                            <tr>
+                                <td>
+                                    <table class="AppDetails">
+
+
+                                        <tr>
+
+                                            <th>
+                                                Portfolio Name
+                                            </th>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Technical Owner Name
+                                            </th>
+                                            <td>
+                                                <div id="AppTechnicalOwner">
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Business Owner Name
+                                            </th>
+                                            <td></td>
+                                        </tr>
+                                        <tr></tr>
+                                        <tr></tr>
+                                        <tr></tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h4> Technical Architecture</h4>
+                                    <table class="AppDetails">
+
+
+                                        <tr>
+
+                                            <th>
+                                                Architecture
+                                            </th>
+                                            <td>
+                                                <div id="AppArchitecture">
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                Application Size
+                                            </th>
+                                            <td>
+                                                <div id="AppSize">
+                                                    <span></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr></tr>
+                                        <tr></tr>
+                                        <tr></tr>
+                                        <tr></tr>
+                                    </table>
+                                </td>
+
+                            </tr>
+                        </table>
+
+
+
+
+                    </td>
+                </tr>
+            </table>
+
+
+        </div>
+                        @*@<text>
+                    <div class="weather">
+                        <h2>17<span>&ordm;C</span></h2>
+                        <p>Rainy weather in Paris.</p>
+                    </div>
+                    <span class="rainy">&nbsp;</span>
+                    </text>*@
+);
+
+tabstrip.Add().Text("Cost")
+.Content(@<div style="width:100%;height:100%">
+            <iframe id="frameTrendig" src='@Url.Content("~/Areas/PortfolioAnalyzer/AspxReport/DashboardCostReport.aspx")' border="0" frameborder="0" height="1000" width="1100"></iframe>
+
+        </div>
+
+);
+
+tabstrip.Add().Text("Rating")
+.Content(@<text>
+            <img src="~/Content/images/rating.png" alt="Rating" height="100%" width="100%">
+        </text>);
+
+        @*tabstrip.Add().Text("Analysis/Recommandation")
+      .Content(@<text>
+
+
+
+                <div id="AppAnalysis">
+                    <h4 style="color:#428bca;font-size:16px">
+                        Analysis:
+                    </h4>
+                    <span style="border: 1px solid #1C6EA4;height:200px;width:100%;min-width:700px;"></span>
+                </div>
+                <br />
+                <div id="AppRecommandation">
+                    <h4 style="color:#428bca;font-size:16px">
+                        Recommandations:
+                    </h4>
+                    <span style="border: 1px solid #1C6EA4;height:200px;width:100%;min-width:700px;"></span>
+                </div>
+    </text>);*@
+
+        @*tabstrip.Add().Text("Contact")
+    .Content(@<text>
+               <div class="weather">
+                        <h2>17<span>&ordm;C</span></h2>
+                        <p>Rainy weather in Sidney.</p>
+                    </div>
+                    <span class="rainy">&nbsp;</span>
+    </text>);*@
+      })
+                )
+            </div>
+
+
+            <style>
+    .sunny, .cloudy, .rainy {
+        display: block;
+        margin: 30px auto 10px;
+        width: 128px;
+        height: 128px;
+        background: url('@Url.Content("~/Content/web/tabstrip/weather.png")') transparent no-repeat 0 0;
+    }
+
+    .cloudy{
+        background-position: -128px 0;
+    }
+
+    .rainy{
+        background-position: -256px 0;
+    }
+
+    .weather {
+        margin: 0 auto 30px;
+        text-align: center;
+    }
+
+    #tabstrip h2 {
+        font-weight: lighter;
+        font-size: 5em;
+        line-height: 1;
+        padding: 0 0 0 30px;
+        margin: 0;
+    }
+
+    #tabstrip h2 span {
+        background: none;
+        padding-left: 5px;
+        font-size: .3em;
+        vertical-align: top;
+    }
+
+    #tabstrip p {
+        margin: 0;
+        padding: 0;
+    }
+
+            table.AppDetails {
+  border: 1px solid #1C6EA4;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.AppDetails td, table.AppDetails th {
+  border: 1px solid #AAAAAA;
+  padding: 9px 6px;
+}
+table.AppDetails tbody td {
+  font-size: 13px;
+}
+table.AppDetails thead {
+  }
+table.AppDetails thead th {
+  font-size: 15px;
+  font-weight: bold;
+}
+table.AppDetails tfoot td {
+  font-size: 14px;
+}
+table.AppDetails tfoot .links {
+  text-align: right;
+}
+table.AppDetails tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+            .paDBcontent {min-height: 0px !important;}
+            .paDBcontent h4{color:#428bca;font-size:16px}
+            </style>
+        </div>
+
+    </div>
+
+}
+
+<script type="text/javascript">
+
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+    $(document).ready(function () {
+        if ($("#AppName").val()) {
+            var appid = $("#AppName").val();
+            //chartTrend.dataSource.read();
+            //chartTrend.refresh();
+
+            var RootUrl = '@Url.Content("~/")';
+            var model = {
+                AppId: appid
+            };
+
+            //alert(myArray[0].id + " ," + myArray[0].value);
+            //var data1 = { 'listObject': myArray };
+            var data = JSON.stringify(model)
+
+            $.ajax({
+
+                type: 'post',
+                url: RootUrl + 'APRAjaxService/ApplicationDashboard',
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+
+                    $('#ClientAppNumber span').text(response.ClientApplicationNumber);
+                    $('#AppDescription span').text(response.Description);
+
+                    $('#AppCriticality span').text(response.Criticality);
+                    $('#AppUsers span').text(response.NoOfUsers);
+                    $('#AppRevenueImpact span').text(response.RevenueImpact);
+                    $('#AppCodeType span').text(response.CodeType);
+                    $('#AppDomain span').text(response.AppDomain);
+                    $('#AppSecurity span').text(response.SecurityLevel);
+                    $('#AppTechnicalOwner span').text(response.TechnicalOwnerName);
+                    $('#AppArchitecture span').text(response.Architecture);
+                    $('#AppSize span').text(response.AppSize);
+                    $('#AppAnalysis span').text(response.Analysis);
+                    $('#AppRecommandation span').text(response.Recommendation);
+                    //$('#tbldashboard').html(response);
+                    //alert(response.HasSLAManager);
+                    //$("#HasSLAManager").data("kendoComboBox").value(response.HasSLAManager);
+                    //$("#P1ServiceHours").data("kendoComboBox").value(response.P1ServiceHours);
+                    //$("#P2ServiceHours").data("kendoComboBox").value(response.P2ServiceHours);
+                    //$("#P3ServiceHours").data("kendoComboBox").value(response.P3ServiceHours);
+                    //$("#P4ServiceHours").data("kendoComboBox").value(response.P4ServiceHours);
+                    //$("#P5ServiceHours").data("kendoComboBox").value(response.P5ServiceHours);
+                    //$("#P1WeekendHours").data("kendoComboBox").value(response.P1WeekendHours);
+                    //$("#P2WeekendHours").data("kendoComboBox").value(response.P2WeekendHours);
+                    //$("#P3WeekendHours").data("kendoComboBox").value(response.P3WeekendHours);
+                    //$("#P4WeekendHours").data("kendoComboBox").value(response.P4WeekendHours);
+                    //$("#P5WeekendHours").data("kendoComboBox").value(response.P5WeekendHours);
+                    //$("#P1Blendedrate").data("kendoNumericTextBox").value(response.P1Blendedrate);
+                    //$("#P2Blendedrate").data("kendoNumericTextBox").value(response.P2Blendedrate);
+                    //$("#P3Blendedrate").data("kendoNumericTextBox").value(response.P3Blendedrate);
+                    //$("#P4Blendedrate").data("kendoNumericTextBox").value(response.P4Blendedrate);
+                    //$("#P5Blendedrate").data("kendoNumericTextBox").value(response.P5Blendedrate);
+                },
+                error: function (err, response) {
+                    alert(err.responseText);
+                }
+            });
+        }
+    });
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+
+    function AppNameChange() {
+
+        updateDashboard();
+
+    }
+
+
+    function updateDashboard()
+    {
+        displayLoading("#container");
+        //var chartTrend = $("#chartTrend").data("kendoChart");
+
+        //alert($("#AppName").val());
+        var appid = $("#AppName").val();
+        //chartTrend.dataSource.read();
+        //chartTrend.refresh();
+
+        var RootUrl = '@Url.Content("~/")';
+        var model = {
+            AppId: appid
+        };
+
+        //alert(myArray[0].id + " ," + myArray[0].value);
+        //var data1 = { 'listObject': myArray };
+        var data = JSON.stringify(model)
+
+        $.ajax({
+
+            type: 'post',
+            url: RootUrl + 'APRAjaxService/ApplicationDashboard',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                $('#ClientAppNumber span').text(response.ClientApplicationNumber);
+                $('#AppDescription span').text(response.Description);
+
+                $('#AppCriticality span').text(response.Criticality);
+                $('#AppUsers span').text(response.NoOfUsers);
+                $('#AppRevenueImpact span').text(response.RevenueImpact);
+                $('#AppCodeType span').text(response.CodeType);
+                $('#AppDomain span').text(response.AppDomain);
+                $('#AppSecurity span').text(response.SecurityLevel);
+                $('#AppTechnicalOwner span').text(response.TechnicalOwnerName);
+                $('#AppArchitecture span').text(response.Architecture);
+                $('#AppSize span').text(response.AppSize);
+                $('#AppAnalysis span').text(response.Analysis);
+                $('#AppRecommandation span').text(response.Recommendation);
+            },
+            error: function (err,response) {
+                alert(err.responseText);
+            }
+        });
+
+
+
+
+
+
+    }
+
+
+    function ddlFilterchange() {
+       
+        displayLoading("#tblPieChart");
+        var DashboardPieCharts = $("#DashboardPieCharts").data("kendoChart");
+
+
+        DashboardPieCharts.dataSource.read();
+        DashboardPieCharts.refresh();
+      
+
+        var grid = $("#Grid").data("kendoGrid");
+        grid.dataSource.read();
+        grid.refresh();
+        if ($("#ddlFilter").val() == 1) {
+            $("#Grid thead [data-field=PieChartColumnName] .k-link").html("Criticality")
+        }
+        if ($("#ddlFilter").val() == 2) {
+            $("#Grid thead [data-field=PieChartColumnName] .k-link").html("Application Type")
+        }
+        if ($("#ddlFilter").val() == 3) {
+            $("#Grid thead [data-field=PieChartColumnName] .k-link").html("Source Code Type")
+        }
+        if ($("#ddlFilter").val() == 4) {
+            $("#Grid thead [data-field=PieChartColumnName] .k-link").html("Disposition")
+        }
+        if ($("#ddlFilter").val() == 5) {
+            $("#Grid thead [data-field=PieChartColumnName] .k-link").html("Business Function")
+        }
+    };
+
+    function ParameterData(e) {
+        var value = $("#ddlFilter").val();
+       
+        return {
+
+            filterOption: $("#ddlFilter").val(),
+            
+        };
+    }
+
+</script>

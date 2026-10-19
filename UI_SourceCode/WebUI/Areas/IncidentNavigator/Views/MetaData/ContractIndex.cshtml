@@ -1,0 +1,263 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+@{
+    <script src="~/Content/js/bootstrap.js"></script>
+    ViewBag.Title = "Incident Navigator- MetaData";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    //  Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    //  var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new MetaDataController();
+    var INColumn = cont.GetColumnListContract(client.ClientId);
+    // var INColumnValue = cont.GetColumnValueList(null);
+    var ClientId = client.ClientId;
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+</style>
+
+
+
+
+@*---------------------------------------------------------------------------------------------------------------------------------------------------*@
+<div class="content-main dark-bg contract-management-container">
+
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li>MetaData</li>
+
+            <li class="active">Account Contract Management</li>
+        </ol>
+    </div>
+
+    <div class="contract-management-content">
+        <h4>Account Contract Management</h4>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess22" hidden>
+            <ul>
+                <li>Incident records got updated with respective Account Contract.</li>
+            </ul>
+        </div>
+        @*<div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess33" hidden>
+                <label class="control-label" id="updatestring"></label>&nbsp;
+            </div>*@
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<ClientAccountContract>()
+                                                  .Name("ContractGrid")
+                                                  .Columns(columns =>
+                                                  {
+                                                      columns.Bound(e => e.Id).Hidden();
+                                                      columns.Bound(e => e.ContractName).Title("Account Contract Name->Rules");
+                                                      // columns.Command(command => { command.Edit(); command.Destroy(); });
+                                                  })
+                                                 // .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                                 //  .Pageable()
+                                                 .HtmlAttributes(new { style = "height:500px;" })
+                                                 //.ToolBar(toolbar => toolbar.Create().Text("Add Contract Name"))
+                                                 .Scrollable()
+                                                 .DataSource(dataSource => dataSource
+                                                 .Ajax()
+                                                 .PageSize(100)
+                                                 .Model(model => { model.Id(f => f.Id); })
+                                                 .Read(read => read.Action("ReadTrackContract", "MetaData"))
+                                                 // .Create(create => create.Action("CreateTrackContract", "MetaData"))
+                                                 //.Update(update => update.Action("UpdateTrackContract", "MetaData"))
+                                                 // .Destroy(destroy => destroy.Action("DeleteTrackContract", "MetaData"))
+                                                 )
+                                                 .ClientDetailTemplateId("AppsGridTemplate")
+            )
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="SaveNotes" onclick="applyContract()">Submit Rules</button>
+            <button class="btn btn-primary" id="SaveNotes" onclick="validateRules()">Validate Rules</button>
+        </div>
+    </div>
+
+    <div class="modal fade validate-rules-modal" id="validateRulesModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="validateModalLabel">Validate Label</h5>
+
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" style=" background: transparent; border: none; font-size: 27px;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="updatestring">
+                    Data Here
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-primary  save-comment-modal">SAVE</button>*@
+            </div>
+        </div>
+    </div>
+
+    <div id="alertModalSubmitRule" class="modal fade" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-body" style="left:100%;transform:translateX(-30%);position:absolute;width:100%">
+
+                <div id="lblErrdel" style="display:none;">
+                    <label class="alert alert-danger" id="lblErr1">
+                        Error in Updating the Incident records!!!
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+                <div id="lblSuccessdel" style="display:none;">
+                    <label class="alert alert-success" id="lblSuccess1">
+                        Incident records got updated with respective Account Contract.
+                        <button type="button" class="close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script id="AppsGridTemplate" type="text/kendo-tmpl">
+    <div class="custom-kendo-grid contract-inner-grid">
+        @(Html.Kendo().Grid<INContractRuleModel>()
+                       .Name("ContractRules#=Id#")
+                       .Columns(columns =>
+                       {
+                        columns.Bound(e => e.Id).Hidden();
+                        columns.Bound(e => e.GroupStartOperator).Title("Start Grouping").EditorTemplateName("GroupStartOperator").Width(80);
+                        columns.ForeignKey(e => e.INFieldName, INColumn, "Value", "Text").Title("Column Name").EditorTemplateName("ColumnDrpdown");
+                        columns.Bound(e => e.Condition).Title("Condition").EditorTemplateName("Condition");
+                        columns.Bound(e => e.FieldValue).EditorTemplateName("ColumnValueDrpdown").Title("Column Value");
+                        columns.Bound(e => e.ConstantValue).Title("Other Value");
+                        columns.Bound(e => e.GroupEndOperator).Title("End Grouping").EditorTemplateName("GroupEndOperator").Width(80).HeaderHtmlAttributes(new { style = "overflow: visible; white-space: normal" });
+                        columns.Bound(e => e.Operator).Title("Operator").EditorTemplateName("RuleOperator");
+
+                     columns.Command(command => { command.Edit(); command.Destroy(); });
+                                                    })
+                                            .Editable(e => e.CreateAt(GridInsertRowPosition.Bottom))
+                                            .HtmlAttributes(new { style = "height:350px;" })
+                                             // .Pageable()
+                                             .ToolBar(
+                                                   tools =>
+                                                   {
+                                                       tools.Create().Text("Add Contract Rules");
+                                                   })
+                                            .Scrollable()
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model =>
+                                                {
+                                                    model.Id(o => o.Id);
+                                                    model.Field(f => f.GroupStartOperator);
+                                                })
+                                                .PageSize(100)
+                                                .Read(read => read.Action("ReadAssignGroupContract", "MetaData", new { Id = "#=Id#" }))
+                                                .Create(create => create.Action("CreateAssignGroupContract", "MetaData", new { CId = "#=Id#" }))
+                                                .Update(update => update.Action("UpdateAssignGroupContract", "MetaData"))
+                                                .Destroy(delete => delete.Action("DeleteAssignGroupContract", "MetaData"))
+                                            )
+
+                                            .ToClientTemplate())
+
+    </div>
+</script>
+@*<button class="btn btn-primary" id="SaveNotes" disabled>Save</button>*@
+
+
+<script>
+
+    function applyContract() {
+        baseurl = '@Url.Content("~/IncidentNavigator/MetaData/GenerateRuleContract")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+            success: function (data) {
+                $('#alertModalSubmitRule').modal('show');
+                $('#lblErrdel').hide();
+                $('#lblSuccessdel').show();
+                
+            },
+            error: function () {
+                $('#alertModalSubmitRule').modal('show');
+                $('#lblErrdel').show();
+                $('#lblSuccessdel').hide();
+            }
+        });
+        //$("#msgSuccess22").hide();
+    }
+
+    function validateRules() {
+        baseurl = '@Url.Content("~/IncidentNavigator/MetaData/ValidateRuleContract")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            async: false,
+            success: function (data) {
+               // console.log(data);
+                $('#validateRulesModal').modal('show');
+                document.getElementById('updatestring').innerHTML = data;
+            },
+            error: function () {
+
+            }
+        });
+
+    }
+
+
+
+    function onSelectColumn(e) {
+        var app = $("#FieldValue").data("kendoComboBox");
+        app.dataSource.read();
+    }
+
+
+    function GetColId() {
+        var app = $("#INFieldName").data("kendoDropDownList");
+        var app1=app.value();
+        var appval = $("#FieldValue").data("kendoComboBox");
+
+        //console.writeline(appval.text());
+
+
+        if (app1 != "") {
+            return {
+
+                Columnid: app1,
+                ColValue: appval.input.val()
+            }
+        }
+
+       // console.writeline(appval.input.val());
+
+        return false;
+    }
+
+</script>
+

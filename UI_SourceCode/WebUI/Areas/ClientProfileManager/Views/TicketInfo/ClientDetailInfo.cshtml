@@ -1,0 +1,403 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using System.Web.Optimization  
+@using Kendo.Mvc.UI
+@using Kendo.Mvc.Extensions
+  
+@model    ClientDetailsModel
+@{
+    ViewBag.Title = "Client Profile Manager";
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.data.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.grid.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.button.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.excel.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.ooxml.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.pager.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    var ticketinfo = Model.ClientTicketInfoList;
+}
+<div class="content-main">
+    @using (Html.BeginForm("ClientDetails", "TicketInfo", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+<div class="container" style="padding: 0;">
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent" style="min-height: 700px">
+            <div class="well well-sm"><strong>Client Details</strong></div>
+            <div id="grid">
+                <div class="k-header k-grid-toolbar">
+                    <a id="k-grid-Export" class="k-button k-button-icontext k-grid-ExporttoExcel" role="button" href="#">Export to Excel</a>
+                </div>
+            </div>
+            <div>
+                <label>Ticket Info</label>
+
+                @(Html.Kendo().Grid<TicketInfoViewModel>()
+    .Name("grid2")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.FromDate).Format("{0:MM/dd/yyyy HH:mm:ss}"); ;
+        columns.Bound(p => p.Todate).Format("{0:MM/dd/yyyy HH:mm:ss}");
+        columns.Bound(p => p.TicketInfoType);
+        columns.Bound(p => p.Incidents).HtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(p => p.Problems).HtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(p => p.UserSupportSR).HtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(p => p.Enhancements).HtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(p => p.Comments).HtmlAttributes(new { @style = "text-align:right;" });
+
+    })
+    .Groupable()
+    .Pageable()
+    .Scrollable()
+    .HtmlAttributes(new { style = "height:750px;" })
+
+    //.Excel(excel => excel
+    //    .FileName("Kendo UI Grid Export.xlsx")
+    //    .Filterable(true)
+    //    .ProxyURL(Url.Action("Excel_Export_Save", "Grid"))
+    //)
+
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(16)
+        .Group(g => g.Add(p => p.FromDate))
+        .Group(g=>g.Add(p=>p.Todate))
+        .Read(read => read.Action("Excel_Export_Read", "TicketInfo"))
+
+    )
+                    )
+                @*@Html.Partial("_ClientTicketInfo", Model.ClientTicketInfoList)*@
+
+
+
+            </div>
+        </div>
+    </div>
+</div>}
+
+</div>
+        <script>
+ 
+            var clientname = '@Model.ClientName';
+            var totalconvalue = '@Model.TotalContractVal';
+            var industryverid = '@Model.VerticalId';
+            var workstartdate = '@Model.WorkStartTime';
+            var workenddate = '@Model.WorkEndTime';
+            var resolutiontime = '@Model.ResolutionTime';
+            var nttclientmanager = '@Model.NttClientManager';
+            var nttdeliverymanger = '@Model.NttDeliveryManager';
+            var clientstatus = '@Model.ClientStatus';
+            var custsurveydate = '@Model.CustSurveyDate';
+            var custrating = '@Model.CustRating';
+            var onshorefte = '@Model.OnshoreFTE';
+            var offshorefte = '@Model.OffshoreFTE';
+            var nearshorefte = '@Model.NearShoreFTE';
+            var notes = '@Model.Notes';
+
+
+
+
+            $("#grid").kendoGrid({
+                //toolbar: ['Export to Excel'],
+                columns: [
+                  {
+                      width:'75px',
+                      field: "Select", template: "<input type='checkbox'/>",
+                      
+                  },
+                  { field:"Details" },
+                  { field:"Fields" }
+                ],
+                dataSource: [
+
+                  { Details:"Client Name : ", Fields: clientname },
+                  { Details: "Total Contract Value : ", Fields: totalconvalue },
+                  { Details: "Industry Vertical ID : ", Fields: industryverid },
+                  { Details: "Work Start Date : ", Fields: workstartdate },
+                  { Details:"Work End Date : ", Fields: workenddate },
+                  { Details:"NTT Data Client Manager : ", Fields: nttclientmanager },
+                  { Details:"NTT Data Delivery Manager : ", Fields: nttdeliverymanger },
+                  { Details:"Client Status : ", Fields: clientstatus },
+                  { Details:"Latest Customer Satisfaction Survey Date : ", Fields: custsurveydate },
+                  { Details:"Latest Customer Satisfaction Survey Rating : ", Fields: custrating },
+                  { Details: "Annual FTEs OnShore : ", Fields: onshorefte },
+                  { Details:"Annual FTEs OffShore : ", Fields: offshorefte },
+                  { Details:"Annual FTEs NearShore : ", Fields: nearshorefte },
+                  { Details:"Notes : ", Fields: notes },
+                  { Details:"Client Tickets Info "}
+                ]
+
+            });
+
+
+            //$("#ticketinfo").kendoGrid({
+            //    dataSource: [
+
+
+
+            //        pageSize: 20,
+            //        serverPaging: true
+            //    ],
+            //    height: 550,
+            //    pageable: true,
+            //    columns: [
+            //      { field: "OrderID" },
+            //      { field: "ShipName", title: "Ship Name" },
+            //      { field: "ShipCity", title: "Ship City" }
+            //    ],
+            //    excelExport: function (e) {
+            //        e.preventDefault();
+
+            //        promises[1].resolve(e.workbook);
+            //    }
+            //});
+
+            //$("#orders").kendoGrid({
+            //    dataSource: {
+            //        type: "odata",
+            //        transport: {
+            //            read:
+            //        },
+            //        pageSize: 20,
+            //        serverPaging: true
+            //    },
+            //    height: 550,
+            //    pageable: true,
+            //    columns: [
+            //      { field: "OrderID" },
+            //      { field: "ShipName", title: "Ship Name" },
+            //      { field: "ShipCity", title: "Ship City" }
+            //    ],
+            //    excelExport: function (e) {
+            //        e.preventDefault();
+
+            //        promises[1].resolve(e.workbook);
+            //    }
+            //});
+
+
+
+
+            $("#k-grid-Export").on('click', function (e) {
+                //alert('hrer');
+                var grid = $("#grid").getKendoGrid();
+                var grid2 = $("#grid2").getKendoGrid();
+                var rows = [{
+                    cells: [
+                      { value:""},
+                      { value:"" },
+
+
+                    ]
+                }];
+
+                var trs = $("#grid").find('tr');
+                var trs11 = $("#grid2").find('tr');
+
+                rows.push({
+                    cells: [
+
+                      {
+                          color: '#ffffff',
+                          background: 'gray',
+                          value: "Client Details"
+                      }
+                    ]
+                })
+
+                for (var i = 0; i < trs.length-1; i++) {
+                    if ($(trs[i]).find(":checkbox").is(":checked")) {
+                        var dataItem = grid.dataItem(trs[i]);
+                        rows.push({
+                            cells: [
+                              { value: dataItem.Details },
+                              { value: dataItem.Fields }
+                            ]
+                        })
+                    }}
+                    //alert(trs.length)
+
+                    //var rows2 = [{
+                    //    cells: [
+                    //        { value: "Comments" },
+                    //        { value: "Todate" },
+                    //      { value: "TicketInfoType" },
+                    //      { value: "Incidents" },
+                    //      { value: "Problems" },
+                    //      { value: "UserSupportSR" },
+                    //      { value: "Enhancements" },
+                    //      { value: "Comments" }
+                    //    ]
+                    //}];
+
+
+                    if ($(trs[trs.length-1]).find(":checkbox").is(":checked")) {
+                        //alert('asf');
+                        rows.push({
+                            cells: [
+
+                              {
+                                  color: '#ffffff',
+                                  background: 'gray',
+                                  value: "Ticket Info Details"
+                              }
+                              ]
+                            })
+                        rows.push({
+                            cells: [
+
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "From Date"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "To Date"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "Ticket Type"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "Incidents"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "Problems"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "User Support SR"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "Enhancements"
+                              },
+                              {
+                                  color: '#ffffff',
+                                  background: '#c2c2d6',
+                                  value: "Comments"
+                              }
+                            ]
+                        })
+
+                        var fromDt1 = '';
+                        var fromDt2 = '';
+                        var ticketInfoType = '';
+                        for (var j = 0; j < trs11.length; j++) {
+                            var dataItem2 = grid2.dataItem(trs11[j]);
+                           // alert("sedgsdgh");
+                            // rows.push({
+                            //alert(dataItem2.FromDate);
+                            var displaydt1 = String(dataItem2.FromDate);
+                            //alert(displaydt1);
+                            var displaydt2 = String(dataItem2.Todate);
+                            // alert(displaydt2);
+
+                            var disIncidents = dataItem2.Incidents;
+                            var disTicketInfoType = dataItem2.TicketInfoType;
+                            var disProblems = dataItem2.Problems;
+                            var disUserSupportSR = dataItem2.UserSupportSR;
+                            var disEnhancements = dataItem2.Enhancements;
+                            var disComments = dataItem2.Comments;
+
+                            if(fromDt1 == displaydt1)
+                            {
+                               // alert("asfdfs");
+                                displaydt1 = '';
+                                displaydt2 = '';
+
+                            }
+
+                            if (disTicketInfoType == ticketInfoType) {
+                            disIncidents = '';
+                            disTicketInfoType = '';
+                            disProblems = '';
+                            disUserSupportSR = '';
+                            disEnhancements = '';
+                            disComments = '';
+                            }
+
+                            fromDt1 = String(dataItem2.FromDate);
+                            fromDt2 = String(dataItem2.Todate);
+                            ticketInfoType = dataItem2.TicketInfoType;
+                            rows.push({
+                                cells: [
+
+                                  {
+                                      //color: '#ffffff',
+                                      //background: '#e6f2ff',
+                                      value: displaydt1
+                                  },
+                                  {
+                                      //color: '#ffffff',
+                                      //background: '#e6f2ff',
+
+                                      value: displaydt2
+                                  },
+
+                                  { value: disTicketInfoType },
+                                  { value: disIncidents },
+                                  { value:  disProblems},
+                                  { value: disUserSupportSR },
+                                  { value: disEnhancements },
+                                  { value:disComments }
+                                ]
+                            })
+                        }
+                    }
+
+
+                excelExport(rows)
+
+            })
+
+            function excelExport(rows) {
+                var workbook = new kendo.ooxml.Workbook({
+                    sheets: [
+                      {
+                          columns: [
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true },
+                            { autoWidth: true }
+
+                          ],
+                          title: "Client_Details",
+                          rows: rows
+                      }
+
+                    ]
+                });
+                kendo.saveAs({ dataURI: workbook.toDataURL(), fileName: "ClientDetails.xlsx" });
+            }
+
+        </script>
+       

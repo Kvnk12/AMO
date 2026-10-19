@@ -1,0 +1,387 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@{
+  //  var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+    var clientId = objclient.ClientId.ToString();
+    var clientName = objclient.ClientName.ToString();
+}
+@model ClusterManagementInput
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/incident_navigator_icon.png");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+}
+<div class="content-main custom-grid">
+    <div class="clear"></div>
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Inflow Outflow Backlog Analysis</li>
+        </ol>
+    </div>
+    <div class="content-wrapper">
+        @*<div class="well well-sm">SLA Dashboard : Production Support Summary</div>*@
+
+        <div class="clearfix"></div><!--This is to clear the floats-->
+        @*<iframe id="frameTrendig" border="0" frameborder="0" height="1100px" width="1100px"></iframe>*@
+        @*<iframe id="frameTrendig" src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx")' border="0" frameborder="0" height="1100px" width="1100px"></iframe>*@
+        <div id="progressIndicator" class="progressIndicatorStyle">
+
+            <span>Please wait while the report is being loaded!</span>
+            <br />
+            <img width="50px" height="auto" src="@Url.Content("~/Content/images/reload.gif")" />
+
+        </div>
+        @*<div id="loading">
+                <div id="progressCount" class="progress-count">
+                  0%
+                </div>
+
+                <div class="progressbar">
+                    <div class="progress" id="progress"> </div>
+                </div>
+            </div>*@
+
+        @*<iframe id="frameTrendig"  src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm2.aspx")' border="0" frameborder="0" height="1100px" width="100%"></iframe>*@
+
+
+        <iframe id="frameTrendig" onload="closeProgressIndicator()" src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm2.aspx")' border="0" frameborder="0" height="1100px" width="100%"></iframe>
+
+        <style>
+            #export {
+                margin: 0 0 10px 1px;
+                float: right;
+            }
+
+            .k-loading-mask {
+                z-index: 3;
+            }
+
+
+            /*.k-loading-mask .k-loading-image {
+                    background-image: url('../../../../Content/images/reload.gif');
+                }*/
+
+            .progressIndicatorStyle {
+                /*background-color:gray;*/
+                /*width: 200px;*/
+                height: 200px;
+                /*border:solid 2px white;*/
+                top: 25%;
+                left: 40%;
+                z-index: 99999;
+                position: absolute;
+                display: block;
+                text-align: center;
+                margin: auto;
+            }
+        </style>
+        @*<div style="margin: 0 0 10px 1px;">
+                @(Html.Kendo().Button()
+            .Name("btnShowhide")
+            .HtmlAttributes(new { type = "button", @class = "k-primary" })
+            .Events(events => events.Click("btnClick"))
+            .Content("Show/hide Configuration"))
+            </div>
+            <div id="configurator"></div>
+            <button id="export" class="k-button k-button-icontext hidden-on-narrow"><span class="k-icon k-i-excel"></span>Export to Excel</button>
+            <div id="pivotgrid"></div>
+            <input type="hidden" value="@clientName" id="clientNameHiddenVar" />
+            <input type="hidden" value="@clientId" id="myHiddenVar" />
+            <script id="dataCellTemplate" type="text/x-kendo-tmpl">
+                # var columnMember = columnTuple ? columnTuple.members[0] : { children: [] }; #
+                # var rowMember = rowTuple ? rowTuple.members[0] : { children: [] }; #
+                # var value = kendo.toString(dataItem.value); #
+
+                # if (columnMember.children.length || rowMember.children.length) { #
+                <b style="color: red">#: value # </b>
+                # } else { #
+                #: value #
+                # } #
+            </script>
+
+            <script id="headerTemplate" type="text/x-kendo-tmpl">
+                # if (!member.children.length) { #
+                <b>#: member.caption #</b>
+                # } else { #
+                #: member.caption #
+                # } #
+            </script>
+            <script>
+                $(document).ready(function () {
+                    var pivotgrid = $("#pivotgrid").kendoPivotGrid({
+                        dataCellTemplate: $("#dataCellTemplate").html(),
+                        columnHeaderTemplate: $("#headerTemplate").html(),
+                        rowHeaderTemplate: $("#headerTemplate").html(),
+                        height: 500,
+                        excel: {
+                            fileName: "Analysis.xlsx",
+                            proxyURL: "@Url.Action("Excel_Export_Save", "AjaxService")",
+                            filterable: true
+                        },
+                        filterable: true,
+                        dataSource: {
+                            type: "xmla",
+                            columns: [{ name: "[Incident].[Status]", expand: true }],
+                            //rows: [{ name: "[Clients].[Client Name]", expand: true }],
+                            measures: ["[Measures].[Incident Count]"],
+                            transport: {
+                                connection: {
+                                    catalog: "NextGenToolIncidentCube",
+                                    cube: "IncidentAnalyticalCube1"
+                                },
+                                read: {
+                                    url: "@Url.Action("Read")",
+                                    dataType: "text",
+                                    contentType: "text/xml",
+                                    type: "POST"
+                                },
+                                discover: {
+                                    url: "@Url.Action("Discover")",
+                                    dataType: "text",
+                                    contentType: "text/xml",
+                                    type: "POST"
+                                },
+                                parameterMap: function (options, type) {
+
+                                    var query = kendo.data.transports.xmla.fn.options.parameterMap(options, type);
+                                   //alert(query);
+                                    //modify the query here if needed
+
+                                    return query;
+                                }
+                            },
+                            schema: {
+                                type: "xmla"
+                            },
+                            error: function (e) {
+                                alert("error: " + kendo.stringify(e.errors[0]));
+                            },
+
+                            filter: {
+                                field: "[Incident].[Clientid]",
+                                operator: "equals",
+                                value: $('#myHiddenVar').val()
+                            }
+                        }
+                    }).data("kendoPivotGrid");
+                    var ds = pivotgrid.dataSource;
+
+                    //var columns = ds.columns();
+                    ////columns("[Clients].[Client Name]").filterable=false;
+                    //alert(columns);
+
+                    // ds.columns(columns);
+                    $("#configurator").kendoPivotConfigurator({
+
+                        dataSource:ds
+                    });
+                    var configurator = $("#configurator").kendoPivotConfigurator({
+
+                    }).getKendoPivotConfigurator();
+                    //var source = configurator.treeView.dataSource;
+                    //var dimensionName  = "[Incident]";
+
+                    //var hierarchyName = "[Incident].[Clientid]";
+
+                    //ds.schemaHierarchies(dimensionName)
+                    //.done(function (dimensions) {
+                    //    //alert(levels.value());
+                    //    alert(dimensions.value());
+                    //     //});
+                });
+                //var x = $('#myHiddenVar').val();
+                //alert(x);
+
+            </script>
+            <style>
+                #pivotgrid {
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 100%;
+                }
+
+                #configurator {
+                    display: inline-block;
+                    height: 550px;
+                    vertical-align: top;
+                }
+
+                .k-treeview {
+                    height: 520px;
+                }
+            </style>*@
+
+
+
+
+        @*<div class="responsive-message"></div>
+
+                @(Html.Kendo().PivotConfigurator()
+            .Name("configurator")
+            .HtmlAttributes(new { @class = "hidden-on-narrow" })
+            .Filterable(true)
+            .Sortable()
+            .Height(580)
+                )
+
+                @(Html.Kendo().PivotGrid()
+            .Name("pivotgrid")
+            .ColumnWidth(200)
+            .Height(580)
+            .HtmlAttributes(new { @class = "hidden-on-narrow" })
+            .Filterable(true)
+            .Sortable()
+            .Configurator("#configurator")
+            .DataSource(dataSource => dataSource.
+                Xmla()
+                .Columns(columns =>
+                {
+                    columns.Add("[Date].[Calendar]").Expand(true);
+                    columns.Add("[Product].[Category]");
+                })
+                .Rows(rows => rows.Add("[Geography].[City]"))
+                .Measures(measures => measures.Values(new string[] { "[Measures].[Reseller Freight Cost]" }))
+                .Transport(transport => transport
+                    .Connection(connection => connection
+                        .Catalog("Adventure Works DW 2008R2")
+                        .Cube("Adventure Works"))
+                    .Read(read => read
+                        .Url("https://demos.telerik.com/olap/msmdpump.dll")
+                        .DataType("text")
+                        .ContentType("text/xml")
+                        .Type(HttpVerbs.Post)
+                    )
+                )
+                .Events(e => e.Error("onError"))
+            )
+                )
+
+                <script>
+            function onError(e) {
+                alert("error: " + kendo.stringify(e.errors[0]));
+            }
+                </script>
+
+                <style>
+                    #pivotgrid {
+                        width: 70%;
+                    }
+
+                    .hidden-on-narrow {
+                        display: inline-block;
+                        vertical-align: top;
+                    }
+
+                    #configurator {
+                        display: inline-block;
+                        vertical-align: top;
+                    }
+                </style>*@
+        <!--END OF LEFTAREA-->
+
+    </div><!--/.treeMenuContent container-->
+    <!--/.container-->
+
+
+
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("#configurator").toggle();
+        //var ClientID = $('#myHiddenVar').val();
+        //var ClientID = $('#clientNameHiddenVar').val();
+
+        @*$('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx?ClientId=")' + ClientID );*@
+    });
+
+    function btnClick() {
+
+        $("#configurator").toggle();
+
+    }
+    $("#export").click(function (e) {
+        var pivotgrid = $("#pivotgrid").data("kendoPivotGrid");
+        pivotgrid.saveAsExcel();
+    });
+    function ConfigItem_change() {
+
+        //alert($("#fabric").val());
+        //alert($("#ConfigItem").val());
+        ////var grid = $("#Grid").data("kendoGrid");
+        ////grid.dataSource.read();
+        //return {
+        //    ClientID: $("#fabric").val(),
+        //    ConfigItem: $("#ConfigItem").val(),
+
+        //};
+
+    }
+
+    function TicketType_change() {
+        var ClientID = $("#fabric").val();
+        var ConfigItem = $("#ConfigItem").val();
+        var TicketType = $("#TicketType").val();
+
+        @*$('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/INTrendingReport.aspx?ClientId=")' + ClientID + '&ConfigItem=' + ConfigItem + '&TicketType=' + TicketType);*@
+
+        $('#frameTrendig').attr('src', '@Url.Content("~/Areas/IncidentNavigator/AspxReport/WebForm1.aspx")');
+
+    }
+
+    function additionalData(e) {
+        var ddlItem = $("#fabric").data("kendoComboBox").value();
+        //alert(ddlItem);
+        return { ClientID: ddlItem }
+    }
+
+
+    function filterProducts() {
+        //alert($("#fabric").val());
+        return {
+            ClientID: $("#fabric").val()
+            //productFilter: $("#products").data("kendoComboBox").input.val()
+        };
+    }
+
+    function filterTypes(e) {
+
+        return {
+            ClientID: $("#fabric").val(),
+            ConfigItem: $("#ConfigItem").val()
+        };
+    }
+
+
+
+
+
+    function closeProgressIndicator() {
+        $("#progressIndicator").hide();
+    }
+
+
+
+</script>
+

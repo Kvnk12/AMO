@@ -1,0 +1,657 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@using WebUI.Models;
+@using NTTData.AMOPortal.Data;
+@model MetricSpecificationModel
+
+
+
+
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    @*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    @*<script src="~/Scripts/JScript/jquery.min.js"></script>*@
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+    // var cont = new KEDBController();
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    HomeInput input = (HomeInput)Session["MenuItemsInput"];
+    var uid = (int)Session["UserId"];
+
+    //var userRole =  IsKedbManagerOrSup(input.UserRole.ToLower(), client.ClientId, uid);
+    var userRole = (Helper.HasRole((int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.KEDBManager) || Helper.HasRole((int)Helper.AMOApplicationName.KnowledgeManager, (int)Helper.AMOUserRoles.KEDBManager)).ToString();
+
+    List<MetricSpecification> metSpecList = ViewBag.MetricSpecificationList;
+
+}
+<style>
+    .bg-image {
+        border: none;
+        color: transparent;
+        background-color: transparent;
+        background-repeat: no-repeat;
+        height: 20px;
+        width: 20px;
+        padding: 0;
+        margin: 0px 0.5em 0 0;
+    }
+
+        .bg-image.edit {
+            background-size: 17px;
+        }
+
+        .bg-image.delete {
+            background-size: 14px;
+        }
+
+        .bg-image.view {
+            background-size: 23px;
+            width: 23px;
+        }
+
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+    /*.fixed-header {
+            top: 0;
+            position: fixed;
+            width: auto;
+            z-index: 1;
+        }*/
+    .k-tooltip, .k-tooltip.k-popup, .k-tooltip.k-widget {
+        /*// .k-tooltip {*/
+        border-radius: 4px;
+        border-color: #fff;
+        color: #000;
+        background-color: #fff;
+        max-width: 250px;
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid .k-grid-content-locked {
+        background-color: white;
+    }
+
+    .custom-kendo-grid.csat-grid .k-widget.k-grid {
+        background-color: white;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <ol class="breadcrumb">
+        <li>SLA Manager</li>
+        <li class="active">SLA SETUP    </li>
+    </ol>
+
+    <div style="margin-top:1em;width:100%;">
+        @Html.Partial("_SLATreeMenu", metSpecList)
+    </div>
+    <br />
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1em">
+        <button disabled class="custom-button" id="createSLAbtn" style="width:fit-content" onclick="onSLACreate()">CREATE NEW SLA SETUP</button>
+    </div>
+    <div class="custom-kendo-grid ">
+        @* ---------------------------------------------------------------------------------------------------------------------------------------*@
+        @(Html.Kendo().Grid<MetricSpecificationModel>()
+                         .Name("SLAGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(p => p.Id).Hidden();
+                             columns.Select().Width(50).Locked(true).Lockable(true);
+                             columns.Bound(p => p.AccountId).Hidden();
+                             columns.Bound(p => p.AccountName).Title("Account").Width(150).Locked(true).Lockable(true);
+                             columns.Bound(p => p.ContractId).Hidden();
+                             columns.Bound(p => p.ContractName).Title("Account Contract").Width(150).Locked(true).Lockable(true);
+                             columns.Bound(p => p.Priority).Title("Priority").Width(150).Locked(true).Lockable(true);
+                             columns.Bound(p => p.MetricName).Title("Metric Name").Width(150);
+                             //columns.Bound(p => p.MetricId).Title("Metric Id").Width(150);
+                             columns.Bound(p => p.Weightage).Title("Weightage").Width(150);
+                             columns.Bound(p => p.MetricStatus).Title("Metric Status").Width(150);
+                             columns.Bound(p => p.HasSLA).Title("Has SLA").Width(150);
+                             columns.Bound(p => p.StartDate).Title("Metric Start Date").Width(150);
+                             columns.Bound(p => p.EndDate).Title("Metric End Date").Width(150);
+                             columns.Bound(p => p.MetricBaseline).Title("Metric Baseline").Width(150);
+                             columns.Bound(p => p.MetricTarget).Title("Metric Target").Width(150);
+                             columns.Bound(p => p.MetricUnit).Title("Metric Unit").Width(150);
+                             columns.Bound(p => p.MetricOwner).Title(" Metric Owner").Width(150);
+                             columns.Bound(p => p.Clocksetup).Title("Clock Type").Width(150);
+                             columns.Bound(p => p.ComplianceUnits).Title("SLA Compliance Units").Width(150);
+                             columns.Bound(p => p.ComplianceBaseline).Title("SLA Compliance Baseline >=").Width(150);
+                             columns.Bound(p => p.ComplianceTarget).Title("SLA Compliance Target >=").Width(150);
+                             columns.Bound(p => p.ExceedsExpectation).Title("Exceeds SLA Expectations > ").Width(150);
+                             columns.Bound(p => p.MetSLAExpectationsBTW).Title("Met SLA Expectations btw ").Width(150).Locked(true).Lockable(false);
+                             columns.Bound(p => p.BelowExpectation).Title("Below SLA Expectation").Width(150);
+                             columns.Bound(p => p.ClientId).Filterable(false).Title("Action").Width(180).ClientTemplate("#if(data.ClientId!=null){#<div><div ><button class='bg-image edit' title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");' onclick='editSLA(#:Id#);' id='sla-edit#=Id#' ><button class='bg-image view' title='View' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");' onclick='viewSLA(#:Id#);' id='sla-View#=Id#'></button><button class='bg-image delete' title='Delete' style='background-image: url(" + @Url.Content("~/Content/images/delete_icon_blue.svg") + ");' onclick='deleteSLA(#=Id#);' id='sla-delete#=Id#'></button></div></div>#}#");
+
+                         })
+                          //.HtmlAttributes(new { @style = "height:480px" })
+                          .Filterable()
+                           .Scrollable(e => e.Endless(false))
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .PageSize(100)
+                          .Read(read => read.Action("GetSlaList", "SlaSetupNew").Data("getMetricId"))
+                          .Destroy(destroy => destroy.Action("DeleteSlaSetup", "SlaSetupNew"))
+                           )
+        )
+
+
+    </div>
+    @Html.Partial("_NewSlaSetup", Model)
+    @Html.Partial("_ViewSlaSetup", Model)
+</div>
+
+
+
+<script>
+
+    function editSLA(Id) {
+         var MetricId = document.getElementById("tempID").innerHTML;
+         console.log("MetricID getMU" + MetricId);
+
+         $('#MetricStatus_alert').hide();
+         $('#MetricOwner_alert').hide();
+         $('#Account_alert').hide();
+         $('#Contract_alert').hide();
+         $('#Priority_alert').hide();
+
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3].toLowerCase() == 'slasetupnew') {
+            baseurl = href[0] + '//' + href[2] + '/SlaSetupNew/getSlaSetupDetailsForEdit';
+        }
+        else {
+            baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'SlaSetupNew/getSlaSetupDetailsForEdit';
+        }     
+
+        var mod = {
+            Id: Id,
+            MetricId: MetricId
+        }
+
+        console.log(mod);
+        console.log(baseurl);
+        var data1 = JSON.stringify(mod);
+
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var popup = $("#chartSLACreateWindow").data("kendoWindow");
+                    popup.open();
+                    document.getElementById('chartSLACreateWindow_wnd_title').innerHTML = "SLA Setup -Edit";
+                    document.getElementById("chartSLACreateWindow_wnd_title").insertAdjacentHTML("beforeend",
+                        "<label style='margin-left:10em'>Metric Name:</label>" + data.MetricName + "<label style='margin-left:2em'>Metric Id:</label>" + data.MetricId);
+                   
+                    $('#MetricStatus_alert').hide();
+                    $('#MetricOwner_alert').hide();
+                    document.getElementById("Id").value = data.Id;
+                    $("#AccountId").data("kendoDropDownList").value(data.AccountId);
+                    $("#ContractId").data("kendoDropDownList").value(data.ContractId);
+                    $("#Priority").data("kendoDropDownList").value(data.Priority);
+                    $("#MetricUnit").data("kendoTextBox").value(data.MetricUnit);
+                    $("#MetricStatusId").data("kendoDropDownList").value(data.MetricStatusId);
+                    $("#ClientPriority").data("kendoTextBox").value(data.ClientPriority);
+                    $("#Weightage").data("kendoTextBox").value(data.Weightage);
+                    $("#ComplianceUnits").data("kendoTextBox").value(data.ComplianceUnits);
+                    $("#ComplianceBaseline").data("kendoTextBox").value(data.ComplianceBaseline);
+                    $("#ComplianceTarget").data("kendoTextBox").value(data.ComplianceTarget);
+                    $("#MetricBaseline").data("kendoTextBox").value(data.MetricBaseline);
+                    $("#MetricOwner").data("kendoTextBox").value(data.MetricOwner);
+                    $("#MetricTarget").data("kendoTextBox").value(data.MetricTarget);
+                    $("#ExceedsExpectation").data("kendoTextBox").value(data.ExceedsExpectation);
+                    $("#MetExpectationlowerlimit").data("kendoTextBox").value(data.MetExpectationlowerlimit);
+                    $("#MetExpectationhigherlimit").data("kendoTextBox").value(data.MetExpectationhigherlimit);
+                    $("#BelowExpectation").data("kendoTextBox").value(data.BelowExpectation);
+                    $("#ComplianceTarget").data("kendoTextBox").value(data.ComplianceTarget);
+                    $("#ComplianceBaseline").data("kendoTextBox").value(data.ComplianceBaseline);
+                    $("#ComplianceUnits").data("kendoTextBox").value(data.ComplianceUnits);
+                    $("#CalculationData").val(data.CalculationData);
+                    $("#StartDate").data("kendoDatePicker").value(data.StartDate);
+                    $("#EndDate").data("kendoDatePicker").value(data.EndDate);
+                    if (data.Clocksetup) {
+                        $('input[name=Clocksetup]').attr('checked', true);
+                    } else {
+                        $('input[name=Clocksetup]').attr('checked', false);
+                    }
+                    if (data.HasSLA) {
+                        $('input[type="checkbox"]').prop('checked', true);
+                    } else {
+                        $('input[type="checkbox"]').prop('checked', false);
+                    }
+
+
+
+                },
+                error: function (response) {
+
+                    console.log(response.responseText);
+                },
+
+
+            })
+
+    }
+
+    function onSLACreate() {
+        var popup = $("#chartSLACreateWindow").data("kendoWindow");
+        document.getElementById('chartSLACreateWindow_wnd_title').innerHTML = "New SLA Setup";
+        onCancelforms();
+        popup.open();
+        popup.center();
+        $('#MetricStatus_alert').hide();
+        $('#MetricOwner_alert').hide();
+        $('#Account_alert').hide();
+        $('#Contract_alert').hide();
+        $('#Priority_alert').hide();
+
+        var MetricId = document.getElementById("tempID").innerHTML;
+        console.log("MetricID getMU" + MetricId);
+
+          var mod = {
+              Id1: MetricId
+        }
+
+        var data = JSON.stringify(mod);
+         var RootUrl = '@Url.Content("~/")';
+        $.ajax({
+            url: RootUrl + 'SlaSetupNew/getMetricUnitName',
+            type: "post",
+
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            error: function (response) {
+
+                alert(response);
+            },
+            success: function (data) {
+                //console.log(data);
+                //alert("success");
+
+                $("#MetricUnit").val(data);
+
+
+
+            }
+        });
+
+
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountId").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+
+    function onSelectAccount(e) {
+        var app = $("#ContractId").data("kendoDropDownList");
+        app.dataSource.read();
+    }
+
+    function onsubmitforms() {
+        $('#MetricStatus_alert').hide();
+        $('#MetricOwner_alert').hide();
+        $('#Account_alert').hide();
+        $('#Contract_alert').hide();
+        $('#Priority_alert').hide();
+        var AccountId = $("#AccountId").data("kendoDropDownList").value();
+        if (AccountId == '') {
+            $('#Account_alert').show();
+            return false;
+        }
+        var ContractId = $("#ContractId").data("kendoDropDownList").value();
+        if (ContractId == '') {
+            $('#Contract_alert').show();
+            return false;
+        }
+        var Priority = $("#Priority").data("kendoDropDownList").value();
+        if (Priority == '') {
+            $('#Priority_alert').show();
+            return false;
+        }
+        var ClientPriority = $("#ClientPriority").data("kendoTextBox").value();
+        var MetricUnit = $("#MetricUnit").data("kendoTextBox").value();
+        var MetricStatusId = $("#MetricStatusId").data("kendoDropDownList").value();
+        if (MetricStatusId == '') {
+            $('#MetricStatus_alert').show();
+            return false;
+        }
+
+        var Weightage = $("#Weightage").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var MetricBaseline = $("#MetricBaseline").data("kendoTextBox").value();
+        var MetricOwner = $("#MetricOwner").data("kendoTextBox").value();
+        var MetricTarget = $("#MetricTarget").data("kendoTextBox").value();
+        var ExceedsExpectation = $("#ExceedsExpectation").data("kendoTextBox").value();
+        var MetExpectationlowerlimit = $("#MetExpectationlowerlimit").data("kendoTextBox").value();
+        var MetExpectationhigherlimit = $("#MetExpectationhigherlimit").data("kendoTextBox").value();
+        var BelowExpectation = $("#BelowExpectation").data("kendoTextBox").value();
+        var ComplianceTarget = $("#ComplianceTarget").data("kendoTextBox").value();
+        var ComplianceBaseline = $("#ComplianceBaseline").data("kendoTextBox").value();
+        var ComplianceUnits = $("#ComplianceUnits").data("kendoTextBox").value();
+        var CalculationData = $("#CalculationData").val();
+        var StartDate = $("#StartDate").data("kendoDatePicker").value();
+        var EndDate = $("#EndDate").data("kendoDatePicker").value();
+        var Clocksetup = $('input[name=Clocksetup]:checked').val();
+        var HasSLA = $('#HasSLA:checked').val() ? true : false;
+        if (MetricOwner == '') {
+            $('#MetricOwner_alert').show();
+            return false;
+        }
+        var Id = document.getElementById("Id").value;
+        var MetricId =  document.getElementById("tempID").innerHTML;
+        console.log(HasSLA)
+
+
+
+        var grid = $('#SLAGrid').data('kendoGrid').dataSource;
+        /* console.log(grid._data.length);*/
+        var recLength = grid._data.length;
+        for (var i = 0; i < recLength; i++) {
+            /* console.log(grid._data[i]);*/
+            if (AccountId == grid._data[i].AccountId && ContractId == grid._data[i].ContractId && Priority == grid._data[i].Priority ) {
+
+                alert("You can have Single metric specification detail for given 'Account', 'Contract' and 'Priority' values. (acc1 / Ctract1 / 1)");
+                return false;
+            }
+        }
+
+        var mod = {
+            Id: Id,
+            AccountId: AccountId,
+            MetricId: MetricId,
+            ContractId: ContractId,
+            Priority: Priority,
+            ClientPriority: ClientPriority,
+            Weightage: Weightage,
+            MetricStatusId: MetricStatusId,
+            StartDate: StartDate,
+            EndDate: EndDate,
+            MetricBaseline: MetricBaseline,
+            MetricTarget: MetricTarget,
+            MetricOwner: MetricOwner,
+            ComplianceUnits: ComplianceUnits,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceTarget: ComplianceTarget,
+            ExceedsExpectation: ExceedsExpectation,
+            MetExpectationlowerlimit: MetExpectationlowerlimit,
+            MetExpectationhigherlimit: MetExpectationhigherlimit,
+            BelowExpectation: BelowExpectation,
+            ComplianceTarget: ComplianceTarget,
+            ComplianceBaseline: ComplianceBaseline,
+            ComplianceUnits: ComplianceUnits,
+            CalculationData: CalculationData,
+            Clocksetup: Clocksetup,
+            MetricUnit: MetricUnit,
+            HasSLA: HasSLA
+
+        }
+        var data = JSON.stringify(mod);
+            var RootUrl = '@Url.Content("~/")';
+            $.ajax({
+
+                type: 'post',
+                url: RootUrl + 'SlaSetupNew/SaveSlaSetupDetails',
+                data: data,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    var popup = $("#chartSLACreateWindow").data("kendoWindow");
+                    popup.close();
+                    onCancelforms();
+                    $("#Id").val("");
+                    var grid = $("#SLAGrid").data("kendoGrid");
+                    grid.dataSource.read();
+
+                },
+                error: function (err, response) {
+
+                }
+            });
+    }
+
+    function deleteSLA(Id) {
+
+        baseurl = '@Url.Content("~/SlaSetupNew/DeleteSlaSetup")';
+        var mod = {
+            Id: Id
+        };
+        var data1 = JSON.stringify(mod);
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //var report = data.ReportName;
+                    //document.getElementById("addListP").innerHTML = "Selected Report Subscription for " + report +" has been deleted ";
+/*                    $('#addSubcriptionListModal').modal('show');*/
+
+                    var grid = $("#SLAGrid").data("kendoGrid");
+                    grid.dataSource.read();
+
+
+                }
+
+
+            })
+    }
+
+    function viewSLA(Id) {
+        var popup = $("#chartSLAViewWindow").data("kendoWindow");
+        var mod = {
+            Idv: Id
+        }
+
+        var data = JSON.stringify(mod);
+        var RootUrl = '@Url.Content("~/")';
+        $.ajax({
+            url: RootUrl + 'SlaSetupNew/getSlaSetupDetails_View',
+            type: "post",
+
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            error: function (response) {
+
+                //alert('Error');
+            },
+            success: function (data) {
+                //console.log(data);
+                //alert("success");
+                $("#AccountName_View").val(data.AccountName);
+                $("#ContractName_View").val(data.ContractName);
+                $("#Priority_View").val(data.Priority);
+                $("#Weightage_View").val(data.Weightage);
+                $("#MetricStatus_View").val(data.MetricStatus);
+
+                $("#StartDate_View").data("kendoDatePicker").value(data.StartDate);
+
+                $("#EndDate_View").data("kendoDatePicker").value(data.EndDate);
+                $("#MetricBaseline_View").val(data.MetricBaseline);
+                $("#MetricTarget_View").val(data.MetricTarget);
+                $("#MetricUnit_View").val(data.MetricUnit);
+                $("#MetricOwner_View").val(data.MetricOwner);
+                $("#CalculationData_View").val(data.CalculationData);
+                //$("#Clocksetup").val(data.KEDBNumber);
+                $("#ComplianceUnits_View").val(data.ComplianceUnits);
+                $("#ComplianceBaseline_View").val(data.ComplianceBaseline);
+                $("#ComplianceTarget_View").val(data.ComplianceTarget);
+                $("#ExceedsExpectation_View").val(data.ExceedsExpectation);
+                $("#MetExpectationlowerlimit_View").val(data.MetExpectationlowerlimit);
+                $("#MetExpectationhigherlimit_View").val(data.MetExpectationhigherlimit);
+                $("#BelowExpectation_View").val(data.BelowExpectation);
+                if (data.Clocksetup) {
+                    $('input[name=Clocksetup_View]').attr('checked', true);
+                } else {
+                    $('input[name=Clocksetup_View]').attr('checked', false);
+                }
+                if (data.HasSLA) {
+                    $('input[type="checkbox"]').prop('checked', true);
+                } else {
+                    $('input[type="checkbox"]').prop('checked', false);
+                }
+
+                document.getElementById("chartSLAViewWindow_wnd_title").insertAdjacentHTML("beforeend",
+                    "<label style='margin-left:10em'>Metric Name:</label>" + data.MetricName + "<label style='margin-left:2em'>Metric Id:</label>" + data.MetricId);
+                popup.open();
+                popup.center();
+
+
+            }
+        });
+    }
+
+    function onCancelforms() {
+
+        $("#AccountId").data("kendoDropDownList").value("");
+        $("#ContractId").data("kendoDropDownList").value("");
+        $("#Priority").data("kendoDropDownList").value("");
+        $("#MetricUnit").data("kendoTextBox").value("");
+        $("#MetricStatusId").data("kendoDropDownList").value("");
+        $("#ClientPriority").data("kendoTextBox").value("");
+        $("#Weightage").data("kendoTextBox").value("");
+        $("#ComplianceUnits").data("kendoTextBox").value("");
+        $("#ComplianceBaseline").data("kendoTextBox").value("");
+        $("#ComplianceTarget").data("kendoTextBox").value("");
+        $("#MetricBaseline").data("kendoTextBox").value("");
+        $("#MetricOwner").data("kendoTextBox").value("");
+        $("#MetricTarget").data("kendoTextBox").value("");
+        $("#ExceedsExpectation").data("kendoTextBox").value("");
+        $("#MetExpectationlowerlimit").data("kendoTextBox").value("");
+        $("#MetExpectationhigherlimit").data("kendoTextBox").value("");
+        $("#BelowExpectation").data("kendoTextBox").value("");
+        $("#ComplianceTarget").data("kendoTextBox").value("");
+        $("#ComplianceBaseline").data("kendoTextBox").value("");
+        $("#ComplianceUnits").data("kendoTextBox").value("");
+        $("#CalculationData").val("");
+        $("#StartDate").data("kendoDatePicker").value("");
+        $("#EndDate").data("kendoDatePicker").value("");
+        $('input[name=Clocksetup]').attr('checked', false);
+        $('input[type="checkbox"]').prop('checked', false);
+
+        var popup = $("#chartSLACreateWindow").data("kendoWindow");
+        popup.close();
+    }
+
+
+    function onCancelClick() {
+        var popup = $("#chartSLAViewWindow").data("kendoWindow");
+        popup.close();
+    }
+
+
+    function getMetric(Id, MetricName) {
+
+        console.log(Id, MetricName);
+        document.getElementById("tempID").innerHTML = Id;
+        document.getElementById("tempName").innerHTML = MetricName;
+        var tempID = document.getElementById("tempID").innerHTML;
+        var tempName = document.getElementById("tempName").innerHTML;
+        console.log("getMetric ", Id);
+        $('.arrowdownBG').removeClass('show');
+        $('.arrowBG').removeClass('hide');
+        $('.eye-icon').removeClass('hide');
+        $('.hide-icon').removeClass('show');
+        document.getElementById('metric-menu').innerHTML = "Show Menu";
+        $('.menuListDiv').removeClass('show');
+
+
+         var mod = {
+            Id: Id
+        }
+
+        var data = JSON.stringify(mod);
+            var RootUrl = '@Url.Content("~/")';
+        $.ajax(
+        {
+            url: RootUrl + 'SlaSetupNew/getServiceandCategory',
+            type: 'post',
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                   /* var popup = $("#chartSLACreateWindow").data("kendoWindow");*/
+
+                    document.getElementById('metric-menu').insertAdjacentHTML("beforeend",
+                        "<label style='margin-left:5em'>Metric Catalog  : </label>" + data.ServiceCategory + " > " + data.Service + " > " + MetricName);
+
+                    $("#SLAGrid").data("kendoGrid").dataSource.read();
+                    document.getElementById('createSLAbtn').disabled = false;
+            }
+
+
+       })
+
+        //ID name - get parents - service and service category
+
+
+    }
+
+    function getMetricId() {
+        var Id = document.getElementById("tempID").innerHTML;
+        var metricName = document.getElementById("tempName").innerHTML;
+        console.log("tempID is " + Id);
+        console.log("tempName is " + metricName);
+
+
+        return {
+            Id: Id,
+            MetricName : metricName
+        };
+
+    }
+
+
+
+</script>
+
+
+
+

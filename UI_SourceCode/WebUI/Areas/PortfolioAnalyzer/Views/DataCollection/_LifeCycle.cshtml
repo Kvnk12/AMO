@@ -1,0 +1,204 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+@{
+   // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new APRAjaxServiceController();
+    var APRAppLifecycleList = v.APRAppLifeCycleList(client.ClientId);
+    var APRAppCriticalityList= v.APRAppCriticalityList(client.ClientId);
+    var APRAppSecurityList = v.APRAppSecurityList(client.ClientId);
+}
+
+
+    <div class="apr-cost-basicinfo">
+            
+            <div class="apr-column">
+                <label style="text-decoration:underline">Life Cycle</label>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Life Cycle Stage:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.AppLifeCycleId)
+                    .Name("AppLifeCycleId")
+                   .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRAppLifecycleList)
+                    .AutoBind(true)
+                    )
+                         
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Tech Docs Available:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.IsTechnicalDocAvailable)
+         .Name("IsTechnicalDocAvailable")
+         .OptionLabel("Select")
+          .DataTextField("Text")
+          .DataValueField("Value")
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Yes",
+                  Value = "Yes"
+              },
+              new SelectListItem() {
+                  Text = "No",
+                  Value = "No"
+              },
+             
+          }))
+                           
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Docs Available:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.IsApplicationDocAvailable).Name("IsApplicationDocAvailable")
+          .DataTextField("Text")
+          .OptionLabel("Select")
+          .DataValueField("Value")
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Yes",
+                  Value = "Yes"
+              },
+              new SelectListItem() {
+                  Text = "No",
+                  Value = "No"
+              },
+
+          }))
+                        
+                    </div>
+                </div>               
+                
+                
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="metownder" id="">Code Complexity:</label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(m => m.CodeComplexity)
+                        )
+                        
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Number of Bugs:</label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(m => m.NumberOfBugs)
+                            //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                        )
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Number of Lines of Code:</label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(m => m.NumberOfLinesOfCode))
+                        
+                    </div>
+                </div>
+
+            </div>
+            <div class="apr-column">
+                <label style="text-decoration:underline">Criticality</label>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="metownder" id="">Criticality:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.AppCriticalityId)
+                    .Name("AppCriticalityId")
+                    .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRAppCriticalityList)
+                    .AutoBind(true))
+                         
+                    </div>
+                </div>
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Security level:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.AppSecurityLevelId)
+                        .Name("AppSecurityLevelId")
+                       .OptionLabel("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .BindTo(APRAppSecurityList)
+                    .AutoBind(true))
+                         
+                    </div>
+                </div> 
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Disaster Recovery Plan:</label>
+                    <div class="custom-dropdown">
+                        @(Html.Kendo().DropDownListFor(m => m.IsDisasterRecoveryPlanAvailable).Name("IsDisasterRecoveryPlanAvailable")
+        .OptionLabel("Select")
+        .DataTextField("Text")
+          .DataValueField("Value")
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "Yes",
+                  Value = "Yes"
+              },
+              new SelectListItem() {
+                  Text = "No",
+                  Value = "No"
+              },
+               new SelectListItem() {
+                  Text = "Unknown",
+                  Value = "Unknown"
+              },
+
+          }))
+                    </div>
+                </div>                  
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Transaction Volume:</label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(m => m.TransactionVolumn))
+                        
+                    </div>
+                </div>
+
+                <div class="custom-group">
+                    <label class="custom-blue-label" for="" id="">Transaction Volume Unit:</label>
+                    <div class="custom-textbox">
+                        @(Html.Kendo().TextBoxFor(m => m.TransactionVolumnUnit)
+                        //.HtmlAttributes(new { placeholder = "you@domain.com", type = "email", @class = "k-textbox required" })
+                        )
+                    </div>
+                </div>
+                          
+                                 
+        </div>
+        <div class="apr-column">
+            <div class="custom-group">
+                <label class="custom-blue-label" for="metownder" id="">Documentation Notes:</label>
+                <div class="">                    
+                    @Html.TextAreaFor(m => m.DocumentationNotes, new { @class = "", rows = "10", placeholder = "Description", tabindex = "15"})
+                </div>
+            </div>
+        </div>              
+       
+    </div>
+    <div>
+        <footer class="apr-footer">
+            <div class="apr-footer-button">
+                @(Html.Kendo().Button()
+                .Name("Previous2")
+                .Content("Previous")
+                .Events(ev => ev.Click("onPreviousClick")))
+                @(Html.Kendo().Button()
+                .Name("Next2")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+                </div>
+        </footer>
+    </div>
+

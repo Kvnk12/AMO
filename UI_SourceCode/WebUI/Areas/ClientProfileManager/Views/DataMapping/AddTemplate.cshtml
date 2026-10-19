@@ -1,0 +1,288 @@
+﻿@using WebUI.Areas.ClientProfileManager.ViewModel
+@model MappingTemplateViewModel
+@{
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+}
+<div class="content-main">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Data mapping - Add Template</li>
+    </ol>
+
+    <!--end of breadcrumb container-->
+    @*//@using (Html.BeginForm())*@
+    @using (Html.BeginForm("AddNewMappingTemplate", "DataMapping", FormMethod.Post, new { enctype = "multipart/form-data", onSubmit = "return Upload()" }))
+    {
+        <div style="padding: 0;height:900px;">
+
+            <div style="padding: 0;">
+                <div class="form-horizontal">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+                    }
+                    @*Html.ValidationSummary(false,"")*@
+                    <div class="leftarea form-horizontal">
+                        @Html.HiddenFor(m => m.ClientId, new { type = "hidden", id = "hidClientId" })
+                        <div class="form-group">
+                            <label for="drpAppId" id="" class="col-sm-5 control-label"><span class="mandate">*</span>Application Name</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.StoreApplicationId, new SelectList(Model.UserApplications((int)Session["UserId"], (int)Model.ClientId), "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6", id = "drpAppId" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Description" class="col-sm-5 control-label">Description</label>
+                            <div class="col-sm-5">
+                                @Html.TextBoxFor(m => m.Description, new { @class = "form-control", placeholder = "FileDescription", tabindex = "12", id = "txtDescription" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rdCustom" class="col-sm-5 control-label">Template</label>
+                            <div class="col-sm-5">
+                                Custom
+                                @Html.RadioButtonFor(m => m.IsStandard, "false", new { @class = "", id = "rdCustom", name = "std", tabindex = "25", })
+                                Standard
+                                @Html.RadioButtonFor(m => m.IsStandard, "true", new { @class = "", id = "rdStd", val = "false", name = "std", tabindex = "25" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="drpFileFormat" class="col-sm-5 control-label">File Format</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.FileFormat, new SelectList(Model.SourceTemplateFormats, "value", "text", Model.SourceTemplateFormats), "", new { @class = "selectpicker", tabindex = "6", id = "drpFileFormat" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Delimiter" class="col-sm-5 control-label"><span id="delimeterspan" class="mandate"></span>Delimiter</label>
+                            <div class="col-sm-5" data-toggle="tooltip" data-placement="right" title="Only Speical Characters allowed">
+                                @Html.TextBoxFor(m => m.FileDelimiter, new { @class = "form-control", placeholder = "Delimiter", tabindex = "11", id = "txtDelimiter" })
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label for="lblid" class="col-sm-5 control-label">Select File</label>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <label class="input-group-btn" id="lblid">
+                                        <span class="btn btn-primary" id="btnbrowse">Browse&hellip;@Html.TextBoxFor(m => m.httpPostedTemplateFile, new { style = "display:none;", accept = ".xls,.xlsx,.txt,.csv", type = "file", id = "FileToUpload" })</span>
+                                    </label>
+                                    @Html.TextBoxFor(m => m.TemplateName, new { @class = "form-control", style = "readonly:true;", type = "text", id = "reaOnlyFileName", @readonly = "readonly" })
+                                    @*<input type="text" id="reaOnlyFileName" class="form-control" disabled>*@
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="drpBaseMappingId" class="col-sm-5 control-label"><span class="mandate" id="stdSpan"></span>Standard Template</label>
+                            <div class="col-sm-5">
+                                @Html.DropDownListFor(m => m.BaseMappingId, new SelectList(Model.StandardSourceTemplates, "value", "text", ""), "", new { @class = "selectpicker", tabindex = "6", id = "drpBaseMappingId" })
+                            </div>
+                        </div>
+                        <div class="pageaction">
+                            <input type="hidden" id="hidClientId" name="ClientId" />
+                            <button type="submit" id="btnUpload" class="btn btn-primary" tabindex="30">Upload</button>
+                            <button type="reset" class="btn btn-default" tabindex="31" id="btnReset">Reset</button>
+                            <button type="button" id="btnCancel" tabindex="32" class="btn btn-default" onclick="location.href='@Url.Action("index","DataMapping", new { ClientId= Model.ClientId})';return false;">Back</button>
+                        </div>
+                    </div>
+                    <div>
+                    </div>
+                </div>
+                <!--/.end of treeMenu Container-->
+            </div>
+            <!--/.end of treeMenuContent-->
+        </div>
+
+
+    }
+</div>
+<script>
+    $(document).ready(function() {
+
+        $('input#FileToUpload').change(function () {
+
+            var filename=$('#FileToUpload').val();
+
+            var fNameParts= filename.split("\\");
+
+            if (fNameParts.length>0)
+            {
+
+                $('#reaOnlyFileName').val(fNameParts[fNameParts.length-1]);
+
+            }
+
+            else
+            {
+
+                $('#reaOnlyFileName').val(filename);
+
+            }
+
+        });
+
+
+
+        $('select#ddlClient').change(function () {
+
+            var SelectedclientId = $('#ddlClient :selected').val();
+
+            $('#hidClientId').val(SelectedclientId);
+
+        });
+
+
+
+        $('select#drpFileFormat').change(function () {
+
+            var selectedformat = $('#drpFileFormat :selected').val();
+
+            if (selectedformat.toLowerCase() == 'txt')
+            {
+
+                $("#delimeterspan").html('*');
+
+                $("#txtDelimiter").prop('disabled', false);
+
+                $("#btnUpload").prop('disabled', false);
+
+                $('[data-toggle="tooltip"]').tooltip();
+
+            }
+
+            else
+            {
+
+                $("#txtDelimiter").prop('disabled', true);
+
+                $("#delimeterspan").html('');
+
+                {$("#btnUpload").prop('disabled', false);}
+
+            }
+
+        });
+
+
+
+        $('input:radio[name="IsStandard"]').change(function() {
+
+            if ($(this).is(':checked') && $(this).val() == 'false') {
+
+                $("#FileToUpload").prop('disabled', false);
+
+                $("select#drpBaseMappingId").prop('disabled', true);
+
+                $("#stdSpan").html('');
+
+                $("input#txtDelimiter").prop('disabled', false);
+
+                $("select#drpFileFormat").prop('disabled', false);
+
+
+
+            } else {
+
+                $("#FileToUpload").prop('disabled', true);
+
+                $("select#drpBaseMappingId").prop('disabled', false);
+
+                $("input#txtDelimiter").prop('disabled', true);
+
+                $("input#txtDelimiter").val('');
+
+                $("select#drpFileFormat").prop('disabled', true);
+
+                $("#reaOnlyFileName").val(' ');
+
+                $("#delimeterspan").html('');
+
+                $("#stdSpan").html('*');
+
+            }
+
+        });
+
+
+
+        $('input#FileToUpload').change(function () {
+
+            var selectedformat =($('#drpFileFormat :selected').text());
+
+            var upload =$('input#FileToUpload').val().split('.').pop().toLowerCase().toString();
+
+            if(selectedformat.toLowerCase()=='xls' && upload=='xlsx')
+            {
+
+                $("#btnUpload").prop('disabled', false);
+
+            }
+
+            else if(selectedformat.toLowerCase()!=upload){
+
+                alert("Please check the file format");
+
+                $("#btnUpload").prop('disabled', true);
+
+            }
+
+            else
+
+            {$("#btnUpload").prop('disabled', false);}
+
+        });
+
+
+
+
+
+        $('#txtDelimiter').keyup(function () {
+
+            var $th = $('#txtDelimiter');
+
+            $th.val($th.val().replace(/^[0-9a-zA-Z]+/, function (str) {
+
+                return '';
+
+            }
+
+            ));
+
+        })
+
+        $('#chkSLA').prop('checked', true);
+
+    });
+
+    function Upload() {
+       // alert('tfg');
+        var filectrl  = document.getElementById("FileToUpload");
+        if (typeof (filectrl.files) == null) {
+            alert("Please select the file.");
+            return false;
+        }
+        else
+        {
+            //alert('size');
+            var size = parseFloat(filectrl.files[0].size / 1024).toFixed(2);
+            // alert(size + " KB.");
+            if (size > 10240) {
+                alert("Please check the file size before uploading(Maximum file size is 10MB).");
+                return false;
+            }
+            else
+                return true;
+        }
+        
+        
+    }
+
+
+
+</script>

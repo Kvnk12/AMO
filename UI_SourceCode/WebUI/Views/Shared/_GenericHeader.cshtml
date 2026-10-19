@@ -1,0 +1,165 @@
+﻿@using WebUI.Areas.ClientProfileManager;
+@using WebUI.Dto;
+@{
+
+    // IEnumerable<SelectListItem> userClients = new List<SelectListItem>();
+    string userName = "";
+    var client = " ";
+    var clientId = "";
+    int cid=0;
+    //if (Session["Client"] != null)
+    //{
+    //    var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //    client = objclient.ClientName;
+    //    clientId = objclient.Id.ToString();
+    //}
+    if (Session["SessionClient"] != null)
+    {
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        clientId = objclient.ClientId.ToString();
+        cid = objclient.ClientId;
+    }
+    NTTData.AMOPortal.WebUI.Dto.HomeInput MenuItemsInput = (NTTData.AMOPortal.WebUI.Dto.HomeInput)Session["MenuItemsInput"];
+    if (User.Identity.Name.Length > 0)
+    {
+        // userClients = NTTData.AMOPortal.WebUI.Dto.GetDropDownListItems.UserClients((int)Session["UserId"]);
+        //NTTData.AMOPortal.WebUI.Dto.UserProfileModel userObject = WebUI.App_Start.Helper.getUserDetails(User.Identity.Name);
+        userName = User.Identity.Name;// userObject.FirstName + " " + userObject.LastName;
+
+    }
+    string imageDataURL = null;
+    var Img = ClientProfileManagerHelper.getProfileClientDetail(cid);
+    if (Img.CPMFile != null)
+    {
+        string imageBase64Data = Convert.ToBase64String(Img.CPMFile);
+        imageDataURL = string.Format("data:image/png;base64,{0}", imageBase64Data);
+
+
+    }
+
+}
+<style>
+    .navbar-right {
+        padding-bottom: 3px;
+        margin-right: 1em;
+    }
+   
+</style>
+<div class="navbar navbar-default navbar-fixed-top custom-header" role="navigation">
+    <div class="left-menu-btn left">
+        <button type="button" class="header-menu-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+    <div class="navbar-main">
+        <div class="header-left">
+            @*<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>*@
+            <a class="header-logo" href="#">
+                <img alt="ntt logo" src='@Url.Content("~/Content/images/nttdata_logo.png")'>
+                @*<h4 style="display:inline;">@ViewBag.Title</h4>*@
+            </a>
+ 
+            @if (imageDataURL != null)
+            {
+            <img src="@imageDataURL">
+            }
+            else
+            {
+            <a class="header-logo-client" href="#">
+                @client -
+            </a>
+            }
+
+            <span> <img alt="tool logo" src="@ViewBag.ImagePathOne"> @ViewBag.Title</span>
+        </div>
+        @if (@User.Identity.Name.Length > 0)
+        {
+           
+            <div class="navbar-right">
+                <ul class="nav navbar-nav">
+                    <li class="" ><a href='@Url.Action("Appstore", "Home", new { area = "" }, null)'>Home</a></li>
+                  
+                    <li style="text-align: right;display: flex;flex-direction: column;"><span style="font-size: 12px;color: #fff;">Welcome </span><a href="@Url.Action("Dashboard", "Home", new { area = "" }, null)">@userName</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" style="position: absolute; min-width: 8em;padding:5px;">
+                            <li><a href='@Url.Action("Manage", "Account", new { area = "" }, null)' style="text-decoration:none;">Change Password</a></li>
+                        </ul>
+                    </li>
+                   
+                    <li style="margin-bottom:1.3em;"><a href='@Url.Action("LogOff", "Account", new { area = "" }, null)' title="Logout" class="logout-icon"></a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        }
+
+    </div> <!--/.container -->
+
+</div> <!--/nav bar div closes here -->
+@*<div class="modal active" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Set Working Client</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="clientdesc" class="col-sm-5 control-label">Client Name</label>
+                    <div class="col-sm-5">
+                        @Html.DropDownList("userWorkingClientId", new SelectList(userClients, "value", "text", clientId), "", new { @class = "selectpicker" })
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="applyClient();" name="btnModalSetClient" id="btnModalSave" class="btn btn-primary">Apply</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->*@
+<script type="text/javascript">
+        $('.header-menu-icon').click(function () {
+            $(this).toggleClass('open');
+            $('.sidebar-wrapper').toggleClass('show');
+            $('#sidenav-overlay').toggleClass('open');
+        });
+
+
+       function applyClient () {
+           var indexurl = '@Url.Content("~/Account/")';
+        var baseurl = '';
+        baseurl = '@Url.Content("~/Account/SetUserWorkingClient")';
+       // alert(baseurl);
+        var dataToPost = {
+            ClientId: $('#userWorkingClientId :selected').val(),
+        };
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $('#myModal').hide();
+                if (data) {
+                    window.location.href = indexurl + data;
+                } else {
+                    $('#myModal').hide();
+                    window.location.reload(true);
+                }
+            },
+            error: function () {
+              //  $('#myModal').hide();
+            }
+        });
+
+    };
+
+</script>
+<!-- /.modal -->

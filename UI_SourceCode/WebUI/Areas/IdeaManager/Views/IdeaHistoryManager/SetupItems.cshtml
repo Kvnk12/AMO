@@ -1,0 +1,199 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using PagedList.Mvc;
+@using PagedList;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Dto
+@model IPagedList<NTTData.AMOPortal.WebUI.Dto.IMPostIdeaModel>
+    @{
+        ViewBag.Title = "Idea Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+        Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+       // var Client = (Client)Session["Client"];
+        var Client = (ClientDetail)Session["SessionClient"]; 
+        var ClientID = Client.ClientId;
+    }
+
+    @section IMTOPMenu {
+        @Html.Partial("_IMTopMenu")
+    }
+
+    <div>
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">View Ideas</li>
+        </ol>
+    </div>
+    <div style="padding:0;height:1000px">
+
+        @{
+
+            <div>
+                <div>
+                    <div>
+                        <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0" style="width: 100%">
+                            <thead>
+                                <tr>
+                                    <th colspan="6"><u>@Html.ActionLink("Last Modified Date", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.LastModifiedDate }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Ideas", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Ideas }, new { @style = "color:white;" }) </u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Posted by", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Postedby }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Status", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.Status }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Status Comments", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.StatusComments }, new { @style = "color:white;" })</u></th>
+                                    <th colspan="6"><u>@Html.ActionLink("Created Date", "DisplayIdeas", new { Page = Model.PageNumber, sortOrder = ViewBag.CreatedDate }, new { @style = "color:white;" })</u></th>
+                                </tr>
+                            </thead>
+                            @{
+                                //if (Model.ClientId > 0)
+                                //    {
+                                var uid = (int)Session["UserId"];
+                                //IList<IMPostIdea> postItems = Model.GetPostItems;
+                                foreach (var vwItem in Model)
+                                {
+                                    var name = (IMStatus)vwItem.StatusId;
+                                    <tr>
+                                        <td colspan="6">@vwItem.LastUpdatedDate</td>
+                                        <td colspan="6">@Html.ActionLink(vwItem.ItemName, "DislayIdeaHistory", "IdeaHistoryManager", new { ClientId = vwItem.ClientId, ItemId = vwItem.Id }, null)</td>
+                                        <td colspan="6">@vwItem.CreatedByUser</td>
+                                        <td colspan="6">
+                                            @if (vwItem.StatusId == 3 && (vwItem.CreatedBy == uid))
+                                            {
+                                                <div data-toggle="tooltip" data-placement="right" title="Click here if Idea is Implemented" style="overflow: hidden; text-overflow: ellipsis;">
+                                                    @name
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @name
+                                            }
+                                        </td>
+                                        <td colspan="6">@vwItem.StatusComments</td>
+                                        <td colspan="6">@vwItem.CreatedDate</td>
+                                    </tr>
+
+                                }
+
+                                //}
+
+
+                            }
+
+                        </table>
+                        <div class="pagination">
+                            @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+                            @Html.PagedListPager(Model, page => Url.Action("DisplayIdeas", new { page = page, sortOrder = Request["sortOrder"] }))
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+                                // }
+        }
+        <!--.valchainContent-->
+        <!--/.treeMenuContent container-->
+        @*</div>
+                    <!--/.treeMenuContent-->
+                </div>
+                <!--/.treeMenuArea-->
+
+            </div>*@
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('select#ClientId').change(function () {
+                //var SelectedclientId = $('#ClientId :selected').val();
+                var SelectedclientId = @ClientID;
+                //if (SelectedclientId != 0)
+                {
+
+                    var href = window.location.href.split('/');
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                    var baseurl = '';
+
+
+
+                    if (href[3].toLowerCase() == 'ideamanager') {
+                        var baseurl = href[0] + '//' + href[2] + '/' + 'ideamanager/IdeaHistoryManager/DisplayIdeas/?clientId={clientId}';
+                    }
+                    else {
+                        var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/IdeaHistoryManager/DisplayIdeas/?clientId={clientId}';
+                    }
+                    baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                    window.location = baseurl;
+                    //var localToServer = "/";
+                    //var sPageURL = window.location.search.substring(1);
+                    //var sURLVariables = sPageURL.split('&');
+
+                    //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                    //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                    //}
+
+                    //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager/DisplayChallanges/?clientId={clientId}");
+
+                    ////window.location = strUrl;
+
+                    //strUrl = strUrl.replace("{clientId}", SelectedclientId);
+                    //window.location = strUrl;
+                    //return false;
+                }
+
+            });
+            y
+            $('#btnAdd').click(function () {
+
+
+                //var SelectedclientId = $('#ClientId :selected').val();
+                var SelectedclientId = @ClientID;
+                if (SelectedclientId == "" || SelectedclientId == "0") {
+                    alert('Please Select Client name from the list');
+                    return false;
+                }
+
+
+
+                var href = window.location.href.split('/');
+                var baseurl = '';
+
+                if (href[3].toLowerCase() == 'ideamanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/ideamanager/ChallengeHistoryManager/DisplayHomePage/?ClientId={clientid}&ReportType=Add'
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'ideamanager/ChallengeHistoryManager/DisplayHomePage/?ClientId={clientid}&ReportType=Add'
+                }
+
+                baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                window.location = baseurl;
+
+
+
+
+                @*var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager/DisplayHomePage/?ClientId=@Model.ClientId&ReportType=Add");
+
+            window.location = strUrl;*@
+                return false;
+
+            });
+
+        });
+
+    </script>
+
+
+
+    <style>
+        .table caption + thead tr:first-child th, .table colgroup + thead tr:first-child th, .table thead:first-child tr:first-child th, .table caption + thead tr:first-child td, .table colgroup + thead tr:first-child td, .table thead:first-child tr:first-child td {
+            border-top: 1px solid #DDD;
+            padding: 10px;
+        }
+    </style>

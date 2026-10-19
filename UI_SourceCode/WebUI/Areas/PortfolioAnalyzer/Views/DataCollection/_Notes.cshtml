@@ -1,0 +1,34 @@
+﻿@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+
+
+<div class="apr-cost-basicinfo">
+@(Html.Kendo().EditorFor(m =>m.GeneralNotes)
+.Name("GeneralNotes")
+//.HtmlAttributes(new { style = "height:400px; width:95%;", aria_label = "editor" })
+      .Resizable(resizable => resizable.Content(true).Toolbar(true))
+      .ImageBrowser(imageBrowser => imageBrowser
+          .Image("~/Content/UserFiles/Images/{0}")
+          .Read("Read", "ImageBrowser")
+          .Create("Create", "ImageBrowser")
+          .Destroy("Destroy", "ImageBrowser")
+          .Upload("Upload", "ImageBrowser")
+          .Thumbnail("Thumbnail", "ImageBrowser")
+      ))
+</div>      
+    
+
+<div>
+    <footer class="apr-footer">
+        <div class="apr-footer-button">
+            @(Html.Kendo().Button()
+                .Name("Previous6")
+                .Content("Previous")
+                .Events(ev => ev.Click("onPreviousClick")))
+            @(Html.Kendo().Button()
+                .Name("Next6")
+                .Content("Next")
+                .HtmlAttributes(new { @class = "k-primary" })
+                .Events(ev => ev.Click("onNextClick")))
+            </div>
+    </footer>
+</div>

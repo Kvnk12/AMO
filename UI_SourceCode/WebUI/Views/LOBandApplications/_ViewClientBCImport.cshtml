@@ -1,0 +1,57 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput
+
+
+<input hidden id="clientId" value="@Model.ClientId.ToString()" />
+<div class="leftarea form-horizontal">
+    <div class="panel panel-info">
+        <div class="panel-heading" style="height:50px">
+            FoundationType / Group / Business Capability / Sub-Capability
+            <div class="pull-right">
+                <button class="btn btn-primary" tabindex="29" type="button" onclick="@Url.Action("ClientCapabilities","BusinessCapabilities")">View / Edit Details</button>
+            </div>
+        </div>
+        <div class="panel-body" style="height:700px;overflow-y:scroll">
+
+            @* Removed normal Tree View for Business Capabilities and TreeList -Telerik *@
+
+            <div>
+                @(Html.Kendo().TreeList<BusinessCapabilitiesModel>()
+                                    .Name("ClientBusinessCapabilities")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capabilities");
+                                    })
+                                    .DataSource(dataSource => dataSource
+                                        .Read(read => read.Action("GetClientCapabilities", "BusinessCapabilities"))
+                                        .Model(m =>
+                                        {
+                                            m.Id(f => f.BCId);
+                                            m.ParentId(f => f.BCParentId);
+                                            m.Field(f => f.SubVerticalId);
+                                            m.Field(f => f.BusinessCapName);
+                                        })
+                                    )
+                                    .Height(600)
+                )
+            </div>
+
+
+            <!--/.bampanelrtbdy-->
+        </div>
+        <!--/.panel-body-->
+    </div>
+    <!--end of panel-->
+</div>
+<!--END OF LEFTAREA-->
+<div class="rightarea form-horizontal">
+    @*<button type="Submit" class="btn btn-info" style="margin-bottom: 10px;margin-left:28px;" onclick="if (confirm('Import will override Business capabilities and delete old mapping as well. are you sure you want to import it?')) location.href='@Url.Action("SaveClientBCLevels", "LOBandApplications", new {ClientID=Model.ClientId,subVerticalName=Model.subVerticalName,verticalName = Model.verticalName,tabs="Tab1" })'; return false;"> Import Standard Business Capability Mode</button>*@
+    <button type="Submit" class="btn btn-info" style="margin-bottom: 10px;margin-left:28px;" onclick="ImportTemplate()">Import Std. Business Capability Model</button>
+    <div class="alert-success" id="importSuccess" hidden>
+        Successfully Imported!
+    </div>
+    <div class="alert-danger" id="importFailure" hidden>
+        Error Occured!
+    </div>
+
+</div>

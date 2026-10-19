@@ -1,0 +1,69 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.LocalPasswordModel
+
+@{
+    ViewBag.Title = "Change Password";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+   // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+}
+
+
+<div class="content-main dark-bg">
+
+    <div class="reset-pwd">
+        <div class="reset-title">
+            <label class="custom-blue-label" style="font-weight:800;font-size:14px">Change Password</label>
+        </div>
+        <div class="reset-content">
+
+            @using (Html.BeginForm("Manage", "Account", FormMethod.Post, new { @class = "form-horizontal", ReturnUrl = Request.QueryString["ReturnUrl"], autocomplete = "off" }))
+            {
+                @Html.AntiForgeryToken()
+                if (!ViewData.ModelState.IsValid)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                }
+                    <p style="color:red" class="message-success">@ViewBag.StatusMessage</p>
+                    @*<div class="form-group">
+                    @Html.LabelFor(m => m.UserName, new { @class = "col-sm-2 control-label" })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control" , @readonly = true })
+                    </div>
+                </div>*@
+
+
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.OldPassword, new { @class = "col-sm-2 control-label custom-blue-label" })
+                        <div class="col-sm-3">
+                            @Html.PasswordFor(m => m.OldPassword, new { @class = "form-control reset-input" })
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.NewPassword, new { @class = "col-sm-2 control-label custom-blue-label" })
+                        <div class="col-sm-3">
+                            @Html.PasswordFor(m => m.NewPassword, new { @class = "form-control reset-input", @autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-sm-2 control-label custom-blue-label" })
+                        <div class="col-sm-3">
+                            @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control reset-input", @autocomplete = "off" })
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-bottom:2em">
+                        <input type="submit" class="custom-button" value="Change password" id="btnSave" style="width:auto;margin-right:1.5em;padding:4px" />
+                        <a href="@Url.Action("Manage", "Account")" class="custom-button" style="width:auto;margin-right:1.5em;padding:4px">Cancel</a>
+                    </div>
+                    <br />
+                }
+
+            </div>
+        
+
+    </div>
+
+
+</div>

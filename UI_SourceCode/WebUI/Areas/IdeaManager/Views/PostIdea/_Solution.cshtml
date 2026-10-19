@@ -1,0 +1,27 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  IdeaViewModel
+
+
+<div class="im-postidea-analysis">
+    <div class="im-postidea-editor" id="Solution_div">
+        @(Html.Kendo().EditorFor(e=>e.Solution)
+    .Name("SolutionEditor")
+    .HtmlAttributes(new { style = "height:200px; width:100%;", aria_label = "editors" })
+          .Resizable(resizable => resizable.Content(true).Toolbar(true))
+    )
+    </div>
+    <div class="im-post-approver-bottom">
+        <button class="im-custom-button im-btn-save" id="SolutionSave" onclick="saveSolution()">Save</button>
+    </div>
+</div>

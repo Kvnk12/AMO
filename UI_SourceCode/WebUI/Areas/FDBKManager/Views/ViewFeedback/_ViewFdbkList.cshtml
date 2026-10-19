@@ -1,0 +1,67 @@
+﻿<div class="product_divs" id="ListFdbkViews">
+
+    @foreach (var item in Model.Viewfeedbacklist)
+    {
+    <div class="product_header" id="main_@item.Prod_DigiId" onclick="collapseleft('@item.Prod_DigiId')"><span></span>@item.Prod_DigitalName</div>
+    <div id="@item.Prod_DigiId">
+        @foreach (var listitem in item.Searchfeedback)
+            {
+        <div class="feedbackview" id="@listitem.FdbkId" onclick="selectFdbk('@listitem.FdbkId')">
+            <div style="display:flex;justify-content: space-between;">
+                <div class="feedback-title">
+                    @if (@listitem.Status == "Draft" && item.selMode=="user")
+                            {
+                    <div class="draftIndict" onclick="draftClick(@listitem.FdbkId)">Draft</div>
+                            }
+                    <div id="title_@listitem.FdbkId"> @listitem.shortDesc</div>
+                </div>
+                <div style="display: flex; font-size: 9px;">
+                    @if (@listitem.Status == "Approved")
+                            {
+                    <div class="approvedIndict"></div>
+                            }
+                            else if (@listitem.Status == "Rejected")
+                            {
+                    <div class="rejectedIndict"></div>
+                            }
+                            else if (@listitem.Status == "Pending")
+                            {
+                    <div class="pendIndict"></div>
+                            }
+                            else{
+                    <div class="Indict"></div>
+                            }
+                    <div id="crtDt_@listitem.FdbkId" style="padding-left: 4px; padding-top: 3px; color: #949494; width: 7em; font-size: 10px;">@listitem.CreatedDateStr</div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+                <div class="feedback-DescDt" id="brief_@listitem.FdbkId">
+                    @{string strTest = listitem.breif;
+                        @Html.Raw(strTest);
+                    }
+                </div>
+                <div style="display: flex; width: 4.5em; margin-top: 1em; ">
+                    @*<div class="listCmtCnt" id="cmt_@listitem.FdbkId"><span>@listitem.Cmtcount</span></div>*@
+                    <div class="listVoteCnt" id="vote_@listitem.FdbkId">
+                        <span>@listitem.voteCount</span>
+                    </div>
+                </div>
+
+            </div>
+            <span hidden id="type_@listitem.FdbkId">@listitem.FeedbackType</span>
+            <span hidden id="submitBy_@listitem.FdbkId">@listitem.creatorName</span>
+            <span hidden id="fdbkid_@listitem.FdbkId">@listitem.FdbkId</span>
+            <span hidden id="lastAct_@listitem.FdbkId">@listitem.LastActivity</span>
+            <span hidden id="voteStatus_@listitem.FdbkId">@listitem.Votestatus</span>
+            <span hidden id="Dtstatus_@listitem.FdbkId">@listitem.Status</span>
+            <span hidden id="typeid_@listitem.FdbkId">@listitem.Typeid</span>
+            <span hidden id="prodDigiid_@listitem.FdbkId">@listitem.prodDigiName</span>
+            <span hidden id="isMyFdbk_@listitem.FdbkId">@listitem.isMyFeekback</span>
+            <span hidden id="tagList_@listitem.FdbkId">@listitem.FdbkTagList</span>
+        </div>
+            }
+
+    </div>
+    }
+
+</div>

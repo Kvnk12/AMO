@@ -1,0 +1,27 @@
+﻿@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+
+@model FeedbackViewModel
+<style>
+    .images-view {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        margin: 3px;
+    }
+</style>
+<div id="fdbkImages" style="display: flex;">
+    @foreach (var item in Model.FdbkImages)
+    {
+        <div class="images-view" onclick="imageClick('@item')">
+            <img src="@item" style="width:3em" />
+        </div>
+    }
+</div>
+<script>
+    function imageClick(img) {
+        document.getElementById("fdbkimgsrc").src = img;
+        document.getElementById("imageModal").style.display = "block";
+    }
+</script>

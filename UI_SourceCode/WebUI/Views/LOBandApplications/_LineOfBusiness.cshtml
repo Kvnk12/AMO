@@ -1,0 +1,30 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput 
+
+
+                  <div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Line of Business  </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLOB">Add</button>
+                      </div>
+                    </div>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                        <tr>
+                          <th scope="col">Line of Business </th>
+                        </tr>
+                        @{
+                             if (Model.ClientId > 0)
+                    {
+                            foreach (var item in Model.LineOfBusinessList)
+                            {
+                                <tr>
+                                     <td>@Html.ActionLink(@item.LOBName,"DisplayLOBandApplications","LOBandApplications", new {ClientID=item.ClientId,LOBId = item.Id,LOBName = @item.LOBName,tabs="Tab3"}, null)</td>
+                                   
+                                </tr>
+                            }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

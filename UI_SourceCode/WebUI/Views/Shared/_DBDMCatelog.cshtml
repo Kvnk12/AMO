@@ -1,0 +1,23 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+    // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+<div class="treemenu">
+    <div class="dsh">
+        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> Dashboard Catalog</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <ul class="treeMenuUl">
+        <li>
+            <a href="#">Demand Dashboards</a>
+            <ul>
+                <li<>@Html.ActionLink("Completed Demand - Benefit by LOB Trend", "GetDemandF", "DemandManager", new { area = "DemandManager", ClientId = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Completed Demand - Benefit by LOB Summary", "GetDemandL", "DemandManager", new { area = "DemandManager", ClientId = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Submitted Demand - Innovation Index Trend", "GetDemandI", "DemandManager", new { area = "DemandManager", ClientId = client.ClientId }, null)</li>
+            </ul>
+        </li>
+    </ul>
+</div>

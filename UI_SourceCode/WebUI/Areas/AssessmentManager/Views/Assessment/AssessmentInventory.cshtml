@@ -1,0 +1,585 @@
+﻿
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.AssessmentManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model A3MMModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+    td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .custom-kendo-grid .k-widget.k-grid .k-toolbar.k-grid-toolbar .k-button.k-grid-excel {
+        padding-right: 2.3em;
+    }
+
+    #saveAlertModal .alert {
+        width: 30em;
+        height: 2.5em !important;
+        padding: unset;
+        display: flex;
+    }
+
+    #assessmentInventoryScreen #AssessmentListGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+    }
+
+    #assessmentInventoryScreen #AssessmentListGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track {
+        background-repeat: repeat-y;
+    }
+
+    #assessmentInventoryScreen #AssessmentListGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-track-piece {
+        border-radius: 3px;
+        background-color: #C4C4C4;
+        border: 3px solid #eee;
+    }
+
+    #assessmentInventoryScreen #AssessmentListGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: #0780B0;
+        border-radius: 6px;
+    }
+
+    #assessmentInventoryScreen #AssessmentListGrid .k-grid-content.k-auto-scrollable::-webkit-scrollbar-thumb {
+        background: rgb(91,121,171);
+        border-radius: 6px;
+    }
+
+    #AssessmentListGrid .k-icon.k-i-filter:before {
+        content: "\e031";
+    }
+    #assessmentInventoryScreen .k-widget.k-grid {
+        height: 58vh !important;
+    }
+
+    .a3mm-edit-icon {
+        background-image: url('../../Content/images/edit_blue.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        color: rgb(91,121,171);
+        cursor: pointer;
+        text-align: center;
+        border: none;
+        text-indent: -14px;
+        background-color: transparent;
+        background-size: 1.5em;
+        padding: 0.8em;
+        display: inline-grid;
+    }
+    .a3mm-view-icon {
+        background-image: url('../../Content/images/view_blue.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        color: rgb(91,121,171);
+        cursor: pointer;
+        text-align: center;
+        border: none;
+        text-indent: -14px;
+        background-color: transparent;
+        background-size: 1.5em;
+        padding: 0.8em;
+        display: inline-grid;
+    }
+    .a3mm-data-icon {
+        background-image: url('../../Content/images/data_gathering.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        color: rgb(91,121,171);
+        cursor: pointer;
+        text-align: center;
+        border: none;
+        text-indent: -14px;
+        background-color: transparent;
+        background-size: 1.5em;
+        padding: 0.8em;
+        display: inline-grid;
+    }
+</style>
+
+<div>
+
+    <div class="content-main dark-bg A3MM">
+        <ol class="breadcrumb">
+            <li>Assessment Manager</li>
+            <li class="active">Assessment Inventory</li>
+        </ol>
+        <h5 style="color: white;  left: 4em; ">Assessment Inventory </h5>
+        <div class="custom-kendo-grid" id="assessmentInventoryScreen" style="margin-top: 1.5em;">
+            @(Html.Kendo().Grid<A3MMAssessmentModel>()
+                               .Name("AssessmentListGrid")
+                               .Columns(columns =>
+                               {
+                                   columns.Bound(p => p.Id).Hidden();
+                                   columns.Bound(p => p.userRole).Hidden();
+                                   columns.Bound(p => p.SurveyType).Title("Assessment Type").Width(145).Filterable(ftb => ftb.Multi(true));
+                                   columns.Bound(p => p.AssessmentName).Title("Assessment Name").Width(145).Filterable(ftb => ftb.Multi(true));
+                                   columns.Bound(p => p.EngagementName).Title("Account").Width(120).Filterable(ftb => ftb.Multi(true));
+                                   columns.Bound(p => p.ContractName).Title("Contract").Hidden().Width(120).Filterable(ftb => ftb.Multi(true));
+                                   columns.Bound(p => p.QuestionaireVersion).Title("Question Set #").Width(130).Filterable(ftb => ftb.Multi(true));
+                                   //columns.Bound(p => p.AssessmentTeam).Title("Assessment Team").Width(120);
+                                   columns.Bound(p => p.StartDateString).Title("Start Date")/*.Format("{0:MM/dd/yyyy }")*/.Width(115).Filterable(true);
+                                   columns.Bound(p => p.EndDateString).Title("Actual Completion Date").Width(180).Filterable(true);
+                                   columns.Bound(p => p.Status).Title("Status").Width(100).Filterable(ftb => ftb.Multi(true))
+                                       .ClientTemplate("#if(data.Status=='Initiated'){#<div style=color:red;'><p style='color:green;margin:0'>#=Status#</p></div>#}else if(data.Status=='Preparation'){#<div><p style='color:red;margin:0'>#=Status#</p></div>#}else{#<div><p style='margin:0'>#=Status#</p></div> #}#");
+                                   //columns.Bound(p => p.StartDate).Title(" Start Date").Format("{0:MM/dd/yyyy}").Width(120);
+                                   columns.Bound(p => p.ClientId).Title("Action").Width(110).Filterable(false).Sortable(false)
+                              //.ClientTemplate("#if(data.SurveyType!=null){#<div><div style='display:flex;margin-left:-5px'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 2px;margin-left: 7px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.38em;display: inline-grid;padding-right: 20px;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 6px;margin-left: -73px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.45em;display: inline-grid;padding-right: 20px;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Data Gathering' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 1.5px;margin-left: -69px;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.8em;display: inline-grid;padding: 0px;' onclick='RedirectToDataGathering(#:Id#);'></button></div></div>#}if(data.SurveyType==null){#<div></div>#}#");
+                              //.ClientTemplate("#if(data.Status!='Published'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Data Gathering' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToDataGathering(#:Id#);'></button></div></div>#}if(data.Status=='Published'){#<div><div style='display:flex;justify-content:space-around;align-items:end;width: 61%;margin-left: 34.5%;'><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Data Gathering' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToDataGathering(#:Id#);'></button></div></div>#}#");
+                              //.ClientTemplate("#if(data.userRole=='Admin' && data.Status !='Initiated' && data.Status !='Published'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Assessment Team UI' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToAssessmentGathering(#:Id#);'></button></div></div>#} if( data.userRole!='Admin' && data.Status !='Published'){#<div><div style='display:flex;justify-content:space-around;align-items:end;width: 61%;margin-left: 34.5%;'><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Engagement Data Gathering' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToResponseGathering(#:Id#);'></button></div></div>#}if(data.Status=='Published' || data.Status=='Published'){#<div><div style='display:flex;justify-content:space-around;align-items:end;width: 61%;margin-left: 34.5%;'><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Assessment Response View' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + "); background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToViewGathering(#:Id#);'></button></div></div>#}#");
+                              // .ClientTemplate("#if(data.userRole=='Admin' && data.Status !='Initiated' && data.Status !='Published'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Assessment Team UI' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToAssessmentGathering(#:Id#);'></button></div></div>#} if( data.userRole!='Admin' && data.Status !='Published'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Engagement Data Gathering' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToResponseGathering(#:Id#);'></button></div></div>#}if(data.Status=='Published'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Assessment Response View' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToViewGathering(#:Id#);'></button></div></div>#}if(data.userRole=='Admin' && data.Status =='Initiated'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button class='bg-image'title='Edit Icon' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='editAssessment(#:Id#);'></button><button class='bg-image'title='View Icon' style='background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='viewAssessment(#:Id#);'></button><button class='bg-image'title='Assessment Response View' style='background-image: url(" + @Url.Content("~/Content/images/data_gathering.svg") + ");background-position:center; background-repeat: no-repeat;color: rgb(91,121,171);; cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.5em;padding:0.8em;display: inline-grid;' onclick='RedirectToViewGathering(#:Id#);'></button></div></div>#}#");
+                              .ClientTemplate("#if(data.Status =='Preparation'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button title='Edit Icon' class='a3mm-edit-icon' onclick='editAssessment(#:Id#);'></button><button title='View Icon' class='a3mm-view-icon' onclick='viewAssessment(#:Id#);'></button><button title='Assessment Response View' class='a3mm-data-icon' onclick='RedirectToViewGathering(#:Id#);'></button></div></div>#}if(data.userRole=='Admin' && data.Status !='Initiated' && data.Status !='Published' && data.Status !='Preparation'){#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><div style='display:flex;justify-content:space-between;align-items:center;width:75%;'><button title='Edit Icon' class='a3mm-edit-icon' onclick='editAssessment(#:Id#);'></button><button title='View Icon' class='a3mm-view-icon' onclick='viewAssessment(#:Id#);'></button><button title='Assessment Team UI' class='a3mm-data-icon' onclick='RedirectToAssessmentGathering(#:Id#);'></button></div></div>#} if( data.userRole!='Admin' && data.Status !='Published' && data.Status !='Preparation') { #<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'> <div style='display:flex;justify-content:space-between;align-items:center;width:75%;'> <button title='Edit Icon' class='a3mm-edit-icon' onclick='editAssessment(#:Id#);'></button> <button title='View Icon' class='a3mm-view-icon' onclick='viewAssessment(#:Id#);'></button> <button title='Engagement Data Gathering' class='a3mm-data-icon' onclick='RedirectToResponseGathering(#:Id#);'></button> </div> </div>#} if(data.Status=='Published') {#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'> <div style='display:flex;justify-content:space-between;align-items:center;width:75%;'> <button title='View Icon' class='a3mm-view-icon' onclick='viewAssessment(#:Id#);'></button> <button title='Assessment Response View' class='a3mm-data-icon' onclick='RedirectToViewGathering(#:Id#);'></button> </div></div>#} if(data.userRole=='Admin' && data.Status =='Initiated') {#<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'> <div style='display:flex;justify-content:space-between;align-items:center;width:75%;'> <button title='Edit Icon' class='a3mm-edit-icon' onclick='editAssessment(#:Id#);'></button> <button title='View Icon' class='a3mm-view-icon'  onclick='viewAssessment(#:Id#);'></button> <button title='Assessment Response View' class='a3mm-data-icon'  onclick='RedirectToViewGathering(#:Id#);'></button> </div></div>#}#");
+
+                               })
+                               .ToolBar(tools =>
+                               {
+                               @*tools.Template(@<text>
+                                     <label class="category-label" >Inventory Of Assessment </label>
+                                  </text>);*@
+                                   //tools.Custom().Text("Inventory Of Assessment")
+                                   //                .HtmlAttributes(new {  });
+                                   // tools.Custom().Text("Export to excel").Name("mycommand");
+                                   tools.Excel();
+                               })
+                                  //.ToolBar(tools => tools.Excel())
+                                  .Pageable(p=> {
+        p.PageSizes(new[] { 5, 10, 15,30 });
+    })
+                                  .Filterable()
+                                  .Sortable()
+                                  .Scrollable()
+                                  .Groupable()
+                                  .Excel(excel => excel.FileName("Assessment List.xlsx")
+                                  .Filterable(true)
+                                  .AllPages(true)
+                                  .ProxyURL(Url.Action("Export_Assessment_Save", "Assessment"))
+                                  )
+                                  .Reorderable(r => r.Columns(true))
+                                  .Resizable(r => r.Columns(true))
+                                  //.ColumnMenu()
+                                  .DataSource(dataSource => dataSource.Ajax()
+                                  .PageSize(10)
+                                  .Read(read => read.Action("ReadAllAssessments", "Assessment"))
+                                 )
+                                 .Events(e => e.ExcelExport("Ass_Inven_excelExport"))
+                )
+        </div>
+    </div>
+
+    @Html.Partial("_EditViewAssessment", Model)
+
+</div>
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+                    <label id="labelError" style="width: 18em; margin-top: 4px; margin-left: 1em; ">Error while saving Assessment.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+                    <label id="labelSuccess" style="width: 29em; margin-top: 4px; margin-left: 1em;">Assessment Saved Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: -1.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var gridObj;
+
+    $(window).resize(function () {
+        gridAutoHeight(gridObj);
+    });
+    function gridAutoHeight(gridObj, bottomMargin) {
+        try {
+            if (gridObj) {
+                gridObj.element.height($(window).height() - gridObj.element[0].offsetTop - (bottomMargin || 150));
+                gridObj.resize();
+            }
+        } catch (e) {
+            console.log('Error resizing grid: ' + e.toString());
+        }
+    }
+    $(document).ready(function () {
+        gridObj = $('#AssessmentListGrid').getKendoGrid();
+        gridAutoHeight(gridObj);
+        var winObject = $("#EditViewAssessmentpopUp").data("kendoWindow");
+        winObject.wrapper.addClass("Assess-Inven");
+    });
+
+
+
+    function editAssessment(Id) {
+        console.log(Id);
+        $('#ContractList_alert_EditView').hide();
+        $("#EditViewAssessmentpopUp").data("kendoWindow").title("Edit Assessment");
+        document.getElementById("actionButtons").style.display = "block";
+        document.getElementById("closeButton").style.display = "none";
+        var mod ={
+              AssessmentID: Id,
+              }
+
+          var data1 = JSON.stringify(mod);
+          baseurl = '@Url.Content("~/AssessmentManager/Assessment/GetOneAssessment")';
+          $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+                console.log("Success");
+                console.log(response);
+                document.getElementById("refVarforID").innerText = response.Id;
+                $("#AssessmentID_EditView").data("kendoDropDownList").value(response.SurveyTypeID);
+                $("#AssessmentID_EditView").data("kendoDropDownList").readonly();
+                $("#AssessmentID_EditView").data("kendoDropDownList").enable(false);
+                $("#AccountNamesList_EditView").data("kendoDropDownList").value(response.AccountID);
+                $("#AccountNamesList_EditView").data("kendoDropDownList").readonly();
+                $("#AccountNamesList_EditView").data("kendoDropDownList").enable(false);
+                $("#EnagagementPOC_EditView").data("kendoDropDownList").value(response.EngagementTeamPointOfContact);
+                $("#EnagagementPOC_EditView").data("kendoDropDownList").enable(true);
+                var contractDropdown = $("#ContractList_EditView").data("kendoDropDownList");
+                var contract = contractDropdown.value();
+                var oldSel = contractDropdown.selectedIndex;
+                contractDropdown.dataSource.read();
+                setTimeout(function () {
+                    $("#ContractList_EditView").data("kendoDropDownList").value(response.ContractID);
+                }, 500);
+                $("#ContractList_EditView").data("kendoDropDownList").readonly();
+                $("#ContractList_EditView").data("kendoDropDownList").enable(false);
+                $("#EngagementTC_EditView").data("kendoDropDownList").value(response.EngagementTeamtoCommunicate);
+                $("#EngagementTC_EditView").data("kendoDropDownList").enable(true);
+                $("#QVerTxtBox_EditView").data("kendoTextBox").value(response.QuestionaireVersion);
+                $("#QVerTxtBox_EditView").data("kendoTextBox").readonly();
+                //$("#AssessmentTeam_EditView").data("kendoTextBox").value(response.AssessmentTeam);
+                console.log(response.AssessmentTeam);
+                $("#AssessmentTeam_EditView").data("kendoDropDownList").value(response.AssessmentTeam);
+                $("#AssessmentTeam_EditView").data("kendoDropDownList").enable(true);
+                $("#AssessmentName_EditView").data("kendoTextBox").value(response.AssessmentName);
+                $("#AssessmentName_EditView").data("kendoTextBox").readonly();
+                $("#Status_EditView").data("kendoTextBox").value(response.Status);
+                $("#Status_EditView").data("kendoTextBox").readonly();
+                $("#StartDate_EditView").data("kendoDatePicker").value(response.StartDate);
+                console.log(response.StartDate);
+                $("#PCDate_EditView").data("kendoDatePicker").value(response.Planned_CompletionDate);
+                $("#AnalysisDate_EditView").data("kendoDatePicker").value(response.AnalysisDateEnd);
+                $("#ReviewDate_EditView").data("kendoDatePicker").value(response.ReviewDateEnd);
+                //var datepicker = $('#StartDate_EditView').data("kendoDatePicker");
+                //datepicker.setOptions({
+                //    min: new Date(response.StartDate)
+                //});
+                var popup = $("#EditViewAssessmentpopUp").data("kendoWindow");
+                //$('.k-window-title').text("Add KEDB");
+                popup.open();
+                popup.center();
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+
+    }
+
+    function onStartDateChange(e) {
+        console.log("Start date change");
+
+        var startDateString = $('#StartDate_EditView').val().toString();
+        console.log("startDateString", +startDateString);
+
+        var myDate = new Date(startDateString);
+        var analysisDateChange = new Date(startDateString);
+        var reviewDateChange = new Date(startDateString);
+        console.log("old myDate", +myDate);
+        myDate.setDate(myDate.getDate() + 56);
+        analysisDateChange.setDate(myDate.getDate() + 14);
+        reviewDateChange.setDate(myDate.getDate() + 35);
+
+        console.log("new mydate", +myDate);
+
+        var datepicker = $("#PCDate_EditView").data("kendoDatePicker");
+        datepicker.value(new Date(myDate));
+
+        $("#AnalysisDate_EditView").data("kendoDatePicker").value(new Date(analysisDateChange));
+        $("#ReviewDate_EditView").data("kendoDatePicker").value(new Date(reviewDateChange));
+
+        console.log($('#PCDate_EditView').val().toString());
+
+    }
+
+
+    function viewAssessment(Id) {
+        console.log(Id);
+        $("#EditViewAssessmentpopUp").data("kendoWindow").title("View Assessment");
+        document.getElementById("actionButtons").style.display = "none";
+        document.getElementById("closeButton").style.display = "block";
+        $('#ContractList_alert_EditView').hide();
+         var mod ={
+              AssessmentID: Id,
+              }
+
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/GetOneAssessment")';
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+                console.log("Success");
+                console.log(response);
+                document.getElementById("actionButtons").style.display = "none";
+                document.getElementById("refVarforID").innerText = response.Id;
+                $("#AssessmentID_EditView").data("kendoDropDownList").value(response.SurveyTypeID);
+                $("#AssessmentID_EditView").data("kendoDropDownList").readonly();
+                $("#AssessmentID_EditView").data("kendoDropDownList").enable(false);
+                $("#AccountNamesList_EditView").data("kendoDropDownList").value(response.AccountID);
+                $("#AccountNamesList_EditView").data("kendoDropDownList").readonly();
+                $("#AccountNamesList_EditView").data("kendoDropDownList").enable(false);
+                $("#EnagagementPOC_EditView").data("kendoDropDownList").value(response.EngagementTeamPointOfContact);
+                $("#EnagagementPOC_EditView").data("kendoDropDownList").readonly();
+                $("#EnagagementPOC_EditView").data("kendoDropDownList").enable(false);
+                var contractDropdown = $("#ContractList_EditView").data("kendoDropDownList");
+                var contract = contractDropdown.value();
+                var oldSel = contractDropdown.selectedIndex;
+                contractDropdown.dataSource.read();
+                setTimeout(function () {
+                    $("#ContractList_EditView").data("kendoDropDownList").value(response.ContractID);
+                }, 500);
+                $("#ContractList_EditView").data("kendoDropDownList").readonly();
+                $("#ContractList_EditView").data("kendoDropDownList").enable(false);
+                $("#EngagementTC_EditView").data("kendoDropDownList").value(response.EngagementTeamtoCommunicate);
+                $("#EngagementTC_EditView").data("kendoDropDownList").readonly();
+                $("#EngagementTC_EditView").data("kendoDropDownList").enable(false);
+                $("#QVerTxtBox_EditView").data("kendoTextBox").value(response.QuestionaireVersion);
+                $("#QVerTxtBox_EditView").data("kendoTextBox").readonly();
+                $("#AssessmentTeam_EditView").data("kendoDropDownList").value(response.AssessmentTeam);
+                $("#AssessmentTeam_EditView").data("kendoDropDownList").readonly();
+                $("#AssessmentTeam_EditView").data("kendoDropDownList").enable(false);
+                $("#AssessmentName_EditView").data("kendoTextBox").value(response.AssessmentName);
+                $("#AssessmentName_EditView").data("kendoTextBox").readonly();
+                $("#Status_EditView").data("kendoTextBox").value(response.Status);
+
+                $("#StartDate_EditView").data("kendoDatePicker").value(response.StartDate);
+                $("#StartDate_EditView").data("kendoDatePicker").readonly();
+                $("#StartDate_EditView").data("kendoDatePicker").enable(false);
+                $("#PCDate_EditView").data("kendoDatePicker").value(response.Planned_CompletionDate);
+                $("#AnalysisDate_EditView").data("kendoDatePicker").value(response.AnalysisDateEnd);
+                $("#ReviewDate_EditView").data("kendoDatePicker").value(response.ReviewDateEnd);
+
+                var popup = $("#EditViewAssessmentpopUp").data("kendoWindow");
+                //$('.k-window-title').text("Add KEDB");
+                popup.open();
+                popup.center();
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+    }
+
+    function onSaveAssessmentClick() {
+        var Id = document.getElementById("refVarforID").innerText;
+        var AssessmentID = $("#AssessmentID_EditView").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList_EditView").data("kendoDropDownList").value();
+        var ContractID = $("#ContractList_EditView").data("kendoDropDownList").value();
+        //if (ContractID == '') {
+        //    $('#ContractList_alert').show();
+        //    return false;
+        //}
+        var EngagementPocID = $("#EnagagementPOC_EditView").data("kendoDropDownList").value();
+
+        var EngagementComID = $("#EngagementTC_EditView").data("kendoDropDownList").value();
+        var VersionID = $("#QVerTxtBox_EditView").data("kendoTextBox").value();
+        var AssessmentTeam = $("#AssessmentTeam_EditView").data("kendoDropDownList").text();
+        var AssessmentName = $("#AssessmentName_EditView").data("kendoTextBox").value();
+        //var StartDate = kendo.toString($("#StartDate_EditView").data("kendoDatePicker").value(), 'mm/dd/yyyy');
+        var StartDate = $("#StartDate_EditView").val().toString();
+        var Planned_CompletionDate = $('#PCDate_EditView').val().toString();
+        var analysisDateIgnore = $('#AnalysisDate_EditView').val().toString();
+        var reviewDateIgnore = $('#ReviewDate_EditView').val().toString();
+
+        console.log(Id + " " + AssessmentID + " " + AccountID + " " + EngagementPocID + " " + ContractID + " " + EngagementComID + " " + VersionID + " " + AssessmentTeam + " " + AssessmentName + " " + StartDate + " " + Planned_CompletionDate)
+
+        var mod = {
+            Id:Id,
+            SurveyTypeID: AssessmentID,
+            AccountID: AccountID,
+            EngagementTeamPointOfContact: EngagementPocID,
+            ContractID: ContractID,
+            EngagementTeamtoCommunicate: EngagementComID,
+            QuestionaireVersion: VersionID,
+            AssessmentTeam: AssessmentTeam,
+            AssessmentName: AssessmentName,
+            startDateIgnore: StartDate,
+            plannedCompletionDateIgnore: Planned_CompletionDate,
+            analysisDateIgnore : analysisDateIgnore,
+            reviewDateIgnore : reviewDateIgnore
+        }
+        console.log(mod)
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/EditAssessment")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                console.log("Success");
+                console.log(response);
+                $("#AssessmentListGrid").data("kendoGrid").dataSource.read();
+                var popup = $("#EditViewAssessmentpopUp").data("kendoWindow");
+                popup.close();
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#lblSuccess1').show();
+            },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#lblErr').show();
+            }
+        });
+    }
+
+    function onSelectAccount(e) {
+        //$("#Contract").data("kendoMultiSelect").dataSource.read(); //for multi select
+        //$("#ContractList").data("kendoDropDownList").dataSource.read();
+        var contractDropdown = $("#ContractList_EditView").data("kendoDropDownList");
+        var contract = contractDropdown.value();
+        var oldSel = contractDropdown.selectedIndex;
+        contractDropdown.dataSource.read();
+        setTimeout(function () {
+            contractDropdown.selectedIndex = 0;
+        }, 500);
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountNamesList_EditView").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+
+    function onWinClose() {
+
+    }
+
+    function onCancelEditViewClick() {
+        var popup = $("#EditViewAssessmentpopUp").data("kendoWindow");
+        popup.close();
+    }
+
+
+    function RedirectToAssessmentGathering(Id) {
+        console.log(Id);
+
+        baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDGFromAI?AssessmentID=")';
+        window.location.href = baseurl1 + Id+"&UI=AssessmentUI";
+
+        console.log(baseurl1);
+
+    }
+
+     function RedirectToDataGathering(Id) {
+        console.log(Id);
+
+        baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDGFromAI?AssessmentID=")';
+        window.location.href = baseurl1 + Id+"&UI=AssessmentUI";
+
+        console.log(baseurl1);
+
+    }
+
+    function RedirectToResponseGathering(Id) {
+        console.log(Id);
+
+        baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDGFromAI?AssessmentID=")';
+        window.location.href = baseurl1 + Id+"&UI=ResponseUI";
+
+        console.log(baseurl1);
+
+    }
+
+    function RedirectToViewGathering(Id) {
+        console.log(Id);
+
+        baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/RedirectToDGFromAI?AssessmentID=")';
+        window.location.href = baseurl1 + Id+"&UI=AssessmentResponseView";
+
+        console.log(baseurl1);
+
+    }
+
+
+    function Ass_Inven_excelExport(e) {
+        var sheet = e.workbook.sheets[0];
+        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+            var sheet = e.workbook.sheets[0];
+            sheet.rows[0].cells[7].value = null;
+            sheet.rows[0].cells[7].background = "#fff";
+            sheet.filter.to= 6;
+            console.log(sheet);
+            for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                var row = sheet.rows[rowIndex];
+               // console.log(row);
+               // row.cells[4].format = "{0:MM/dd/yyyy}"
+                row.cells[7].value = null;
+
+            }
+        }
+    }
+
+</script>

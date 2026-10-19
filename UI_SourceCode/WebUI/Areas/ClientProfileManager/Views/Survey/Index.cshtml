@@ -1,0 +1,231 @@
+﻿@using NTTData.AMOPortal.Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+@model Survey_Model
+
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    //  Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+    ViewBag.Title = "SurveyViewModel";
+    //  var dictionary = new Dictionary<string, string>
+    //  {
+    //  { "APR", "APR" },
+    //  { "Cloud Migrator", "Cloud Migrator" },
+    //  { "General", "General" },
+    //   };
+    //  var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    int usid = (int)Session["UserId"];
+    var v = new PerspectiveConfigurationController();
+
+    var ApplicationList = v.ApplicationList(client.ClientId, usid);
+
+}
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<style>
+    .k-widget.k-window.k-display-inline-flex{
+        height:37em;
+    }
+    .select.k-dropdown {
+        width: 71%;
+        height: 2.94em;
+        border: none;
+        border-bottom: 1px solid;
+        border-radius: unset;
+    }
+    #myform11{
+        margin-left:15px;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Client Profile Manager</li>
+            <li>Survey</li>
+            <li class="active">Setup Survey</li>
+        </ol>
+    </div>
+    <div>
+
+
+        <div class="well well-sm" style="color:white;"><strong>Survey Setup</strong></div>
+      
+
+        <div class="custom-kendo-grid" style="padding:1em;">
+
+
+            @(Html.Kendo().Grid<Survey_Model>()
+.Name("SurveyGrid")
+.Columns(columns =>
+{
+columns.Bound(e => e.Id).Hidden();
+columns.Bound(e => e.IsLinkSent).Hidden();
+columns.Bound(e => e.Name).Title("Name");
+columns.Bound(e => e.SurveyType).Title("Survey Type");
+//columns.Bound(e => e.ToolId).Title("Tool Name");
+columns.ForeignKey(e => e.ToolId, ApplicationList, "Value", "Text").Title("Tool Name");
+columns.Bound(e => e.Description).Title("Description");
+columns.Bound(e => e.CreatedByName).Title("Created By");
+//columns.Bound(e => e.UpdatedBy).Title("UpdatedBy").Width(150).Visible(false);
+//columns.Bound(e => e.Createddt).Title("Createddt").Width(150);
+//columns.Bound(e => e.updateddt).Title("Updateddt").Width(150);
+//columns.Bound(e => e.Launchdt).Title("Launchdt").Width(150);
+//columns.Bound(e => e.LaunchedBy).Title("LaunchedBy").Width(150);///////, new { JobId = item.Id }    .Window(w => w.HtmlAttributes(new { style = "width:700px;" })
+columns.Bound(e => e.EndDay).Title("Days to Expire Survey URL").HeaderHtmlAttributes(new { style = "overflow: visible; white-space: normal" });
+
+columns.Bound(e => e.enddate).Format("{0:d}").Title("End Date").Width(100).HtmlAttributes(new { style = "text-align: right;" });
+columns.Template(@<text></text>)
+.ClientTemplate("<a href='" + Url.Action("SetQues", "Survey", new { surrId = "#=Id#" }) + "'>Build Survey</a>")
+.HtmlAttributes(new { style = "text-align: left;" })
+.Width(100);
+
+columns.Template(@<text></text>)
+.ClientTemplate("<a href='" + Url.Action("ManageSurvey", "Survey", new { surrID = "#=Id#", snma = "#=Name#" }) + "'>Survey Participants</a>")
+.HtmlAttributes(new { style = "text-align: left;" })
+.Width(100);
+
+columns.Template(@<text></text>)
+.ClientTemplate("<a href='" + Url.Action("Emailconfig", "Survey", new { surrID = "#=Id#", snma = "#=Name#" }) + "'>Email config</a>")
+.HtmlAttributes(new { style = "text-align: left;" })
+.Width(100);
+
+columns.Command(command => { command.Edit(); command.Destroy(); });
+// columns.Command(c => c.Custom("clone").Click("cloneSurvey"));
+})
+.Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+.Events(e => e.Edit("grid_edit"))
+.Pageable()
+.ToolBar(toolbar =>
+{
+toolbar.Create().Text("Add new Survey");
+})
+.Scrollable()
+.HtmlAttributes(new { style = "height:550px;" })
+.Events(e => e.DataBound("restrictEdit"))
+.DataSource(dataSource => dataSource
+.Ajax()
+
+//.ServerOperation(true)
+//.Events(e => e.Error("onError"))
+.PageSize(10)
+.Model(model =>
+{
+model.Id(f => f.Id);
+//model.Field(p => p.Id).Editable(false);
+//model.Field(p => p.ClientId).Editable(false);
+//model.Field(p => p.CreatedBy).Editable(false);
+//model.Field(p => p.UpdatedBy).Editable(false);
+//model.Field(p => p.Createddt).Editable(false);
+//model.Field(p => p.updateddt).Editable(false);
+//model.Field(p => p.Launchdt).Editable(false);
+//model.Field(p => p.LaunchedBy).Editable(false);
+})
+.Read(read => read.Action("SurveyInfo", "Survey"))
+.Create(create => create.Action("CreateSurvey", "Survey"))
+.Update(update => update.Action("UpdateSurvey", "Survey"))
+
+.Destroy(destroy => destroy.Action("DestroySurvey", "Survey"))
+)
+                    )
+
+
+
+
+
+        </div>
+
+        <!--/.treeMenuContent container-->
+    </div>
+    <!--/.treeMenuContent-->
+</div>
+<!--/.treeMenuArea-->
+
+
+
+
+
+<script>
+
+
+
+    function grid_edit(e) {
+        if (!e.model.isNew()) {
+            $("#btnUpload").prop("disabled", false);
+
+        }
+        else {
+            $("#btnUpload").prop("disabled", true);
+
+        }
+
+    }
+
+    function restrictEdit(e) {
+        var grid = this;
+        grid.tbody.find("tr[role='row']").each(function () {
+
+            var model = grid.dataItem(this);
+            if (model.IsLinkSent == true) {
+
+                //$(this).find(".k-grid-update").addClass("k-state-disabled");
+                $(this).find(".k-grid-delete").addClass("k-state-disabled");
+                //var ec = $(this).find(".k-grid-update");
+                var ec2 = $(this).find(".k-grid-delete");
+                //ec.prop("disabled", true);
+                ec2.prop("disabled", true);
+            }
+        });
+
+    }
+
+
+    function cloneit(e) {
+        // var gridData = $("#Grid").data("kendoGrid").dataSource.data('tr');
+        var grid = $("#grid").data("kendoGrid");
+        var selectedItem = grid.dataItem(grid.select());
+        // alert("yes");
+        //alert(selectedItem.Id);
+        // alert(selectedItem.Name);
+    }
+
+    function SurveyTypeChange() {
+
+        var tToolId = $("#SurveyType").data("kendoDropDownList").value();
+
+        $('input:hidden[name=ToolId]').val(tToolId);
+        console.log(ToolId);
+        //alert("In");
+    }
+
+
+
+
+
+
+
+
+
+</script>

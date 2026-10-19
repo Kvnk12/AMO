@@ -1,0 +1,41 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using System.Data;
+@*@using WebUI.Areas.AlignmentManager.Objects
+@model VariableModel*@
+
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+
+<div class="dependancyArea">
+    <div class="dAhead"><a class="rightNav rightNavoneClose" title="" href="#"><span class="glyphicon glyphicon-chevron-right"></span>Dependencies </a></div>
+
+    <ul class="list-group">
+        <li class="list-group-item">Dependencies</li>
+        <li class="list-group-item">Dependencies<b></b></li>
+    </ul>
+
+</div>
+<!--.dependancyArea-->
+<div class="dAreaOpen"><a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
+<div class="otherInfoArea">
+    <div class="dAhead"><a class="rightNav rightNavtwoClose" title="" href="#"><span class="glyphicon glyphicon-chevron-right"></span>Other Information </a></div>
+    <!--.dAhead-->
+
+    <ul class="list-group">
+        <li class="list-group-item">Client Name <b>Hanover</b></li>
+        <li class="list-group-item">Vertical <b>MFg</b></li>
+        <li class="list-group-item">SLA Metric <b>Incident Compliance</b></li>
+        <li class="list-group-item">PA Trends <b>Time to complete problem average</b></li>
+@*        @foreach (var item in Model.GetAllAppNames)
+        {
+            <li class="list-group-item">PA Trends <b>@item.ApplicationName</b></li>
+        }*@
+
+        
+
+    </ul>
+</div>
+<!--.otherInfoArea-->
+<div class="oAreaOpen"><a href="#"><span class="glyphicon glyphicon-chevron-left"></span></a></div>

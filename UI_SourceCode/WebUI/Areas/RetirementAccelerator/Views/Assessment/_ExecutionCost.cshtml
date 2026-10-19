@@ -1,0 +1,83 @@
+﻿
+@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<div style="margin:5px;" class="custom-kendo-grid">
+
+        @(Html.Kendo().Grid<ExecutionCostModel>()
+        .Name("ExecutionCostGrid")
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Id).Hidden();
+            columns.Bound(p => p.WhichCostTable).Hidden();
+            columns.Bound(p => p.ExecutionActivity).Title("Activity");
+            columns.Bound(p => p.EstimatedHours);
+            columns.Bound(p => p.BlendedRate);
+            columns.Bound(p => p.EstimatedCost);
+            columns.Bound(p => p.EstimatedDuration);
+            columns.Bound(p => p.EstimatedFTE);
+            //columns.Bound(p => p.Id).Width(200).Title("Attachment").EditorTemplateName("AttachmentName").EditorViewData(new { RowId = "#=Id#" }).ClientTemplate("#=AttachmentName#") ;
+            columns.Bound(p=>p.AttachmentName).ClientTemplate(
+                "#if(AttachmentName) {# "
+                       + "<input type='file' style='width:85px;' value='#=AttachmentName#' onchange='FileUpload(this, #=Id#," + (int)CostScreen.ExecutionCost + ")'/>"
+                       + "<div style='display: inline-block; padding:5px; padding-top:10px; margin:5px;'>"
+                       + "<a target='_blank' rel='noopener noreferrer' href='" + Url.Action("downloadFile", "Assessment", new { rowId = "#=Id#", table = (int)CostScreen.ExecutionCost }) + "'>#=AttachmentName#</a>"
+                       + "<button style='margin-left:15px;' type='button' title='Remove File' onclick='deleteFile(#=Id#," + (int)CostScreen.ExecutionCost + ")' class='close' aria-label='Close'><span aria-hidden ='true'>&times;</span></button> "
+                       + "</div>"
+                       + " #} else{#"
+                          + "<input type='file' onchange='FileUpload(this, #=Id#," + (int)CostScreen.ExecutionCost + ")'/>"
+                     + "#}#"
+
+
+                    ).Width(350).Title("Attachment");
+        })
+        .ToolBar(toolbar =>
+        {
+            toolbar.Save();
+
+        })
+
+        .Editable(editable => editable.Mode(GridEditMode.InCell))
+        .Navigatable()
+        .Sortable()
+        .HtmlAttributes(new { @style = "height:550px" })
+        .Scrollable()
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Batch(true)
+            .ServerOperation(false)
+            .Aggregates(ag=>
+            {
+                ag.Add(e => e.EstimatedHours).Sum();
+                ag.Add(e => e.EstimatedFTE).Sum();
+                ag.Add(e => e.EstimatedCost).Sum();
+            }
+
+            )
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+                model.Field(r => r.ExecutionActivity).Editable(false);
+                model.Field(r => r.AttachmentName).Editable(false);
+
+            })
+            .Read(read => read.Action("ExecutionCostRead", "Assessment").Data("GetAppId"))
+            .Update(up => up.Action("ExecutionCostSave", "Assessment"))
+        )
+        )
+    
+
+</div>
+
+
+
+
+
+

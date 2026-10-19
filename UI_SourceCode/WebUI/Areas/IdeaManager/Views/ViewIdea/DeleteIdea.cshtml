@@ -1,0 +1,69 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model  IdeaDashboardModel
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+@*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+}
+@*<div class="content-main custom-grid">
+    <div class="content-wrapper">*@
+<div class="content-main dark-bg grid-delete">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Idea Manager</li>
+            <li class="active">DeleteIdea</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<IdeaDashboardModel>()
+                       .Name("IdeaDeletion")
+                       .Columns(columns =>
+                       {
+                           columns.Bound(e => e.Id).Hidden();
+                           columns.Bound(e => e.IdeaNumber).Title("Idea No.").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+                           columns.Bound(e => e.ItemName).Title("Idea Name").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(400);
+                           columns.Command(command => command.Destroy()).Width(100).Title("Action");
+                       })
+                         .Resizable(r => r.Columns(true))
+                         .Pageable()
+                         .Scrollable()
+                         .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+                         .Sortable()
+                         //.HtmlAttributes(new { @style = "height:650px;" })
+                         .DataSource(dataSource => dataSource
+                         .Ajax()
+                         .PageSize(15)
+                          .Model(model =>
+                          {
+                              model.Id(f => f.Id);
+                          })
+                          .Read(read => read.Action("ReadAllIdeas", "ViewIdea"))
+                          .Destroy(destroy => destroy.Action("IdeaDelete", "ViewIdea"))
+                    )
+    )
+    </div>
+</div>

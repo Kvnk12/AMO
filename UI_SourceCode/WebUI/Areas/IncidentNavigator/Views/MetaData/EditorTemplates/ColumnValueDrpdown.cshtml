@@ -1,0 +1,21 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator;
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities;
+@model string
+
+@(Html.Kendo().ComboBox()
+                                            .Name("FieldValue")
+                                            .Placeholder("Select Value..")
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .Filter(FilterType.Contains)
+                                           .DataSource(d =>
+                                           {
+                                               d.Read(read => read.Action("GetColumnValueList", "MetaData").Data("GetColId"))
+                                                  .ServerFiltering(true);
+                                           } )
+                            .CascadeFrom("INFieldName")
+                             .AutoBind(true)
+
+)

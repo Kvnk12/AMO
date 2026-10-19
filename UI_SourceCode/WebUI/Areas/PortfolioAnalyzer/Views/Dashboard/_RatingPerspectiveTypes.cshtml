@@ -1,0 +1,18 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model List<string> 
+
+@if (Model != null)
+{
+    for (var i = 0; i < Model.Count; i++)
+    {
+        @*@Html.RadioButtonFor(m => m.PerspectiveTypelist, Model.PerspectiveTypelist[i], new { @class = "k-radio", id = "Response" + Model.PerspectiveTypelist[i] })
+            @Html.LabelFor(m => m.PerspectiveTypelist,Model.PerspectiveTypelist[i], new { @class = "k-radio-label" })*@
+        @(Html.Kendo().RadioButton().Name("X" + Model[i]).HtmlAttributes(new { @name = "Xvalue" }).Label(Model[i]));
+    }
+}

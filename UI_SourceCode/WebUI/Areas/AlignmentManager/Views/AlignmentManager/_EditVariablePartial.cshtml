@@ -1,0 +1,63 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    string form_name = "frmSaveItemDetails";
+}
+
+    <div class="accdetailhd">  
+        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+            {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+            }
+        @if (ViewData.ModelState.ContainsKey("Success"))
+            {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+            }
+    </div>
+
+    @using (Html.BeginForm("EditVariableDetails", "AlignmentManager", FormMethod.Post, new { id = @form_name, role = "form" }))
+    {
+        @Html.HiddenFor(m => m.ClientId);
+        <div class="form-group">
+            <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.VariableTypeId)</label>
+            <div class="col-sm-5">                
+                @Html.DropDownListFor(m => m.VariableTypeId, new SelectList(Model.GetVariableTypes, "value", "text", Model.VariableTypeId), "", new { @class = "selectpicker", id = "TypeId", name = "TypeId", @disabled = "disabled" })
+                @Html.HiddenFor(m => m.VariableTypeId, new { @Value = Model.VariableTypeId, id="hdnVarTypeId"})
+            </div>
+        </div>
+            
+        <div class="form-group">
+            <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.variableLabelInput.VariableCatId)</label>
+            <div class="col-sm-5">                
+                @Html.DropDownListFor(m => m.VariableCatId, new SelectList(Model.GetCategories, "value", "text", Model.VariableCatId), "", new { @class = "selectpicker", id = "VariableCategoryId", @disabled = "disabled" })
+                @Html.HiddenFor(m => m.VariableCatId, new { @Value = Model.VariableCatId, id="hdnVarCatId"})
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label class="col-sm-5 control-label"><span class="mandate">*</span>@Html.DisplayNameFor(m => m.variableLabelInput.VariableLabel  )</label>
+            <div class="col-sm-5">
+                @Html.TextBoxFor(m => m.GetvariableLabelInput.VariableLabel, new { @class = "form-control"})                
+            </div>
+        </div>
+                
+        <div class="form-group">                
+            <label class="col-sm-5 control-label">@Html.DisplayNameFor(m => m.variableLabelInput.FullDescription)</label>
+            <div class="col-sm-5">
+                @Html.TextAreaFor(m => m.GetvariableLabelInput.FullDescription, new { @class = "form-control valdesc"})
+                @Html.HiddenFor(m => m.variableLabelInput.FullDescription, new { @Value = ViewData["VarDesc"], id="hdnFullDescription"})
+                @Html.HiddenFor(m => m.VariableLabelId, new { id="hdnId"})
+                @Html.HiddenFor(m => m.VariableId, new { @Value = Model.VariableId, id="hdnVarId"})
+            </div>
+        </div>
+
+        <div class="addvalaction">
+            <button class="btn btn-primary" tabindex="" type="submit">Next</button>
+            @Html.ActionLink("Cancel", "DisplayHomePage", "AlignmentManager", new { ClientId=Model.ClientId }, new { @class = "btn btn-default" })
+        </div>    
+    }

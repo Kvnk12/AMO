@@ -1,0 +1,93 @@
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.TransformationAccelerator.Controllers
+@using WebUI.Areas.TransformationAccelerator.Model
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model  BaseLineDataModel
+
+<div>
+    <span id="placehold"></span>
+    <div id="BaseData" class="custom-html-grid">
+
+        <table id="BaseTable">
+            <tr>
+                <th>BaseLine Period</th>
+                <td id="BaseLinePeriod"> @Model.BaseLinePeriod </td>
+            </tr>
+            <tr>
+                <th>Incident/Month </th>
+                <td class=" editable not-fixed">
+                    <input id="IncMonth" value=@Model.IncMonth /> <span id=IncMonth style="display:none"> @Model.IncMonth </span>
+                </td>
+                @*<td>@Model.IncMonth</td>*@
+            </tr>
+            <tr>
+                <th>Event/Month </th>
+                <td class=" editable not-fixed">
+                    <input id="EveMonth" value=@Model.EveMonth /> <span id=EveMonth style="display:none"> @Model.EveMonth </span>
+                </td>
+                @* <td>@Model.EveMonth</td>*@
+            </tr>
+            <tr>
+                <th>Service Request/Month </th>
+                <td class=" editable not-fixed">
+                    <input id="SRMonth" value=@Model.SerReqMonth /> <span id=SRMonth style="display:none"> @Model.SerReqMonth </span>
+                </td>
+                @*<td>@Model.SerReqMonth</td>*@
+            </tr>
+        </table>
+        <div class="save-cancel" style="float:right">
+            <button type="button" onclick="canceldata()" class="btn btn-secondary button">CANCEL</button>
+            <button type="button" id="onSave" onclick="getBaseLineData()" class="btn btn-primary button">SAVE</button> &nbsp;&nbsp;
+        </div>
+    </div>
+</div>
+
+<script>
+    function getBaseLineData()
+    {
+        var ele = document.getElementsByTagName('input');
+        var bsd = $("#BaseData #BaseLinePeriod").text();
+        var arg = '';
+        arg = arg + 'BaseLinePeriod' + ',' + bsd + '|' + 'IncMonth' + ',' + $('#IncMonth').val() + '|' + 'EveMonth' + ',' + $('#EveMonth').val() + '|' + 'SRMonth' + ',' + $('#SRMonth').val() + '|';
+       //for (i = 0; i < ele.length; i++) {
+       //    if (ele[i].type == 'text') {
+       //        arg = arg + ele[i].id + ',' + ele[i].value + '|';
+       //        console.log('Value: ' + ele[i].value);
+       //        console.log('ids: ' + ele[i].id);
+       //    }
+       //}
+       //console.log(arg);
+       var actionurl ='@Url.Content("~/EngagementTimeLine/UpdateBaseLineData")';
+       $.ajax({
+           url: actionurl,
+           type: "POST",
+           data: { uid:arg },
+           dataType: "json",
+           success: function (msg) {
+               document.getElementById("placehold").innerHTML = "<span style='top:5px;' class='alert alert-success'>BaseLine Details updated successfully </span>";
+               setTimeout("window.location.reload();", 5000);                 }
+        });
+    }
+
+    function canceldata() {
+        var eledd = document.querySelectorAll('#BaseTable span');
+        // console.log(eledd);
+        for (i = 0; i < eledd.length; i++) {
+            //console.log(eledd[i].id);
+            //console.log(eledd[i].innerHTML);
+            document.getElementById(eledd[i].id).value =eledd[i].innerHTML;
+        }
+        console.log("Canceled");
+    }
+    //function canceldata() {
+    //    location.reload();
+    //}
+</script>

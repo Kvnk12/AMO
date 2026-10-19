@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+
+    <style>
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+            color: #ffffff;
+            background-color: #3276b1;
+            border-color: #285e8e;
+        }
+
+        cite {
+            font-style: italic;
+            color: red;
+        }
+
+        .btn:hover, .btn:focus {
+            color: #333333;
+            text-decoration: none;
+        }
+
+        a:hover, a:focus {
+            color: #2a6496;
+            text-decoration: none;
+        }
+
+        a:active, a:hover {
+            outline: 0;
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background-color: #428bca;
+            border-color: #357ebd;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 13px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+        }
+
+        a {
+            color: #428bca;
+            text-decoration: none;
+        }
+    </style>
+
+</head>
+
+<body style="background-color:#F9FAFB">
+
+    <div class="a3mm-email-content">
+        <img alt="NTT DATA" src="https://dynamoportal.net/AMOPortalSharedService/Content/images/Ntt_Email_logo.png" />
+
+        <p>
+            Hi <b>{POC}</b>,
+        </p>
+        <br />
+        <p>
+            Assessment <b>" {Assessment_Name} "</b> of Assessment Type {AssessmentType} has been {Status_text} by {UserName}.
+            {questionCountStatement}
+
+        </p>
+        <br />
+        <p>
+            <!--Please use the <a href="{responseURL}">link</a> {responsetext} to view Assessment Responses-->
+            Please use the <a href="{responseURL}">link</a> to {Status_detailtxt}
+        </p>
+       
+        <br />
+        <p>
+            Regards, <br />
+            {regard_txt}<br />
+            Please join us at social media <a href="https://www.yammer.com/nttdata.com/groups/14905730?trk_event=dd_groupheader_click&allow_app_redirect=1">NTTD - Yammer group - NTT DATA AM–Optimization Tools</a>
+        </p>
+    </div>
+</body>
+</html>

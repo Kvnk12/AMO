@@ -1,0 +1,738 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model NTTData.AMOPortal.WebUI.Dto.ServiceCalendarModel
+
+@{
+    ViewBag.Title = "SLA Manager";
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="styles/kendo.common.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/sla_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    Model.Clientid = client.ClientId;
+
+
+}
+
+
+@if (@User.IsInRole("User") == true || @User.IsInRole("CustomerUser") == true)
+{
+    <div class="alert alert-info container readonly">
+        You are in <b>READ ONLY</b> mode.
+    </div> } @*@Html.HiddenFor(@User.IsInRole("User"), new { id = "isRole"})*@
+
+<div class="content-main custom-grid dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb ">
+            <li>SLA Manager</li>
+            <li class="active">Service Hours</li>
+        </ol>
+    </div>
+
+    <div class="sla-service-calender">
+        <div class="sla-servicecal-header">
+            <div class="sla-header-fields">
+                <label class="custom-white-label">Account</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.AccountId)
+        .Name("AccountId")
+        .DataTextField("Text")
+        .OptionLabel("Select Account...")
+        .DataValueField("Value")
+        .BindTo(Model.ClientAccounts)
+        .Events(e =>
+        {
+            e.Change("onSelectAccount");
+        })
+        .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="sla-header-fields">
+                <label class="custom-white-label">Account contract</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.ContractId)
+        .Name("ContractId")
+        .DataTextField("Text")
+        .OptionLabel("Select Contract...")
+        .DataValueField("Value")
+        .DataSource(d => d
+            .Read(read => read.Action("getContractId", "ServiceCalendar").Data("GetAccId"))
+            )
+        .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="sla-header-fields">
+                <label class="custom-white-label">Calendar Year</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.Calendaryear)
+        .Name("Calendaryear")
+        .DataTextField("Text")
+        .OptionLabel("Select Year...")
+        .DataValueField("Value")
+        .BindTo(Model.YearList)
+        .Events(e =>
+        {
+            e.Change("onSelectYear");
+        })
+        .AutoBind(true)
+                    )
+                </div>
+            </div>
+        </div>
+        @*<img id="loading" src="~/Content/images/reload.gif" alt="Saving ..." style="display: none;" />*@
+        <div class="custom-kendo-tabstrip">
+            @(Html.Kendo().TabStrip()
+                      .Name("tabstrip")
+                      .Items(tabstrip =>
+                      {
+                          tabstrip.Add().Text("Service Hours Setup")
+                              .Selected(true)
+                              .Content(m => Html.Partial("_ServiceHourSetup", Model));
+                          tabstrip.Add().Text("Holiday Hours Setup")
+                              .Content(m => Html.Partial("_HolidayHourSetup", Model));
+                          tabstrip.Add().Text("Service Hours Calender")
+                              .Content(m => Html.Partial("_ServiceHourCalender", Model));
+                      })
+                        .Events(ev =>
+                        {
+                            ev.Select("onSelectTab");
+                        })
+                        )
+        </div>
+    </div>
+
+</div>
+<div id="serviceCalendarAlertModal" class="modal fade serviceCalendar-alert" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p> <span id="alertmsg"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade editServiceCalendar-Modal" id="editServiceCalendarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="kedbretireConfirmModalLabel">Edit <span id="edit_date"></span> Service Calendar</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="edit-popup">
+                    <div class="edit-popup-item">
+                        @Html.Hidden("edit_Daydate")
+                        @Html.Hidden("edit_Monthnumber")
+                        @Html.Hidden("edit_Calendaryear")
+
+                    </div>
+                    <div class="edit-popup-item" style="width: 20em;">
+                        <label>Start Time :</label>
+                        <div class="sla-time">
+                            @(Html.Kendo().TimePicker()
+                              .Name("edit_StartTime")
+                              .Value("1:00")
+                              .ComponentType("modern")
+                              .DateInput()
+                            )
+                        </div>
+                    </div>
+                    <div class="edit-popup-item" style="width: 20em;">
+                        <label>End Time :</label>
+                        <div class="sla-time">
+                            @(Html.Kendo().TimePicker()
+                              .Name("edit_EndTime")
+                              .Value("23:59")
+                              .ComponentType("modern")
+                              .DateInput()
+                            )
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" data-bs-dismiss="modal" class="btn btn-primary  saveServiceCalendar-modal" onclick="saveServiceCalendar()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function GetAccId() {
+        var app = $("#AccountId").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+    function onSelectAccount(e) {
+        var app = $("#ContractId").data("kendoDropDownList");
+        app.dataSource.read();
+        //var app = $("#AccountId").data("kendoDropDownList");
+        //console.log(app);
+        //$('#Tab1AccountId').val(app);
+        //$('#Tab2AccountId').val(app);
+    }
+    function onSelectYear() {
+        var grid = $("#CalenderServiceGrid").data("kendoGrid");
+        grid.dataSource.read();
+        var CalenderServiceGrid = $("#HolidayCalenderGrid").data("kendoGrid");
+        CalenderServiceGrid.dataSource.read();
+
+
+    }
+    function disablefieldsweek() {
+        var id = $('#srhrsweek:checked').val() ? true : false;
+        if (id) {
+            $("#weekStartTime").data("kendoTimePicker").enable(true);
+            $("#weekEndTime").data("kendoTimePicker").enable(true);
+
+            $("#monStartTime").data("kendoTimePicker").enable(false);
+            $("#monEdnTime").data("kendoTimePicker").enable(false);
+            $("#tueStart").data("kendoTimePicker").enable(false);
+            $("#tueEdnTime").data("kendoTimePicker").enable(false);
+            $("#wedStartTime").data("kendoTimePicker").enable(false);
+            $("#wedEdnTime").data("kendoTimePicker").enable(false);
+            $("#thuStartTime").data("kendoTimePicker").enable(false);
+            $("#thuEdnTime").data("kendoTimePicker").enable(false);
+            $("#friStartTime").data("kendoTimePicker").enable(false);
+            $("#friEdnTime").data("kendoTimePicker").enable(false);
+        }
+        else {
+            $("#weekStartTime").data("kendoTimePicker").enable(false);
+            $("#weekEndTime").data("kendoTimePicker").enable(false);
+
+            $("#monStartTime").data("kendoTimePicker").enable(true);
+            $("#monEdnTime").data("kendoTimePicker").enable(true);
+            $("#tueStart").data("kendoTimePicker").enable(true);
+            $("#tueEdnTime").data("kendoTimePicker").enable(true);
+            $("#wedStartTime").data("kendoTimePicker").enable(true);
+            $("#wedEdnTime").data("kendoTimePicker").enable(true);
+            $("#thuStartTime").data("kendoTimePicker").enable(true);
+            $("#thuEdnTime").data("kendoTimePicker").enable(true);
+            $("#friStartTime").data("kendoTimePicker").enable(true);
+            $("#friEdnTime").data("kendoTimePicker").enable(true);
+        }
+
+    }
+    function disablefieldsweekend() {
+        var id = $('#srhrsweekend:checked').val() ? true : false;
+        if (id) {
+            $("#weekendStartTime").data("kendoTimePicker").enable(true);
+            $("#weekendEndTime").data("kendoTimePicker").enable(true);
+
+            $("#satStartTime").data("kendoTimePicker").enable(false);
+            $("#satEdnTime").data("kendoTimePicker").enable(false);
+            $("#sunStartTime").data("kendoTimePicker").enable(false);
+            $("#sunEdnTime").data("kendoTimePicker").enable(false);
+        }
+        else {
+            $("#weekendStartTime").data("kendoTimePicker").enable(false);
+            $("#weekendEndTime").data("kendoTimePicker").enable(false);
+
+            $("#satStartTime").data("kendoTimePicker").enable(true);
+            $("#satEdnTime").data("kendoTimePicker").enable(true);
+            $("#sunStartTime").data("kendoTimePicker").enable(true);
+            $("#sunEdnTime").data("kendoTimePicker").enable(true);
+        }
+
+    }
+
+    function onSelectTab(e) {
+        var x = e.item;
+        var selectedIndex = $(e.item).index();
+        console.log(selectedIndex);
+        if (selectedIndex == 0) {
+        $('#Tabid').val("Tab1");
+        } else if (selectedIndex == 1) {
+            $('#Tabid').val("Tab2");
+        } else {
+            $('#Tabid').val("Tab3");
+        }
+
+    }
+
+    function calservicedcalander() {
+
+        //alert('zbgfdhh');
+            var  Calendaryear =$('#ddlYearCalender :selected').val();
+            tabs = 'Tab' + Number($('.getactiveTab .active').index() + 1);
+            //alert(tabs);
+            var  Account= $('#drpAccount :selected').val();
+            var Contract = $('#drpAccountContract :selected').val();
+
+        //alert('zbgfdhh2');
+        var baseurl = '@Url.Content("~/ServiceCalendar/Refresh")';
+        window.location = baseurl + "?Calendaryear=" + Calendaryear + "&tabs="+ tabs + "&Account=" + Account + "&Contract=" + Contract;
+
+    }
+
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+
+    $(document).ready(function () {
+
+        //$('.selectpicker').selectpicker();
+
+        //$('select#ClientId').change(function () {
+        //    var SelectedclientId = $('#ClientId :selected').val();
+
+        //});
+
+
+        $('select#ddlYear').change(function () {
+            var SelectedYear = $('#ddlYear :selected').val();
+
+            var baseurl = '@Url.Content("~/ServiceCalendar/GenerateServiceCalendar")';
+            window.location = baseurl + "?Calendaryear=" + SelectedYear;
+
+        });
+
+
+
+        $('select#ddlYearHoliday').change(function () {
+            var SelectedYear = $('#ddlYearHoliday :selected').val();
+
+            var baseurl = '@Url.Content("~/ServiceCalendar/GenerateServiceCalendar")';
+            window.location = baseurl + "?Calendaryear=" + SelectedYear + "&tabs=Tab2";
+
+        });
+
+        $('select#ddlYearCalender').change(function () {
+            var SelectedYear = $('#ddlYearCalender :selected').val();
+            var Account = $('#drpAccount :selected').val();
+            var Contract = $('#drpAccountContract :selected').val();
+            var baseurl = '@Url.Content("~/ServiceCalendar/GenerateServiceCalendar")';
+
+
+            window.location = baseurl + "?Calendaryear=" + SelectedYear + "&tabs=Tab3" + "&Account=" + Account + "&Contract=" + Contract;
+
+        });
+
+        $('#btnGenHoli').click(function () {
+
+            //var SelectedYear = $("#Calendaryear").data("kendoDropDownList").value();
+            var SelectedYear = $('#ddlYearCalender :selected').val();
+            if (SelectedYear == "0" || SelectedYear.toString() == "") {
+                alert('Please select Year ');
+                return false;
+            }
+
+            var Id = document.getElementById('IsExisting').value;
+
+            if (Id == "False") {
+                alert('Please create service calendar in order to add holidays');
+                return false;
+            }
+
+        });
+
+
+        $('#btnGenCal').click(function () {
+            //alert('aaa');
+            var temp = "Tab1";
+            $('#Tab1').val(temp);
+            //alert('AccountName' + AccountName);
+            //  var clientId = $("#ClientId").val().toString();
+            var weekStartTime = $("#weekStartTime").val().toString();
+            var weekEndTime = $("#weekEndTime").val().toString();
+            var monStartTime = $("#monStartTime").val().toString();
+            var monEdnTime = $("#monEdnTime").val().toString();
+            var tueStart = $("#tueStart").val().toString();
+            var tueEdnTime = $("#tueEdnTime").val().toString();
+            var wedStartTime = $("#wedStartTime").val().toString();
+            var wedEdnTime = $("#wedEdnTime").val().toString();
+            var thuStartTime = $("#thuStartTime").val().toString();
+            var thuEdnTime = $("#thuEdnTime").val().toString();
+            var friStartTime = $("#friStartTime").val().toString();
+            var friEdnTime = $("#friEdnTime").val().toString();
+            var Calendaryear = $("#Calendaryear").data("kendoDropDownList").value();
+            var weekendStartTime = $("#weekendStartTime").val().toString();
+            var weekendEndTime = $("#weekendEndTime").val().toString();
+            var satStartTime = $("#satStartTime").val().toString();
+            var satEdnTime = $("#satEdnTime").val().toString();
+            var sunStartTime = $("#sunStartTime").val().toString();
+            var sunEdnTime = $("#sunEdnTime").val().toString();
+            var AccountId = $("#AccountId").data("kendoDropDownList").value();
+            var ContractId = $("#ContractId").data("kendoDropDownList").value();
+            var chkSameWeek = $('#srhrsweek').is(":checked");
+            var chkSameWeekend = $('#srhrsweekend').is(":checked");
+            console.log(chkSameWeek);
+            console.log(chkSameWeekend);
+            if (Calendaryear == "0" || Calendaryear.toString() == "") {
+                alert('Please select Year ');
+                return false;
+            }
+
+            if (document.getElementById('srhrsweekend').checked) {
+                if (weekendStartTime == "0" || weekendStartTime.toString() == "" || weekendEndTime == "0" || weekendEndTime.toString() == "") {
+                    alert('Please enter starttime and endtime in week-end days. ');
+                    return false;
+                }
+            }
+            //else {
+            if (!document.getElementById('srhrsweek').checked)
+            {
+                if (monStartTime == "0" || monStartTime.toString() == "" || monEdnTime == "0" || monEdnTime.toString() == "" ||
+                    tueStart == "0" || tueStart.toString() == "" || tueEdnTime == "0" || tueEdnTime.toString() == "" ||
+                    wedStartTime == "0" || wedStartTime.toString() == "" || wedEdnTime == "0" || wedEdnTime.toString() == "" ||
+                    thuStartTime == "0" || thuStartTime.toString() == "" || thuEdnTime == "0" || thuEdnTime.toString() == "" ||
+                    friStartTime == "0" || friStartTime.toString() == "" || friEdnTime == "0" || friEdnTime.toString() == "")
+                {
+                    alert('Please enter starttime and endtime in weekdays ');
+                    return false;
+                }
+            }
+
+            if (document.getElementById('srhrsweek').checked) {
+                if (weekStartTime == "0" || weekStartTime.toString() == "" || weekEndTime == "0" || weekEndTime.toString() == "") {
+                    alert('Please enter starttime and endtime in Monday to Friday week days.');
+                    return false;
+                }
+            }
+
+            //var Id = document.getElementById('IsExisting').value;
+
+            ////alert(Id);
+            //if (Id == "True") {
+            //    var confirm = window.confirm('A Service Hours Calendar already exists, are you sure you want to overwrite the Service Hours?');
+            //    if (!confirm) {
+            //        return false;
+            //    }
+            //}
+            var mod = {
+                chkSameWeek: chkSameWeek,
+                chkSameWeekend: chkSameWeekend,
+                tabs: temp,
+                AccountId: AccountId,
+                ContractId: ContractId,
+                weekStartTime: weekStartTime,
+                weekEndTime: weekEndTime,
+                monStartTime: monStartTime,
+                monEdnTime: monEdnTime,
+                tueStart: tueStart,
+                tueEdnTime: tueEdnTime,
+                wedStartTime: wedStartTime,
+                wedEdnTime: wedEdnTime,
+                thuStartTime: thuStartTime,
+                thuEdnTime: thuEdnTime,
+                friStartTime: friStartTime,
+                friEdnTime: friEdnTime,
+                weekendStartTime: weekendStartTime,
+                weekendEndTime: weekendEndTime,
+                satStartTime: satStartTime,
+                satEdnTime: satEdnTime,
+                sunStartTime: sunStartTime,
+                sunEdnTime: sunEdnTime,
+                Calendaryear: Calendaryear
+        };
+        var data1 = JSON.stringify(mod);
+            baseurl1 = '@Url.Content("~/ServiceCalendar/GenerateServiceCalendar")';
+          //  $('#loading').show();
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log("saved");
+                   // $("#HolidayCalenderGrid").getKendoGrid().dataSource.read();
+                   // $('#loading').hide();
+                    document.getElementById('alertmsg').innerHTML = "Service hours calendar created/updated Successfully.";
+                    $('#serviceCalendarAlertModal').modal('show');
+                    $("#HolidayCalenderGrid").getKendoGrid().dataSource.read();
+                    $("#CalenderServiceGrid").getKendoGrid().dataSource.read();            }
+       })
+        });
+
+
+
+        //$(document).ready(function (e) {
+        //    $('#addNewHoliday').click(function (e) {
+        //        var SelectedYear = $('#ddlYearCalender :selected').val();
+        //        if (SelectedYear == "0" || SelectedYear.toString() == "") {
+        //            alert('Please select Year ');
+        //            return false;
+        //        }
+
+        //        var Id = document.getElementById('IsExisting').value;
+        //        alert('Id' + Id);
+        //        if (Id == "False") {
+        //            alert('Please create service calendar in order to add holidays');
+        //            return false;
+        //        }
+
+        //        $('#AddNew').show();
+        //        $("#btnGenHoli").prop("disabled", true);
+        //    });
+        //});
+
+
+
+        $('#btnSaveHoliday').click(function () {
+            //alert('first');
+           //var startdate = new Date($('#datecalNew').val());
+           // var sdt = $('#datecalNew').val();
+            var sdt = $("#Calendardate").data("kendoDatePicker").value();
+            if (sdt == '' || sdt == null)
+            {
+                alert('Please enter date.');
+                return false;
+            }
+            var startdate = new Date(sdt);
+            //alert(startdate);
+            var tab2stdtnew = $("#StartTime").data("kendoTimePicker").value();
+            var tab2enddtnew = $("#EndTime").data("kendoTimePicker").value();
+            var DescriptionNew = $('#Holidayname').data('kendoTextBox').value();
+            //alert('second');
+            if (DescriptionNew == null || DescriptionNew == "") {
+                alert("Please enter Description");
+                return false;
+            }
+
+            if (startdate == null || startdate == "" || startdate == "Invalid Date") {
+                alert("Please select  Date");
+                return false;
+            }
+            //alert('test2');
+            if (tab2stdtnew == null || tab2stdtnew == "" || tab2enddtnew == null || tab2enddtnew == "") {
+                alert("Please select Start Time and End Time");
+                return false;
+            }
+
+
+            //alert('last');
+            return true;
+        });
+
+        $(document).ready(function (e) {
+            $('#btncancelHoliday').click(function (e) {
+                //$("#idAddAppName").val("");
+                $('#AddNew').hide();
+                $("#btnGenHoli").prop("disabled", false);
+            });
+        });
+
+        $('.deleteholentry').click(function () {
+
+            var SIdd = $(this).attr("data-id");
+            alert(SIdd);
+            var Year = $("#Calendaryear").data("kendoDropDownList").value();
+            var confirm = window.confirm('Do you want to delete the Holiday?');
+
+            if (SIdd == "0" || SIdd == "") {
+                alert('Please Select Holiday to Delete');
+                return false;
+            }
+            //alert('SIdd1');
+            if (confirm) {
+                //alert('sdf');
+                var url = '@Url.Content("~/ServiceCalendar/DeleteHoliday")';
+                var url = url + "?Id=" + SIdd + "&Year=" + Year;
+                window.location = url;
+                return false;
+            }
+            else { return false; }
+        });
+
+    });
+
+    $('#drpAccount').change(function () {
+       // alert('account');
+        var Id = $(this).find(":selected").val();
+        $('#Tab1AccountId').val(Id);
+        $('#Tab2AccountId').val(Id);
+        //var href = window.location.href.split('/');
+
+        var baseurl = '@Url.Content("~/ServiceCalendar/ClientAccountsContract")';
+        //alert(Id);
+        //if ($("#drpAccount :selected").val() != "") {
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: { accountid: Id },
+            success: getContracts,
+            failure: errorInDropdownPopulation
+        })
+        // }
+    });
+
+    $('#drpAccountContract').change(function () {
+        //alert('dhdgh');
+        var Id = $(this).find(":selected").val();
+        $('#Tab1ContractId').val(Id);
+        $('#Tab2ContractId').val(Id);
+            calservicedcalander();
+    });
+
+    function errorInDropdownPopulation(err) {
+        alert(err.stringify())
+    }
+    function getContracts(data, status) {
+
+        $("select#drpAccountContract").empty();
+        $("select#drpAccountContract").selectpicker('refresh');
+        $("select#drpAccountContract").append("<option value='0'></option>");
+        $.each(data, function (key, value) {
+            $("select#drpAccountContract").append("<option value='" + value.Value + "'>" + value.Text + "</option>");
+        });
+        $("select#drpAccountContract").selectpicker('refresh');
+    }
+
+    function holidaysave() {
+        var desc = $("#Holidayname").data("kendoTextBox");
+        var Holidayname = desc.value();
+        var Calendardate = $("#Calendardate").data("kendoDatePicker").value();
+       // console.log(Calendardate);
+        //var starttimepicker = $("#StartTime").data("kendoTimePicker");
+        //var StartTime = starttimepicker.value();
+        var StartTime = $("#StartTime").val().toString();
+       // var endtimepicker = $("#EndTime").data("kendoTimePicker");
+        //var EndTime = endtimepicker.value();
+        var EndTime = $("#EndTime").val().toString();
+        var AccountId = $("#AccountId").data("kendoDropDownList").value();
+        var ContractId = $("#ContractId").data("kendoDropDownList").value();
+        var Calendaryear = $("#Calendaryear").data("kendoDropDownList").value();
+        var caledate = Calendardate.toDateString();
+        console.log(caledate);
+        var mod = {
+            Holidayname: Holidayname,
+            Calendardatestr: caledate,
+            StartTime: StartTime,
+            EndTime: EndTime,
+            AccountId : AccountId,
+            ContractId: ContractId ,
+            Calendaryear: Calendaryear
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/ServiceCalendar/GenerateServiceHolidayCalendar")';
+       // $('#loading').show();
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log("saved");
+                   // $('#loading').hide();
+                    document.getElementById('alertmsg').innerHTML = "Holiday hours calendar created successfully";
+                    $('#serviceCalendarAlertModal').modal('show');
+                    $("#HolidayCalenderGrid").getKendoGrid().dataSource.read();
+                    $("#CalenderServiceGrid").getKendoGrid().dataSource.read();
+            }
+       })
+    }
+
+    function deleteCalender(Id) {
+        var Calendaryear = $("#Calendaryear").data("kendoDropDownList").value();
+        console.log(Id);
+        console.log(Calendaryear);
+                baseurl1 = '@Url.Content("~/ServiceCalendar/DeleteHolidayCalender")';
+        $.ajax({
+            url: baseurl1,
+            type: "Post",
+            data: {
+                scid: Id,
+                scCalendaryear: Calendaryear
+            },
+            error: function (response) {
+                alert('Error');
+            },
+            success: function (data) {
+
+                document.getElementById('alertmsg').innerHTML = "Holiday Calendar deleted sucessfully";
+                $('#serviceCalendarAlertModal').modal('show');
+                $("#CalenderServiceGrid").getKendoGrid().dataSource.read();
+                $("#HolidayCalenderGrid").getKendoGrid().dataSource.read();
+
+            }
+        })
+    }
+
+    function EditCalender(Daydate, Monthnumber, Calendaryear) {
+        console.log("edit");
+        console.log(Daydate);
+        console.log(Monthnumber);
+        console.log(Calendaryear);
+        $("#edit_Daydate").val(Daydate);
+        $("#edit_Monthnumber").val(Monthnumber);
+        $("#edit_Calendaryear").val(Calendaryear);
+        var date = Monthnumber + "/" + Daydate + "/" + Calendaryear;
+        document.getElementById('edit_date').innerHTML = date;
+
+        $('#editServiceCalendarModal').modal('show');
+
+    }
+   
+    function saveServiceCalendar() {
+        var StartTime = $("#edit_StartTime").val().toString();
+        var EndTime = $("#edit_EndTime").val().toString();
+       // console.log(StartTime);
+        //console.log(EndTime);
+        var AccountId = $("#AccountId").data("kendoDropDownList").value();
+        var ContractId = $("#ContractId").data("kendoDropDownList").value();
+        var Daydate = $("#edit_Daydate").val();
+        var Monthnumber = $("#edit_Monthnumber").val();
+        var Calendaryear = $("#edit_Calendaryear").val();
+
+        var mod = {
+            Daydate: Daydate,
+            Monthnumber: Monthnumber,
+            StartTime: StartTime,
+            EndTime: EndTime,
+            AccountId: AccountId,
+            ContractId: ContractId,
+            Calendaryear: Calendaryear
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/ServiceCalendar/EditServiceCalender")';
+        // $('#loading').show();
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log("saved");
+                    // $('#loading').hide();
+                    document.getElementById('alertmsg').innerHTML = "Service Calendar Updated successfully";
+                    $('#serviceCalendarAlertModal').modal('show');
+                    $("#HolidayCalenderGrid").getKendoGrid().dataSource.read();
+                    $("#CalenderServiceGrid").getKendoGrid().dataSource.read();
+                }
+            })
+    }
+
+</script>

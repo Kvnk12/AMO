@@ -1,0 +1,55 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.BusinessCapabilitiesLevelsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+<div class="grpArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Business Capabilities</h4>
+                    </div>
+                        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                   
+                  </div>
+                  <div class="form-horizontal">
+                         <input hidden id="level1Id" value="@Model.Level1Id.ToString()"  />
+           
+            <input hidden id="Cancel" value="CancelClick" />
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpID">Business Capabilities</label>
+                      <div class="col-sm-3">
+                       
+                        @Html.TextBoxFor(m => m.businessCapabilitiesLevel2Input.Level2, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtsubVerticalname" })
+
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpdesc">Description</label>
+                      <div class="col-sm-3">
+@*                        ><textarea class="form-control" rows="4" name="grpdesc"></textarea*@
+                           @Html.TextAreaFor(m => m.businessCapabilitiesLevel2Input.Description2, new { @class = "form-control", rows = "4" })
+
+                      </div>
+                    </div>
+                  </div>
+     <div class="accdetailacction">
+                     @* <button class="btn btn-primary" tabindex="29" type="button">Edit</button>
+                      <button class="btn btn-primary" tabindex="30" type="button">Save</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Cancel</button>
+                      <button class="btn btn-default" tabindex="31" type="button">Delete</button>*@
+           <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+             <button type="submit" class="btn btn-default" id="deleteSubVertical"  @((Model.Level2Id == 0) ? "disabled" : "")  tabindex="22" onclick="location.href='@Url.Action("DelLevel2", "BusinessCapabilitiesLevels", new {Level2Id=Model.Level2Id,Level2Name=Model.Level2Name,Level1Id = Model.Level1Id,Level1Name = Model.Level1Name,InExValue = Model.InExValue,subVId=@Model.subVId  })'; return false;">Delete</button>
+
+                    </div>
+                </div>
+}

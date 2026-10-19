@@ -1,0 +1,45 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput
+@using WebUI.Dto;
+
+@using (Html.BeginForm())
+{
+<div class="grpArea">
+                  <div class="accdetailhdr">
+                    <div class="accdetailhd">
+                      <h4>Line of Business</h4>
+                    </div>
+                        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {
+                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+                    
+                  </div>
+                  <div class="form-horizontal">
+                         <input hidden id="lobId" value="@Model.LOBId.ToString()"  />
+           <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+            <input hidden id="LOBCreate" value="@Model.LOBCreate.ToString()"   />
+            <input hidden id="Cancel" value="CancelClick" />
+                    <div class="form-group">
+                      <label class="col-sm-2 control-label" for="grpID">Line of Business</label>
+                      <div class="col-sm-3">
+                       
+                        @Html.TextBoxFor(m => m.lineOfBusinessInput.LOBName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtlobname" })
+
+                      </div>
+                    </div>
+                  
+                  </div>
+    <div class="accdetailacction">
+                       <button type="Submit" tabindex="30" class="btn btn-primary">Save</button>
+            <button type="Cancel" tabindex="31" class="btn btn-default" id="cancel">Cancel</button>
+         <button type="submit" class="btn btn-default" id="deleteVertical" @((Model.LOBId == 0) ? "disabled" : "") tabindex="22" onclick="location.href='@Url.Action("DelLOB", "LOBandApplications", new { LOBId = Model.LOBId,ClientID=@Model.ClientId,subVerticalName=@Model.subVerticalName,verticalName = @Model.verticalName,tabs="Tab3" })'; return false;">Delete</button>
+
+                    </div>
+                </div>
+}

@@ -1,0 +1,825 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput   
+@{
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/bam.png");
+    //Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    string activeTab = string.Empty;
+    string innerTab = string.Empty;
+    if (Request.QueryString["InTabs"] != null)
+    {
+        innerTab = Request.QueryString["InTabs"];
+    }
+    else
+    {
+        innerTab = "Tab1";
+    }
+
+    if (Request.QueryString["InExValue"] != null)
+    {
+        activeTab = Request.QueryString["InExValue"];
+    }
+    else
+    {
+        activeTab = "Internal";
+    }
+}
+
+<div class="selectappArea"> 
+          <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp bamSubhdArea form-horizontal">
+              @*<div class="pull-left">
+                <div class="form-group">
+                  <label for="clientName" class="col-sm-4 control-label"><span class="mandate">*</span>Client Name</label>
+                  <div class="col-sm-5">
+                      @Html.Partial("_ClientList", Model)
+                  </div>
+                </div>
+              </div>*@
+              
+              <div  class="pull-right" style="width:30%">
+                <div class="form-group">
+                  <label for="clientName" class="col-sm-4 control-label">Sub - Vertical</label>
+                  <div class="col-sm-7"> <span class="calc">
+                          @if (Model.ClientId != 0 && Model.ClientId != null)
+                          {
+                      @Model.subVerticalName
+                          }
+                                         </span> </div>
+                </div>
+              </div>
+                <div class="pull-right" style="width:30%">
+                <div class="form-group">
+                  <label for="clientName" class="col-sm-4 control-label">Industry Vertical</label>
+                  <div class="col-sm-7"> <span class="calc">
+                      @if (Model.ClientId != 0 && Model.ClientId != null)
+                      {
+                      @Model.verticalName
+                      }
+                                         </span> </div>
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp--> 
+            
+          </div>
+          <!--/.container--> 
+        </div>
+ <div class="clear"></div>
+        <div><!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">Business Alignment Manager</a></li>
+            <li><a href="#">Business Capability Catalog</a></li>
+            <li class="active"> View-Edit Details</a></li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container--> 
+        <div class="container" style="padding:0;">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#ocInternal" data-toggle="tab">Internal Capabilities</a></li>
+            <li><a href="#ecExternal" data-toggle="tab">External Capabilities</a></li>
+          </ul>
+          <div class="treeMenuArea tab-pane opened" id="ocInternal">
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div class="row">
+                   @Html.Partial("_cBcLevel1")
+                  @Html.Partial("_cBcLevel2")
+                  <!--/.accountCont --> 
+                  <!-- Optional: clear the XS cols if their content doesn't match in height -->
+                  <div class="clearfix visible-xs"></div>
+                   @Html.Partial("_cBcLevel3")
+
+                </div>
+                <!--/.end of row-->
+                
+                  <div>
+                    @{
+                        if (Model.ClientId > 0 && (Model.CLevel1Id > 0 || Model.CLevel1Create == "Level1Create") && (Model.CLevel2Id == 0 && Model.CLevel2Create != "Level2Create") && Model.InExValue == "Internal")
+                        {
+                        @Html.Partial("_cBcLevel1Create") 
+                        }
+                    }
+                </div>
+
+                    <div>
+                    @{
+                        if (Model.CLevel1Id > 0 && (Model.CLevel2Id > 0 || Model.CLevel2Create == "Level2Create") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                        {
+                        @Html.Partial("_cBcLevel2Create") 
+                        }
+                    }
+                </div>
+                  
+                      <div>
+                    @{
+                        if (Model.CLevel2Id > 0 && (Model.CLevel3Id > 0 || Model.CLevel3Create == "Level3Create") && Model.InExValue == "Internal")
+                        {
+                        @Html.Partial("_cBcLevel3Create") 
+                        }
+                    }
+                </div>
+                <!--/.grpbamArea-->
+                <div class="bamseventabArea">
+                  <ul class="nav nav-tabs">
+                      @if (innerTab == "Tab1")
+                      {
+                          Html.ViewContext.Writer.Write("<li class=\"active\"><a href=\"#appMapping\" data-toggle=\"tab\">Line of Business/Application Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"sletab\"><a href=\"#sle\" data-toggle=\"tab\">Service Level Expectations</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"bpmtab\"><a href=\"#bpm\" data-toggle=\"tab\">Business Process Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"dpndtab\"><a href=\"#dependencies\" data-toggle=\"tab\">Dependencies</a></li>");
+                          Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane\" id=\"appMapping\" style=\"min-height:423px\">");
+                      }
+                      else if (innerTab == "Tab2")
+                      {
+                          Html.ViewContext.Writer.Write("<li ><a href=\"#appMapping\" data-toggle=\"tab\">Line of Business/Application Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li class=\"active\" id=\"sletab\"><a href=\"#sle\" data-toggle=\"tab\">Service Level Expectations</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"bpmtab\"><a href=\"#bpm\" data-toggle=\"tab\">Business Process Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"dpndtab\"><a href=\"#dependencies\" data-toggle=\"tab\">Dependencies</a></li>");
+                          Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane closed\" id=\"appMapping\" style=\"min-height:423px\">");
+                      }
+                      else
+                      {
+                          Html.ViewContext.Writer.Write("<li class=\"active\" ><a href=\"#appMapping\" data-toggle=\"tab\">Line of Business/Application Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li  id=\"sletab\"><a href=\"#sle\" data-toggle=\"tab\">Service Level Expectations</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"bpmtab\"><a href=\"#bpm\" data-toggle=\"tab\">Business Process Mapping</a></li>");
+                          Html.ViewContext.Writer.Write("<li id=\"dpndtab\"><a href=\"#dependencies\" data-toggle=\"tab\">Dependencies</a></li>");
+                          Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane closed\" id=\"appMapping\" style=\"min-height:423px\">");
+                      }
+                   @* <li class="active"><a href="#appMapping" data-toggle="tab">Line of Business/Application Mapping</a></li>
+                    <li id="sletab"><a href="#sle" data-toggle="tab">Service Level Expectations</a></li>
+                    <li id="bpmtab"><a href="#bpm" data-toggle="tab">Business Process Mapping</a></li>
+                    <li id="dpndtab"><a href="#dependencies" data-toggle="tab">Dependencies</a></li>
+                  </ul>
+                  <div class=" tab-pane" id="appMapping" style="min-height:423px">*@
+                      </ul>
+                    <div class="appmapcontent">
+                      
+                         @if (Model.ClientId > 0 && (Model.CLevel1Id > 0 || Model.CLevel1Create == "Level1Create") && (Model.CLevel2Id == 0 && Model.CLevel2Create != "Level2Create") && Model.InExValue == "Internal")
+                         {
+                     @Html.Partial("_LOBMappingInternal") 
+                      <!--/.end of appmanpLeft-->
+                       @Html.Partial("_AppLOBClientBCMappingInternal") 
+   <div>
+                    @{
+                             if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel2Id == 0 && Model.CLevel2Create != "Level2Create") && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                             {
+                        @Html.Partial("_LOBMappingInternalCreate") 
+                             }
+                    }
+                </div>
+
+                          <div>
+                    @{
+                             if (Model.LOBClientBCId > 0 && (Model.AppLOBClientBCId > 0 || Model.AppLobCbcCreate == "AppLobCbcCreate") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                             {
+                        @Html.Partial("_AppLOBClientBCMapInternalCreate") 
+                             }
+                    }
+                </div>
+                         }
+
+                         @{
+                             if (Model.CLevel1Id > 0 && (Model.CLevel2Id > 0 || Model.CLevel2Create == "Level2Create") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                             {
+                                  @Html.Partial("_LOBMappingL2Internal") 
+                                @Html.Partial("_AppLOBClientBCMappingInternal") 
+                                <div>
+                    @{
+                                 if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                                 {
+                        @Html.Partial("_LOBMappingL2InternalCreate") 
+                                 }
+                    }
+                </div>
+                               <div>
+                    @{
+                                 if (Model.LOBClientBCId > 0 && (Model.AppLOBClientBCId > 0 || Model.AppLobCbcCreate == "AppLobCbcCreate") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                                 {
+                        @Html.Partial("_AppLOBClientBCMapInternalCreate") 
+                                 }
+                    }
+                </div>
+                             
+                             }
+                             }
+
+                         @{
+                             if (Model.CLevel2Id > 0 && (Model.CLevel3Id > 0 || Model.CLevel3Create == "Level3Create") && Model.InExValue == "Internal")
+                             {
+                                 @Html.Partial("_LOBMappingL3Internal") 
+                                @Html.Partial("_AppLOBClientBCMappingInternal") 
+                              <div>
+                    @{
+                                 if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel3Id > 0) && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                                 {
+                        @Html.Partial("_LOBMappingL3InternalCreate") 
+                                 }
+                    }
+                </div>
+                               <div>
+                    @{
+                                 if (Model.LOBClientBCId > 0 && (Model.AppLOBClientBCId > 0 || Model.AppLobCbcCreate == "AppLobCbcCreate") && (Model.CLevel3Id > 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                                 {
+                        @Html.Partial("_AppLOBClientBCMapInternalCreate") 
+                                 }
+                    }
+                </div>
+                             }
+                             
+                             }
+                      <!--/.end of appmanpRight--> 
+                    </div>
+                    <!--/.end of appmapcontent--> 
+                  </div>
+                  
+                  <!--end of tabone appMapping-->
+                  @if (innerTab == "Tab1")
+                  {
+                      Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane closed\" id=\"sle\" style=\"min-height:423px\"> ");
+
+                  }
+                  else if (innerTab == "Tab2")
+                  {
+                      Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane opened\" id=\"sle\" style=\"min-height:423px\"> ");
+
+
+                  }
+
+                  else
+                  {
+                      Html.ViewContext.Writer.Write("</ul> <div class=\" tab-pane opened\" id=\"sle\" style=\"min-height:423px\"> ");
+
+
+                  }
+                   @if (Model.ClientId > 0 && (Model.CLevel1Id > 0 || Model.CLevel1Create == "Level1Create") && (Model.CLevel2Id == 0 && Model.CLevel2Create != "Level2Create") && Model.InExValue == "Internal")
+                   {
+                   @Html.Partial("_SleL1Internal") 
+                        <div>
+                    @{
+                       if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel2Id == 0 && Model.CLevel2Create != "Level2Create") && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                       {
+                        @Html.Partial("_SleL1InternalCreate") 
+                       }
+                    }
+                </div>
+                   }
+                         
+                          @{
+                              if (Model.CLevel1Id > 0 && (Model.CLevel2Id > 0 || Model.CLevel2Create == "Level2Create") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal")
+                              {
+                                   @Html.Partial("_SleL2Internal") 
+                                <div>
+                    @{
+                                  if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel3Id == 0 && Model.CLevel3Create != "Level3Create") && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                                  {
+                        @Html.Partial("_SleL2InternalCreate") 
+                                  }
+                    }
+                </div>
+                               
+                             
+                              }
+                             }
+
+                                           @{
+                             if (Model.CLevel2Id > 0 && (Model.CLevel3Id > 0 || Model.CLevel3Create == "Level3Create") && Model.InExValue == "Internal")
+                             {
+                                 @Html.Partial("_SleL3Internal") 
+                              <div>
+                    @{
+                                 if (Model.ClientId > 0 && (Model.LOBClientBCId > 0 || Model.LobCbcCreate == "LobCbcCreate") && (Model.CLevel3Id > 0) && Model.InExValue == "Internal" && (Model.AppLOBClientBCId == 0 && Model.AppLobCbcCreate != "AppLobCbcCreate"))
+                                 {
+                       @Html.Partial("_SleL3InternalCreate") 
+                                 }
+                    }
+                </div>
+                               
+                             }
+                             
+                             }
+@*                  <div class=" tab-pane closed" id="sle" style="min-height:423px">*@
+              
+                  </div>
+                  <!--end of tab2 -->
+                  
+                  <div class=" tab-pane closed" id="bpm" style="min-height:423px">Tab Three</div>
+                  <div class=" tab-pane closed" id="dependencies" style="min-height:423px">
+                    <div class="appmanpRight pull-left">
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h3 class="panel-title">Application Name</h3>
+                          <h6> Line of Business: Personal Lines</h6>
+                        </div>
+                        <div class="panel-body appNameht">
+                          <ul class="list-group">
+                            <li class="list-group-item"><a href="#">Personal Lines</a></li>
+                            <li class="list-group-item"><a href="#">Commercial Lines</a></li>
+                            <li class="list-group-item"><a href="#">Name 3</a></li>
+                            <li class="list-group-item"><a href="#">Name 4</a></li>
+                            <li class="list-group-item"><a href="#">Name 5</a></li>
+                            <li class="list-group-item"><a href="#">Name 6</a></li>
+                          </ul>
+                        </div>
+                        <div class="panel-footer">
+                          <button class="btn btn-primary" type="button">Edit</button>
+                          <button class="btn btn-primary" type="button">Save</button>
+                          <button class="btn btn-default" type="button">Cancel</button>
+                          <button class="btn btn-default" type="button">Delete</button>
+                        </div>
+                        <!--/.panel-footer--> 
+                      </div>
+                      <!--/.panel ends--> 
+                      
+                    </div>
+                    <!--/.end of appmanpLeft-->
+                    
+                    <div class="appmanpLeft  pull-right">
+                      <div class="bamtreemenu" style="height:700px;overflow-y:auto">
+                        <div class="well well-lg">
+                          <h5 class="pull-left mglobtop">Line of Business : <span> Personal Lines</span></h5>
+                          <div class="pull-right mglobbtn">
+                            <button type="button" class="btn btn-primary" >Edit</button>
+                            <button type="button" class="btn btn-primary" >Save</button>
+                            <button type="button" class="btn btn-default" >Cancel</button>
+                            <button type="button" class="btn btn-default" >Delete</button>
+                          </div>
+                        </div>
+                        <ul class="bamtreeMenuUl">
+                          <li><a href="#">Marketing</a>
+                            <ul>
+                              <li><a href="#">Level 1 child1</a></li>
+                              <li><a href="#">Level 1 child2</a></li>
+                              <li><a href="#">Level 1 child3</a></li>
+                            </ul>
+                          </li>
+                          <li><a href="#">Product Development &amp; Pricing</a>
+                            <ul>
+                              <li><a href="#">Level 2 child1</a></li>
+                              <li><a href="#">Level 2 child2</a></li>
+                              <li><a href="#">Level 2 child3</a></li>
+                            </ul>
+                          </li>
+                          <li><a href="#">Policy Management</a>
+                            <ul>
+                              <li>
+                                <a href="#">New and Renewal Business Submission</a>
+                                 <div class="pull-right">
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox1" value="option1" name="undr">
+                                  Predecessor</label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox2" value="option2" name="undr">
+                                  Successor </label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox3" value="option3" name="undr">
+                                  Both </label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox4" value="option4" name="undr">
+                                  N/A </label>
+                                  </div>
+                                  
+                              </li>
+                              <li>
+                              <a href="#">Underwriting</a>
+                                <div class="pull-right">
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox1" value="option1" name="undr">
+                                  Predecessor</label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox2" value="option2" name="undr">
+                                  Successor </label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox3" value="option3" name="undr">
+                                  Both </label>
+                                <label class="radio-inline">
+                                  <input type="radio" id="inlineCheckbox4" value="option4" name="undr">
+                                  N/A </label>
+                                  </div>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <!--/.appmanpRight --> 
+                    
+                  </div>
+                  <!--tab 4 dependencies ends here--> 
+                </div>
+                <!--/.bamseventabArea 3 sub tabs ends here--> 
+                
+              </div>
+              <!--/.treeMenuContent container--> 
+            </div>
+            <!--/.treeMenuContent--> 
+          </div>
+          <!--/.treeMenuArea-->
+          
+          <div class="MetricSetup tab-pane closed" id="ecExternal" style="min-height:600px">
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+              <div class="treeMenuContent">
+                <div class="container" style="padding:0;"> tab two content goes here </div>
+                <!--/.treeMenuContent container--> 
+              </div>
+              <!--/.treeMenuContent--> 
+            </div>
+            <!--/.treeMenuArea--> 
+          </div>
+          <!--/.MetricSetup end of tab 2 --> 
+          
+        </div>
+
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+$(document).ready(function () {
+
+        $('.selectpicker').selectpicker();
+        //$('#sandbox-container .input-append.date').datepicker({ todayHighlight: true });
+
+        $('#cancel').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+                
+                //window.location.replace(window.location.href.slice(0, window.location.href.indexOf('?')));
+                //alert(window.history(-1));
+                
+                window.location = window.location.href;
+                return false;
+            }
+            else { return false; }
+
+        });
+
+
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            //var tabs = $("#tabs").val().toString();
+            //alert(tabs);
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'ClientBCLevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?ClientId='
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?ClientId='
+            }
+
+            window.location = baseurl + SelectedclientId ;
+
+        });
+
+        $('#btnAddLevel1').click(function () {
+
+            var clientId = '0';//$("#ClientId").val().toString();
+            if (clientId == "0") {
+                alert('Please select Client ');
+                return false;
+            }
+            var href = window.location.href.split('/');
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+
+            }
+
+            var url = baseurl + "&CLevel1Create=Level1Create" + "&InExValue=Internal" + "&ClientId=" + clientId;
+            window.location = url;
+
+        });
+
+
+        $('#btnAddLevel2').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+
+            if (level1Id == "0") {
+                alert('Please select Group name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&CLevel2Create=Level2Create" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId;
+            window.location = url;
+
+        });
+
+        $('#btnAddLevel3').click(function () {
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var level1Id = $("#level1Id").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var level1Name = $("#level1Name").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+
+
+            if (level2Id == "0") {
+                alert('Please select Business Capability');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel2Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel2Id=0'
+            }
+
+
+            var url = baseurl + level2Id + "&CLevel3Create=Level3Create" + "&CLevel2Name=" + level2Name + "&CLevel1Name=" + level1Name + "&CLevel1Id=" + level1Id + "&InExValue=" + inExValue + "&ClientId=" + clientId;
+            window.location = url;
+
+        });
+
+        $('#btnAddLOB').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+          
+            if (level1Id == "0") {
+                alert('Please select Group name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId ;
+            window.location = url;
+
+        });
+
+        $('#btnAddLOBL2').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+
+            if (level2Id == "0") {
+                alert('Please select Business Capability name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId +"&CLevel2Id=" + level2Id +"&Level2Name" + level2Name;
+            window.location = url;
+
+        });
+
+        $('#btnAddLOBL3').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+           
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+            var level3Id = $("#level3Id").val().toString();
+
+            var level3Name = $("#level3Name").val().toString();
+            if (level3Id == "0") {
+                alert('Please select sub Capability name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId + "&CLevel2Id=" + level2Id + "&Level2Name" + level2Name + "&CLevel3Id=" + level3Id + "&CLevel3Name=" + level3Name ;
+            window.location = url;
+
+        });
+
+        $('#btnAddLOBApp').click(function () {
+            var LOBClientBCId = $("#LOBClientBCId").val().toString();
+
+            var LOBName = $("#LOBName").val().toString();
+            var level1Id = $("#level1Id").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var level1Name = $("#level1Name").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var level3Id = $("#level3Id").val().toString();
+
+            var level3Name = $("#level3Name").val().toString();
+
+            if (LOBClientBCId == "0") {
+                alert('Please select Line of business');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?LOBClientBCId=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?LOBClientBCId=0'
+            }
+
+
+            var url = baseurl + LOBClientBCId + "&AppLobCbcCreate=AppLobCbcCreate" + "&LOBName=" + LOBName + "&CLevel1Name=" + level1Name + "&CLevel1Id=" + level1Id + "&InExValue=" + inExValue + "&ClientId=" + clientId+ "&CLevel2Name=" + level2Name + "&CLevel2Id=" + level2Id + "&CLevel3Name=" + level3Name + "&CLevel3Id=" + level3Id ;
+            window.location = url;
+
+        });
+
+        $('#btnAddSLEL1').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+
+            if (level1Id == "0") {
+                alert('Please select Group name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId +"&InTabs=Tab2";
+            window.location = url;
+
+        });
+
+        $('#btnAddSLEL2').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+
+            if (level2Id == "0") {
+                alert('Please select Business Capability name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId + "&CLevel2Id=" + level2Id + "&Level2Name" + level2Name + "&InTabs=Tab2";
+            window.location = url;
+
+        });
+
+        $('#btnAddSLEL3').click(function () {
+            var level1Id = $("#level1Id").val().toString();
+
+            var level1Name = $("#level1Name").val().toString();
+            var level2Id = $("#level2Id").val().toString();
+
+            var level2Name = $("#level2Name").val().toString();
+
+            var inExValue = $("#inExValue").val().toString();
+            var clientId = '0';//$("#ClientId").val().toString();
+            var level3Id = $("#level3Id").val().toString();
+
+            var level3Name = $("#level3Name").val().toString();
+            if (level3Id == "0") {
+                alert('Please select sub Capability name');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+            var baseurl = '';
+            if (href[3] == 'ClientBClevels') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'ClientBCLevels/DisplayClientBClevels/?CLevel1Id=0'
+            }
+
+
+            var url = baseurl + level1Id + "&LobCbcCreate=LobCbcCreate" + "&CLevel1Name=" + level1Name + "&InExValue=" + inExValue + "&ClientId=" + clientId + "&CLevel2Id=" + level2Id + "&Level2Name" + level2Name + "&CLevel3Id=" + level3Id + "&CLevel3Name=" + level3Name + "&InTabs=Tab2";
+            window.location = url;
+
+        });
+});
+
+</script>

@@ -1,0 +1,462 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+@model ViewPageWbs
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Framework Builder";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/framework_builder_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    
+}
+<style>
+    #DeleteWbsButton, #PopupWbsButton {
+        background-color: rgb(91,121,171);
+        color: #fff;
+        border-color: rgb(91,121,171);
+    }
+    #WBSTemplateDetails .k-toolbar.k-grid-toolbar {
+        display: flex;
+        justify-content: end;
+        border-radius: 0;
+        background-color: rgb(91,121,171);
+    }
+        #WBSTemplateDetails .k-toolbar.k-grid-toolbar .k-button {
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            display: flex;
+            border-radius: 0;
+        }
+</style>
+
+<div class="content-main dark-bg">
+    <div style="margin:8px 8px 8px 8px; min-height:800px;">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>  Framework Builder</li>
+                <li>  Meta Data</li>
+                <li class="active">WBS</li>
+            </ol>
+        </div>
+        <br />
+        <div>
+            <input type="hidden" id="hdnResourceGroupId" name="hdnResourceGroupId">
+            <input type="hidden" id="hdnRoleId" name="hdnRoleId">
+            <input type="hidden" id="hdnWorkproductId" name="hdnWorkproductId">
+
+            <label><strong style="font-size:medium; align-content:center;color:#fff" >WBS Template</strong></label>
+            
+            <div style="padding:10px;background-color:#fff;">
+                
+                    <table style="min-width:40%">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div style="display:flex">
+                                        <label>WBS Template Name:</label>
+
+                                        &nbsp; &nbsp;
+
+                                        @(Html.Kendo().DropDownList().Name("WBSTempNameId").DataTextField("Text").DataValueField("Value").OptionLabel("Select WBS Template...")
+.Events(e=>e.Change("RefreshTreeView"))
+.AutoBind(true)
+.DataSource(d=>d
+    .Read(read=>read.Action("GetWbsTempNames","MetaData"))
+)      )
+                                    </div>
+                                    
+
+                                </td>
+                                <td>
+                                    @(Html.Kendo().Button().Name("DeleteWbsButton").Content("Delete WBS Template").Events(e => e.Click("DeleteWbsName")))
+                                </td>
+
+                                <td>
+                                    @(Html.Kendo().Button().Name("PopupWbsButton").Content("Create New WBS Template"))
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                
+            </div>
+</div>
+
+        <div class="custom-kendo-treelist">
+
+            @(Html.Kendo().TreeList<WbsTemplateDetailsModel>()
+                .Name("WBSTemplateDetails")
+    .Toolbar(toolbar => toolbar.Create().Text("Add New Phase/ Activity/ Task"))
+    //.Events(e=>e.)
+    .Columns(columns =>
+    {
+        columns.Add().Field(e => e.Task).Title("Phase/ Activity/ Task");
+        columns.Add().Field(e => e.TaskId).Hidden(true);
+        columns.Add().Field(e => e.WorkProduct).Editor("WorkProductDropDownEditor").Title("Work Product");
+         columns.Add().Field(e => e.Role).Editor("RoleDropDownEditor").Title("Role");
+        columns.Add().Field(e => e.ResourceGroup).Editor("ResourceDropDownEditor").Title("Resource Group");
+
+        columns.Add().Field(e => e.ResourceGroupId).Hidden(true);
+        columns.Add().Field(e => e.RoleId).Hidden(true);
+        columns.Add().Field(e => e.WorkProductId).Hidden(true);
+        columns.Add().Title("Edit").Width(350).Command(c =>
+        {
+            c.Edit();
+            c.Destroy();
+            c.CreateChild();
+        })
+        .HtmlAttributes(new
+        {
+            // style = "text-align: center;"
+        });
+    })
+    .Editable(e => e.Mode("inline"))
+    .DataSource(dataSource => dataSource
+        .Create(create => create.Action("CreateWbsTask", "MetaData").Data("DataForTree"))
+        .Read(read => read.Action("GetAllTasks", "MetaData").Data("DataForTree"))
+        .Update(update => update.Action("UpdateWbsTemplate", "MetaData").Data("DataForTreeUpdate"))
+        .Destroy(delete => delete.Action("DestroyWbsTask", "MetaData"))
+
+        .Model(m =>
+        {
+            m.Id(f => f.TaskId);
+            m.ParentId(f => f.TParentId);
+            m.Expanded(true);
+            m.Field(f => f.Task);
+            m.Field(f => f.WorkProductId).Nullable(true);
+            m.Field(f => f.RoleId).Nullable(true);
+            m.Field(f => f.ResourceGroupId).Nullable(true);
+          //  m.Field(f => f.WorkProductId).Nullable(true);
+
+        })
+    )
+    .Height(600)
+            .Events(events => {
+        events.Edit("onEdit");
+    })
+        )
+        </div>
+
+        </div>
+
+        @* Kendo Window *@
+
+        @(Html.Kendo().Window()
+        .Name("CreateWbsWindow")
+        .Title("Create WBS Template")
+         .Visible(false)
+         .Content(@<text>
+
+                <div style="margin:auto;">
+
+                    <label style="display:inline-block">
+                        WBS Template Name:
+                    </label>
+                    <br />
+                    @(Html.Kendo().TextBox().Name("CreateWbsName")
+
+                        )
+                    &nbsp;&nbsp;
+                    @(Html.Kendo().Button().Name("WbsNameSubmit").Content("Submit").Events(e=>e.Click("SaveWbsName"))  )
+                    <br />
+                    <label id="nameAvailable" style="margin:5px; color:green" hidden>
+                        WBS Name is Available!
+                    </label>
+                    <label id="nameNotAvailable" style="margin:5px; color:red" hidden>
+                        Sorry! WBS Name already exists.
+                    </label>
+                    <label id="checking" style="margin:5px; color:dimgrey" hidden>
+                        Checking...
+                    </label>
+
+                </div>
+
+
+                    </text>)
+    .Draggable()
+    .Resizable()
+    .Width(300)
+    .Height(120)
+    .AutoFocus(true)
+    .Modal(true)
+    .Events(ev => ev.Close("onWindowClose"))
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+    )
+
+    </div>
+
+    <script type="text/javascript">
+
+    function onWindowClose() {
+        $("#PopupWbsButton").show();
+    }
+
+
+    var ResourceGroupData = @Html.Raw(Json.Encode(Model.ResourceGroup));
+    var RoleData = @Html.Raw(Json.Encode(Model.Role));
+    var WorkProductData = @Html.Raw(Json.Encode(Model.WorkProduct));
+    function ResourceDropDownEditor(container, options) {
+        $('<input name="' + options.field + '"/>')
+        .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                select: function(e){
+                    var treeLis = $("#WBSTemplateDetails").data("kendoTreeList");
+                    var row = $(container).closest("tr");
+                    var dataItem = treeLis.dataItem(row);
+                    dataItem.set("ResourceGroupId", e.dataItem.Value);
+                    dataItem.set("ResourceGroup", e.dataItem.Text);
+                    document.getElementById("hdnResourceGroupId").value = e.dataItem.Value;
+
+                },
+                dataTextField: "Text",
+                dataValueField: "Text",
+                dataSource: ResourceGroupData,
+            animation: {
+                close: {
+                    effects: "fadeOut zoom:out",
+                    duration: 200
+                },
+                open: {
+                    effects: "fadeIn zoom:in",
+                    duration: 200
+                }
+            }
+            });
+    }
+    function RoleDropDownEditor(container, options) {
+         $('<input name="' + options.field + '"/>')
+        .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                select: function(e){
+                    var treeLis = $("#WBSTemplateDetails").data("kendoTreeList");
+                    var row = $(container).closest("tr");
+                    var dataItem = treeLis.dataItem(row);
+                    dataItem.set("RoleId", e.dataItem.Value);
+                    dataItem.set("Role", e.dataItem.Text);
+                    document.getElementById("hdnRoleId").value = e.dataItem.Value;
+                },
+                dataTextField: "Text",
+                dataValueField: "Text",
+                dataSource: RoleData,
+                animation: {
+                    close: {
+                        effects: "fadeOut zoom:out",
+                        duration: 200
+                    },
+                    open: {
+                        effects: "fadeIn zoom:in",
+                        duration: 200
+                    }
+                }
+            });
+    }
+    function WorkProductDropDownEditor(container, options) {
+        $('<input name="' + options.field + '"/>')
+        .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                select: function(e){
+                    var treeLis = $("#WBSTemplateDetails").data("kendoTreeList");
+                    var row = $(container).closest("tr");
+                    var dataItem = treeLis.dataItem(row);
+                    dataItem.set("WorkProductId", e.dataItem.Value);
+                    dataItem.set("WorkProduct", e.dataItem.Text);
+                    document.getElementById("hdnWorkproductId").value = e.dataItem.Value;
+
+                },
+                dataTextField: "Text",
+                dataValueField: "Text",
+                dataSource: WorkProductData,
+                animation: {
+                    close: {
+                        effects: "fadeOut zoom:out",
+                        duration: 200
+                    },
+                    open: {
+                        effects: "fadeIn zoom:in",
+                        duration: 200
+                    }
+                }
+            });
+    }
+    function DataForTreeUpdate(){
+        var roleid = document.getElementById("hdnRoleId").value;
+        var rg = document.getElementById("hdnResourceGroupId").value;
+        var wp = document.getElementById("hdnWorkproductId").value;
+        console.log(roleid + "," + rg + "," + wp);
+        return {
+            roleid: roleid,
+            rg: rg,
+            wp: wp
+        }
+    }
+
+
+    function DataForTree(){
+        //WBSTempNameId  -dropdown
+        var name = $("#WBSTempNameId").data("kendoDropDownList");
+        var roleid = document.getElementById("hdnRoleId").value ;
+        var rg = document.getElementById("hdnResourceGroupId").value ;
+        var wp = document.getElementById("hdnWorkproductId").value;
+        console.log(roleid+","+ rg+","+ wp);
+        return  {
+            WbsTemplateId: name.value(),
+            roleid: roleid,
+            rg: rg,
+            wp: wp
+        }
+    }
+
+    function RefreshTreeView(){
+        $('.k-treelist .k-header .k-grid-add').show();
+        var tre = $("#WBSTemplateDetails").data("kendoTreeList");
+        tre.dataSource.read();
+    }
+
+    $(document).ready(function () {
+
+        //Disable AddTask button - and OnSelection of WBS Name from dropdown enable it.
+        $('.k-treelist .k-header .k-grid-add').hide();
+
+
+        $("#PopupWbsButton").bind("click", function () {
+            $("#CreateWbsWindow").data("kendoWindow").open().center();
+            $("#PopupWbsButton").hide();
+        });
+
+        $("#CreateWbsName").on("input propertychange paste", function () {
+            //Check Whether the name available or not.
+            var wbsnam = $("#CreateWbsName").val();
+            var mod = {
+                WbsName: wbsnam
+            };
+            $("#nameNotAvailable").hide();
+            $("#nameAvailable").hide();
+            $("#checking").show();
+            if (wbsnam.trim() != '') {
+                var data = JSON.stringify(mod);
+                var ReviseIdeaURl = '@Url.Content("~/RetirementAccelerator/MetaData/CheckWBSAvailability")';
+                $.ajax(
+                    {
+                        url: ReviseIdeaURl,
+                        type: 'post',
+                        data: data,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            if (data.Isthere == true) {
+                                $("#checking").hide();
+                                $("#nameNotAvailable").show();
+                                $("#WbsNameSubmit").attr('disabled', true);
+                            }
+                            else {
+                                $("#nameAvailable").show();
+                                $("#checking").hide();
+                                $("#WbsNameSubmit").removeAttr('disabled');
+                            }
+                        }
+                    })
+            }
+
+
+        });
+
+    });
+
+    function DeleteWbsName(e) {
+        var name = $("#WBSTempNameId").data("kendoDropDownList");
+        var mod = {
+            WbsTempNameId: name.value()
+        };
+        var data = JSON.stringify(mod);
+        var deleteConfirm = confirm("Are you sure you want to delete?");
+        if (deleteConfirm == true) {
+        var ReviseIdeaURl = '@Url.Content("~/RetirementAccelerator/MetaData/DeleteTemplate")';
+        $.ajax(
+            {
+                url: ReviseIdeaURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    //Refresh the Dropdown and set the value to it..
+                    var dropdownlist = $("#WBSTempNameId").data("kendoDropDownList");
+                    dropdownlist.dataSource.read();
+                    var tre = $("#WBSTemplateDetails").data("kendoTreeList");
+                    tre.dataSource.read();
+
+                }
+            });
+        }
+
+    }
+
+    function SaveWbsName(e) {
+        var wbsnam = $("#CreateWbsName").val();
+        var mod = {
+            WbsTempName: wbsnam
+        };
+        var data = JSON.stringify(mod);
+        var ReviseIdeaURl = '@Url.Content("~/RetirementAccelerator/MetaData/CreateWbsTemplate")';
+        $.ajax(
+            {
+                url: ReviseIdeaURl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    //Refresh the Dropdown and set the value to it..
+                    var dropdownlist = $("#WBSTempNameId").data("kendoDropDownList"),
+                        setValue = function() {
+
+                                dropdownlist.value(data.ReturnID);
+                        };
+                    dropdownlist.dataSource.read();
+
+                    setValue();
+                    //dropdownlist.value(data.ReturnID);
+
+                    //close window
+                    $("#CreateWbsWindow").data("kendoWindow").close();
+
+                }
+            })
+    }
+      function onEdit(arg) {
+           var model = arg.model;
+    console.log("ResourceGroupId"+ model.ResourceGroupId+"RoleId"+model.RoleId+"WorkProductId"+model.WorkProductId)
+       document.getElementById("hdnWorkproductId").value = model.WorkProductId;
+    document.getElementById("hdnResourceGroupId").value = model.ResourceGroupId;
+     document.getElementById("hdnRoleId").value =model.RoleId;
+
+        }
+    </script>
+
+
+
+
+

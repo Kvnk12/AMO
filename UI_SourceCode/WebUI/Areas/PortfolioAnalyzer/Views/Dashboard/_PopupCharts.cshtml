@@ -1,0 +1,305 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model DashboardModel
+
+@(Html.Kendo().Window()
+                .Name("chart1Window")
+                .Title("Portfolio Breakdown")
+                .Content(@<text>
+                    @(Html.Kendo().Chart<DashboardModel>
+                                                ()
+                                                .Name("winChart1")
+                                                .Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(true)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterPortfolioBreakdown")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        })
+         .Series(series =>
+         {
+             series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                .Labels(labels => labels
+                .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                 .Background("transparent")
+             //.Visible(true)
+             //   .Position(ChartPieLabelsPosition.OutsideEnd)
+
+             )
+                .Overlay(ChartPieSeriesOverlay.None)
+             .StartAngle(150);
+         })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+        ))
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("chart2Window")
+                .Title("Source Code Type Breakdown")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                .Name("winChart2")
+.Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(true)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataPortfolio")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        })
+        .Series(series =>
+        {
+
+            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+               .Labels(labels => labels
+               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                .Background("transparent")
+            //  .Visible(true)
+            // .Position(ChartPieLabelsPosition.OutsideEnd)
+
+            )
+               .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(120);
+        })
+
+
+
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+        )
+                    )
+
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1100)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("chart3Window")
+                .Title("Business Function")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                .Name("winChart3")
+                                                .Legend(legend => legend
+        //.Position(ChartLegendPosition.Right)
+        .Visible(true)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        //.Height(300)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataBusinessFunction")))
+        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+        }).Series(series =>
+        {
+
+            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+               .Labels(labels => labels
+               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                .Background("transparent")
+            )
+             .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(90);
+        })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+        )
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("chart4Window")
+                .Title("Application/Service Criticality")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<DashboardModel>
+    ()
+    .Name("winChart4")
+    .Legend(legend => legend
+                                    .Visible(true)
+                                    )
+                                    .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                    )
+                                     .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterData")))
+                                       .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                    "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                    "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                    "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                    "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                })
+                                       .Series(series =>
+                                       {
+                                           series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                           .Labels(labels => labels
+                                           .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                           .Background("transparent")
+                                       )
+                                       .Overlay(ChartPieSeriesOverlay.None)
+                                       .StartAngle(60);
+                                       })
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                    ))
+
+
+</text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("chart5Window")
+                .Title("Overall Disposition")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<DashboardModel>()
+                                                .Name("winChart5")
+                                               .Legend(legend => legend
+                                                        .Visible(true)
+                                                        )
+                                                        .ChartArea(chartArea => chartArea
+                                                            .Background("transparent")
+                                                        )
+                                                         .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataDisposition")))
+                                                         .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                    "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                    "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                    "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                    "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                          })
+                                                        .Series(series =>
+                                                        {
+                                                            series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                                               .Labels(labels => labels
+                                                               .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                                .Background("transparent")
+                                                            )
+                                                            .Overlay(ChartPieSeriesOverlay.None)
+                                                            .StartAngle(30);
+                                                        })
+                                                        .Tooltip(tooltip => tooltip
+                                                            .Visible(true)
+                                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                                        ))
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+                                                .Actions(actions => actions.Close())
+)
+@(Html.Kendo().Window()
+                .Name("chart6Window")
+                .Title("Application/Service Type")
+                .Content(@<text>
+                   @(Html.Kendo().Chart<DashboardModel>()
+                                                .Name("winChart6")
+                                                 .Legend(legend => legend
+                            .Visible(true)
+                            )
+                            .ChartArea(chartArea => chartArea
+                                .Background("transparent"))
+                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardFilterOptions", "APRAjaxService").Data("ParameterDataAppType")))
+                                .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                            "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                            "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                            "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                            "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                            })
+                            .Series(series =>
+                            {
+                                series.Donut(model => model.AppCount, model => model.PieChartColumnName, null)
+                                    .Labels(labels => labels
+                                    .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                    .Background("transparent"))
+                                    .Overlay(ChartPieSeriesOverlay.None)
+                                .StartAngle(150);
+                            })
+                            .Tooltip(tooltip => tooltip
+                                .Visible(true)
+                                .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                            ) )
+
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+

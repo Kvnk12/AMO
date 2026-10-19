@@ -1,0 +1,555 @@
+﻿
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.Data;
+
+@model IList<EngagementQuestionnaireModel>
+
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+    @*<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>*@
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+}
+
+<style>
+    .service-plan-content .heading-section .k-input.k-textbox {
+        color: white;
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid white;
+        border-radius: 0px;
+        pointer-events: none;
+        font-size: 1vw !important;
+    }
+
+    .custom-html-grid {
+        display: flex;
+        justify-content: center;
+    }
+
+        .custom-html-grid table tr th, .custom-html-grid table tr td {
+            border: 1px solid darkgrey;
+            font-size: 1.02vw !important;
+        }
+
+    .custom-textbox .k-textbox > input {
+        padding-left: 4px;
+    }
+
+    #tbl-Heatmap {
+        width: 84% !important;
+    }
+
+    .table-col-fix::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-col-fix::-webkit-scrollbar-thumb {
+        background-color: rgb(91,121,171);
+        border: none;
+        border-radius: 5px;
+    }
+
+    .table-col-fix::-webkit-scrollbar-track {
+        background-color: #e7e9ec;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .level1 {
+        height: 1vw;
+        width: 1vw;
+        background-color: #FF3600;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #956565;
+        border-radius: 10px;
+    }
+
+    .level2 {
+        height: 1vw;
+        width: 1vw;
+        background-color: #FF8600;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #b57754;
+        border-radius: 10px;
+    }
+
+    .level3 {
+        height: 1vw;
+        width: 1vw;
+        background-color: #FFB300;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #bcb56e;
+        border-radius: 10px;
+    }
+
+    .level4 {
+        height: 1vw;
+        width: 1vw;
+        background-color: #AAB300;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #bf965c;
+        border-radius: 10px;
+    }
+
+    .level5 {
+        height: 1vw;
+        width: 1vw;
+        background-color: #4CB539;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #517a51;
+        border-radius: 10px;
+    }
+
+    .notAppl {
+        height: 1vw;
+        width: 1vw;
+        background-color: #a3a2a2;
+        margin-right: 0.5em;
+        margin-top: 0.25em;
+        border: 1px solid #807c7c;
+        border-radius: 10px;
+    }
+
+    body {
+        -webkit-print-color-adjust: exact;
+    }
+
+    #btnExp {
+        background-image: url("../../Content/images/export_pdf.svg");
+        background-color: transparent;
+        color: white;
+        background-repeat: no-repeat;
+        border: none;
+        background-position: right;
+        padding-right: 2em;
+        position: relative;
+        margin-right: 0.5em;
+        z-index: 1;
+        font-size: 1vw !important;
+    }
+
+    .custom-blue-label {
+        font-size: 1vw !important;
+    }
+    .k-widget.k-window {
+        height: 34vw;
+        width: 69vw;
+    }
+</style>
+
+
+<div class="content-main dark-bg heatMap">
+    <ol class="breadcrumb">
+        <li>Assessment Manager</li>
+        <li class="active">HeatMap</li>
+    </ol>
+    @*<h4 id="hh" style=" color: white; font-size: 1.2em; font-family: HelveticaNeue; ">A3MM - HeatMap</h4>*@
+    <div class="service-plan-content">
+
+        <div class="heading-section">
+
+            <div class="drpList" style="display: flex; margin-top: 3em; font-size: 1vw; justify-content: center; margin-left: -20vw;">
+                <div class=" Account" style=" margin-top: -2em; margin-right: 5em;">
+                    <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em;color:white;">Account :</span>
+
+                    <div class="custom-textbox Accountdrp" style=" margin-left: 5em; margin-top: -1.5em; width: 12.3em;">
+                        @(Html.Kendo().TextBox()
+                                  .Name("Account")
+                                  .Value(Model[0].AccountNamesList.FirstOrDefault().Text)
+                                  .HtmlAttributes(new { style = "width: 15em;" })
+                            )
+                    </div>
+                </div>
+
+                @*<div class=" Contract" style="margin-top: -2em; margin-right: 5em;">
+                        <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em; color: white;">Contract :</span>
+                        <div class="custom-textbox Contractdrp" style=" margin-left: 5em; margin-top: -1.5em; width: 12.3em;">
+                            @(Html.Kendo().TextBox()
+                                     .Name("Contract")
+                                     .Value(Model[0].ContractList.FirstOrDefault().Text)
+                                     .HtmlAttributes(new { style = "width: 15em;" })
+
+                                     )
+                        </div>
+                    </div>*@
+
+
+                <div class=" AssessmentName" style="margin-top: -2em; margin-right: 4em;">
+                    <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em; color: white;">Assessment Name :</span>
+                    <div class="custom-textbox Assessmentrp" style=" margin-left: 9em; margin-top: -1.5em;">
+                        @(Html.Kendo().TextBox()
+                                 .Name("AssessmentNametxtbox")
+                                 .Value(Model[0].AssessmentNameList.FirstOrDefault().Text)
+                                 .HtmlAttributes(new { style = "width: 19em;" })
+                                 )
+                    </div>
+                </div>
+
+                @*<div class=" AssessmentName" style=" width: 11em; margin-left: 11em; margin-top: -2em;">
+                        <span class="custom-blue-label" style="margin-right: -1.8em; width: 13em; color: white;">Assessment Name :</span>
+                        <div class="custom-dropdown AssessmentNamedrp" style=" width: 11em; margin-left: 11em; margin-top: -2em;">
+                            @(Html.Kendo().DropDownListFor(m => m[0].AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model[0].AssessmentNameList)
+                              .Name("AssessmentName")
+                              .Events(e =>
+                              {
+                                  e.Select("onSelectAssessmentName");
+                              })
+                              .HtmlAttributes(new { style = "color: black; width: 18em; border-top: none; border-right: none; border-left: none; border-image: initial; font-size: 100 %; border-radius: 3px; box-shadow: none;line-height: 0.935714em;border-bottom: 1px solid rgb(204, 204, 204);margin-top: 3px;height: 1.7em;font-family:inherit;font-size:1em; " })
+                               )
+                        </div>
+                    </div>*@
+
+            </div>
+
+        </div>
+
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+
+            <div class="action-items" style="margin-top:-6.5vh">
+                <button type="button" id="btnExp">Export - </button>
+                <span class="parameter-filter-icon"></span>
+            </div>
+
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+                    <ul>
+                        <li>
+                            Account :
+                            @(Html.Kendo().DropDownList()
+                               .Name("AccountNamesList")
+                               .Enable(false)
+                               .DataTextField("Text")
+                               .DataValueField("Value")
+                               .Value(Model[0].AccountID.ToString())
+                               .BindTo(Model[0].AccountNamesList)
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectAccount");
+                               })
+                               )
+                        </li>
+
+
+                        @*<li>
+                                Contract :
+                                @(Html.Kendo().DropDownList()
+                                .Name("ContractList")
+                                .DataTextField("Text")
+                                .SelectedIndex(0)
+                                .Value(Model[0].ContractID.ToString())
+                                .DataValueField("Value")
+                                .DataSource(source => {
+                                source.Read(read =>
+                                {
+                                 read.Action("getContractId", "Assessment").Data("GetAccId");
+                                 });
+                                })
+                                .Events(e =>
+                               {
+                                   e.Change("onSelectContract");
+                               })
+                                .AutoBind(true)
+
+                               )
+
+                            </li>*@
+
+                        <li>
+                            Assessment Name :
+                            @(Html.Kendo().DropDownListFor(m => m[0].AssessmentID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model[0].AssessmentNameList)
+                              .Name("AssessmentName")
+                               //.Events(e =>
+                               // {
+                               //     e.Select("onSelectAssessmentName");
+                               // })
+                               )
+                        </li>
+
+                        <li>
+                            @(Html.Kendo().Button()
+                                .Name("btnPreview")
+                                .Content("Apply")
+                                .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                                )
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+            @Html.Partial("_HeatMapTablePartial", Model)
+        </div>
+
+    </div>
+
+    <div>
+        @Html.Partial("_SingleComponentDetails")
+    </div>
+
+</div>
+
+
+<script>
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider').addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+
+    });
+
+     function onSelectAssessmentName(e) {
+
+        var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+        var mod = {
+            SurveyTypeID: AssessmentID
+        }
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/getHeatMapFilterData")';
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+                $('#HeatmapTable').html(response);
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+    }
+
+
+
+    function onSelectAccount(e) {
+
+        //var contractDropdown = $("#ContractList").data("kendoDropDownList");
+        //var contract = contractDropdown.value();
+        //var oldSel = contractDropdown.selectedIndex;
+        //contractDropdown.dataSource.read();
+        //setTimeout(function () {
+        //    contractDropdown.selectedIndex = 0;
+        //}, 500);
+
+         var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+
+    //var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+    var mod = {
+        AccountID: AccountID
+        //ContractID: ContractID
+        };
+
+      var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetAssessmentNameListforDashboard")';
+
+
+
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            console.log(data.length);
+                            var dropdownlist = $("#AssessmentName").data("kendoDropDownList");
+
+                            dropdownlist.setDataSource(data);
+                            dropdownlist.value(data[0].Value);
+
+                            console.log(data);
+                        }
+                    })
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountNamesList").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+
+    $('#btnPreview').on("click", function (e) {
+
+        console.log("preview button clicked");
+        var AssessmentID = $("#AssessmentName").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        //var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+        var AssessmentName = $("#AssessmentName").data("kendoDropDownList").text();
+        var AccountName = $("#AccountNamesList").data("kendoDropDownList").text();
+        //var ContractName = $("#ContractList").data("kendoDropDownList").text();
+
+        $("#AssessmentNametxtbox").data("kendoTextBox").value(AssessmentName);
+        $("#Account").data("kendoTextBox").value(AccountName);
+        //$("#Contract").data("kendoTextBox").value(ContractName);
+        console.log(AssessmentID + " " + AccountID );
+
+
+        var mod = {
+            AssessmentID: AssessmentID,
+            AccountID: AccountID
+            //ContractID: ContractID
+        }
+
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/getHeatMapFilterData")';
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+                $('#HeatmapTable').html(response);
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+
+
+    });
+
+
+       @*function onSelectContract() {
+
+    var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+
+    var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+    var mod = {
+        AccountID: AccountID,
+        ContractID: ContractID
+        };
+
+      var data1 = JSON.stringify(mod);
+                baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetAssessmentNameListforDashboard")';
+
+
+
+                $.ajax(
+                    {
+                        url: baseurl1,
+                        type: 'post',
+                        data: data1,
+                        async: false,
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (data) {
+                            console.log(data.length);
+                            var dropdownlist = $("#AssessmentName").data("kendoDropDownList");
+
+                            dropdownlist.setDataSource(data);
+                            dropdownlist.value(data[0].Value);
+
+                            console.log(data);
+                        }
+                    })
+
+
+    }*@
+
+    var selCmp = "";
+    function cmpClick(cmpid) {
+        selCmp = $("#" + cmpid.id).text();
+        $("#SingleDashboardDetail").data("kendoGrid").dataSource.read();
+        $("#cmpName").text(selCmp);
+        var popup = $("#ViewSingleCmpDetails").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+    function cmpNameClick(cmpid) {
+        selCmp = $("#" + cmpid).text();
+        $("#SingleDashboardDetail").data("kendoGrid").dataSource.read();
+        $("#cmpName").text(selCmp);
+        var popup = $("#ViewSingleCmpDetails").data("kendoWindow");
+        popup.open();
+        popup.center();
+    }
+
+    function GetCmpDetails() {
+        return {
+            assessmentName: $("#AssessmentName").data("kendoDropDownList").text(),
+            ComponentName: selCmp
+        };
+    }
+</script>
+
+<script src="~/Content/js/printThis.js"></script>
+<script>
+    $("#btnExp").click(function () {
+        console.log("export clicked");
+
+        window.print();
+
+    });
+</script>

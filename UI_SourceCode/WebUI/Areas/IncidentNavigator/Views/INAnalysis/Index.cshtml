@@ -1,0 +1,352 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+@model INAnalysisModel
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+
+}
+<table class="tableCssStyle">
+    <tbody>
+        <tr>
+            <td class="auto-style1">
+                @(Html.Kendo().DropDownListFor(e => e)
+                      .Name("ReportName")
+                      .DataTextField("Text")
+                      .HtmlAttributes(new { @class = "selectpicker", style = "Width:100%" })
+                      .Enable(true)
+                      .OptionLabel("Select Report View")
+                      .DataValueField("Value")
+                      //.DataSource(d => d.Read(r => r.Action("IdeaTypeList", "PostIdea")))
+                      .AutoBind(true)
+                )
+            </td>
+
+            <td style="padding-left:2em;" class="auto-style2">
+                Report View Name :
+                @(Html.Kendo().TextBoxFor(e => e)
+                    .Name("ReportNametxt")
+                    .Enable(true)
+                    .HtmlAttributes(new { @maxlength = "250" })
+                )
+            </td>
+            <td style="padding-left:1em;">
+                @(Html.Kendo().CheckBoxFor(e => e)
+                   .Name("PublicView")
+                   .Label(" Make Public ")
+                )
+            </td>
+            <td style="padding-left:1em;">
+                @(Html.Kendo().CheckBoxFor(e => e)
+                           .Name("DefaultView")
+                           .Label(" Is Default View ")
+                )
+            </td>
+            <td style="padding-left:2em;">
+                <button class="btn btn-primary" id="btnSave" type="button" name="command" value="Save" style="margin-left: 40px">Save</button>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="padding-left:1em;">
+                @*@(Html.Kendo().CheckBoxFor(e => e)
+                               .Name("ClassicView")
+                               .Label("Classic View ")
+                    )*@
+            </td>
+            <td>
+                <button class="btn btn-primary" id="btnSave" type="button" name="command" value="Save" style="margin-left: 40px">Export to Excel</button>
+            </td>
+        </tr>
+
+
+    </tbody>
+</table>
+<div class="responsive-message"></div>
+
+            @(Html.Kendo().PivotConfigurator()
+                                                              .HtmlAttributes(new { @class = "hidden-on-narrow" })
+                                                              .Name("configurator")
+                                                              //.Filterable(true)
+                                                              .Height(650)
+            )
+
+
+            @(Html.Kendo().PivotGrid<INAnalysisModel>()
+                                        .Name("pivotgrid")
+                                        .HtmlAttributes(new { @class = "hidden-on-narrow" })
+                                        .Filterable(true)
+                                        .Configurator("#configurator")
+                                        .ColumnWidth(120)
+                                        .Height(670)
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Transport(transport => transport.Read("Incident_Read", "INAnalysis"))
+                                            .Schema(schema => schema
+                                                .Cube(cube => cube
+                                                    .Dimensions(dimensions =>
+                                                    {
+                                                        dimensions.Add(model => model.Status).Caption("Status");
+                                                        dimensions.Add(model => model.Outagetype).Caption("Outagetype");
+                                                        dimensions.Add(model => model.Urgency).Caption("Urgency");
+                                                        dimensions.Add(model => model.Type).Caption("Type");
+                                                        dimensions.Add(model => model.Createddatetime).Caption("Createddatetime");
+                                                        dimensions.Add(model => model.Priority).Caption("Priority");
+                                                        dimensions.Add(model => model.Divisionimpacted).Caption("Divisionimpacted");
+                                                        dimensions.Add(model => model.Businessunitimpacted).Caption("Businessunitimpacted");
+                                                        dimensions.Add(model => model.Servicecategory).Caption("Servicecategory");
+                                                        dimensions.Add(model => model.Servicesubcategory).Caption("Servicesubcategory");
+                                                        dimensions.Add(model => model.Servicearea).Caption("Servicearea");
+                                                        dimensions.Add(model => model.Regionimpacted).Caption("Regionimpacted");
+                                                        dimensions.Add(model => model.Locationsimpacted).Caption("Locationsimpacted");
+                                                        dimensions.Add(model => model.Customerdept).Caption("Customerdept");
+                                                        dimensions.Add(model => model.Impacttype).Caption("Impacttype");
+                                                        dimensions.Add(model => model.Configtype).Caption("Configtype");
+                                                        dimensions.Add(model => model.Configitemname).Caption("Configitemname");
+                                                        dimensions.Add(model => model.Environmentimpacted).Caption("Environmentimpacted");
+                                                        dimensions.Add(model => model.Rootcausetype).Caption("Rootcausetype");
+                                                        dimensions.Add(model => model.Rootcausedescription).Caption("Rootcausedescription");
+                                                        dimensions.Add(model => model.Resolutiontype).Caption("Resolutiontype");
+                                                        dimensions.Add(model => model.Deploymentrelease).Caption("Deploymentrelease");
+                                                        dimensions.Add(model => model.Helpdesk).Caption("Helpdesk");
+                                                        dimensions.Add(model => model.Assignedtoperson).Caption("Assignedtoperson");
+                                                        dimensions.Add(model => model.Assignedtosupportgroup).Caption("Assignedtosupportgroup");
+                                                        dimensions.Add(model => model.Createdbygroup).Caption("Createdbygroup");
+                                                        dimensions.Add(model => model.Createdbyperson).Caption("Createdbyperson");
+                                                        dimensions.Add(model => model.Createdtimezone).Caption("Createdtimezone");
+                                                        dimensions.Add(model => model.Createdtime).Caption("Createdtime");
+                                                        dimensions.Add(model => model.ResolvedDate).Caption("ResolvedDate");
+                                                        dimensions.Add(model => model.CreatedDate).Caption("CreatedDate");
+                                                        dimensions.Add(model => model.Createdweekday).Caption("Createdweekday");
+                                                        dimensions.Add(model => model.Createdweeknum).Caption("Createdweeknum");
+                                                        dimensions.Add(model => model.Createdmonth).Caption("Createdmonth");
+                                                        dimensions.Add(model => model.Createdyear).Caption("Createdyear");
+                                                        dimensions.Add(model => model.Acknowlededbygroup).Caption("Acknowlededbygroup");
+                                                        dimensions.Add(model => model.Acknowlededbyperson).Caption("Acknowlededbyperson");
+                                                        dimensions.Add(model => model.Acknowledgeddatetime).Caption("Acknowledgeddatetime");
+                                                        dimensions.Add(model => model.Acknowledgedtimezone).Caption("Acknowledgedtimezone");
+                                                        dimensions.Add(model => model.Acknowledgedtime).Caption("Acknowledgedtime");
+                                                        dimensions.Add(model => model.Acknowledgedweekday).Caption("Acknowledgedweekday");
+                                                        dimensions.Add(model => model.Acknowledgedweeknum).Caption("Acknowledgedweeknum");
+                                                        dimensions.Add(model => model.Acknowledgedmonth).Caption("Acknowledgedmonth");
+                                                        dimensions.Add(model => model.Acknowledgedyear).Caption("Acknowledgedyear");
+                                                        dimensions.Add(model => model.Resolvedbygroup).Caption("Resolvedbygroup");
+                                                        dimensions.Add(model => model.Resolvedbyperson).Caption("Resolvedbyperson");
+                                                        dimensions.Add(model => model.Resolvedbyvendor).Caption("Resolvedbyvendor");
+                                                        dimensions.Add(model => model.Resolutionefforthours).Caption("Resolutionefforthours");
+                                                        dimensions.Add(model => model.Resolutiondatetime).Caption("Resolutiondatetime");
+                                                        dimensions.Add(model => model.Resolvedtimezone).Caption("Resolvedtimezone");
+                                                        dimensions.Add(model => model.Resolutiontime).Caption("Resolutiontime");
+                                                        dimensions.Add(model => model.Resolutionweekday).Caption("Resolutionweekday");
+                                                        dimensions.Add(model => model.Resolutionweeknum).Caption("Resolutionweeknum");
+                                                        dimensions.Add(model => model.Servicerestoredbygroup).Caption("Servicerestoredbygroup");
+                                                        dimensions.Add(model => model.Servicerestoredbyperson).Caption("Servicerestoredbyperson");
+                                                        dimensions.Add(model => model.Servicerestoreddatetime).Caption("Servicerestoreddatetime");
+                                                        dimensions.Add(model => model.Servicerestoredtimezone).Caption("Servicerestoredtimezone");
+                                                        dimensions.Add(model => model.Servicerestoredtime).Caption("Servicerestoredtime");
+                                                        dimensions.Add(model => model.Servicerestoredweekday).Caption("Servicerestoredweekday");
+                                                        dimensions.Add(model => model.Servicerestoredweeknum).Caption("Servicerestoredweeknum");
+                                                        dimensions.Add(model => model.Servicerestoredmonth).Caption("Servicerestoredmonth");
+                                                        dimensions.Add(model => model.Servicerestoredyear).Caption("Servicerestoredyear");
+                                                        dimensions.Add(model => model.Lastupdatedbyperson).Caption("Lastupdatedbyperson");
+                                                        dimensions.Add(model => model.Lastupdateddatetime).Caption("Lastupdateddatetime");
+                                                        dimensions.Add(model => model.Datasource).Caption("Datasource");
+                                                        dimensions.Add(model => model.Datasourcenotes).Caption("Datasourcenotes");
+                                                        dimensions.Add(model => model.Assignedbygroup).Caption("Assignedbygroup");
+                                                        dimensions.Add(model => model.Assignedbyperson).Caption("Assignedbyperson");
+                                                        dimensions.Add(model => model.Assigneddatetime).Caption("Assigneddatetime");
+                                                        dimensions.Add(model => model.Esitmatedresponsetimebygroup).Caption("Esitmatedresponsetimebygroup");
+                                                        dimensions.Add(model => model.Esitmatedresponsedatetime).Caption("Esitmatedresponsedatetime");
+                                                        dimensions.Add(model => model.Resolutionyear).Caption("Resolutionyear");
+                                                        dimensions.Add(model => model.Resolutionmonth).Caption("Resolutionmonth");
+                                                        dimensions.Add(model => model.Waivedindicator).Caption("Waivedindicator");
+                                                        dimensions.Add(model => model.Esitmatedresolutiondate).Caption("Esitmatedresolutiondate");
+                                                        dimensions.Add(model => model.Totalsuspenddurationassignedtoack).Caption("Totalsuspenddurationassignedtoack");
+                                                        dimensions.Add(model => model.Totalsuspenddurationacktoer).Caption("Totalsuspenddurationacktoer");
+                                                        dimensions.Add(model => model.Totalsuspenddurationertoresolution).Caption("Totalsuspenddurationertoresolution");
+                                                        dimensions.Add(model => model.Resolvedindicator).Caption("Resolvedindicator");
+                                                        dimensions.Add(model => model.IsNTTGroup).Caption("IsNTTGroup");
+                                                        dimensions.Add(model => model.SupportGroupType).Caption("SupportGroupType");
+                                                        dimensions.Add(model => model.InProgressdatetime).Caption("InProgressdatetime");
+                                                        dimensions.Add(model => model.Closeddatetime).Caption("Closeddatetime");
+                                                        dimensions.Add(model => model.ScheduledstartdateTime).Caption("ScheduledstartdateTime");
+                                                        dimensions.Add(model => model.ScheduledenddateTime).Caption("ScheduledenddateTime");
+                                                        dimensions.Add(model => model.Scheduledchangecount).Caption("Scheduledchangecount");
+                                                        dimensions.Add(model => model.Company).Caption("Company");
+                                                        dimensions.Add(model => model.Site).Caption("Site");
+                                                        dimensions.Add(model => model.Assigneecompany).Caption("Assigneecompany");
+                                                        dimensions.Add(model => model.Assigneeorganization).Caption("Assigneeorganization");
+                                                        dimensions.Add(model => model.Estimatedworkeffort).Caption("Estimatedworkeffort");
+                                                        dimensions.Add(model => model.Actualworkeffort).Caption("Actualworkeffort");
+                                                        dimensions.Add(model => model.ActualstartdateTime).Caption("ActualstartdateTime");
+                                                        dimensions.Add(model => model.Recyclecount).Caption("Recyclecount");
+                                                        dimensions.Add(model => model.Statusreason).Caption("Statusreason");
+                                                        dimensions.Add(model => model.ConfigItemCategory).Caption("ConfigItemCategory");
+                                                        dimensions.Add(model => model.ResponseTime).Caption("ResponseTime");
+                                                        dimensions.Add(model => model.ResponseTimeMetSLA).Caption("ResponseTimeMetSLA");
+                                                        dimensions.Add(model => model.ResolutionTimeMetSLA).Caption("ResolutionTimeMetSLA");
+                                                        dimensions.Add(model => model.EstimateResponseTime).Caption("EstimateResponseTime");
+                                                        dimensions.Add(model => model.ClosureCategory).Caption("ClosureCategory");
+                                                        dimensions.Add(model => model.EstimatedResponseTimeMetSLA).Caption("EstimatedResponseTimeMetSLA");
+                                                        dimensions.Add(model => model.EstResptarget).Caption("EstResptarget");
+                                                        dimensions.Add(model => model.Reslntargettime).Caption("Reslntargettime");
+                                                        dimensions.Add(model => model.ResolutionExceptionIndicator).Caption("ResolutionExceptionIndicator");
+                                                        dimensions.Add(model => model.ResolutionExceptionReason).Caption("ResolutionExceptionReason");
+                                                        dimensions.Add(model => model.ResponseExceptionIndicator).Caption("ResponseExceptionIndicator");
+                                                        dimensions.Add(model => model.ResponseExceptionReason).Caption("ResponseExceptionReason");
+                                                        dimensions.Add(model => model.Resptargettime).Caption("Resptargettime");
+                                                        dimensions.Add(model => model.Severity).Caption("Severity");
+                                                        dimensions.Add(model => model.WorkGroupLevel).Caption("WorkGroupLevel");
+                                                        dimensions.Add(model => model.AffectedItemName).Caption("AffectedItemName");
+                                                        dimensions.Add(model => model.SLACostPerTicket).Caption("SLACostPerTicket");
+                                                        dimensions.Add(model => model.INResolutiontime).Caption("INResolutiontime");
+                                                        dimensions.Add(model => model.INCostPerTicket).Caption("INCostPerTicket");
+                                                        dimensions.Add(model => model.AccountName).Caption("AccountName");
+                                                        dimensions.Add(model => model.ContractName).Caption("ContractName");
+                                                        dimensions.Add(model => model.Active).Caption("Active");
+                                                        dimensions.Add(model => model.Activityduedatetime).Caption("Activityduedatetime");
+                                                        dimensions.Add(model => model.ActualenddateTime).Caption("ActualenddateTime");
+                                                        dimensions.Add(model => model.Additionalassigneelist).Caption("Additionalassigneelist");
+                                                        dimensions.Add(model => model.Approval).Caption("Approval");
+                                                        dimensions.Add(model => model.Approvalhistory).Caption("Approvalhistory");
+                                                        dimensions.Add(model => model.Approvalsetdatetime).Caption("Approvalsetdatetime");
+                                                        dimensions.Add(model => model.Businessduration).Caption("Businessduration");
+                                                        dimensions.Add(model => model.Closenotes).Caption("Closenotes");
+                                                        dimensions.Add(model => model.Closedby).Caption("Closedby");
+                                                        dimensions.Add(model => model.Commentsworknotes).Caption("Commentsworknotes");
+                                                        dimensions.Add(model => model.Correlationdisplay).Caption("Correlationdisplay");
+                                                        dimensions.Add(model => model.Deliveryplan).Caption("Deliveryplan");
+                                                        dimensions.Add(model => model.Deliverytask).Caption("Deliverytask");
+                                                        dimensions.Add(model => model.Domain).Caption("Domain");
+                                                        dimensions.Add(model => model.Domainpath).Caption("Domainpath");
+                                                        dimensions.Add(model => model.Escalation).Caption("Escalation");
+                                                        dimensions.Add(model => model.Followupdatetime).Caption("Followupdatetime");
+                                                        dimensions.Add(model => model.Grouplist).Caption("Grouplist");
+                                                        dimensions.Add(model => model.Knowledge).Caption("Knowledge");
+                                                        dimensions.Add(model => model.Location).Caption("Location");
+                                                        dimensions.Add(model => model.MadeSLA).Caption("MadeSLA");
+                                                        dimensions.Add(model => model.Openeddatetime).Caption("Openeddatetime");
+                                                        dimensions.Add(model => model.Openedby).Caption("Openedby");
+                                                        dimensions.Add(model => model.Order).Caption("Order");
+                                                        dimensions.Add(model => model.Reassignmentcount).Caption("Reassignmentcount");
+                                                        dimensions.Add(model => model.SLAduedatetime).Caption("SLAduedatetime");
+                                                        dimensions.Add(model => model.Tags).Caption("Tags");
+                                                        dimensions.Add(model => model.Timeworked).Caption("Timeworked");
+                                                        dimensions.Add(model => model.Updatescount).Caption("Updatescount");
+                                                        dimensions.Add(model => model.Uponapprovalstep).Caption("Uponapprovalstep");
+                                                        dimensions.Add(model => model.Uponrejectstep).Caption("Uponrejectstep");
+                                                        dimensions.Add(model => model.Userinput).Caption("Userinput");
+                                                        dimensions.Add(model => model.Watchlist).Caption("Watchlist");
+                                                        dimensions.Add(model => model.Worknotes).Caption("Worknotes");
+                                                        dimensions.Add(model => model.Worknoteslist).Caption("Worknoteslist");
+                                                        dimensions.Add(model => model.Businessresolvetime).Caption("Businessresolvetime");
+                                                        dimensions.Add(model => model.Caller).Caption("Caller");
+                                                        dimensions.Add(model => model.Causedbychange).Caption("Causedbychange");
+                                                        dimensions.Add(model => model.ChildIncidentscount).Caption("ChildIncidentscount");
+                                                        dimensions.Add(model => model.Incidentstate).Caption("Incidentstate");
+                                                        dimensions.Add(model => model.Lastreopenedatdatetime).Caption("Lastreopenedatdatetime");
+                                                        dimensions.Add(model => model.Lastreopenedby).Caption("Lastreopenedby");
+                                                        dimensions.Add(model => model.Notify).Caption("Notify");
+                                                        dimensions.Add(model => model.TotalResolvetime).Caption("TotalResolvetime");
+                                                        dimensions.Add(model => model.Knownerror).Caption("Knownerror");
+                                                        dimensions.Add(model => model.Majorproblem).Caption("Majorproblem");
+                                                        dimensions.Add(model => model.Problemstate).Caption("Problemstate");
+                                                        dimensions.Add(model => model.RelatedIncidentscount).Caption("RelatedIncidentscount");
+                                                        dimensions.Add(model => model.Workaround).Caption("Workaround");
+                                                        dimensions.Add(model => model.Backoutplan).Caption("Backoutplan");
+                                                        dimensions.Add(model => model.CABdatetime).Caption("CABdatetime");
+                                                        dimensions.Add(model => model.CABdelegate).Caption("CABdelegate");
+                                                        dimensions.Add(model => model.CABrecommendation).Caption("CABrecommendation");
+                                                        dimensions.Add(model => model.CABrequired).Caption("CABrequired");
+                                                        dimensions.Add(model => model.Changeplan).Caption("Changeplan");
+                                                        dimensions.Add(model => model.Closecode).Caption("Closecode");
+                                                        dimensions.Add(model => model.Conflictlastrundatetime).Caption("Conflictlastrundatetime");
+                                                        dimensions.Add(model => model.Conflictstatus).Caption("Conflictstatus");
+                                                        dimensions.Add(model => model.Implementationplan).Caption("Implementationplan");
+                                                        dimensions.Add(model => model.Onhold).Caption("Onhold");
+                                                        dimensions.Add(model => model.OnHoldChangeTasks).Caption("OnHoldChangeTasks");
+                                                        dimensions.Add(model => model.Outsidemaintenanceschedule).Caption("Outsidemaintenanceschedule");
+                                                        dimensions.Add(model => model.Phase).Caption("Phase");
+                                                        dimensions.Add(model => model.Phasestate).Caption("Phasestate");
+                                                        dimensions.Add(model => model.Productionsystem).Caption("Productionsystem");
+                                                        dimensions.Add(model => model.Reason).Caption("Reason");
+                                                        dimensions.Add(model => model.Requestedby).Caption("Requestedby");
+                                                        dimensions.Add(model => model.Requestedbydatetime).Caption("Requestedbydatetime");
+                                                        dimensions.Add(model => model.Reviewcomments).Caption("Reviewcomments");
+                                                        dimensions.Add(model => model.Reviewdatetime).Caption("Reviewdatetime");
+                                                        dimensions.Add(model => model.Reviewstatus).Caption("Reviewstatus");
+                                                        dimensions.Add(model => model.Risk).Caption("Risk");
+                                                        dimensions.Add(model => model.Changerequestscope).Caption("Changerequestscope");
+                                                        dimensions.Add(model => model.Changerequesttype).Caption("Changerequesttype");
+                                                        dimensions.Add(model => model.Tower).Caption("Tower");
+                                                        dimensions.Add(model => model.Configitemid).Caption("Configitemid");
+                                                        dimensions.Add(model => model.Title).Caption("Title");
+                                                        dimensions.Add(model => model.Incidentid).Caption("Incidentid");
+                                                        dimensions.Add(model => model.TicketId).Caption("TicketId");
+                                                        dimensions.Add(model => model.ParentIncidentID).Caption("ParentIncidentID");
+                                                        dimensions.Add(model => model.ParentticketID).Caption("ParentticketID");
+                                                        dimensions.Add(model => model.CorrelationID).Caption("CorrelationID");
+                                                        dimensions.Add(model => model.Relatedproblemids).Caption("Relatedproblemids");
+                                                        dimensions.Add(model => model.Relatedids).Caption("Relatedids");
+                                                        dimensions.Add(model => model.Relatedchangeids).Caption("Relatedchangeids");
+                                                        dimensions.Add(model => model.Solutionid).Caption("Solutionid");
+                                                    })
+                                                .Measures(measures => measures.Add("Status Count").Field(model => model.Status).AggregateName("count"))
+                                                ))
+                                            .Columns(columns =>
+                                            {
+                                            //columns.Add(model => model.Status);//.Caption("Status").Expand(true);
+                                            // columns.Add("CompanyName");
+                                        })
+                                         // .Rows(rows => rows.Add("ContactTitle").Expand(true))
+                                         .Measures(measures => measures.Values("Status Count"))
+                                        )
+            )
+       
+
+        
+
+        <style>
+            #pivotgrid {
+                display: inline-block;
+                vertical-align: top;
+                width: 60%;
+                align-content: space-between;
+            }
+
+            #configurator {
+                display: inline-block;
+                vertical-align: top;
+                width: 35%;
+            }
+
+            .hidden-on-narrow {
+                display: inline-block;
+                vertical-align: top;
+            }
+
+            .tableCssStyle {
+                font-family: verdana, sans-serif;
+                font-size: smaller;
+                font-weight: bold;
+            }
+        </style>

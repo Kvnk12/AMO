@@ -1,0 +1,273 @@
+﻿@{ Layout = null; }
+@using System.Collections.Generic;
+@using System.Collections;
+@using WebUI.Areas.PortfolioAnalyzer.Models
+
+@model ApplicationInformationModel
+
+<div class="apr-cost-contact">
+    <div class="apr-cost-addressgrid">
+        @(Html.Kendo().Window()
+.Name("windowContact")
+.Title("Address Book")
+.Content(@<text>
+        <div class="custom-kendo-grid">
+    @(Html.Kendo().Grid<PersonnelModel>()
+.Name("gridPersonnel")
+.Columns(columns =>
+{
+  columns.Select().Width(50);
+  columns.Bound(p => p.EmailAddress).Width(200).Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains)));
+  columns.Bound(p => p.FirstName).Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains)));
+  columns.Bound(p => p.LastName).Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains)));
+    //columns.Bound(p => p.Discontinued).Width(120);
+    columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Title("Action");
+})
+.ToolBar(tools =>
+{
+  tools.Create().Text("Add New Contact").HtmlAttributes(new { @class = "btn-primary", id = "createContactButton" });
+  tools.Custom().Text("Save Selected Contact").HtmlAttributes(new { @class = "btn-primary", id = "customButtonStoretoApp" });
+})
+  .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Confirm Delete"))
+  .Pageable()
+  .Sortable()
+  .Scrollable()
+  .PersistSelection()
+  //.Events(ev => ev.Change("onSelectionChange"))
+  .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+  .DataSource(dataSource => dataSource
+      .Ajax()
+      .PageSize(15)
+      .Events(events => events.Error("error_handler"))
+      .Model(model => model.Id(p => p.Id))
+      .Create(create => create.Action("CreatePersonnel", "APRAjaxService"))
+      .Read(read => read.Action("GetAllPersonnel", "APRAjaxService"))
+      .Update(update => update.Action("UpdatePersonnel", "APRAjaxService"))
+      .Destroy(destory => destory.Action("DestroyPersonnel", "APRAjaxService"))
+  )
+    )
+            </div>
+</text>)
+.Draggable()
+.Resizable()
+.Width(1000)
+.Actions(actions => actions.Pin().Minimize().Maximize().Close())
+.Events(ev => ev.Close("onClose"))
+    )
+    </div>
+    <div class="apr-custom-button">
+        @(Html.Kendo().Button()
+  .Name("btnAddressbook")
+  .HtmlAttributes(new { type = "button", @class = "apr-Addressbook-btn" })
+  .Content("Address Book"))
+    </div>
+    @*<div class="responsive-message"></div>*@
+
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<PersonnelRoleModel>()
+.Name("GridPersonnelRole")
+.Columns(columns =>
+{
+    //columns.Bound(p => p.Id);
+   // columns.ForeignKey(p => p.PersonnelId, (System.Collections.IEnumerable)ViewData["Personnel"], "PersonnelId", "EmailAddress");
+    //Build the link
+    //.ClientTemplate("#=PersonnelId#");
+    //(p => p.Personnel).ClientTemplate("#=Personnel.EmailAddress#");
+    columns.Bound(p => p.Emailid).Title("PersonnelId");
+    columns.Bound(p => p.Title);
+    columns.Bound(p => p.IsSurveyParticipant);
+    columns.Bound(p => p.ReceiveEmailNotification);
+    columns.Command(command => command.Destroy().Text(" ")).Width(150).Title("Action");
+})
+.ToolBar(toolbar =>
+{
+    toolbar.Save();
+})
+.Editable(editable => editable.Mode(GridEditMode.InCell))
+.Pageable()
+.Navigatable()
+.Sortable()
+.Scrollable()
+.Events(e => e.Edit("onGridPersonnelRoleEdit"))
+.DataSource(dataSource => dataSource
+  .Ajax()
+  .Batch(true)
+  .PageSize(20)
+  .ServerOperation(false)
+  .Events(events => events.Error("error_handler"))
+
+  .Model(model =>
+  {
+      model.Id(p => p.Id);
+      model.Field(p => p.PersonnelId).DefaultValue(1);
+  })
+  .Read(read =>
+  {
+      read.Action("GetPersonnelRoleByApp", "APRAjaxService").Data("LoadDestinationCluster");
+
+  })
+  .Update("UpdatePersonnelRole", "APRAjaxService")
+  .Destroy("DestroyPersonnelRole", "APRAjaxService")
+)
+        )
+    </div>
+
+    <script>
+        function onClose() {
+            $("#btnAddressbook").show();
+            var gridPersonnel = $("#gridPersonnel").data("kendoGrid");
+
+            if ($("#gridPersonnel .k-state-selected").length > 0) {
+                gridPersonnel.clearSelection();
+            }
+            gridPersonnel.dataSource.read();
+
+
+        }
+
+        $(document).ready(function () {
+            $("#btnAddressbook").bind("click", function () {
+                $("#windowContact").data("kendoWindow").open();
+                $("#btnAddressbook").hide();
+            });
+        });
+    </script>
+
+    <style>
+        #example {
+            min-height: 500px;
+        }
+
+        /*#btnAddressbook {
+                          text-align: center;
+                          position: absolute;
+                          white-space: nowrap;
+                          padding: 1em;
+                          cursor: pointer;
+                      }*/
+
+        .armchair {
+            float: left;
+            margin: 30px 30px 120px 30px;
+            text-align: center;
+        }
+
+            .armchair img {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+        .k-window-content p {
+            margin-bottom: 1em;
+        }
+
+        .k-window-content a {
+            color: #BBB;
+        }
+
+        @@media screen and (max-width: 1023px) {
+            div.k-window {
+                display: none !important;
+            }
+        }
+    </style>
+</div>
+
+<script type="text/javascript">
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+</script>
+@*<script>
+        function onSelectionChange(arg) {
+            alert("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+
+        }
+    </script>*@
+<script>
+    $("#customButtonStoretoApp").click(function (e) {
+        e.preventDefault();
+        //var chart = $("#chart").data("kendoChart");
+        //chart.dataSource.read();
+        //chart.refresh();
+        var appid = $("#AppName").val();
+
+        var myArray = Array();
+        var grid = $('#gridPersonnel').data('kendoGrid');
+        var rows = grid.select();
+        var RootUrl = '@Url.Content("~/")';
+        rows.each(
+            function () {
+                var dataItem = grid.dataItem($(this));
+                id = dataItem.Id;
+                //IncidentID = dataItem.Incidentid;
+                //alert('Selected : ' + IncidentID);
+                myArray.push({ id: id, AppId: appid });
+            }
+        )
+        //alert(myArray[0].id + " ," + myArray[0].value);
+        var data1 = { 'listObject': myArray };
+        var data = JSON.stringify(data1)
+        $.ajax({
+            type: 'post',
+            url: RootUrl + 'APRAjaxService/InsertPersonnelRole',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                var gridPersonnel = $("#gridPersonnel").data("kendoGrid");
+
+                if ($("#gridPersonnel .k-state-selected").length > 0) {
+                    gridPersonnel.clearSelection();
+                }
+                gridPersonnel.dataSource.read();
+                alert("Contacts stored successfully");
+
+                var GridPersonnelRole = $("#GridPersonnelRole").data("kendoGrid");
+                GridPersonnelRole.dataSource.read();
+                $('#GridPersonnelRole').data('kendoGrid').refresh();
+
+                console.log("contact saved successfully");
+            },
+            error: function (response) {
+                alert("error occured");
+            }
+        });
+
+    });
+
+    function LoadDestinationCluster() {
+
+        return {
+
+            AppId: $("#AppName").val()
+
+        };
+    }
+
+
+    function onGridPersonnelRoleEdit(arg) {
+        // i have assumed that newly addded row have ID field's value is Zero.
+        if (arg.model.Id) {
+            var _id = parseInt(arg.model.Id);
+            if (_id != 0) {
+                if (arg.container.find("input[name=PersonnelId]").length > 0) {
+
+                    $("#GridPersonnelRole").data("kendoGrid").closeCell(arg.container)
+
+                }
+            }
+        }
+
+    }
+</script>
+

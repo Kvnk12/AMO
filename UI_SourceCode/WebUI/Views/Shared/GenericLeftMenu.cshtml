@@ -1,0 +1,1182 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+<!--<div class="pushContainer1">-->
+@using NTTData.AMOPortal.Domain.Entities;
+@using WebUI.App_Start;
+@using NTTData.AMOPortal.Data;
+@using System;
+
+@{
+
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    int UserId = (int)Session["UserId"];
+    //  Client client = (Client)Session["Client"];
+    Db db = new Db();
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var clientId = 0;
+    if (client != null)
+    {
+        clientId = client.ClientId;
+    }
+
+
+
+
+    var roleid = (from a in db.UserRoles
+                  where a.RoleName ==MenuItemsInput.UserRole
+                  select a.Id).FirstOrDefault();
+
+    var AssessmentManagerRoleid = 0;
+
+    AssessmentManagerRoleid = (from a in MenuItemsInput.UserApplications
+                               where a.ApplicationId == 20 && a.ClientId == clientId && a.isDeleted == false && a.UserId == UserId
+                               select a.RoleId).FirstOrDefault();
+
+    //if (AssessmentManagerRoleid == 6) //engagement user - 'Customer User' role
+    //{
+    //    AssessmentManagerRoleid = 0;
+    //}
+
+    if (AssessmentManagerRoleid == 1) //engagement user - 'User' role
+    {
+        AssessmentManagerRoleid = 0;
+    }
+
+}
+<style>
+    .disabled {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .Box-bundle-tag {
+        border: 1px solid;
+        color: #ee8151;
+        padding: 0 3px;
+        font-size: xx-small;
+        align-self: center;
+    }
+
+    .Box-bundle-tagred {
+        border: 1px solid;
+        color: red;
+        padding: 0 2px;
+        font-size: xx-small;
+        align-self: center;
+    }
+
+    .sidebarHeader {
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .sidebarHeader h3 {
+            width: 100%;
+        }
+
+        .sidebarHeader .close {
+            border: none;
+            background-color: #5876AA;
+            width: 3em;
+            height: 3.45em;
+        }
+
+        .sidebarHeader span {
+            color: white;
+            font-size: 30px;
+            position: absolute;
+            top: -0.1em;
+            right: 0.3em;
+        }
+
+    .sidebar-submenu > ul {
+        list-style-type: none;
+    }
+
+    .sidebar-wrapper .sidebar-menu > ul > li > a.show + .sidebar-main-submenu.show > ul {
+        list-style-type: none;
+    }
+</style>
+
+
+@{if (MenuItemsInput != null)
+    {
+    <nav class="sidebar-wrapper">
+        <div class="sidebarHeader">
+            <h3>
+                Applications
+            </h3>
+            <button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <ul id="menuAccordion">
+                @if (MenuItemsInput.ClientProfileManager && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon client-profile-manager-icon"></i>
+                            <span>Client Profile Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="clientProfileSubmenu">
+                            <ul>
+                                <li>
+                                    <a href="#cprDataCollection" data-parent="#subMenuAccordion">Data Collection</a>
+                                    <div class="sidebar-submenu" id="cprDataCollection">
+                                        <ul>
+                                            <li>
+                                                <a href="#cprDemographicsSubmenu" data-parent="#subMenuAccordion">Demographics</a>
+                                                <div class="sidebar-submenu" id="cprDemographicsSubmenu">
+                                                    <ul>
+                                                        @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                                        {
+                                                            <li class="single-item">
+                                                                @Html.ActionLink("Client", "Create", "Client", new { area = "" }, null)
+                                                            </li>
+                                                            @*<li class="single-item"><a href="#" class="disabled">Client Details</a></li>*@
+                                                        }
+
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Account", "ClientAccountGrid_New", "ClientAccountGrid", new { area = "" }, null)<span class="Box-bundle-tag">Updated</span></div></li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#cprdashboardSubmenu" data-parent="#subMenuAccordion">Dashboard</a>
+                                    <div class="sidebar-submenu" id="cprdashboardSubmenu">
+                                        <ul>
+                                            @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                            {
+                                                <li class="single-item"><div class="updated-tag"><a href="~/Reports/ReportViewerCPF.aspx?ReportName=Clients Info">Clients List</a></div></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="~/Reports/ReportViewerCPF.aspx?ReportName=clientEngagements">Engagements List</a></div></li>
+                                                <li class="single-item"><div class="updated-tag"><a href="~/Reports/ReportViewerCPF.aspx?ReportName=clientsByRegionAndVertical">Clients & Accounts List</a></div></li>
+                                                <li class="single-item">@Html.ActionLink("Performance Dashboard", "", "Dashboard", new { area = "ClientProfileManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Performance Compliance", "", "PerformanceCompliance", new { area = "ClientProfileManager" }, null)</li>
+                                                <li class="single-item"><div class="updated-tag"><a href="~/Areas/ClientProfileManager/AspxReport/ClientProfileAnalysis.aspx">Custom Analysis</a></div></li>
+
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")*@
+
+
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#cprcladmin" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="cprcladmin">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Audit Log", "authLog", "Dashboard", new { area = "ClientProfileManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Contract Management", "ContractIndex", "MetaData", new { area = "IncidentNavigator" }, null)</li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+
+                }
+
+
+                @if (MenuItemsInput.IdeaManager)
+                {
+                    <li class="panel sidebar-dropdown" id="subMenuAccordion">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon idea-manager-icon"></i>
+                            <span>Idea Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="ideaManagerSubmenu">
+                            <ul>
+                                <li class="single-item">@Html.ActionLink("Idea Management", "", "ViewIdea", new { area = "IdeaManager" }, null)</li>
+                                @*   <li class="single-item">@Html.ActionLink("Post Idea", "Index", new { area = "IdeaManager", controller = "PostIdea" })</li>*@
+                                <li class="single-item">@Html.ActionLink("Dashboard", "", new { area = "IdeaManager", controller = "Dashboard" })</li>
+                                <li class="single-item"><div class="updated-tag">@Html.ActionLink("Dashboard", "New_Index", "Dashboard", new { area = "IdeaManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                <li class="single-item"><div class="updated-tag">@Html.ActionLink("All Idea Report", "IdeaReport", "ViewIdea", new { area = "IdeaManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+
+                                <li class="single-item"><div class="updated-tag">@Html.ActionLink("Consolidated Analysis", "ConsolidatedAnalysis", "Dashboard", new { area = "IdeaManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                @*<li class="single-item"><div class="updated-tag">@Html.ActionLink("Column Chart POC", "ColumnChartPOC", "Dashboard", new { area = "IdeaManager" }, null)<span class="Box-bundle-tag">New</span></div></li>*@
+
+                                <li class="single-item"><div class="updated-tag"><a href="~/Areas/IdeaManager/AspxReport/WebForm2.aspx">Custom Analysis</a></div></li>
+
+                                @*<li class="single-item">@Html.ActionLink("Custom Analysis", "", new { area = "IdeaManager", controller = "TrendingReport" })</li>*@
+
+                                <li class="single-item">@Html.ActionLink("Idea Inventory", "AllIdeas", new { area = "IdeaManager", controller = "Dashboard" })</li>
+
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")*@
+                                @*{*@
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IdeaManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#ideaadmin" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="ideaadmin">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Reassign Ideas", "ReassignIdea", "Detailidea", new { area = "IdeaManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Approve Ideas", "", "IdeaApproval", new { area = "IdeaManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Delete Ideas", "DeleteIdea", "ViewIdea", new { area = "IdeaManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Meta data Management", "Complexity1", "Config", new { area = "IdeaManager" }, null)</li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                @if (MenuItemsInput.DemandManager)
+                {
+                    <li class="panel sidebar-dropdown" id="subMenuAccordion">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon demand-manager-icon"></i>
+                            <span>Demand Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="demandManagerSubmenu">
+                            <ul>
+                                <li class="single-item">@Html.ActionLink("Demand Management", "", "ViewDemand", new { area = "DemandManager" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Dashboard", "", new { area = "DemandManager", controller = "DemandDashboard" })</li>
+                                <li class="single-item"><div class="updated-tag">@Html.ActionLink("Dashboard", "New_Index", "DemandDashboard", new { area = "DemandManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+
+                                <li class="single-item">@Html.ActionLink("All Demand Report", "DemandReport", "ViewDemand", new { area = "DemandManager" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Consolidated Analysis", "ConsolidatedAnalysis", "DemandDashboard", new { area = "DemandManager" }, null)</li>
+                                <li class="single-item"><div class="updated-tag"><a href="~/Areas/DemandManager/AspxReport/WebForm2.aspx">Custom Analysis</a></div></li>
+
+                                @*<li class="single-item">@Html.ActionLink("Custom Analysis", "", new { area = "DemandManager", controller = "TrendingReportDemand" })</li>*@
+                                <li class="single-item">@Html.ActionLink("Demand Inventory", "AllDemands", new { area = "DemandManager", controller = "DemandDashboard" })</li>
+
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                        {*@
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.DemandManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.DemandManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#demandadmin" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="demandadmin">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Approve Demand", "", "DemandApproval", new { area = "DemandManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Delete Demand", "DeleteDemand", "ViewDemand", new { area = "DemandManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Meta data Management", "Complexity1", "ConfigDemand", new { area = "DemandManager" }, null)</li>
+
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                                @*}*@
+                            </ul>
+                        </div>
+                    </li>
+                }
+                @if (MenuItemsInput.FeedbackManager)
+                {
+                    <li class="panel sidebar-dropdown" id="subMenuAccordion">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon feedback-manager-icon"></i>
+                            <span>Feedback Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="fdbkManagerSubmenu">
+                            <ul>
+                                <li class="single-item">@Html.ActionLink("Feedback Management", "", "ViewFeedback", new { area = "fdbkManager" }, null)</li>
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.DemandManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.DemandManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#fdbkadmin" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="fdbkadmin">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Approve Feedback", "ApproveFeedback", "ViewFeedback", new { area = "fdbkManager" }, null)</li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+                    </li>
+                }
+                @if (MenuItemsInput.IncidentNavigator)
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon incident-navigator-icon"></i>
+                            <span>Incident Navigator</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="incidentNavigatorSubmenu">
+                            <ul>
+                                @*<li class="single-item"><div class="updated-tag">@Html.ActionLink("Dashboard", "OldIndex", "Dashboard", new { area = "IncidentNavigator" }, null)</div></li>*@
+                                <li>
+                                    <a href="#incidentSubmenu" data-parent="#subMenuAccordion">Ticket Analysis</a>
+                                    <div class="sidebar-submenu" id="incidentSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Dashboard", "", "DashboardNew", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Integration Report", "", "Integration_Report", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag"><a href="~/Areas/IncidentNavigator/AspxReport/AnalysisNew.aspx">Custom Analysis</a></div></li>
+                                            <li class="single-item"><div class="updated-tag"><a href="~/Areas/IncidentNavigator/AspxReport/BackLogAnalysis.aspx">Inflow Outflow Analysis</a></div></li>
+                                            <li class="single-item">@Html.ActionLink("Volumentric", "Volume", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Trend", "Trend", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Problem", "Problem", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Customer Satisfaction", "CustomerSatisfaction", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Maintenance", "Maintenance", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Additional Analysis", "AnalysisReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Inflow Outflow Report By Month", "InflowOutflowReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("WSR", "WSR", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Unresolved Tickets", "dailyreports", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Compliance Tickets", "ComplianceReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <!--<li class="single-item">@Html.ActionLink("Custom Analysis", "", "", new { area = "IncidentNavigator" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Inflow Outflow Analysis", "", "", new { area = "IncidentNavigator" }, null)</li>-->
+                                            @*<li class="single-item">@Html.ActionLink("Test", "Index", "Planning", new { area = "AlignmentManager" }, null)</li>*@
+                                            <!--<li class="single-item">@Html.ActionLink("Volumetric", "", "", new { area = "IncidentNavigator" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Trend", "", "", new { area = "IncidentNavigator" }, null)</li>-->
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+
+                                    <div class="updated-tag">
+                                        <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Service Level Reports</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="incidentSubmenu1">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("SLA", "SLA_Reports", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("KPI", "KPI_Reports", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+
+
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#kedbmenu" data-parent="#subMenuAccordion">Known Error DB</a>
+                                    <div class="sidebar-submenu" id="kedbmenu">
+                                        <ul>
+                                            @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                            {
+                                                <li>
+                                                    <a href="#kedbSubmenu" data-parent="#subMenuAccordion">KEDB Administration</a>
+                                                    <div class="sidebar-submenu" id="kedbSubmenu">
+                                                        <ul>
+                                                            <li class="single-item">@Html.ActionLink("Meta Data Management", "KedbMetaData", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            }
+                                            <li class="single-item">@Html.ActionLink("Search KEDB", "Index", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+                                            <li>
+                                                <a href="#kedbSubmenu" data-parent="#subMenuAccordion">KEDB Analysis</a>
+                                                <div class="sidebar-submenu" id="kedbSubmenu">
+                                                    <ul>
+                                                        <li class="single-item">@Html.ActionLink("KEDB Solution Status", "KedbSolStatusReport", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+                                                        <li class="single-item">@Html.ActionLink("KEDB Summary", "Kedb_Summary", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+                                                        <li class="single-item">@Html.ActionLink("KEDB Resolution Format", "Kedb_ResolutionFormat", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+                                                        <li class="single-item">@Html.ActionLink("KEDB AuditLog", "Kedb_AuditLog", "KEDB", new { area = "IncidentNavigator" }, null)</li>
+
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                <li class="single-item">
+                                    @Html.ActionLink("Ticket Inventory", "Datarepository", "ConfigureReport", new { area = "IncidentNavigator" }, null)
+                                </li>
+
+                                @*<li class="single-item">@Html.ActionLink("Known Error DB", "", "KnownerrorDB", new { area = "IncidentNavigator" }, null)</li>*@
+                                <li>
+                                    <a href="#incidentSubmenu" data-parent="#subMenuAccordion">Cluster Analysis</a>
+                                    <div class="sidebar-submenu" id="incidentSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Cluster (Top 5)", "Clustering", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag"><a href="~/Areas/IncidentNavigator/AspxReport/ClusterAnalysis.aspx">Cluster Analysis</a></div></li>
+                                            <li class="single-item">@Html.ActionLink("Cluster Report", "", "ClusterReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Cluster Wordcloud", "", "Cluster", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Cluster Management", "", "ClusterManagement", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Keyword Search", "KeyWordSearch_new", "KeywordSearch", new { area = "IncidentNavigator" }, null) </li>
+
+                                            <!--<li class="single-item">@Html.ActionLink("Support", "Support", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Maintenance", "Maintenance", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Cluster", "Clustering", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>-->
+                                            @*<li class="single-item">@Html.ActionLink("Test", "Index", "Planning", new { area = "AlignmentManager" }, null)</li>*@
+                                            <!--<li class="single-item"><div class="updated-tag">@Html.ActionLink("Additional Analysis", "AnalysisReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>-->
+                                            <li class="single-item">@Html.ActionLink("Dashboard", "", "DashboardNew", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Unstructured Data Report", "", "Integration_Report", new { area = "IncidentNavigator" }, null)</div></li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Token Report with Description", "TokenChartRD", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                        {*@
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#incidentAdmin" data-parent="#subMenuAccordion">Admin </a>
+                                        <div class="sidebar-submenu" id="incidentAdmin">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Cluster Audit", "", "ClusterAudit", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Service Level Cost Hours", "", "INIncidentServicehours", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Track Management", "TowerIndex", "MetaData", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Contract Management", "ContractIndex", "MetaData", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Ticket Details", "", "ClientTicketInfo", new { area = "ClientProfileManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Cluster Configuration", "Index", "Configuration", new { area = "ClientProfileManager" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Logical Configuration Management", "LogicalIndex", "MetaData", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("CSAT", "CSATReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Unresolved Tickets", "CompliReport", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Configuration of Aging Report", "ConfigureAging", "ConfigureAgingReport", new { area = "IncidentNavigator" }, null)</li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                                @*}*@
+                            </ul>
+                        </div>
+                    </li>
+                }
+                <!--<li>
+    <a href="#incidentanalysismenu" data-toggle="collapse" data-parent="#subMenuAccordion">Custom Analysis </a>
+    <div class="sidebar-submenu panel-collapse collapse" id="incidentanalysismenu">
+       <ul>-->
+                @*<li class="single-item"><div class="updated-tag">@Html.ActionLink("Analysis", "", "TrendingReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tagred">Retiring</span></div></li>*@
+                <!--</ul>
+    </div>
+    </li>-->
+                @*<li class="single-item"><div class="updated-tag"><a href="~/Areas/IncidentNavigator/AspxReport/ClusterAnalysis.aspx">Cluster Analysis</a></div></li>*@
+                @*<li class="single-item"><div class="updated-tag">@Html.ActionLink("Inflow Outflow Analysis", "BacklogAnalysis", "TrendingReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">Updated</span></div></li>
+        <li class="single-item">@Html.ActionLink("Cluster Analysis", "ClusterAnalysis", "TrendingReport", new { area = "IncidentNavigator" }, null)</li>*@
+                @*
+        <li class="single-item"><div class="updated-tag">@Html.ActionLink("Ticket Inventory", "Datarepository", "ConfigureReport", new { area = "IncidentNavigator" }, null)<span class="Box-bundle-tag">New</span></div></li>*@
+                @*<li class="single-item">@Html.ActionLink("Known Error DB", "", "KnownerrorDB", new { area = "IncidentNavigator" }, null)</li>*@
+
+                @*Assessment Manager Link*@
+                @*@if (MenuItemsInput.SLAManager && Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.SLAManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.SLAManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))*@
+
+
+                @if (MenuItemsInput.AssessmentManager) //checks if logged in user has access to Assessment Manager
+                {
+
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon assessment-manager-icon"></i>
+                            <span>Assessment Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="slaSubmenu">
+                            <ul>
+
+
+                                @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@ Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+{
+                            <li>
+                                <a href="#incidentAdmin" data-parent="#subMenuAccordion">A3MM Component Administration </a>
+                            </li>
+                            <li>
+
+                                <div class="sidebar-submenu" id="incidentSubmenu1">
+                                    <ul>
+
+                                        <li class="single-item"><a href="#" class="disabled">Discipline Administration</a></li>
+                                        <li class="single-item"><a href="#" class="disabled">Component Administration</a></li>
+                                        <li class="single-item"><a href="#" class="disabled">Aspect Administration</a></li>
+
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                            @*Admin - Question Set Inventory*@
+                            @*@if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+    {
+        <li class="single-item">@Html.ActionLink("Question Set Inventory", "QuestionSetInventory", "Assessment", new { area = "AssessmentManager" }, null)</li>
+    }*@
+
+                            @*Admin - Question Set Administration*@
+                            @*@if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+    {
+        <li class="single-item">@Html.ActionLink("Question Set Administration", "BuildDiscipline", "Assessment", new { area = "AssessmentManager" }, null)</li>
+    }*@
+
+                            @*Admin/User - Assessment Inventory*@
+                                @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@ Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput) @*|| Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.CustomerUser, MenuItemsInput)*@)
+{
+                            <li class="single-item">@Html.ActionLink("Assessment Inventory", "AssessmentInventory", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                        }
+
+                            @*Admin - Launch Assessment*@
+                            @*@if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+    {
+        <li class="single-item">@Html.ActionLink("Launch Assessment", "LaunchAssessmentUI", "Assessment", new { area = "AssessmentManager" }, null)</li>
+    }*@
+
+                            @*Admin/User - Assessment Overview*@
+                                @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@ Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput) @*|| Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.CustomerUser, MenuItemsInput)*@)
+{
+                            <li class="single-item">@Html.ActionLink("Assessment Overview", "AssessmentOverview", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                        }
+
+                            @*Admin - Assessment UI *@
+                                @*@if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li class="single-item">@Html.ActionLink("Assessment Team UI", "AssessmentDataGathering", "ResponseGathering", new { area = "AssessmentManager" }, null)</li>
+                                }*@
+
+                                @*User - Review of Assessment*@
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput))
+                                {
+                                    <li class="single-item">@Html.ActionLink("Response Gathering", "EngagementDataGathering", "ResponseGathering", new { area = "AssessmentManager" }, null)</li>
+
+                                }
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput))
+                                {
+                                    <li class="single-item">@Html.ActionLink("Assessment Response View", "AssessmentResponseView", "ResponseGathering", new { area = "AssessmentManager" }, null)</li>
+
+                                }
+
+
+                                @*Admin/User - Action Item Tracker*@
+                                @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@ Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput) @*|| Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.CustomerUser, MenuItemsInput)*@)
+{
+                            <li class="single-item">@Html.ActionLink("Action Item Tracker", "ActionItemTracker", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                        }
+                            @*Admin/User - Assessment Overview*@
+                            @*@if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.CustomerUser, MenuItemsInput))
+    {
+        <li class="single-item">@Html.ActionLink("Maturity Level Compare", "A3MM_MaturityLevelCompare", "Assessment", new { area = "AssessmentManager" }, null)</li>
+    }*@
+                                <li>
+                                    <a href="#incidentAdmin" data-parent="#subMenuAccordion">Dashboard generation </a>
+                                </li>
+                                <li>
+
+                                    <div class="sidebar-submenu" id="incidentSubmenu1">
+                                        <ul>
+                                            @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@ Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.User, MenuItemsInput) @*|| Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.CustomerUser, MenuItemsInput)*@)
+{
+                            <li class="single-item">@Html.ActionLink("Digital Journey", "A3MMDashboard", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Heatmap", "HeatMap", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Heatmap Comparative", "HeatMapComparative", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Digital Journey Comparative", "DigitalJourneyComparison", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Maturity Level Comparision ", "A3MM_MaturityLevelCompare", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Assessment Report ", "AssessmentReport", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item">@Html.ActionLink("Business Driver Report ", "A3MM_BusinessDriverReport", "ResponseGathering", new { area = "AssessmentManager" }, null)</li>
+                            <li class="single-item"><a href="#" class="disabled">Comparative Analysis</a></li>
+                        }
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+                                @*<li>
+
+            @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+            {
+                <a href="#incidentAdmin" data-parent="#subMenuAccordion">Admin</a>
+            }
+        </li>*@
+                                <li>
+
+                                    <div class="sidebar-submenu" id="incidentSubmenu1">
+                                        <ul>
+                                            @if (@*Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) ||*@
+                                            Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput)
+                                          /*||  Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.AssessmentManager, AssessmentManagerRoleid, MenuItemsInput)*/)
+                                            {
+                                                <a href="#incidentAdmin" data-parent="#subMenuAccordion">Admin</a>
+
+                                                <li class="single-item">@Html.ActionLink("Question Set Inventory", "QuestionSetInventory", "Assessment", new { area = "AssessmentManager" }, null)</li>
+
+                                                <li class="single-item">@Html.ActionLink("Question Set Administration", "BuildDiscipline", "Assessment", new { area = "AssessmentManager" }, null)</li>
+
+                                                <li class="single-item">@Html.ActionLink("Launch Assessment", "LaunchAssessmentUI", "Assessment", new { area = "AssessmentManager" }, null)</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+                            </ul>
+
+                          
+                        </div>
+                    </li>
+                    
+
+                }
+
+
+
+                @if (MenuItemsInput.SLAManager && Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.SLAManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.SLAManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                {
+
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon sla-manager-icon"></i>
+                            <span>SLA Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="slaSubmenu">
+                            <ul>
+                                <li>
+                                    <div class="updated-tag">
+                                        <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Service Level Management Report</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="incidentSubmenu1">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("SLA", "SLA_Reports", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("KPI", "KPI_Reports", "ConfigureReport", new { area = "IncidentNavigator" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <a href="#SLAadmin" data-parent="#subMenuAccordion">Admin</a>
+                                    <div class="sidebar-submenu" id="SLAadmin">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Metric Library", "MetricLibraryView", "SLAManager", new { area = "" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Metric Library", "Index", "SLAMetricLibrary", new { area = "ClientProfileManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li>
+                                                <a href="#SLAmetricSubmenu" data-parent="#subMenuAccordion">Metric Management</a>
+                                                <div class="sidebar-submenu" id="SLAmetricSubmenu">
+                                                    <ul>
+                                                        <li class="single-item">@Html.ActionLink("SLA Setup", "GetAppList", "SLASetup", new { area = "", ClientId = clientId }, null)</li>
+                                                        <li class="single-item"><div class="updated-tag">@Html.ActionLink("SLA Setup", "Index", "SlaSetupUpdated", new { area = "ClientProfileManager" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                            <li class="single-item">@Html.ActionLink("Service Hours", "GenerateServiceCalendar", "ServiceCalendar", new { area = "" }, null)</li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Ticket Data Maintenance", "SLATicket", "Tickets", new { area = "" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Pending Ticket Maintenance", "PendingTicket", "Tickets", new { area = "" }, null)<span class="Box-bundle-tag">New</span></div></li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                @*@if (MenuItemsInput.ClientProfileManager && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))*@
+                @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon survey-builder-icon"></i>
+                            <span>Survey Builder</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="surveybuilderSubmenu">
+                            <ul class="nolist">
+                                <li>
+                                    <a href="#surveyadmin" data-parent="#subMenuAccordion">Admin</a>
+                                    <div class="sidebar-submenu" id="surveyadmin">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Survey Perspectives", "Index", "PerspectiveConfiguration", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Survey Setup", "", "Survey", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Audit Log", "SetSDFSDFSDQues", "Survey", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Dynamic Survey With Export", "RatingsWithExport", "Rating", new { area = "PortfolioAnalyzer" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                @if (MenuItemsInput.PortfolioAnalyzer)
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon portfolio-analyzer-icon"></i>
+                            <span>Portfolio Analyzer</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="portfolioSubmenu">
+                            <ul>
+                                <li>
+                                    <a href="#aprdataSubmenu" data-parent="#subMenuAccordion">Data Collection </a>
+                                    <div class="sidebar-submenu" id="aprdataSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Demographics/Cost", "", "DataCollection", new { area = "PortfolioAnalyzer" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Technology Stack", "", "TechnologyStack", new { area = "PortfolioAnalyzer" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Interface", "", "Interface", new { area = "PortfolioAnalyzer" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Disposition/Recommendation", "", "DispositionDetails", new { area = "PortfolioAnalyzer" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Ratings", "", "Rating", new { area = "PortfolioAnalyzer" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#aprDashboard" data-parent="#subMenuAccordion">Dashboard </a>
+                                    <div class="sidebar-submenu" id="aprDashboard">
+                                        <ul>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink("Application/Service Dashboard", "NewAppDashboardIndex", "AppDashboard", new { area = "PortfolioAnalyzer" }, null)<span class="Box-bundle-tag">New</span></div></li>
+                                            <li class="single-item">@Html.ActionLink(" Overview Dashboard", "Landing", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="single-item">@Html.ActionLink("Rating Analysis", "RatingBySubPerspectiveReport", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+                                <li class="single-item">@Html.ActionLink("Disposition Road Map", "DispositionRoadMapReport", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+
+                                <li class="single-item"><div class="updated-tag"><a href="~/Areas/PortfolioAnalyzer/AspxReport/APRAnalysisReport.aspx">Custom Analysis</a></div></li>
+
+                                @*<li class="single-item">@Html.ActionLink("Custom Analysis", "", "Analysis", new { area = "PortfolioAnalyzer" }, null)</li>*@
+
+
+
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                        {*@
+                                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.PortfolioAnalyzer, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.PortfolioAnalyzer, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                                {
+                                    <li>
+                                        <a href="#aprSubmenu" data-parent="#subMenuAccordion">Admin </a>
+                                        <div class="sidebar-submenu" id="aprSubmenu">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Application/Service", "", "ApplicationInformation", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                @if (MenuItemsInput.SupportEcosystem == true)
+                                                {
+                                                    <li class="single-item">@Html.ActionLink("Portfolio-Eco", "", "PortfolioEco", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                }
+                                                <li class="single-item">@Html.ActionLink("Portfolio", "", "Portfolio", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                @* <li class="single-item">@Html.ActionLink("EcoSystem", "EcoSystem", "Configure", new { area = "PortfolioAnalyzer" }, null)</li>*@
+                                                <li class="single-item">@Html.ActionLink("Meta Data Maintenance", "", "MetaData", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Host", "TechnologyStackMetadata", "MetaData", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Vendor Product", "VendorProductVersionMetadata", "MetaData", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Disposition Mapping", "SolutionIndex", "MetaData", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                <li>
+                                                    <a href="#DispositionAutomation" data-parent="#subMenuAccordion">Disposition Automation</a>
+                                                    <div class="sidebar-submenu" id="DispositionAutomation">
+                                                        <ul>
+                                                            <li class="single-item">@Html.ActionLink("Disposition Automation", "", "DispositionAutomation", new { area = "ClientProfileManager" }, null)</li>
+                                                            <li class="single-item">@Html.ActionLink("Alternative Dashboard", "", "AlternativeDashboard", new { area = "ClientProfileManager" }, null)</li>
+                                                        </ul>
+                                                    </div>
+                                                </li>
+
+                                                <li class="single-item">@Html.ActionLink("Application Inventory", "ExAppIndex", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+                                                <li>
+                                                    <a href="#crosscompany" data-parent="#subMenuAccordion">Cross Company</a>
+                                                    <div class="sidebar-submenu" id="crosscompany">
+                                                        <ul>
+                                                            <li class="single-item">
+                                                                Ecosystem Setup
+                                                            </li>
+                                                            <li class="single-item">
+                                                                @Html.ActionLink("X-Client Heatmap", "ClientHeatmap", "MultiTenantReporting", new { area = "PortfolioAnalyzer" }, null)
+                                                            </li>
+
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                                @*}*@
+
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+                @*@if (MenuItemsInput.BusinessAlignment && (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+        {*@
+                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.BusinessAlignment, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.BusinessAlignment, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon business-alignment-icon"></i>
+                            <span>Business Alignment</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="businessAlignmentSubmenu">
+                            <ul>
+                                <li class="single-item"><a href="#">Dashboard</a></li>
+                                <li>
+                                    <a href="#businessalignadmin" data-parent="#subMenuAccordion">Admin</a>
+                                    <div class="sidebar-submenu" id="businessalignadmin">
+                                        <ul>
+                                            <li class="single-item"><div class="updated-tag">@Html.ActionLink(" Business Capability  ", "ClientCapabilities", "BusinessCapabilities", new { area = "" }, null)<span class="Box-bundle-tag">Updated</span></div></li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+                                @*@if (MenuItemsInput.UserRole.ToLower() == "superuser")
+                        {
+                            <li>@Html.ActionLink("Business Capability Catalog", "DisplayVerticalSubVerticals", "VerticalSubVerticalsGrid", new { area = "" }, null)</li>
+                        }*@
+                            </ul>
+                        </div>
+                    </li>
+                }
+                @*}*@
+
+                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.RetirementAccelerator, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.RetirementAccelerator, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon framework-builder-icon"></i>
+                            <span>Framework Builder</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="retirementSubmenu">
+                            <ul>
+                                <li>
+                                    <a href="#radataSubmenu" data-parent="#subMenuAccordion">Data Collection</a>
+                                    <div class="sidebar-submenu" id="radataSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Assessment(Rating)", "Assess", "Assessment", new { area = "RetirementAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("ROM Estimator", "ROMEstimator", "Assessment", new { area = "RetirementAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Plan/Track", "", "TaskProgress", new { area = "RetirementAccelerator" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="single-item">@Html.ActionLink("Dashboard", "", "Dashboard", new { area = "RetirementAccelerator" }, null)</li>
+
+                                @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                                {
+                                    <li>
+                                        <a href="#rametadataSubmenu" data-parent="#subMenuAccordion">Admin</a>
+                                        <div class="sidebar-submenu" id="rametadataSubmenu">
+                                            <ul>
+                                                <li class="single-item">@Html.ActionLink("Retirement Candidate", "RetirementCandidate", "MetaData", new { area = "RetirementAccelerator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("Meta Data Maintenance", "", "MetaData", new { area = "RetirementAccelerator" }, null)</li>
+                                                <li class="single-item">@Html.ActionLink("WBS Template", "WBS", "MetaData", new { area = "RetirementAccelerator" }, null)</li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+
+                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.TransformationAccelerator, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.TransformationAccelerator, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon transformation-accelerator-icon"></i>
+                            <span>Transformation Accelerator</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="TransformationAcceleratorSubmenu">
+                            <ul>
+                                <li>
+                                    <div class="updated-tag">
+                                        <a href="#EngagementPlanSubmenu" data-parent="#subMenuAccordion">Engagement Plan</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="EngagementPlanSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Engagement TimeLine", "Index", "EngagementTimeLine", new { area = "TransformationAccelerator" }, null)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="updated-tag">
+                                        <a href="#ServicePlanSubmenu" data-parent="#subMenuAccordion">Service Plan</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="ServicePlanSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Service Improvement Agreement", "SIAgreement", "ServicePlan", new { area = "TransformationAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Implementation Plan", "Index", "ServicePlan", new { area = "TransformationAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Improvement Progress", "ImprovementProgressView", "ServicePlan", new { area = "TransformationAccelerator" }, null)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="updated-tag">
+                                        <a href="#ReportsSubmenu" data-parent="#subMenuAccordion">Reports</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="ReportsSubmenu">
+                                        <ul>
+                                            @*<li class="single-item">@Html.ActionLink("TAReports", "TAReports", "ConfigureTAReport", new { area = "TransformationAccelerator" }, null)</li>*@
+                                            <li class="single-item">@Html.ActionLink("Progress against plan", "TAReports_ProgressAgainstPlan", "ConfigureTAReport", new { area = "TransformationAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Detailed progress", "TAReports_DetailedProgress", "ConfigureTAReport", new { area = "TransformationAccelerator" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Summary", "TAReports_summary", "ConfigureTAReport", new { area = "TransformationAccelerator" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                            </ul>
+                        </div>
+
+                    </li>
+                }
+
+
+
+                @*@if (MenuItemsInput.PerformancePredictor)
+              {
+                    <li class="panel sidebar-dropdown">
+                               <a href="#performanceSubmenu" data-toggle="collapse" data-parent="#menuAccordion">
+                               <i class="menu-icon performance-predictor-icon"></i>
+                               <span>Performance Predictor</span>
+                       </a>
+                             <div class="sidebar-submenu panel-collapse collapse" id="performanceSubmenu">
+            <ul>
+                    <li>
+            <a href="#ppheatSubmenu" data-toggle="collapse" data-parent="#subMenuAccordion">Heat Maps & PA Reports</a>
+            <div class="sidebar-submenu panel-collapse collapse" id="ppheatSubmenu">
+                <ul>
+                    <li>@Html.ActionLink("Heat Map Dashboard", "Index", new { area = "AlignmentManager", controller = "HeatMapSetup" })</li>
+                    <li>@Html.ActionLink("Scatter Chart", "DisplayCMReports", new { area = "AlignmentManager", controller = "HeatMapSetup", cid = clientId })</li>
+                    <li>@Html.ActionLink("Trend Report", "DisplayTrendReport", new { area = "AlignmentManager", controller = "ALMHeatMap", action = "DisplayTrendReport" })</li>
+                    <li>@Html.ActionLink("Report Viewer", "ReportViewer", new { area = "AlignmentManager", controller = "ALMHeatMap", action = "ReportViewer", cid = clientId })</li>
+                </ul>
+            </div>FIncident
+        </li>
+                    @if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin")
+        {
+            <li>
+                <a href="#ppreportSubmenu" data-toggle="collapse" data-parent="#subMenuAccordion">Reports Configurations</a>
+                <div class="sidebar-submenu panel-collapse collapse" id="ppreportSubmenu">
+                    <ul>
+                        <li>@Html.ActionLink("Data Sets", "DisplayHomePage", new { area = "AlignmentManager", controller = "DataSet" })</li>
+                        <li>@Html.ActionLink("Reports Builder", "DisplayHeatMapBuilder", new { area = "AlignmentManager", controller = "HeatMapSetupBuilder" })</li>
+                        <li>@Html.ActionLink("Report Configuration Information", "DisplaySSRSReport", new { area = "AlignmentManager", controller = "DataSet" })</li>
+                        <li>@Html.ActionLink("Data Upload", "ViewDataUpload", new { area = "AlignmentManager", controller = "PPDataupload", clientid = clientId })</li>
+                    </ul>
+                </div>
+            </li>
+        }
+                    @if (MenuItemsInput.UserRole.ToLower() == "sysadmin")
+        {
+            <li>
+                <a href="#ppmasterSubmenu" data-toggle="collapse" data-parent="#subMenuAccordion">Masters Configurations</a>
+                <div class="sidebar-submenu panel-collapse collapse" id="ppmasterSubmenu">
+                    <ul>
+                        <li>@Html.ActionLink("Predictor Variables", "DisplayHomePage", new { area = "AlignmentManager", controller = "AlignmentManager" })</li>
+                        <li>@Html.ActionLink("Variable Types", "DisplayVariableTypes", new { area = "AlignmentManager", controller = "VariableTypeGrid", GridToDisplay = "VartypeGrid" })</li>
+                        <li>@Html.ActionLink("Variable Category Types", "DisplayVariableTypes", new { area = "AlignmentManager", controller = "VariableTypeGrid", GridToDisplay = "VarcatGrid" })</li>
+                        <li>@Html.ActionLink("Meta Data Types", "DisplayVariableTypes", new { area = "AlignmentManager", controller = "VariableTypeGrid", GridToDisplay = "VarmetaGrid" })</li>
+
+                    </ul>
+                    </div>
+            </li>
+        }
+
+                    </ul>
+                </div>
+            </li>
+               }*@
+
+
+                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.ClientProfileManager, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+
+                {
+
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon configuration-manager-icon"></i>
+                            <span>Configuration Manager</span>
+                        </a>
+                        <div class="sidebar-submenu sidebar-main-submenu" id="ConfigurationManagerSubmenu">
+                            <ul>
+                                <li class="single-item">
+                                    @Html.ActionLink("Client Analysis", "", "ExportTicketInfo", new { area = "ClientProfileManager" }, null)
+                                </li>
+                                <li>
+                                    <a class="sidebar-link" href="#cmumSubmenu" data-parent="#subMenuAccordion">User Management</a>
+                                    <div class="sidebar-submenu" id="cmumSubmenu">
+                                        <ul>
+                                            @*<li class="single-item">
+                                        @Html.ActionLink("User Setup", "Register", "Account", new { area = "" }, null)
+                                    </li>*@
+                                            <li class="single-item">
+                                                @Html.ActionLink("User Access Management", "Users", "Account", new { area = "" }, null)
+                                            </li>
+                                            <li class="single-item"><a href="~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx">User List Report</a></li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a class="sidebar-link" href="#cminterfaceSubmenu" data-parent="#subMenuAccordion">Data Interface</a>
+                                    <div class="sidebar-submenu" id="cminterfaceSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Data Mapping", "", "DataMapping", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item">
+                                                @Html.ActionLink("Data Masking", "", "PIDataMask", new { area = "ClientProfileManager" }, null)
+                                            </li>
+                                            <li class="single-item">
+                                                @Html.ActionLink("Data Upload", "DataFileUpload", "DataUpload", new { area = "ClientProfileManager" }, null)
+                                            </li>
+                                            <li class="single-item">
+                                                @Html.ActionLink("Job Scheduler", "JobScheduling", "DataUpload", new { area = "ClientProfileManager" }, null)
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+
+                                <li>
+                                    <a class="sidebar-link" href="#mdManagementSubmenu" data-parent="#subMenuAccordion">Meta Data Management</a>
+                                    <div class="sidebar-submenu" id="mdManagementSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Industry Vertical Management", "VerticalAndSubVertical_New", "VerticalSubVerticalsGrid", new { area = "" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Business Capability Catalog", "DisplayVerticalSubVerticals", "VerticalSubVerticalsGrid", new { area = "" }, null)</li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+
+
+                            </ul>
+                        </div>
+                    </li>
+
+                }
+
+                @if (Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.Sysadmin, MenuItemsInput) || Helper.HasRole(MenuItemsInput.UserId, clientId, (int)Helper.AMOApplicationName.IncidentNavigator, (int)Helper.AMOUserRoles.Admin, MenuItemsInput))
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon utility-manager-icon"></i>
+                            <span>Utility Manager</span>
+                        </a>
+
+                        <div class="sidebar-submenu sidebar-main-submenu" id="utilityManagerSubmenu">
+                            <ul>
+                                <li>
+                                    <a href="#incidentSubmenu" data-parent="#subMenuAccordion">Data Utility</a>
+                                    <div class="sidebar-submenu" id="incidentSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Data Masking Download", "Download", "PIDataMask", new { area = "ClientProfileManager" }, null)</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="#incidentSubmenu" data-parent="#subMenuAccordion">Data Exports</a>
+                                    <div class="sidebar-submenu" id="utilityManagerSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("Application Inventory", "ExAppIndex", "Dashboard", new { area = "PortfolioAnalyzer" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Application Survey", "SetSDFSDFSDQues", "Survey", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item">@Html.ActionLink("Ticket Data", "", "ExportTicketInfo", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item"> @Html.ActionLink("Job Detail", "", "DataUpload", new { area = "ClientProfileManager" }, null)</li>
+                                            <li class="single-item"><a href="~/Areas/ClientProfileManager/AspxReport/NextGenToolUsers.aspx">All User Data</a></li>
+                                            <li class="single-item">@Html.ActionLink("Download Scheduled Reports (Trial)", "RPTJobDetailList", "ReportSubscription", new { area = "ClientProfileManager" }, null)</li>
+                                            @*<li class="single-item"></li>*@
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="updated-tag">
+                                        <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Multi-Tenant Reporting</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="utilityManagerSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("X-Client Heatmap", "ClientHeatmap", "MultiTenantReporting", new { area = "PortfolioAnalyzer" }, null)</li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="single-item">@Html.ActionLink("Report Subscriptions (Trial)", "RptSubscriptionList", "ReportSubscription", new { area = "ClientProfileManager" }, null)</li>
+                            </ul>
+
+
+
+                        </div>
+                    </li>
+                }
+                else if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "superuser")
+                {
+                    <li class="panel sidebar-dropdown">
+                        <a class="sidebar-link" data-parent="#menuAccordion">
+                            <i class="menu-icon utility-manager-icon"></i>
+                            <span>Utility Manager</span>
+                        </a>
+
+                        <div class="sidebar-submenu sidebar-main-submenu" id="utilityManagerSubmenu">
+                            <ul>
+                                <li>
+                                    <div class="updated-tag">
+                                        <a href="#incidentSubmenu1" data-parent="#subMenuAccordion">Multi-Tenant Reporting</a>
+                                    </div>
+                                    <div class="sidebar-submenu" id="utilityManagerSubmenu">
+                                        <ul>
+                                            <li class="single-item">@Html.ActionLink("X-Client Heatmap", "ClientHeatmap", "MultiTenantReporting", new { area = "PortfolioAnalyzer" }, null)</li>
+
+                                        </ul>
+                                    </div>
+                                </li>
+
+                            </ul>
+
+                        </div>
+                    </li>
+                }
+
+
+
+
+            </ul>
+        </div>
+        <!-- sidebar-menu  -->
+
+    </nav>
+    <div style="display:none" id="sidenav-overlay"></div>
+    }
+}
+<!--
+    <div>-->
+<script type="text/javascript">
+    //$('.sidebar-dropdown.panel').on('click', 'a', function () {
+    //    if ($(this).siblings('.sidebar-submenu').hasClass('in') || $(this).parents('.updated-tag').siblings('.sidebar-submenu').hasClass('in')) {
+    //        console.log('consolidated close');
+    //        $(this).removeClass('active');
+    //    }
+    //    else {
+    //        console.log('consolidated open');
+    //        $(this).addClass('active');
+    //        $(this).parents('.sidebar-dropdown').siblings().find('a').removeClass('active');
+    //    }
+    //});
+    //$('.sidebar-submenu').on('click', 'ul li a', function () {
+    //    console.log('submenu a');
+    //    var single_element = $(this).siblings('.sidebar-submenu').find('li').length;
+    //    console.log(single_element);
+    //    if (single_element <= 1) {
+    //        $(this).siblings('.sidebar-submenu').find('li').addclass('single');
+    //    }
+    //});
+    $('#sidenav-overlay').click(function () {
+        $('.header-menu-icon').toggleClass('open');
+        $('.sidebar-wrapper').toggleClass('show');
+        $('#sidenav-overlay').toggleClass('open');
+    });
+    $('.sidebar-wrapper').on('click', '.close', function () {
+        $('.header-menu-icon').toggleClass('open');
+        $('.sidebar-wrapper').toggleClass('show');
+        $('#sidenav-overlay').toggleClass('open');
+        $('.sidebar-link').removeClass('show');
+        $('.sidebar-main-submenu').removeClass('show');
+    });
+
+    $(".sidebar-link")
+        .mouseenter(function () {
+            console.log('enter');
+            $(this).addClass('show');
+            $(this).siblings(".sidebar-main-submenu").addClass('show');
+            $(this).parent('li').siblings().find('a').removeClass('show');
+            $(this).parent('li').siblings().find('.sidebar-main-submenu').removeClass('show');
+        });
+     // .mouseleave(function () {
+       //   if (!$(this).parents('.sidebar-wrapper')) {
+         //     console.log('leave');
+              //$(this).removeClass('show');
+              //$(this).siblings(".sidebar-main-submenu").removeClass('show');
+         // }
+    //});
+
+
+    //$(document).ready(function(){
+    //    $("button").click(function(){
+    //        var pageurl = $(location).attr("href");
+    //        alert(pageurl);
+    //    });
+    //});
+    //var url = window.location.hash;
+    //var anchor = $('a[href$="' + url + '"]');
+    //if (anchor.length > 0) {
+    //    anchor.click();
+    //}
+    //$('#accordion').click(function () {
+
+
+    //});
+</script>

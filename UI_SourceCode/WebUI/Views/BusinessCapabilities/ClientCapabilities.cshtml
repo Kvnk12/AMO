@@ -1,0 +1,1198 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@{
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    ViewBag.Title = "Business Alignment Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/bam.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    //ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var cont = new BusinessCapabilitiesController();
+    //var dosList = cont.GetListOfDos(client.ClientId);
+    var dosList = (IEnumerable<SelectListItem>)ViewData["DosList"];
+
+
+}
+@model BusinessCapabilitiesModel
+<style>
+
+    .forTooltips {
+        width: 35%;
+        height: 100%;
+        padding: .929em 1.286em;
+    }
+
+    td.overridePadding {
+        padding: 0;
+    }
+
+    .k-widget.k-window {
+        width: 75%;
+        transform: translateX(-50%) translateY(-50%) !important;
+        left: 50% !important;
+        font-size: 11px;
+    }
+
+        .k-widget.k-window .k-window-titlebar {
+            padding: 12px;
+        }
+
+        .k-widget.k-window .k-window-content .k-grid {
+            border: none;
+            box-shadow: none;
+        }
+
+            .k-widget.k-window .k-window-content .k-grid .k-button {
+                border: none;
+                background-color: rgb(91, 121, 171);
+                color: #fff;
+            }
+
+            .k-widget.k-window .k-window-content .k-grid .k-header {
+                background-color: transparent;
+            }
+
+            .k-widget.k-window .k-window-content .k-grid .k-grid-header .k-header {
+                background-color: rgb(91, 121, 171);
+                padding: 8px;
+            }
+
+                .k-widget.k-window .k-window-content .k-grid .k-grid-header .k-header > .k-link {
+                    color: #fff;
+                }
+
+        .k-widget.k-window .k-widget.k-grid .k-grid-header {
+            padding-right: 0 !important;
+        }
+
+        .k-widget.k-window .k-widget.k-grid .k-grid-content.k-auto-scrollable table {
+            border: 1px solid lightgrey;
+        }
+
+        .k-widget.k-window .k-widget.k-grid .k-grid-content.k-auto-scrollable {
+            overflow-y: auto;
+        }
+
+    .k-widget .k-edit-form-container {
+        width: unset;
+    }
+
+        .k-widget .k-edit-form-container .k-edit-buttons {
+            border: none;
+            padding: 0 2em 1.5em;
+        }
+
+            .k-widget .k-edit-form-container .k-edit-buttons .k-grid-update, .k-widget .k-edit-form-container .k-edit-buttons .k-grid-cancel {
+                text-transform: uppercase;
+                font-size: 11px;
+                padding: 4px 10px;
+                background-color: rgb(91, 121, 171);
+                border: none;
+                color: #fff;
+                font-family: 'HELVETICANEUE-MEDIUM';
+            }
+
+                .k-widget .k-edit-form-container .k-edit-buttons .k-grid-update span.k-i-check, .k-widget .k-edit-form-container .k-edit-buttons .k-grid-cancel span.k-i-cancel {
+                    display: none;
+                }
+
+    .k-window > div.k-popup-edit-form {
+        background-color: #f5f5f5;
+    }
+
+    .k-tooltip.k-popup {
+        background-color: lightgrey !important;
+        border: none;
+        border-color: lightgrey;
+        font-size: 11px;
+        font-weight: 100;
+        width: 250px;
+        color: #000;
+    }
+
+        .k-tooltip.k-popup .k-callout-w {
+            left: 0;
+        }
+
+    label {
+        cursor: pointer;
+        position: relative;
+        margin: 0;
+    }
+
+    .custom-tooltip {
+        position: absolute;
+        bottom: -8px;
+        left: 10%;
+        padding: 1px 3px;
+        border-radius: 3px;
+        z-index: 999999;
+        display: none;
+        border: none;
+        background-color: lightgrey !important;
+    }
+
+    label:hover .custom-tooltip {
+        display: inline-block;
+        /*visibility:visible;*/
+    }
+    /*dospopup css*/
+    #details-container {
+        padding: 10px;
+    }
+
+        #details-container h2 {
+            margin: 0;
+        }
+
+        #details-container em {
+            color: #8c8c8c;
+        }
+
+        #details-container dt {
+            margin: 0;
+            display: inline;
+        }
+</style>
+
+<div id="wrap">
+    <div class="content-main dark-bg bam-container">
+        <ol class="breadcrumb ">
+            <li>Business Alignment Manager</li>
+            <li>Admin</li>
+            <li class="active">Client Business Capability Catalog</li>
+        </ol>
+        <div class="bam-content">
+            <div class="alert-success" id="importSuccess" hidden>
+                Business capabilities successfully imported!
+            </div>
+            <div class="alert-danger" id="importFailure" hidden>
+                Error occured while importing Business capabilities.
+            </div>
+
+            <div class="bam-content-heading" style="margin-top:0.5em;">
+                <div>
+                    <input type="hidden" id="SelectedAppIdDos" name="SelectedAppIdDos">
+                    <h5>Industry Vertical / Sub-Vertical : @Model.SubverticalName </h5>
+                </div>
+                <br />
+                <div class="bam-content-selection">
+                    <span class="active" data-href="bc-am" id="radioBc">BC-AM</span>
+                    <span data-href="am-bc" id="radioApp">AM-BC</span>
+                    <p class="bam-selection-note">Note: Default setting of BAM is - Business Capabilities to Application Mapping. Use this button to swap. </p>
+                </div>
+
+                <div class="bam-heading-btn">
+                    <span id="successmsg" style="padding-right:175px;"></span>
+                    <button class="btn bam-heading-btn-export" title="Export BAM Capabilities to Excel" onclick="ExportTemplate()"></button>
+                </div>
+            </div>
+
+            <div class="custom-grid bam-content-main">
+                @Html.HiddenFor(x => x.SubVerticalId, new { id = "SubVerticalId" })
+
+                <div class="bam-content-main-left">
+                    <div class="bam-content-left-heading">
+                        <label class="bam-content-label">Business Capabilities</label>
+                        <span id="successmsg" style="padding-right:175px;"></span>
+                        <div>
+                            <button class="btn bam-import-btn" onclick="ImportTemplate()"></button>
+                            <button class="btn bam-export-btn" value="Export" onclick="ExporttoExcel()" title="Export Business Capabilities"></button>
+                        </div>
+
+                        @*<button class="btn bam-heading-btn-import hidden" value="Up" onclick="ReordertoActual()" title="Reorder to Default" style="width:10px;"></button>*@
+                        @* <br /><button class="btn bam-heading-btn-import" value="down" title="Down" style="width:10px;" onclick="BCChangeOrderdesc()"></button>*@
+                    </div>
+                    @(Html.Kendo().TreeList<BusinessCapabilitiesModel>()
+                                            .Name("BusinessCapabilities")
+
+                                            .Columns(columns =>
+                                            {
+                                                // columns.Add().HeaderTemplate("<input type='checkbox' id='treeCheck' onclick='toggleAll(event)' />").Template("<input id=CheckBoxId#=BCId# type='checkbox' data-bind='checked: checked' />");
+                                                // columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capabilities");
+                                                columns.Add().Field(e => e.BusinessCapName).Title("Business (Sub)Capabilities").TemplateId("DisplayDesc");
+                                                columns.Add().Field(e => e.ProcessImportance).Title("Process Importance").Width(60);
+                                                columns.Add().Field(e => e.ProcessHealth).Title("Process Health").Width(60);
+                                                //columns.Add().Field(e => e.Description).Title("Description").Width(1);
+                                                //columns.Add().Field(e => e.Notes).Title("Notes").Width(1);
+                                                // columns.Add().Field(e => e.OrderId).Title("order id").Width(60);
+                                                columns.Add().Width(30).HeaderTemplate("<input type='checkbox' id='treeCheck' onclick='toggleAll(event)' />").Template("<input id='CheckBoxId#=BCId#' type='checkbox' onclick='BCCheckChange(#=BCId#)'/>");
+                                                columns.Add().Width(26).Template("<input type='button' title='Up' value='' onclick='BCChangeOrderInc(#=BCId#)' class='order-change-btn order-up'/>");
+                                                columns.Add().Width(26).Template("<input type='button' title='Down' value='' onclick='BCChangeOrderdesc(#=BCId#)' class='order-change-btn order-down'/>");
+                                                columns.Add().Title("Action").Width(95).Command(c =>
+                                                {
+                                                    c.CreateChild().Text(" ");
+                                                    c.Edit().Text(" ");
+                                                    c.Destroy().Text(" ");
+                                                    //  c.Custom().Text(" ");
+                                                })
+                                            .HtmlAttributes(new
+                                            {
+                                                // style = "text-align: center;"
+                                            });
+                                            })
+                                               .Toolbar(tools =>
+                                               {
+                                                  // tools.Excel().Text(" ");
+                                                   tools.Create().Text("Add BC");
+                                                   tools.Search().Text("Search Business Capabilities...");
+                                                   tools.Custom().Text("Clear All").Name("mycommand");//.HtmlAttributes(new { @id = "BCSelectAll" });
+                                               })
+                                                .Excel(excel => excel.FileName("Business_Capabilities.xlsx").ProxyURL(Url.Action("Export_BC")))
+
+                                               .Selectable(true)
+                                            .Search(s => { s.Field(c => c.BusinessCapName); })
+                                             .Editable(editable =>
+                                             {
+                                                 // editable.Move(true);
+                                                 editable.Mode("popup");
+                                                 //editable.CreateAt(InsertRowPosition.Bottom);
+                                             })
+                                            .Events(e => e.DataBound("onBCDataBound"))
+                                            .DataSource(dataSource => dataSource
+                                                .ServerOperation(false)
+                                                .Create(create => create.Action("ClientCapabilityCreate", "BusinessCapabilities"))
+                                                .Read(read => read.Action("GetClientCapabilities", "BusinessCapabilities"))
+                                                .Update(update => update.Action("ClientCapabilityUpdate", "BusinessCapabilities"))
+                                                .Destroy(delete => delete.Action("ClientCapabilityDelete", "BusinessCapabilities"))
+                                                .Model(m =>
+                                                {
+                                                    m.Id(f => f.BCId);
+                                                    m.ParentId(f => f.BCParentId);
+                                                    m.Field(f => f.SubVerticalId);
+                                                    m.Expanded(false);
+                                                    m.Field(f => f.BusinessCapName);
+                                                })
+                                            //.Events(ev =>  ev.Change("propagate"))
+                                            )
+                    )
+
+                </div>
+
+                <div class="bam-content-main-right">
+                    <div class="bam-content-right-heading">
+                        <label class="bam-content-label">Application Mapping</label>
+
+                        @*<button class="btn bam-heading-btn-import" title="Save" onclick="SelectedBCIdsUpdate()"></button>*@
+                        <div class="bam-content-right-heading-main">
+                            <div class="portfolio-search-multiselect">
+                                <select class="portfolio-search-dropdown" multiple="multiple" placeholder="Search Portfolio..." id="drpPortfolio" onChange="getSelectedportfolio(this)">
+                                    @{
+                                        foreach (var item in Model.PortfolioList)
+                                        {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <button type="button" class="bam-save-button" onclick="SelectedBCIdsUpdate()"></button>
+                        </div>
+                    </div>
+
+                    @(Html.Kendo().Grid<BCApplication>()
+                             .Name("Applicationlist")
+                             .Columns(columns =>
+                             {
+                                 columns.Bound(e => e.Appid).Hidden();
+                                 //columns.Bound(e => e.SelectApp).HeaderTemplate("<input type='checkbox' id='gridCheck' onclick='toggleGridChks(event)' />").ClientTemplate("<input id=CheckBoxgridId#=Appid# class='chkbox' style='pointer-events:none' type='checkbox' #= SelectApp ? checked='checked' :'' # />").Width(30);
+                                 columns.Bound(e => e.SelectApp).HeaderTemplate("<input type='checkbox' id='gridCheck' onclick='toggleGridChks(event)' />")
+                            .ClientTemplate(
+                                "#if(SelectApp == 'true') {# "
+                                  + "<input id='CheckBoxgridId#=Appid#'  type='checkbox' data-bcids='#=BCIds#' onclick='AppCheckChange(#=Appid#)' checked />"
+                                + " #} else{#"
+                                     + "<input id='CheckBoxgridId#=Appid#'  data-bcids='#=BCIds#'  onclick='AppCheckChange(#=Appid#)'  type='checkbox'/>"
+                                + "#}#").Width(20);
+                                 columns.Bound(e => e.ApplicationName).Title("Name").Width(100).ClientTemplate("<div class=\"forTooltips\">#=ApplicationName#</div>").HtmlAttributes(new { @class = "overridePadding" });
+                                 columns.Bound(e => e.Description).Title("Description").Width(110).HeaderHtmlAttributes(new { style = "white-space: normal" });
+                                 columns.Bound(e => e.BCNames).Title("BCNames").Hidden();
+                                 columns.Bound(e => e.BCIds).Hidden();
+                                 columns.Bound(e => e.Appid).ClientTemplate(
+                                       "#if(BCIds == '') {# "
+                                          + "<input type='button' disabled value= 'DOS' class='btn dos-button' style='background-color: rgb(91, 121, 171)'/>"
+                                        + " #} else{#"
+                                    + "<input type='button' value= 'DOS'id='#=Appid#' onclick=\"showDOS('#=Appid#')\" class='btn dos-button'/>"
+                                      + "#}#").Width(50).Title("");
+                                 // columns.Command(command => command.Custom("ViewDetails").Click("showDetails"));
+                                 //  columns.Command(command => command.Custom("DOS").SendDataKeys(true).Click("showDOS"));
+
+                             })
+                            //.Resizable(r => r.Columns(true))
+                            .Scrollable()
+                            .ToolBar(toolbar =>
+                            {
+                                toolbar.Excel().Text(" ");
+                                            //   toolbar.Save().Text(" ");
+                                            //   toolbar.Custom().Text("Clear All").Name("select-all-command").HtmlAttributes(new { @id = "SelectAllbutton" }); ;
+                                        })
+
+                            .ToolBar(t => t.Search().Text("Search Application Mapping ..."))
+                            // .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            // .Batch(true)
+                            .ServerOperation(false)
+                            .Events(events => events.Error("apperrorhandler"))
+                            .Model(model =>
+                            {
+                                            model.Id(p => p.Appid);
+                                            model.Field(r => r.ApplicationName).Editable(false);
+                                            model.Field(r => r.SelectApp).Editable(false);
+                                            model.Field(r => r.Description).Editable(false);
+                                            model.Field(r => r.BCNames).Editable(false);
+                                            model.Field(r => r.BCIds).Editable(false);
+                                        })
+                            //.Update(update => update.Action("UpdateBCApplications", "BusinessCapabilities").Data("SelectedBCIdsUpdate"))
+                            .Read(read => read.Action("GetBCApplications", "BusinessCapabilities").Data("SelectedBCIds"))
+                            )
+                    )
+                    @(Html.Kendo().Tooltip()
+                              .For("#Applicationlist")
+                              .Filter(".forTooltips")
+                              .ContentHandler("getBCIds")
+                              .Position(TooltipPosition.Right)
+                              .AutoHide(true)
+                    )
+                    @(Html.Kendo().Window().Name("WinDoS")
+                    .Title("Degree of Support (DoS)")
+                    .Visible(false)
+                    .Modal(true)
+                    .Draggable(true)
+                    .Content(@<text>
+                @*//<label id="appname"></label>*@
+  <label id="SelectedAppName" name="SelectedAppName" style="font-size:medium;" value=""></label>
+    @(Html.Kendo().Grid<BCApplicationJunctionModel>
+        ()
+        .Name("DoSGrid")
+        .Columns(columns =>
+        {
+        columns.Bound(e => e.BCId).Title("BCIds").Hidden();
+        columns.Bound(e => e.Id).Title("Id").Hidden();
+        columns.Bound(e => e.Hierarchy).Title("Parent");
+        columns.Bound(e => e.BCName).Title("BC-Name");
+        columns.Bound(e => e.AppId).Title("Appid").Hidden();
+
+        columns.ForeignKey(e => e.DoSId, dosList, "Value", "Text").Width(300).EditorTemplateName("Dosdrpdn").Title("Current Degree Of Support");
+        columns.ForeignKey(e => e.PostDoSId, dosList, "Value", "Text").Width(300).EditorTemplateName("PostDosId").Title("Future Degree Of Support");
+        // columns.Command(command => command.Edit());
+        })
+        .ToolBar(toolbar =>
+        {
+        toolbar.Save();
+        toolbar.Search().Text("Search...");
+        //  toolbar.Edit().Text("Edit ");
+        })
+        .Scrollable()
+        .Editable(editable => editable.Mode(GridEditMode.InCell))
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .ServerOperation(false)
+        .Model(model =>
+        {
+        model.Id(p => p.Id);
+        model.Field(r => r.BCName).Editable(false);
+        model.Field(r => r.Hierarchy).Editable(false);
+        // model.Field(r => r.BCName);
+
+        })
+        .Update(update => update.Action("UpdateBCApplicationsForDos", "BusinessCapabilities"))
+        .Read(read => read.Action("GetBCApplicationsForDos", "BusinessCapabilities").Data("SelectedAppId"))
+        )
+        )
+
+</text>)
+                    .Width(900)
+                    .Height(500)
+                )
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*</div>*@
+
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+    //    console.log('In document ready');
+    //    EnableDisableBCCheckBoxes();
+    //});
+
+    function onBCDataBound() {
+        EnableDisableBCCheckBoxes();
+    }
+
+    function EnableDisableBCCheckBoxes() {
+
+        var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+        //BusCap.dataSource.read();
+        var dataItems = BusCap.dataSource.view();
+       // console.log('In document ready function');
+        $.each(dataItems, function (i, item) {
+            if (item.BCParentId) {
+                var ParentCheckBoxctrl = '#CheckBoxId' + item.BCParentId;
+                $(ParentCheckBoxctrl).prop("disabled", true);
+            }
+            else {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                $(CheckBoxctrl).prop("disabled", false);
+            }
+           // console.log('In loop');
+        });
+
+    }
+
+    function apperrorhandler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    function getBCIds(e) {
+        var dataItem = $("#Applicationlist").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.BCNames;
+        return content;
+    }
+
+    function ParameterData(e) {
+        var mm = '@Model.SubVerticalId';
+        $("#SubVerticalId").val(mm);
+        return {
+
+            SubVerticalId: mm,
+
+            };
+    }
+
+
+    function toggleAll(e) {
+        e.stopPropagation();
+
+        if ($("#radioApp").hasClass("active")) {
+            var treeList = $("#BusinessCapabilities").data("kendoTreeList");
+            var dataItems = treeList.dataSource.view();//.data();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                if ($('#treeCheck').is(":checked")) {
+                    $(CheckBoxctrl).prop("checked", true);
+                }
+                else {
+                    $(CheckBoxctrl).prop("checked", false);
+                }
+            });
+            //var gridnControl = $("#Applicationlist").data("kendoGrid");
+            //gridnControl.dataSource.read();
+        }
+    }
+
+    function toggleGridChks(e) {
+
+        if ($("#radioBc").hasClass("active")) {
+
+            var gridnControl = $("#Applicationlist").data("kendoGrid");
+            var dataItems = gridnControl.dataSource.view();//.data();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+                if ($('#gridCheck').is(":checked")) {
+
+                    $(CheckBoxctrl).prop("checked", true);
+                    item.set('SelectApp', true);
+                }
+                else {
+
+                    $(CheckBoxctrl).prop("checked", false);
+                    item.set('SelectApp', false);
+
+                }
+                //}
+            });
+        }
+
+    }
+
+    function SelectedBCIds(e) {
+        //get all selected BCIds in comma seperated string
+        var treeList = $("#BusinessCapabilities").data("kendoTreeList");
+        var dataItems = treeList.dataSource.data();
+        var mm = '';// '59,1';
+        var str = '';//'59,1';
+        if ($("#radioBc").hasClass("active")) {
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = 'CheckBoxId' + item.BCId;
+                if ($('#' + CheckBoxctrl).is(":checked")) {
+                    str += item.BCId + ',';
+                }
+
+            });
+        }
+        if (str.length > 1) {
+            mm = str.substring(0, str.length - 1);
+        }
+
+        var PortfolioctrlSel = $('#drpPortfolio').val();
+
+        var portfolioid = "";
+        var count = 0;
+
+        try {
+            var count = PortfolioctrlSel.length;
+            for (var i = 0; i < count; i++) {
+                if (i > 0) { portfolioid += ","; }
+                portfolioid += $('#drpPortfolio option:selected')[i].value;
+            }
+            var PortfolioSelId = portfolioid;
+        }
+        catch{
+
+            var ddl = document.getElementById('drpPortfolio');
+            for (i = 0; i < ddl.options.length; i++) {
+                if (i > 0) { portfolioid += ","; }
+                portfolioid += ddl.options[i].value;
+            }
+            var PortfolioSelId = portfolioid;
+        }
+
+
+
+        return {
+            Bcids: mm,
+            PortfolioSelId: PortfolioSelId
+        };
+    }
+
+
+
+    function SelectedBCIdsUpdate(e) {
+
+        //get all selected BCIds in comma seperated string
+        var treeList = $("#BusinessCapabilities").data("kendoTreeList");
+        var dataItems = treeList.dataSource.data();
+        var mm = '';// '59,1';
+        var str = '';//'59,1';
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = 'CheckBoxId' + item.BCId;
+            if ($('#' + CheckBoxctrl).is(":checked")) {
+                str += item.BCId + ',';
+            }
+
+        });
+        if (str.length > 1) {
+            mm = str.substring(0, str.length - 1);
+        }
+
+        var apps = '';
+        var BusApp = $("#Applicationlist").data("kendoGrid");
+        var appdataItems = BusApp.dataSource.view();
+        $.each(appdataItems, function (i, item) {
+            var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+            // console.log(CheckBoxctrl);
+            if ($(CheckBoxctrl).is(":checked"))
+                apps += item.Appid + ',';
+        });
+
+        if (apps.length > 1) {
+            apps = apps.substring(0, apps.length - 1);
+        }
+        var bcToam = $("#radioBc").hasClass("active").toString();
+        // alert(bcToam);
+        var mod = {
+            Bcids: mm,
+            Apps: apps,
+            bcToam: bcToam
+        };
+        // return mod;
+        var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+        var dataItems = BusCap.dataSource.view();//.data();
+        //  if ($("#radioApp").hasClass("active")) {
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+            $(CheckBoxctrl).prop("checked", false);
+
+        });
+        //}
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/BusinessCapabilities/UpdateBCApplications")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var gridnControl = $("#Applicationlist").data("kendoGrid");
+                    gridnControl.dataSource.read();
+                    $("#successmsg").fadeIn(1, "linear")
+                    if (data.result == true) {
+
+                        document.getElementById("successmsg").innerHTML = "<span style='font-weight:bold;padding:7px 15px' class='alert alert-success'>Mapping detail got saved.</span>";
+                    }
+                    else {
+                        document.getElementById("successmsg").innerHTML = "<span style='font-weight:bold;padding:7px 15px' class='alert alert-success'>Mapping detail got saved.</span>";
+
+                    }
+                },
+                error: function (data) {
+                    alert('Error saving mapping detail.' + data);
+                }
+            })
+
+        $("#successmsg").fadeOut(20000, "swing")
+
+    }
+
+    function ParameterSubVIdData() {
+        return {
+            SubVertId:'@Model.SubVerticalId'
+        }
+    }
+
+
+    function ImportTemplate() {
+        $("#importSuccess").hide();
+        $("#importFailure").hide();
+        if (confirm('Importing will overwrite existing Business capabilities and delete mappings with Applications as well. Are you sure you want to import standard Business capability model?'))
+        {
+
+            var mod = {
+                SubVerticalId: '@Model.SubVerticalId'
+            };
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/BusinessCapabilities/ImportDefaultCapabilities")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data.result === true) {
+                            $("#importSuccess").text(data.msg)
+                            $("#importSuccess").show();
+                            var treelist = $("#BusinessCapabilities").data("kendoTreeList");
+                            treelist.dataSource.read();
+                            var name = $("#Applicationlist").data("kendoGrid");
+                            name.dataSource.read();
+                        }
+                        else {
+                            $("#importFailure").text(data.msg);
+                            $("#importFailure").show();
+                        }
+                    },
+                    error: function (data) {
+                        $("#importFailure").show();
+                    }
+                })
+        }
+        else {
+            return false;
+        }
+    }
+
+      function ExportTemplate() {
+        var baseurl = '@Url.Content("~//BusinessCapabilities/ExportDefaultCapabilities")';
+          window.location.replace(baseurl);
+      }
+
+        function ExporttoExcel() {
+
+        var baseurl = '@Url.Content("~//BusinessCapabilities/ExportBCList")';
+          window.location.replace(baseurl);
+    }
+
+    function BCCheckChange(bcChkId) {
+
+       // console.log('check box clicked'+bcChkId);
+        var bcChkBox = '#CheckBoxId' + bcChkId;
+        var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+        var dataItems = BusCap.dataSource.view();//.data();
+
+        if ($("#radioBc").hasClass("active")) {
+            //$("#importSuccess").hide();
+            //$("#importFailure").hide();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                //console.log(CheckBoxctrl);
+                if (item.BCId != bcChkId) {
+                    if ($(bcChkBox).is(":checked")) {
+                        $(CheckBoxctrl).prop("checked", false);
+                    }
+                }
+            });
+            var appListGrid = $("#Applicationlist").data("kendoGrid");
+            appListGrid.dataSource.read();
+        }
+
+    }
+
+    function propagate(e) {
+
+        if (e.field == null)
+            return;
+        //console.log(e.field);
+        if (e.field == 'parentId') {
+
+            //var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+            //dataItems = BusCap.dataSource.view();
+            //$.each(dataItems, function (i, item) {
+            //    if (item.BCParentId) {
+            //        var ParentCheckBoxctrl = '#CheckBoxId' + item.BCParentId;
+            //        $(ParentCheckBoxctrl).prop("disabled", true);
+            //    }
+            //});
+
+            var pid = e.items[0].BCParentId == null ? 0 : e.items[0].BCParentId;
+            var mod = {
+                Bcids: e.items[0].BCId,
+                ParentId: e.items[0].BCParentId
+            };
+
+            if (pid > 0) {
+                var ParentCheckBoxctrl = '#CheckBoxId' + pid;
+                $(ParentCheckBoxctrl).prop("disabled", true);
+            }
+            else {
+                var CheckBoxctrl = '#CheckBoxId' + e.items[0].BCId;
+                $(CheckBoxctrl).prop("disabled", false);
+            }
+
+           // console.log(e.items[0].BCId + "parent:" + pid);
+            var data = JSON.stringify(mod);
+            var baseurl = '@Url.Content("~/BusinessCapabilities/ClientCapabilityDragUpdate")';
+            $.ajax(
+                {
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) { },
+                    error: function (data) {
+                    }
+                });
+        }
+    }
+
+
+    function AppBCs() {
+        //console.log('AppCheckChange');
+        if ($("#radioApp").hasClass("active")) {
+            var bcIdsForApp = '0';
+            //take checked app
+            //$('#CheckBoxgridId' + appChk).stopPropagation();
+            var gridnControl = $("#Applicationlist").data("kendoGrid");
+            var appItems = gridnControl.dataSource.view();//.data();
+            $.each(appItems, function (ic, item) {
+                var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+                if ($(CheckBoxctrl).is(":checked")) {
+                    var CheckAppBoxctrl = '#CheckBoxgridId' + item.Appid;
+                    bcIdsForApp = bcIdsForApp + ',' + $(CheckAppBoxctrl).attr("data-bcids");
+                    }
+            });
+            // appChk.attr("data-bcids");
+            // console.log(bcIdsForApp);
+            var bcIdsArr = bcIdsForApp.split(',');
+            var treeList = $("#BusinessCapabilities").data("kendoTreeList");
+            var dataItems = treeList.dataSource.view();//.data();
+            $.each(dataItems, function (i1, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId
+                $(CheckBoxctrl).prop("checked", false);
+            });
+            for (var i = 0; i < bcIdsArr.length; i++) {
+                $.each(dataItems, function (i2, item) {
+                    // console.log(item.BCId);
+                    //console.log(bcIdsArr[i]);
+                    if (item.BCId == bcIdsArr[i]) {
+                        var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                        $(CheckBoxctrl).prop("checked", true);
+                    }
+                });
+
+            }
+
+        }
+
+    }
+
+
+    function AppCheckChange(appChk) {
+        //console.log('AppCheckChange');
+
+        if ($("#radioApp").hasClass("active")) {
+            //$("#importSuccess").hide();
+            //$("#importFailure").hide();
+            var bcIdsForApp = '0';
+            //take all apps
+            //$('#CheckBoxgridId' + appChk).stopPropagation();
+            var gridnControl = $("#Applicationlist").data("kendoGrid");
+            var appItems = gridnControl.dataSource.view();//.data();
+            $.each(appItems, function (ic, item) {
+                var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+                if (appChk != item.Appid) {
+                    if ($('#CheckBoxgridId' + appChk).is(":checked")) {
+                        $(CheckBoxctrl).prop("checked", false);
+                    }
+                }
+            });
+
+            $.each(appItems, function (ic, item) {
+                var CheckAppBoxctrl = '#CheckBoxgridId' + item.Appid;
+                if ($(CheckAppBoxctrl).is(":checked")) {
+                    bcIdsForApp = bcIdsForApp + ',' + $(CheckAppBoxctrl).attr("data-bcids");
+                }
+            });
+             // appChk.attr("data-bcids");
+           // console.log(bcIdsForApp);
+            var bcIdsArr = bcIdsForApp.split(',');
+            var treeList = $("#BusinessCapabilities").data("kendoTreeList");
+            var dataItems = treeList.dataSource.view();//.data();
+            $.each(dataItems, function (i1, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId
+                $(CheckBoxctrl).prop("checked", false);
+            });
+            for (var i = 0; i < bcIdsArr.length; i++) {
+                $.each(dataItems, function (i2, item) {
+                   // console.log(item.BCId);
+                    //console.log(bcIdsArr[i]);
+                    if (item.BCId == bcIdsArr[i]) {
+                        var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                        $(CheckBoxctrl).prop("checked", true);
+                        //break;
+                    }
+                });
+
+            }
+
+        }
+
+    }
+
+    function onDataBound(e) {
+        var view = this.dataSource.view();
+        this.items().each(function (index, row) {
+            kendo.bind(row, view[index]);
+        });
+    }
+    function SelectedAppId() {
+        var temp = document.getElementById("SelectedAppIdDos").value
+        //console.log(temp);
+        return {
+            Appid: temp
+        }
+    }
+    function showDOS(e) {
+        var Appname;
+        var gridnControl = $("#Applicationlist").data("kendoGrid");
+        var dataItems = gridnControl.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            if (item.Appid==e) {
+               Appname = item.ApplicationName;
+            }
+        });
+      //  console.log(Appname);
+       document.getElementById("SelectedAppIdDos").value = e;
+
+        var popupGrid = $("#DoSGrid").data("kendoGrid");
+        popupGrid.dataSource.read();
+
+        var popup = $("#WinDoS").data("kendoWindow");
+        document.getElementById('SelectedAppName').innerHTML = "Application Name : "+Appname;
+       // appname.value = "AppName";
+        popup.open();
+        popup.center();
+    }
+
+    function BCChangeOrderInc(e) {
+        var affectedid;
+        var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+        var rowIndex = BusCap.dataItem(BusCap.select());
+        var selectedId = rowIndex.BCId;
+        var data = BusCap.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            var currentDataItem = data[i];
+            if (currentDataItem.get("BCId") == selectedId) {
+                affectedid = currentDataItem.get("BCId");
+            }
+        }
+        var mod={
+            affectedid: affectedid
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/BusinessCapabilities/UpdateBCApplicationsOrderId")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+                    BusCap.dataSource.read();
+                   // var dataItems = BusCap.dataSource.view();
+                   // $.each(dataItems, function (i, item) {
+                   //     item.expanded = true;
+                   // });
+                    //to select the BC's for checked app
+                    AppBCs();
+                },
+                error: function (data) {
+                }
+            })
+    }
+    function BCChangeOrderdesc(e) {
+        var affectedid;
+        var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+        var rowIndex = BusCap.dataItem(BusCap.select());
+        var selectedId = rowIndex.BCId;
+        var data = BusCap.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            var currentDataItem = data[i];
+            if (currentDataItem.get("BCId") == selectedId) {
+                affectedid = currentDataItem.get("BCId");
+            }
+        }
+        var mod={
+            affectedid: affectedid
+        };
+        var data = JSON.stringify(mod);
+        var baseurl = '@Url.Content("~/BusinessCapabilities/UpdateBCApplicationsOrderIddesc")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+                    BusCap.dataSource.read();
+                    //  var dataItems = BusCap.dataSource.view();
+                    // $.each(dataItems, function (i, item) {
+                    //    item.expanded = true;
+                    // });
+                    //to select the BC's for checked app
+                    AppBCs();
+                },
+                error: function (data) {
+                }
+            })
+
+    }
+
+    function ReordertoActual(e) {
+
+        var baseurl = '@Url.Content("~/BusinessCapabilities/UpdateordertoActual")';
+        $.ajax(
+            {
+                url: baseurl,
+                type: 'post',
+                //data: data,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+                    BusCap.dataSource.read();
+                      var dataItems = BusCap.dataSource.view();
+                     $.each(dataItems, function (i, item) {
+                        item.expanded = true;
+                    });
+                },
+                error: function (data) {
+                }
+            })
+
+    }
+
+</script>
+
+<script>
+
+    $(function () {
+        $('.bam-content-main-right').find('.k-grid-search').find('input').addClass('disabled');
+        $("[data-command='mycommand']").click(function () {
+            //alert("in")
+            // if ($("#radioApp").hasClass("active")) {
+            var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+            // BusCap.dataSource.read();
+            var dataItems = BusCap.dataSource.view();//.data();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                if ($(CheckBoxctrl).is(":checked")) {
+                    $(CheckBoxctrl).prop("checked", false);
+                }
+            });
+            if ($("#radioApp").hasClass("active")) {
+            } else {
+                var gridnControl = $("#Applicationlist").data("kendoGrid");
+                var dataItems = gridnControl.dataSource.view();//.data();
+                $.each(dataItems, function (i, item) {
+                    var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+                    if ($(CheckBoxctrl).is(":checked")) {
+                        $(CheckBoxctrl).prop("checked", false);
+                    }
+                    //item.set('SelectApp', true);
+
+                });
+            }
+
+        });
+
+    });
+
+    $('.portfolio-search-dropdown').multiselect({
+        maxHeight: 200,
+        numberDisplayed: 1,
+        includeSelectAllOption: true,
+        includeResetOption: true,
+        nonSelectedText: 'Search Portfolio...',
+
+    });
+    $(".portfolio-search-dropdown").multiselect('selectAll', true);
+    $('.multiselect-reset').on('click', function () { getSelectedportfolio() });
+
+    $("#SelectAllbutton").click(function (e) {
+        //e.preventDefault();
+        // if ($("#radioBc").hasClass("active")) {
+        var gridnControl = $("#Applicationlist").data("kendoGrid");
+        var dataItems = gridnControl.dataSource.view();//.data();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#CheckBoxgridId' + item.Appid;
+            if ($(CheckBoxctrl).is(":checked")) {
+                $(CheckBoxctrl).prop("checked", false);
+            }
+            //item.set('SelectApp', true);
+
+        });
+        //}
+
+    });
+
+    function getSelectedportfolio(e) {
+        var gridnControl = $("#Applicationlist").data("kendoGrid");
+        gridnControl.dataSource.read();
+
+    }
+
+
+    $(".bam-content-selection").on('click', 'span', function (e) {
+
+        $(this).addClass('active');
+        $(this).siblings().removeClass('active');
+
+        //console.log($(this).data('href'));
+
+        if ($(this).data('href') == "am-bc") {
+            //console.log('in');
+            $('.bam-selection-note').html('Note: Setting of BAM is now changed to - Application Mapping to Business Capabilities. Use this button to swap.');
+            $("#importSuccess").hide();
+            $("#importFailure").hide();
+            var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+            ////var dataItems = BusCap.dataSource.view();
+            ////$.each(dataItems, function (i, item) {
+            ////    item.expanded = true;
+            ////});
+            ////BusCap.dataSource.data(dataItems);
+            dataItems = BusCap.dataSource.view();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                if (item.BCParentId) {
+                    var ParentCheckBoxctrl = '#CheckBoxId' + item.BCParentId;
+                    $(ParentCheckBoxctrl).prop("disabled", true);
+                }
+                else {
+                    //var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                    $(CheckBoxctrl).prop("disabled", false);
+                }
+                $(CheckBoxctrl).prop("checked", false);
+            });
+
+            var BusApp = $("#Applicationlist").data("kendoGrid");
+            var dataItems = BusApp.dataSource.read();
+
+            $('.bam-content-main-left').find('.k-grid-search').find('input').addClass('disabled');
+            $('.bam-content-main-right').find('.k-grid-search').find('input').removeClass('disabled');
+
+
+        } else {
+            $('.bam-content-main-left').find('.k-grid-search').find('input').removeClass('disabled');
+            $('.bam-content-main-right').find('.k-grid-search').find('input').addClass('disabled');
+
+            $('.bam-selection-note').html('Note: Default setting of BAM is - Business Capabilities to Application Mapping. Use this button to swap.');
+            $("#importSuccess").hide();
+            $("#importFailure").hide();
+            var BusCap = $("#BusinessCapabilities").data("kendoTreeList");
+            var dataItems = BusCap.dataSource.view();
+            $.each(dataItems, function (i, item) {
+                var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                //console.log(CheckBoxctrl);
+                $(CheckBoxctrl).prop("checked", false);
+                if (item.BCParentId) {
+                    var ParentCheckBoxctrl = '#CheckBoxId' + item.BCParentId;
+                    $(ParentCheckBoxctrl).prop("disabled", true);
+                }
+                else {
+                    // var CheckBoxctrl = '#CheckBoxId' + item.BCId;
+                    $(CheckBoxctrl).prop("disabled", false);
+                }
+            });
+
+            var BusApp = $("#Applicationlist").data("kendoGrid");
+            var dataItems = BusApp.dataSource.read();
+
+        }
+    });
+
+    var win = $("#window").data("kendoWindow");
+    var winPopupWrapper = win.wrapper;
+
+    winWrapper.addClass("myWindowClass");
+</script>
+<script id="DisplayDesc" type="text/x-kendo-template">
+    @{
+        //var template = kendo.template("<div id='box'>#= Description #</div>");
+        if (true)
+        {
+            <label>#: BusinessCapName #<span class="custom-tooltip">#: Description #</span></label>
+
+        }
+        else
+        {
+            <label>#: BusinessCapName #</label>
+        }
+    }
+
+</script>

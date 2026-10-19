@@ -1,0 +1,49 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+
+
+<div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Business Capabilities<br>
+                        <span>Group:  @{
+                             if(Model.InExValue=="Internal")
+                            {
+                            @Model.CLevel1Name
+                        }
+                        }</span> </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLevel2">Add</button>
+                      </div>
+                    </div>
+    <form>
+    <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+
+     <input hidden id="level1Name" value="@Model.CLevel1Name.ToString()"   />
+
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   /> 
+         
+           <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+      @*  <input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+     </form>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                         <tr>
+                          <th scope="col">Business Capabilities</th>
+                              <th scope="col">Importance</th>
+                        </tr>
+                        @{
+                            if (Model.CLevel1Id > 0 && Model.InExValue == "Internal")
+                            {
+                                foreach(var item in Model.ClientBCLevel2List)
+                                {
+                                 <tr>
+                                <td>@Html.ActionLink(@item.ClientLevel2Name,"DisplayClientBClevels",new {ClientID=@Model.ClientId,CLevel2Id=item.Id,CLevel2Name=item.ClientLevel2Name, CLevel1Id=item.ClientLevel1Id,CLevel1Name=@Model.CLevel1Name,InExValue=@Model.InExValue})</td>   
+
+                                   <td>@item.ClientLevel2Importance</td>   
+                                 </tr>   
+                                }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

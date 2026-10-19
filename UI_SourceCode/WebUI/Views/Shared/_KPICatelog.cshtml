@@ -1,0 +1,37 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+   // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+<div class="treemenu">
+    <div class="dsh">
+        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> KPI/Reporting Catalog</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <ul class="treeMenuUl">
+        <li>
+            <a href="#">Incidents / Service Request</a>
+            <ul>
+                <li>@Html.ActionLink("Ticket Trend", "GetViewTicketT", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                @* <li>@Html.ActionLink("Ticket Volume", "GetViewTicketVolume", "KPI", new { area = "",cid=client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Ticket Priority Volume", "GetViewTicketVolumeByStatus", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                @*<li>@Html.ActionLink("Incidents by Assigned Groups", "GetViewTicketVolumeByAssignedGroups", "KPI", new { area = "",cid=client.Id }, null)</li>*@
+                <li>@Html.ActionLink("Ticket Breakdown by Assigned Groups", "GetViewTicketByAssignedGroups", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Ticket Assigned to Individual Person", "GetViewIncidenAssignedToPerson", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Unassigned  Tickets by Group", "GetViewIncidenUnAssignedToPerson", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+                <li>@Html.ActionLink("Tickets by Data Source", "GetViewIncidenMetricByDatasource", "KPI", new { area = "", cid = client.ClientId }, null)</li>
+
+            </ul>
+        </li>
+        <li>
+            <a href="#">Problem Trend</a>
+            <ul>
+                @*  <li>@Html.ActionLink("Service Request Summary", "GetSLAM", "SLAMDashboard", new { area = "",id = client.Id }, null)</li>
+                    <li>@Html.ActionLink("Business Alignment Summary", "GetSLAM", "SRBASummary", new { area = "", cid=client.Id }, null)</li>*@
+            </ul>
+        </li>
+
+    </ul>
+</div>

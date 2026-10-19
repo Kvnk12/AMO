@@ -1,0 +1,61 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DMPostDemandInput
+
+
+@{
+    if (Model.ClientId > 0 && Model.PostDemandInput.Id > 0)
+    {
+        <div class="cptblacc">
+            <table width="75%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                <tr>
+                    <th width="100%" scope="col">Classification & Category</th>
+
+                </tr>
+
+
+
+
+
+                @{
+                    foreach (DMClassification classItem in Model.PostDemandInput.GetClassification)
+                    {
+                        <tr>
+                            <td>
+                                <div class="col-sm-0">
+                                    @Html.Label(classItem.Classification, new { @class = "", id = "" })
+                                </div>
+                            </td>
+                        </tr>
+                        foreach (vwDMclasswithcat item in Model.PostDemandInput.GetCatAndClassification.Where(c => c.classificationid == classItem.Id))
+                        {
+                            <tr>
+                                <td>
+                                    <div class="col-sm-0">
+                                        @if (Model.PostDemandInput.GetMapItems.Where(c => c.ItemId == Model.PostDemandInput.Id && c.CategoryId == item.Id).Count() > 0)
+                                        {
+                                            @Html.CheckBox(item.Id.ToString() + "category", new { @class = "metricchk", placeholder = "", id = item.Id.ToString() + "category", @checked = "checked" })
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox(item.Id.ToString() + "category", new { @class = "metricchk", placeholder = "", id = item.Id.ToString() + "category", })
+                                        }
+                                        @Html.Label(item.category, new { @class = "", id = "" })
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+            </table>
+            <div id="classaction">
+                <button class="btn btn-primary" id="btnCatSave" name="command" value="savecategory" style="margin-left: 40%">Assign Category</button>
+                <button class="btn btn-default">Cancel</button>
+            </div>
+        </div>
+    }
+
+}
+
+

@@ -1,0 +1,161 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions
+@model Application
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+   // Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+
+
+}
+
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li>Analytic Reports</li>
+            <li class="active">Export App Inventory Data</li>
+        </ol>
+    </div>
+    <div class="custom-kendo-grid apr-disposition-roadmap-report">
+        @(Html.Kendo().Grid<ExAppInventoryDataModel>()
+                            .Name("ExApplicationData")
+                            .Excel(excel => excel
+                                .FileName("APRAppInventoryData")
+                                .Filterable(true)
+                                .ProxyURL(Url.Action("Excel_Export_Save", "Grid"))
+                            )
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                            //.Pageable()
+                            .Scrollable()
+
+                            .Sortable()
+                            .Filterable()
+                            .ToolBar(tools => tools.Excel())
+                            .ColumnMenu()
+                    .Columns(col =>
+                    {
+                        col.Bound(c => c.ApplicationName).Width(150);
+                        col.Bound(c => c.ClientApplicationNumber);
+                        col.Bound(c => c.BusinessFunction);
+                        col.Bound(c => c.AppCriticality).Width(100);
+                        col.Bound(c => c.ArchitectureType).Width(100);
+                        col.Bound(c => c.SourceType).Width(100);
+                        col.Bound(c => c.AvgConcurrentUsers).Width(100);
+                        col.Bound(c => c.AppSize).Width(100);
+
+                        col.Bound(c => c.AppType).Width(100).Hidden();
+                        col.Bound(c => c.ApplicationClassification).Width(100).Hidden();
+                        col.Bound(c => c.Domain).Width(100).Hidden();
+                        col.Bound(c => c.Processing).Width(100).Hidden();
+
+                        col.Bound(c => c.UserRange).Width(100).Hidden();
+                        col.Bound(c => c.DeploymentModel).Width(100).Hidden();
+                        col.Bound(c => c.StandardStatus).Width(100).Hidden();
+                        col.Bound(c => c.DifferentiationLevel).Width(100).Hidden();
+                        col.Bound(c => c.CountInboundInterfaces).Width(100).Hidden();
+                        col.Bound(c => c.CountOutboundInterfaces).Width(100).Hidden();
+                        col.Bound(c => c.EntangledInterface).Width(100).Hidden();
+                        col.Bound(c => c.AvgIncidentTickets).Hidden();
+                        col.Bound(c => c.AvgProblemTickets).Hidden();
+                        col.Bound(c => c.AvgServiceRequestTickets).Hidden();
+                        col.Bound(c => c.BusinessLogicInClientTier).Hidden();
+                        col.Bound(c => c.Description).Hidden();
+                        col.Bound(c => c.DocumentationNotes).Hidden();
+                        col.Bound(c => c.FinancialNotes).Hidden();
+                        col.Bound(c => c.GeneralNotes).EditorViewData(new { GeneralNotes = Model.GeneralNotes }).Hidden();
+                        col.Bound(c => c.IsDisasterRecoveryPlanAvailable).Hidden();
+                        col.Bound(c => c.IsTechnicalDocAvailable).Hidden();
+                        col.Bound(c => c.LegacyReasonExists).Hidden();
+                        col.Bound(c => c.MaxConcurrentUsers).Hidden();
+                        col.Bound(c => c.MigrationDate).Hidden();
+                        col.Bound(c => c.MOTSLevel).Hidden();
+                        col.Bound(c => c.NumberOfBugs).Hidden();
+                        col.Bound(c => c.NumberOfInstances).Hidden();
+                        col.Bound(c => c.NumberOfLinesOfCode).Hidden();
+                        col.Bound(c => c.OutageDuration).Hidden();
+                        col.Bound(c => c.OutageFrequency).Hidden();
+                        col.Bound(c => c.PerformanceNotes).Hidden();
+                        col.Bound(c => c.PlannedRetirementDate).Hidden();
+                        col.Bound(c => c.RegionNames).Hidden();
+                        col.Bound(c => c.RevenueImpactIfDown).Hidden();
+                        col.Bound(c => c.ExternalHosting).Hidden();
+                        //        .ClientTemplate(
+                        //    "# if (IsServer == true) { #" +
+                        //        "<span>Yes</span>" +
+                        //    "# } else { #" +
+                        //        "<span>No</span>" +
+                        //    "# } #"
+                        //);
+                        col.Bound(c => c.SizeUnits).Hidden();
+                        col.Bound(c => c.APRRoadmapTargetAppId).Hidden();
+                        col.Bound(c => c.TechnicalOwner).Hidden();
+                        col.Bound(c => c.TechnicalOwnerEmail).Hidden();
+                        col.Bound(c => c.TransactionVolumn).Hidden();
+                        col.Bound(c => c.TransactionVolumnUnit).Hidden();
+                        col.Bound(c => c.RoadmapTargetYear).Hidden();
+                        col.Bound(c => c.TargetedPlatformCapability).Hidden();
+                        col.Bound(c => c.OriginalRetirementDate).Hidden();
+                        col.Bound(c => c.Value).Hidden();
+                        col.Bound(c => c.TCO).Hidden();
+                        col.Bound(c => c.Risk).Hidden();
+                        col.Bound(c => c.Analysis).Hidden();
+                        col.Bound(c => c.Recommendation).Hidden();
+                        col.Bound(c => c.FTEImpact).Hidden();
+                        col.Bound(c => c.ITDispostionSupportFTEs).Hidden();
+                        col.Bound(c => c.ITDispostionDevFTEs).Hidden();
+                        col.Bound(c => c.VendorDisCommercialLicenceSavings).Hidden();
+                        col.Bound(c => c.VendorDisSupportSavings).Hidden();
+                        col.Bound(c => c.BusinessDisSupportFTEs).Hidden();
+                        col.Bound(c => c.HardwareDisSupportSavings).Hidden();
+                        col.Bound(c => c.HardwareDisAmountofCPUFreed).Hidden();
+                        col.Bound(c => c.OperationalEfficiencyUnits).Hidden();
+                        col.Bound(c => c.OperationalEfficiencyAmount).Hidden();
+                        col.Bound(c => c.PlannedDispositionDate).Hidden();
+                        col.Bound(c => c.DispositionEfforts).Hidden();
+                        col.Bound(c => c.DispositionDuration).Hidden();
+                        col.Bound(c => c.ITDispositionEffort).Hidden();
+                        col.Bound(c => c.VendorDispositionEffort).Hidden();
+                        col.Bound(c => c.BusinessDispositionEffort).Hidden();
+                        col.Bound(c => c.ITDispositionRate).Hidden();
+                        col.Bound(c => c.VendorDispositionRate).Hidden();
+                        col.Bound(c => c.BusinessDispositionRate).Hidden();
+                        col.Bound(c => c.ITDispositionCost).Hidden();
+                        col.Bound(c => c.VendorDispositionCost).Hidden();
+                        col.Bound(c => c.BusinessDispositionCost).Hidden();
+
+                    })
+            .HtmlAttributes(new { style = "height:520px" })
+            .DataSource(datasource => datasource
+                .Ajax()
+                .Read(read => read.Action("ExAppInventoryData", "Dashboard"))
+            )
+    )
+    </div>
+</div>

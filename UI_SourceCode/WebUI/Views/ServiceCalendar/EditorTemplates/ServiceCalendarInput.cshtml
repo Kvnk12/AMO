@@ -1,0 +1,62 @@
+﻿@using Kendo.Mvc.UI;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model ServiceCalendarInput
+
+
+<div class="holiday-hr-setup">
+    <div class="hr-setup-section">
+        <div class="custom-group">
+            <label>Description</label>
+            <div class="custom-textbox">
+                @(Html.Kendo().TextBoxFor(m => m.Holidayname))
+            </div>
+        </div>
+        <div class="custom-group">
+            <label>Date</label>
+            <div class="sla-holiday-datepicker">
+                @(Html.Kendo().DatePicker()
+                                         .Name("Calendardate")
+                                          .Format("MM/dd/yyyy")
+                                           )
+            </div>
+        </div>
+
+        <div class="custom-group">
+            <label>Start Time</label>
+            <div class="sla-time">
+            @(Html.Kendo().TimePicker()
+                                            .Name("StartTime")
+                                            //.Value("1:00")
+                                            .Format("HH:mm")
+                                            //.ComponentType("modern")
+                                            //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+                                            .DateInput()
+
+                                            .Enable(true)
+                                        )
+        </div>
+            @*<div class="input-append bootstrap-timepicker col-sm-12">
+                @Html.TextBoxFor(model => model.StartTime, new { @class = "input-small form-control", id = "tab2stdt" })
+                <span class="add-on align-icon">
+                    <span class="glyphicon glyphicon glyphicon-time"></span>
+                </span>
+            </div>*@
+        </div>
+        <div class="custom-group">
+            <label>End Time</label>
+            <div class="sla-time">
+                @(Html.Kendo().TimePicker()
+                                                .Name("EndTime")
+                                               // .Value("23:59")
+                                                .Format("HH:mm")
+                                                //.ComponentType("modern")
+                                                //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+                                                .DateInput()
+
+                                                .Enable(true)
+                                            )
+            </div>
+        </div>
+    </div>
+</div>
+

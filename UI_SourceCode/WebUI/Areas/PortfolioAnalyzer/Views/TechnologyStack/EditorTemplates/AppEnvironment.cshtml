@@ -1,0 +1,20 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model APRAppHardwareModel
+@{
+    var v = new APRAjaxServiceController();
+    var AppEnvironmentlist = v.AppEnvironmentlist();
+
+
+@(Html.Kendo().DropDownListFor(m => m.Environment).Name("Environment")
+                    .DataValueField("Value")
+                    .DataTextField("Text")
+                     .ValuePrimitive(true)
+                    .BindTo((AppEnvironmentlist)
+            ))
+    }

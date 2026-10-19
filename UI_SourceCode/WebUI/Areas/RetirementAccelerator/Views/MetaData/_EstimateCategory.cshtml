@@ -1,0 +1,46 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator.Models
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<div>
+    <div style="margin:10px">
+        <h5 style="text-align:center">Estimate Category</h5>
+       
+        <div style="margin:10px; padding:5px; padding-top:0px;" class="custom-kendo-grid">
+            @(Html.Kendo().Grid<EstimateCategoryModel>()
+                         .Name("RAEstimateCategoryModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Id).Hidden();
+                             columns.Bound(e => e.EstimateCategory).Title("Estimate Category Name");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      //.Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Record"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetEstimateCategory", "MetaData"))
+                      .Create(create => create.Action("AddEstimateCategory", "MetaData"))
+                      .Update(update => update.Action("EditEstimateCategory", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteEstimateCategory", "MetaData"))
+
+                          )
+
+            )
+        </div>
+    </div>
+</div>

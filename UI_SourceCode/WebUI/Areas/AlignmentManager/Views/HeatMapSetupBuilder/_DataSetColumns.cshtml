@@ -1,0 +1,148 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+<div class="ppreportArea"style="margin-top:8px;margin-left:10%">
+    <h4>Choose a Report Column</h4>
+    <div class="grid_4 height400" data-intro="Select Variable Type from the drop down List" data-step="5">
+        <div class="fht-table-wrapper fht-default" style="width: 100%; height: 100%;">
+            <div class="fht-thead">
+                <table class="fht-table table table-striped">
+                    <thead>
+                        <tr>
+                            <th width="60%" class="nobgg" scope="col">Column Name<div class="fht-cell" style="width: 154px;"></div>
+                            </th>
+                            <th width="40%" class="nobgg" scope="col" style="padding-right: 17px;">Select<div class="fht-cell" style="width: 97px;"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+    <div class="grid_4 height400"  style="height: 350px;   border-left:1px solid #DDD;">
+            <div class="fht-tbody" >
+                <table cellspacing="0" cellpadding="0" id="myTable06" class="table table-striped fht-table fht-table-init" style="width: 283px; margin-top: -39px;border-left:1px solid #DDD">
+                    <thead>
+                        <tr>
+                            <th width="60%" class="nobgg" scope="col">Column Name<div class="fht-cell" style="width: 153px;"></div>
+                            </th>
+                            <th width="40%" class="nobgg" scope="col">Select<div class="fht-cell" style="width: 96px;"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int counter = 0;
+                            IEnumerable<DataSetColumnsForHeatMapReport> selectedColumns = Model.reportConfiguationInput.reportDataSetInput.SelectedColumns(Model.reportConfiguationInput.Id, Model.reportConfiguationInput.RegisterDataSetId);
+
+                            foreach (DataSetColumnsForHeatMapReport item in selectedColumns)
+                            {
+                            if (counter % 2 == 0)
+                                {
+                                                        <tr>
+                            <td>@item.ColumnName</td>
+                            <td class="text-center">
+                                <input type="checkbox" checked="@item.isSelected"  name="chkCols" value="@item.ColumnName" /></td>
+                        </tr>
+
+                                }
+                            else
+                            { 
+                                <tr>
+                            <td>@item.ColumnName</td>
+                            <td class="text-center">
+                                <input type="checkbox" checked="@item.isSelected" name="chkCols" value="@item.ColumnName" /></td>
+                             </tr>   
+                            }
+                            counter++;          
+                            }
+                            }
+                         
+                      @*  <tr>
+                            <td>Incident Number</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr class="odd">
+                            <td>Incident Priority</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td>Config Item Name</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr class="odd">
+                            <td>Open Year</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td>Open Month</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr class="odd">
+                            <td>Sum of Time to Respond</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr>
+                            <td>Sum of Time to Resolution</td>
+                            <td class="text-center">
+                                <input type="checkbox"></td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr class="odd">
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>*@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--/.grid_4-->
+</div>

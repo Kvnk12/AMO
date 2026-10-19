@@ -1,0 +1,450 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@model scheduleJobInput
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+
+
+@{
+    ////NTTData.AMOPortal.Domain.Entities.Client client = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    int ClientId = Model.ClientId;
+    var clientname = Model.ClientName;
+
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/css/custom-styles.css")" />
+
+}
+
+<style>
+
+    .sidebar-wrapper {
+        height: 39.5em;
+    }
+
+    .table {
+        width: 97.5%;
+        margin-bottom: 20px;
+        margin-left: 1.1em;
+    }
+
+    table.table thead tr th {
+        background: rgb(91,121,171);
+    }
+
+    .table thead > tr > th {
+        border-right: 1px solid #dddddd;
+        border-bottom: none;
+    }
+
+    .table caption + thead tr:first-child th, .table colgroup + thead tr:first-child th, .table thead:first-child tr:first-child th, .table caption + thead tr:first-child td, .table colgroup + thead tr:first-child td, .table thead:first-child tr:first-child td {
+        border-top: none;
+    }
+
+    .form-group {
+        margin: 2em 0em 0em 0em;
+    }
+
+    .table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td {
+        border: none;
+    }
+
+    .input-group-addon:last-child {
+        border-left: 0;
+        border: none;
+        background-color: white;
+    }
+
+    .input-group {
+        position: unset;
+        display: table;
+        margin-top: -0.5em;
+        margin-left: 0.5em;
+        border-collapse: separate;
+    }
+
+    .glyphicon {
+            margin-left: -1.9em;
+        }
+
+    .glyphicon-time:before {
+        color: rgb(91,121,171);
+        margin-left: -1em;
+    }
+
+    .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+        color: #333333;
+        background-color: white;
+    }
+    .k-i-clock:before {
+        content: "\e107";
+        font-weight: bold;
+        color: rgb(91,121,171);
+    }
+    .k-picker-wrap.k-state-default {
+        border: none;
+        box-shadow: none;
+        border-bottom: 1px solid;
+        border-radius: unset;
+    }
+         .k-picker-wrap.k-state-default .k-input{
+            box-shadow: none;
+        }
+    .k-state-default > .k-select {
+        border:unset;
+    }
+    
+</style>
+
+
+<div class="content-main dark-bg ">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Data Upload - Schedule Job</li>
+    </ol>
+    @*<div style="padding:0;height:900px;">*@
+    <div class="jobSchedule">
+        <div class="jobScheduleDetails">
+            <div class="jobDetails">
+                <label class="jobDetailsLabel">Schedule Data Upload Jobs</label>
+            </div>
+            <div class="jobDetailsTable">
+                <label class="custom-blue-label"><sup class="mandate">*</sup>Application:</label>
+                <div>
+                    @Html.DropDownListFor(m => m.ApplicationId, new SelectList(GetDropDownListItems.UserApplications((int)Session["UserId"], ClientId), "value", "text", ""), "Select", new { @class = "selectpicker", tabindex = "6", name = "drpAppId", id = "drpAppId" })
+                </div>
+            </div>
+            <div class="jobDetailsTable">
+                <label class="custom-blue-label"><sup class="mandate">*</sup>Data Template:</label>
+                <div>
+                    @Html.DropDownListFor(m => m._templateIdentifier, new SelectList(Model.TemplateIdentifiers, "value", "text", ""), "Select", new { @class = "selectpicker", id = "drpTemplateIdentifier", name = "drpTemplateIdentifier", style = "width:180px;" })
+                    @Html.HiddenFor(m => m.ClientId, new { @id = "hidClientId" })
+                    @Html.HiddenFor(m => m.ClientName, new { @id = "hidClientName" })
+                </div>
+            </div>
+            <div style="display:flex;">
+                <div class="jobDetailsTable" style="width:29%;">
+                    <label class="custom-blue-label"><sup class="mandate">*</sup>Schedule Type:</label>
+                    <div>
+                        @Html.DropDownListFor(m => m.ScheduleType, new SelectList(GetDropDownListItems.ScheduleTypes, "value", "text", ""), "Select", new { @class = "selectpicker", tabindex = "3", id = "drpSchType", style = "width: 180px;border: none;border-bottom: 1px solid black;border-bottom-right-radius: 0;border-bottom-left-radius: 0;background-color:white;margin-right: 1.7em;" })
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;">
+                    <div class="jobDetailsTable">
+                        <label class="custom-blue-label">Time:</label>
+                        <div class="input-group bootstrap-timepicker timepicker">
+                            @*<input id="tpicker2" name="tpicker2" type="time" class="form-control " style="width:150px;">*@
+                            @(Html.Kendo().TimePicker()
+                                                .Name("time")
+                                                .Value("1:00")
+                                                .ComponentType("modern")
+                                                //.HtmlAttributes(new { style = "width: 100%", title = "timepicker" })
+                                                .DateInput()
+                                            )
+                            @*@Html.TextBoxFor(m => m.time, new { @class = "form-control timepicker", type = "time", @style = "width:150px;padding-top: 1.5em;border: none;border-bottom: 1px solid black;border-bottom-right-radius: 0;border-bottom-left-radius: 0;", @id = "tpicker2", @name = "tpicker2" })*@
+                            @*<span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>*@
+                        </div>
+                    </div>
+                    <div class="jobDetailsTable" style="width: unset;margin-left: 2em;">
+                        <label class="custom-blue-label">Week Day:</label>
+                        <div>
+                            @Html.DropDownListFor(m => m.WeekDay, GetDropDownListItems.WeekDays, "", new { @class = "btn btn-default dropdown-toggle", tabindex = "4", id = "drpWeekDay", style = "width: 140px;margin-left: 0.5em;margin-top: -0.5em;border: none;border-bottom: 1px solid black;border-bottom-right-radius: 0;border-bottom-left-radius: 0;text-align:left;" })
+                        </div>
+
+                    </div>
+                    <div class="jobDetailsTable" style="width: unset;margin-left: 1em;margin-right: 1em;">
+                        <label class="custom-blue-label">Month Day:</label>
+                        <div>
+                            @Html.DropDownListFor(m => m.MonthDay, GetDropDownListItems.MonthDays, "", new { @class = "btn btn-default dropdown-toggle", tabindex = "5", id = "drpMonthDay", style = "width: 140px;margin-left: 0.5em;margin-top: -0.5em;border: none;border-bottom: 1px solid black;border-bottom-right-radius: 0;border-bottom-left-radius: 0;text-align:left;" })
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="jobDetailsTable" style="width: unset;margin-top: 2.5em;padding-bottom: 1em;">
+                <p class="mandate" style="font-size: 12px;"><i>Note:Please send an email to</i> <a href="mailto:AMSsupport@nttdata.com">AMSsupport@nttdata.com</a><i> for near real time scheduling</i></p>
+                <div>
+
+                    <button class="custom-button" type="button" id="btnAdd" tabindex="1">CREATE JOB</button> &nbsp;&nbsp;
+
+                    <button class="custom-button" type="button" id="btnReset" tabindex="2" onclick="resetfields()">RESET</button> &nbsp;&nbsp;
+
+                    <button class="custom-button" type="button" id="btnCancel" onclick="location.href='@Url.Action("index","DataUpload", new { ClientId= Model.ClientId})';" tabindex="3">JOB DETAIL</button> &nbsp;&nbsp;&nbsp;
+
+                </div>
+            </div>
+        </div>
+
+        <div class="form-horizontal" style="margin-top:20px;">
+        </div>
+
+        <div id="partialJobsDiv">
+            @Html.Partial("_ScheduleJobList", new List<ScheduleJobsViewModel>())
+        </div>
+
+    </div>
+    <div id="divLoading" style="margin: 0px; padding: 0px; position: fixed; right: 0px; top: 0px; width: 100%; height: 100%; background-color: #666666; z-index: 30001;opacity: .8; filter: alpha(opacity=70);display:none">
+        <p style="position: absolute; top: 30%; left: 45%; color: White;">
+            Please wait...<img src="~/Content/images/ajax-loader.gif">
+        </p>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+
+        $("#drpAppId").on("change", function () {
+            var Id = $(this).find(":selected").val();
+               var baseurl = '@Url.Content("~/clientprofilemanager/DataUpload/TemplateIdentifier")';
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: { appid: Id },
+            success: getidentifier,
+            failure: errorInDropdownPopulation
+        })
+            var Selectedclient = $('#hidClientName').val();
+            var SelectclientId = $('#hidClientId').val();
+
+            var appid = $('#drpAppId :selected').val();
+            if (Selectedclient != '')
+                Selectedclient = Selectedclient.replace(' ', '');
+            Selectedclient = Selectedclient + "_" + appid;
+            if (appid == '')
+                appid = '0';
+            joburl = '@Url.Content("~/clientprofilemanager/DataUpload/GetScheduleJobs")';
+            $.ajax(
+            {
+                url: joburl,
+                async: false,
+                type: 'GET',
+                data: {
+                    client: Selectedclient,
+                    appid: appid
+
+                },
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#partialJobsDiv").html(data);
+                },
+                error: function () {
+                    // alert("error");
+                }
+            });
+        });
+
+
+
+        $('#btnAdd').on("click", function () {
+            var SelectMonth = $('#drpMonthDay :selected').val();
+            var Selectweek = $('#drpWeekDay :selected').val();
+            var selectDatetime = $('#time').val();
+            var SelectedTemplate = $('#drpTemplateIdentifier :selected').val();
+            if (SelectedTemplate== '0') {
+
+                alert("Please Select Template identifier");
+                return false;
+            }
+
+            var SchType = $('#drpSchType :selected').val();
+
+            if (SchType.toLowerCase() == 'monthly') {
+                if (SelectMonth.toLowerCase() == '') {
+                    alert("Please Select Month Day");
+                    return false;
+                }
+                else if (SelectMonth.toLowerCase() != '' && Selectweek.toLowerCase() == '') {
+
+                    //  alert("Please Select WeekDay");
+                }
+                else if ((SelectMonth.toLowerCase() != '' && Selectweek.toLowerCase() != '') && (selectDatetime.toLowerCase() == '')) {
+                    alert("Please Select DateTime");
+                    return false;
+                }
+            }
+            else if (SchType.toLowerCase() == 'weekly') {
+                if (Selectweek.toLowerCase() == '') {
+                    alert("Please Select WeekDay");
+                    return false;
+                }
+                else if (selectDatetime.toLowerCase() == '' && Selectweek.toLowerCase() != '') {
+
+                    //alert("Please Select DateTime");
+                }
+            }
+            else if (SchType.toLowerCase() == '') {
+
+                alert("Please Select Schedule type");
+                return false;
+            }
+            var dataToPost = {
+                ClientName: $('#hidClientName').val(),
+                ScheduleType: $('#drpSchType :selected').val(),
+                _templateIdentifier: $('#drpTemplateIdentifier :selected').val(),
+                WeekDay: $('#drpWeekDay :selected').val(),
+                MonthDay: $('#drpMonthDay :selected').val(),
+                ApplicationId: $('#drpAppId :selected').val(),
+                ClientId: $('#hidClientId').val(),
+                time: $('#time').val()
+            };
+            // console.log(dataToPost);
+            var DataUploadURL = '@Url.Content("~/clientprofilemanager/DataUpload/CreateJob")';
+            $("#divLoading").show();
+            $.ajax(
+                {
+                    url: DataUploadURL,
+                    type: 'POST',
+                    data: JSON.stringify(dataToPost),
+                    contentType: 'application/json; charset=utf-8',
+                    async: true,
+                    success: function (data) {
+                        $("#partialJobsDiv").html(data);
+                        $("#divLoading").hide();
+                    },
+                    error: function () {
+                        $("#divLoading").hide();
+                    }
+                });
+        });
+
+
+        $('select#drpSchType').change(function () {
+            var SelectDaily = $('#drpSchType :selected').val();
+
+            if (SelectDaily.toLowerCase() == '') {
+                $("select#drpWeekDay").prop('disabled', true);
+                $("select#drpMonthDay").prop('disabled', true);
+                //  $("#tpicker3").children().prop("disabled", true);
+                $("#drpWeekDayspan").html('');
+                $("#drpmonth").html('');
+
+            }
+            else if (SelectDaily.toLowerCase() == 'daily') {
+                $("select#drpWeekDay").prop('disabled', true);
+                $("select#drpMonthDay").prop('disabled', true);
+                //  $("#tpicker3").children().prop("disabled", false);
+                $("#drpWeekDayspan").html('');
+                $("#drpmonth").html('');
+
+            }
+            else if (SelectDaily.toLowerCase() == 'weekly') {
+                $("select#drpMonthDay").prop('disabled', true);
+                $("select#drpWeekDay").prop('disabled', false);
+                // $("#tpicker3").children().prop("disabled", false);
+                $("#drpWeekDayspan").html('*');
+                $("#drpmonth").html('');
+            }
+            else if (SelectDaily.toLowerCase() == 'monthly') {
+                $("select#drpMonthDay").prop('disabled', false);
+                $("select#drpWeekDay").prop('disabled', true);
+                // $("#tpicker3").children().prop("disabled", false);
+                $("#drpWeekDayspan").html('');
+                $("#drpmonth").html('*');
+                //  $("#timespan").html('*');
+
+            }
+        });
+
+       // $('#tpicker2').timepicker();
+    });
+
+    function getidentifier(data, status) {
+
+        $("select#drpTemplateIdentifier").empty();
+        /*$("select#drpTemplateIdentifier").selectpicker('refresh');*/
+        $("select#drpTemplateIdentifier").append("<option value='0'></option>");
+        $.each(data, function (key, value) {
+            $("select#drpTemplateIdentifier").append("<option value='" + value.Value + "'>" + value.Text + "</option>");
+        });
+        /*$("select#drpTemplateIdentifier").selectpicker('refresh');*/
+    }
+    function errorInDropdownPopulation(err) {
+        alert(err.stringify())
+    }
+
+    $("#drpTemplateIdentifier").on("change", function () {
+
+        var Selectedclient = $('#drpTemplateIdentifier :selected').val();
+        if (Selectedclient == 0) {
+             Selectedclient = $('#hidClientName').val();
+            var SelectclientId = $('#hidClientId').val();
+
+            var appid = $('#drpAppId :selected').val();
+            if (Selectedclient != '')
+                Selectedclient = Selectedclient.replace(' ', '');
+            Selectedclient = Selectedclient + "_" + appid;
+        }
+        console.log(Selectedclient);
+            var appid = $('#drpAppId :selected').val();
+            if (Selectedclient != '')
+                Selectedclient = Selectedclient.replace(' ', '');
+            if (appid == '')
+                appid = '0';
+            joburl = '@Url.Content("~/clientprofilemanager/DataUpload/GetScheduleJobs")';
+            $.ajax(
+            {
+                url: joburl,
+                async: false,
+                type: 'GET',
+                data: {
+                    client: Selectedclient,
+                    appid: appid,
+                },
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#partialJobsDiv").html(data);
+                },
+                error: function () {
+                    // alert("error");
+                }
+            });
+          });
+
+    function resetfields() {
+        var drpMonthDay = document.getElementById("drpMonthDay");
+        drpMonthDay.selectedIndex = 0;
+        var drpWeekDay = document.getElementById("drpWeekDay");
+        drpWeekDay.selectedIndex = 0;
+        var drpSchType = document.getElementById("drpSchType");
+        drpSchType.selectedIndex = 0;
+        var drpAppId = document.getElementById("drpAppId");
+        drpAppId.selectedIndex = 0;
+        var drpTemplateIdentifier = document.getElementById("drpTemplateIdentifier");
+        drpTemplateIdentifier.selectedIndex = 0;
+         $("#time").data('kendoTimePicker').value("")
+        
+    }
+
+</script>

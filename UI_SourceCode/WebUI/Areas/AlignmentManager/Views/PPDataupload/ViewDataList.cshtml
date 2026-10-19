@@ -1,0 +1,259 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.mdmDataUploadTableInput
+@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+    ViewBag.Title = "Performance Predictor";
+    Layout = "~/Views/Shared/_DataMaintenanceAppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+   // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    Model.ClientId = client.ClientId;
+}
+
+
+
+@using (Html.BeginForm())
+{
+
+        <!--.container-->
+
+    <div class="selectappArea">
+        <!-- Wrap all page content here -->
+        <div class="container">
+            <div class="selectApp form-horizontal">
+                <div class="form-group">
+                    <label for="clientName" class="col-sm-5 control-label"><span class="mandate">*</span> Client Name</label>
+                    <div class="col-sm-5">
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientId), "", new { @class = "selectpicker", id = "ddlClient", tabindex = "1", @disabled = "disabled" })
+                    </div>
+                </div>
+            </div>
+            <!--/.selectApp-->
+            <!--/.selectyearArea-->
+        </div>
+        <!--/.container-->
+    </div>
+
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+            <ol class="breadcrumb container">
+                <li class="active">Performance Predictor</li>
+                <li class="active">Data Upload</li>
+            </ol>
+        </div>
+
+        <!--end of breadcrumb container-->
+    <div class="container" style="padding:0;">
+        @*            @if (!ViewData.ModelState.IsValid)
+            {
+              @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+            }*@
+        <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            @*<div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                @Html.Partial("_DMCatelog")*@
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+                <div class="container" style="padding:0;">
+                    <div style="min-height:700px">
+                        <div class="timeZonearea">
+                            <div class="left timeLeft">
+                                <div class="form-group">
+                                    <label class="col-sm-8 control-label" for="sametime">DataUpload</label>
+                                    @Html.HiddenFor(m => m.ClientId)
+                                    @if (Model.ClientId != 0)
+                                    {
+                                            <p>@Html.ActionLink("Upload Data", "DataUploadView", new { clientid = Model.ClientId })</p>
+                                    }
+                                </div>
+                            </div>
+                            <!--.left-->
+                            <!--/.right-->
+                        </div>
+                        <!--/.well-->
+
+
+                        <div>
+
+
+                            @*<div class="form-horizontal" style="margin-right: 29px;">
+                                <div class="form-group col-sm-4 pull-left">
+                                    <label for="sladmonth" class="col-sm-3 control-label">Tablename</label>
+                                    <div class="col-sm-3">
+                                        @Html.DropDownListFor(m => m.DataTablename, new SelectList(Model.PPtablename, "value", "text", Model.DataTablename), "", new { @class = "selectpicker", tabindex = "6", id = "pptblname" })
+                                    </div>
+                                </div>
+
+                            </div>end of form-horizontal*@ 
+
+
+
+
+
+
+
+
+
+
+                            <div class="svccalhr">
+                                @*@if (Model.DataTablename != null )
+                                {*@
+                                    <table class="table table-bordered table-striped">
+
+                                        <thead>
+                                            <tr>
+                                                <th>UploadID</th>
+                                                <th>ClientID</th>
+                                                <th>Tablename</th>
+                                                <th>Filename</th>
+                                                <th>DateUploaded</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (var item in Model.DataFileLists)
+                                            {
+                                                <tr>
+
+                                                    <td>
+                                                            @item.Id
+                                                      
+                                                    </td>
+                                                    <td>@item.ClientId</td>
+                                                    <td>@item.datatablename</td>
+                                                    <td>@item.datafilename</td>
+                                                   <td>@item.dateuploaded</td>
+                                                    
+                                                    <td>
+                                                        @Html.Hidden("Id", item.Id)
+                                                        <button type="submit" class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("DelJobIDData", "PPDataUpload", new { id = item.Id })'; return false;" @((User.IsInRole("User")) ? "disabled" : "")>Delete</button>
+
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                @* } *@
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--END OF LEFTAREA-->
+                </div>
+                <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+        </div>
+        <!--/.treeMenuArea-->
+    </div>
+        <!--/.container-->
+
+}
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+</script>
+<script>
+    $('.selectpicker').selectpicker();
+
+</script>
+<script>
+    //$('select#ddlClient').change(function () {
+    //    var SelectedclientId = $('#ddlClient :selected').val();
+    //    var href = window.location.href.split('/');
+    //    var baseurl = '';
+    //    if (href[3] == 'Incident') {
+    //        var baseurl = href[0] + '//' + href[2] + '/' + 'Incident/ViewExcep/?ClientId='
+    //    }
+    //    else {
+    //        var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Incident/ViewExcep/?ClientId='
+    //    }
+
+    //    window.location = baseurl + SelectedclientId;
+
+    //});
+
+    $('#pptblname').change(function () {
+        var list = this;
+        var href = window.location.href.split('/');
+        var baseurl = '';
+        if (href[3] == 'PPDataUpload') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'PPDataUpload/GetFileData'
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'PPDataUpload/GetFileData'
+        }
+
+        if (Selectedyear != "") {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                data: { year: Selectedyear },
+                success: GetMonth,
+                failure: errorInDropdownPopulation
+            })
+        }
+    });
+
+    //function GetMonth(data, status) {
+    //    $("select#resolutionmonth").empty();
+    //    $("select#resolutionmonth").selectpicker('refresh');
+    //    $("select#resolutionmonth").append("<option value='0'></option>");
+    //    //var arrVals = [];
+    //    //$.each(data, function (key, value) {
+    //    //    arrVals.push({
+    //    //        val: $(this).val(),
+    //    //        text: $(this).text()
+    //    //});
+    //    $.each(data, function (key, value) {
+    //        $("select#resolutionmonth").append("<option value='" + value.Id + "'>" + value.Name + "</option>");
+    //    });
+    //    $("select#resolutionmonth").selectpicker('refresh');
+    //}
+
+
+    //// get the select
+    //var $dd = $('#select-id');
+    //if ($dd.length > 0) { // make sure we found the select we were looking for
+
+    //    // save the selected value
+    //    var selectedVal = $dd.val();
+
+    //    // get the options and loop through them
+    //    var $options = $('option', $dd);
+    //    var arrVals = [];
+    //    $options.each(function () {
+    //        // push each option value and text into an array
+    //        arrVals.push({
+    //            val: $(this).val(),
+    //            text: $(this).text()
+    //        });
+    //    });
+
+    //    // sort the array by the value (change val to text to sort by text instead)
+    //    arrVals.sort(function (a, b) {
+    //        return a.val - b.val;
+    //    });
+
+    //    // loop through the sorted array and set the text/values to the options
+    //    for (var i = 0, l = arrVals.length; i < l; i++) {
+    //        $($options[i]).val(arrVals[i].val).text(arrVals[i].text);
+    //    }
+
+    //    // set the selected value back
+    //    $dd.val(selectedVal);
+    //}
+
+
+
+
+
+
+    function errorInDropdownPopulation() {
+        alert('An error occurred. Please contact administrator');
+    }
+
+</script>

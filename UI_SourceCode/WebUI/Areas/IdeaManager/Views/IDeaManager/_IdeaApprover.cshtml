@@ -1,0 +1,195 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+<div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="msgSuccess1" hidden>
+    <ul>
+        <li>Idea submitted for Approval.</li>
+    </ul>
+</div>
+<div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="msgDanger1" hidden>
+    <ul>
+        <li>Error while assigning.</li>
+    </ul>
+</div>
+
+<div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="SelectedRowList1" hidden>
+    <ul>
+        <li>Please select the Admin for Approval.</li>
+    </ul>
+</div>
+
+
+<div id="ApproverContainer">
+    <div id="action" style="margin-top:25px">
+        <button class="btn btn-primary" id="btnSaveAdmins" style="margin-left: 40%">Post Idea for Approval </button>
+    </div>
+    <div id="IdeaApprovers" style="width:100%;margin:auto"></div>
+</div>
+
+<script type="text/javascript">
+
+    $('#btnSaveAdmins').click(function (event) {
+        SaveSelectedIdeas1();
+
+        //if (SaveSelectedIdeas1())
+        //{
+        //    //alert('save');
+        //    //$('#SuggestIdeas').jtable('load');
+
+        //}else{
+
+        //    return false;
+        //}
+    });
+
+    function SaveSelectedIdeas1()
+    {
+       
+        //var ClientId = "@Model.ClientId";
+        var ItemId1 = "@Model.Id";
+        var AdminIds = "";
+        //var href1 = "@Url.Action("AddSelectedAdmins")";
+
+        var $selectedRows = $('#IdeaApprovers').jtable('selectedRows');
+        //alert($selectedRows);
+        //console.log($selectedRows.length);
+        if ($selectedRows.length > 0) {
+            //Show selected rows
+            $selectedRows.each(function () {
+                var record = $(this).data('record');
+                // AdminIds += ","+ String(record.Value);
+                AdminIds += String(record.Value) + ",";
+            });
+            alert(AdminIds);
+            
+
+            var modd = {
+                ItemId: @Model.Id,
+                IdeaIds:AdminIds    
+            };
+            console.log(modd);
+            var data1 = JSON.stringify(modd);
+            baseurl1 = '@Url.Content("~/IdeaManager/IdeaManager/AddSelectedAdmins")';
+            $.ajax(
+            {
+                url: baseurl1,
+                type: 'POST',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: checkLinkIdeaSuccess1,
+                failure: errorLinkIdeaFailure1
+
+
+
+
+
+            });
+
+
+            //$.ajax({
+            //    url: href1,
+            //    type: 'POST',
+            //    data: { ItemId: ItemId1, IdeaIds: AdminIds },
+            //    success: checkLinkIdeaSuccess,
+            //    failure: errorLinkIdeaFailure1,
+            //    async: false
+
+            //})
+
+        } else {
+            //No rows selected
+            $('#SelectedRowList1').show();
+            return false;
+        }
+            
+                
+            
+
+            
+    }
+
+    function checkLinkIdeaSuccess1(data)
+    {
+        if (data == "Success")
+        {
+            //alert('Selected Ideas linked successfully');
+            $('#SelectedRowList1').hide();
+            $('#msgSuccess1').show();
+            recordadd1();
+        }
+
+    }
+
+
+    function errorLinkIdeaFailure1()
+    {
+        //alert('Failure');
+        $('#msgDanger1').show();
+    }
+
+    $(document).ready(function () {
+        var ClientId = "@Model.ClientId";
+        var ChallengeId = "@Model.Id";
+
+        if (ClientId != null) {
+            $('#IdeaApprovers').jtable({
+                title: 'Idea Approvers',
+                selecting: true, //Enable selecting
+                multiselect: true, //Allow multiple selecting
+                selectingCheckboxes: true, //Show checkboxes on first column
+                //selectionChanged:rowsselectedevent,
+                //messages: {
+                //    addNewRecord: 'Suggest  a New Idea'
+                //},
+                actions: {
+                    listAction: '@Url.Action("ListOfAdmins")'
+                    @*createAction: "@Url.Action("AddIdeaDetails")" + "?ItemId=" + '0',*@
+                },
+                fields: {
+                    //Selected:{
+                    //    //list:false
+                    //    title:'select'
+                    //},
+                    Value: {
+                       
+                        key: true,
+                        list:false
+                    },
+
+                    Text: {
+                        title: 'Name',
+                        list:true,
+                       width: '100%'
+                    }
+
+
+
+                }
+
+            });
+            $('#IdeaApprovers').jtable('load');
+        }
+
+
+    });
+
+    function recordadd1(event, data)
+    {
+        $('#IdeaApprovers').jtable('reload', myfunction1);
+        $('#ListedIdeas').jtable('load');
+    }
+    function myfunction1()
+    {
+        var $selectedRows = $('#IdeaApprovers').jtable('selectedRows');
+        var $chkBox = $selectedRows.find('td.jtable-selecting-column input').attr('checked', true); $chkBox.attr('checked', false);
+        $selectedRows.each(function () {
+            $(this).removeClass('jtable-row-selected ui-state-highlight');
+        });
+    }
+
+
+</script>

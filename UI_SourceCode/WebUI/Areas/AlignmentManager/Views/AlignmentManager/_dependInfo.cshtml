@@ -1,0 +1,42 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput
+
+<div class="dependancyArea"  >
+    <div class="dAhead"><a class="rightNav rightNavoneClose" title="" href="#"><span class="glyphicon glyphicon-chevron-right"></span>Dependencies </a></div>
+
+    @*<ul class="list-group">
+        <li class="list-group-item">Dependencies</li>
+        <li class="list-group-item">Dependencies<b></b></li>
+    </ul>*@
+
+    @*    <div class="treemenu">
+            <div class="hdr">
+                <h3>Performance Predictor</h3>
+                <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+            </div>*@
+    <!-- add the tree menu here-->
+    <div style="margin-top: 60px; margin-left: 12px">
+        @{
+        if(Model.VariableId > 0 ) 
+            {        
+                    //@Html.Partial("_DependTreeView", Model.SetDependTreeMenu(Model.VariableId,  Model.ClientId))
+                    @Html.Partial("_DependTreeView", Model.PPTreeViewDependRoot)
+         }
+         
+         
+             //if(Model.VarTypeId  > 0)
+             //{
+                //@Html.Partial("_VarTypeTreeView", Model.SetTreeMenuForVarType(Model.VarTypeId,  Model.ClientId, "vartype"))
+             //}
+             
+         
+         
+         }
+
+
+    </div>
+</div>
+

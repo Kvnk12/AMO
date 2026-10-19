@@ -1,0 +1,515 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.HeatMapBuilderSetupInput
+
+@using (Html.BeginForm("SaveHeatMapReport", "HeatMapSetUpBuilder", new { ClientId = Model.ClientId, ReportId = Model.ReportId, ReportType = Model.HeatMapReportStatus}, FormMethod.Post))
+    {
+    
+    
+    
+    
+    
+      <div class="treeMenuContent" style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+
+           @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })               
+                }
+
+            @if (ViewData.ModelState.ContainsKey("Success"))
+                {                        
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+                }
+            else
+            {
+            //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+            }
+               <div>
+               <div class="form-horizontal" style="float:left">
+              <div class="form-group" data-intro=" Enter Report Name/Edit Exiting Name" data-step="2">
+                <label for="clientName" class="col-sm-5 control-label">Heat Map Report Name</label>
+                <div class="col-sm-7">
+                    @Html.TextBoxFor(m => m.reportConfiguationInput.ReportName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtReportName" })
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-horizontal hbtppmargin" style="float:left" data-intro="Select Variable Type from the drop down List" data-step="3">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-5 control-label">Heat Map Variable Type</label>
+                <div class="col-sm-5">
+                  @Html.DropDownListFor(m => m.reportConfiguationInput.VariableTypeId, new SelectList(Model.reportConfiguationInput.GetDataSetVariableTypes, "value", "text", Model.reportConfiguationInput.GetDataSetVariableTypes), "", new { @class = "selectpicker", id = "vartypeid", name = "vartypeid", required = "required" })  
+                </div>
+              </div>
+            </div>
+            <div class="clearfix"></div>
+
+			@Html.Hidden("ReportId", @Model.reportConfiguationInput.Id) 
+            @Html.Hidden("ReportType", @Model.HeatMapReportStatus) 
+            @Html.Hidden("VartypeId", @Model.reportConfiguationInput.VariableTypeId)
+            @Html.Hidden("DataSetId", @Model.reportConfiguationInput.RegisterDataSetId)
+                
+      
+
+            
+<div class="pplareanw" style="min-height:500px;width:42%" data-intro="Select data set from the Table" data-step="4">
+           
+            <h4>Data Sets</h4>
+            <table class="table table-bordered">
+            	<colgroup>
+                   <col style="width:9%">
+				   <col style="width:15%">
+				   <col style="width:25%">
+               </colgroup>
+             <thead>
+                <tr><th>Select</th>
+                <th>Data Set Name</th>
+                <th>Data Table Name</th>
+                </tr></thead>
+            </table>
+            
+             <div class="grid_4 ht400 mtopmin21">
+             
+             <table class="table-bordered">
+             <colgroup>
+             	<col style="width:20%">
+                <col style="width:25%">
+                <col style="width:25%;">
+             </colgroup>
+             <tbody>
+                 @{
+    if(Model.reportConfiguationInput  != null)
+        {
+    IEnumerable<vwRegDataSet> mapItems = Model.reportConfiguationInput.RegDataSets;
+                    
+                     foreach (vwRegDataSet mapItem in mapItems)  
+                       {
+                         bool selecctedDataSet = false;
+                         if (Model.reportConfiguationInput.RegisterDataSetId == mapItem.RegisterDatasetId)
+                             {
+                             selecctedDataSet = true;
+                             }
+                       
+                       //counter++;
+                 <tr>
+             	<td class="text-center">
+                     <input type="radio" class="metricchk" checked="@selecctedDataSet"  name="radiochk" value="@mapItem.RegisterDatasetId" />
+                </td>
+                <td class="text-center">
+                @Html.Label(mapItem.DataSetName, new { @class = "col-sm-5" })
+@*                @Html.Hidden("sourecolumn" + counter, mapItem.SourceColumnName)
+                @Html.Hidden("datasetmapid"+counter, mapItem.Id)*@
+                </td>
+                <td class="text-center">
+                    @Html.Label(mapItem.DatabaseObjectName, new { @class = "col-sm-5" })
+                     @*@Html.DropDownList("virtualColumn" + counter.ToString(), mapItem.GetAllVarTypes,   mapItem.VirtualColumnName==""?"":mapItem.VirtualColumnName, new { @class = "form-control", @selected=mapItem.VirtualColumnName != "" ?"Selected":"" })*@
+                      @*@Html.DropDownListFor(m => mapItem.VirtualColumnName, new SelectList(mapItem.GetAllVarTypes, "Value", "text", mapItem.GetAllVarTypes), "", new { @class = "selectpicker", @id="mapcolumn"+counter.ToString(), name = "virtualColumnName", required = "required" })  *@
+                </td>
+             </tr>
+                     }
+                     }
+    
+                     }
+             </tbody>
+
+             </table>
+           
+             </div><!--grid_4-->
+            </div>
+                   
+                   <!--end of leftarea-->
+
+
+                @{
+                 if(Model.reportConfiguationInput.RegisterDataSetId > 0)
+                     {
+                        @Html.Partial("_DataSetColumns", Model)
+                    }
+                }
+            
+           
+            
+            </div>
+                   <!--end of grid-->             
+                @*<div class="addvalaction"> <a href="#" class="btn btn-primary">Back</a> *@
+                <div class="addvalaction">
+                 @*<a href="#" class="btn btn-primary">Save</a>*@
+                    <button type="Submit" tabindex="30" class="btn btn-primary" id="btnSave">Next</button>
+                    <button  tabindex="30" class="btn btn-primary" id="btnBack">Back</button>
+                    @*<button class="btn btn-primary" tabindex=""  id="btnDelete">Delete</button>*@
+                    @*<button class="btn btn-primary" tabindex=""  id="btnAdd">New Data Set</button>*@
+                    <button class="btn btn-default" id="cancelregDataSetMap" tabindex="" type="submit">Cancel</button>
+
+                </div>
+         </div>
+    }
+         
+
+<script>
+
+    $(document).ready(function () {
+
+
+        var blnReportNameExists = false;
+
+
+        $("input[name='radiochk']:radio").change(function ()
+        {
+            //alert($(this).val());
+
+            var DataSetId = $(this).val();
+
+            var SelectedVartypeId = $('#vartypeid :selected').val();
+            var SelectedVartypeName = $('#vartypeid :selected').text();
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            var ReportId = $('#ReportId')[0].value;
+            var ReportType = $('#ReportType')[0].value;
+            var ReportName = $('#txtReportName')[0].value;
+
+            if (SelectedclientId != 0) {
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+                if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                    //alert('local url');
+
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/GetDataSetColumnsForSelectedDataSet/';
+                }
+                else {
+                    //alert('server');
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/GetDataSetColumnsForSelectedDataSet/'
+                    //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}'
+                }
+
+                baseurl += '?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}&DataSetId={datasetid}&ReportName={reportname}';
+
+                baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                baseurl = baseurl.replace("{vartypename}", SelectedVartypeName);
+                baseurl = baseurl.replace("{reportid}", ReportId);
+                baseurl = baseurl.replace("{vartypeid}", SelectedVartypeId);
+                baseurl = baseurl.replace("{reporttype}", ReportType);
+                baseurl = baseurl.replace("{datasetid}", DataSetId);
+                baseurl = baseurl.replace("{reportname}", ReportName);
+                window.location = baseurl;
+                return false;
+            }
+
+
+
+
+            
+        });
+
+
+        function GetDataSetColumns(object)
+        {
+            //alert('on load');
+            //alert(object);
+        }
+
+        @*$('#btnAdd').click(function () {
+
+
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager")
+            {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/SetupHeatMapBuilder/?ClientId=@Model.ClientId&Report=Add"");
+
+            window.location = strUrl;
+            return false;
+
+           });*@
+
+
+        $('#cancelregDataSetMap').click(function () {
+
+            
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+                var SelectedclientId = $('#ClientId :selected').val();
+
+                if (href[3].toLowerCase() == 'alignmentmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+            else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+            }
+
+            window.location = baseurl;
+            return false;
+
+
+@*                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;*@
+            }
+            else { return false; }
+
+        });
+
+
+        @* $('#btnDelete').click(function () {
+
+            var ReportId = $('#ReportId')[0].value;
+
+            var ReportName = $('#txtReportName')[0].value;
+            
+            if (ReportId == 0)
+            { return false; }
+            var confirm = window.confirm('Do you want delete this Report: '+ReportName+'?');
+            if (confirm) {
+
+
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DeleteDatSetName/?ClientId=@Model.ClientId");
+                strUrl += "&ReportId=" + ReportId;
+                
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+           });
+
+
+    }) *@
+
+        $('#btnBack').click(function () {
+
+
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+                else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId';
+                }
+
+            window.location = baseurl;
+            return false;
+@*            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/DisplayHeatMapBuilder/?ClientId=@Model.ClientId");
+
+            window.location = strUrl;
+            return false;*@
+
+        });
+
+
+
+
+        $('#btnSave').click(function () {
+
+
+            if ($('#txtReportName').val() == "") {
+                alert('Please enter Rpeort name');
+                $('#txtReportName').focus();
+                return false;
+            }
+            else {
+
+                var ReportName = $('#txtReportName').val();
+                var ReportId = $('#ReportId')[0].value;
+
+                ReportNameExists(ReportName, ReportId);
+                if (blnReportNameExists) {
+                    alert('Report name already exists, please change');
+                    $('#txtReportName').focus();
+                    return false;
+
+                }
+            }
+
+
+            var dboject = $('#vartypeid :selected').val();
+            if (dboject == "" || dboject == "0") {
+                alert('Please select Heat Map Variable type from the list');
+                return false;
+            }
+
+
+            var selected = $("input[type='radio'][name='radiochk']:checked");
+
+            if (selected.length == 0) {
+                alert('Please Select one Row from  Data Sets');
+                return false;
+            }
+
+
+            //checkbox selected Columns for reportdataset
+
+
+            var selected = $("input[type='checkbox'][name='chkCols']:checked");
+            if (selected.length == 0) {
+                alert('Please Select atleast one Row from  Report Columns');
+                return false;
+            }
+
+
+
+
+            //if (selected.length > 0) {
+            //    selectedVal = selected.val();
+            //    selectVirtualColumn = $('#virtualColumn' + selectedVal + ' :selected').text();
+            //    $('#virtualColumn' + selectedVal + ' :selected').val(selectVirtualColumn);
+            //    //alert(selectVirtualColumn);
+            //    if (selectVirtualColumn == "0" || selectVirtualColumn == "") {
+            //        alert('Please Select  Column Name from the List');
+            //        return false;
+            //    }
+            //}
+        });
+
+
+        function ReportNameExists(ReportName, ReportId) {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName';
+            }
+
+            //var localToServer = "/";
+            //var sPageURL = window.location.search.substring(1);
+            //var sURLVariables = sPageURL.split('&');
+
+            //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //}
+
+            //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/HeatMapSetupBuilder/CheckHeatMapReportName");
+
+            {
+                $.ajax({
+                    url: baseurl,
+                    type: 'POST',
+                    data: { ReportName: ReportName, ReportId: ReportId },
+                    success: checkReportName,
+                    failure: errorCheckReportName,
+                    async: false
+
+                })
+            }
+
+        }
+
+        function checkReportName(status) {
+
+            
+            blnReportNameExists = status;
+            //$.each(status, function (key, value) {
+            //    if (value == true) {
+            //        alert('Report name already exists, please change');
+            //        return false;
+            //    }
+            //});
+
+
+        }
+
+        function errorCheckReportName() {
+
+            alert('An error occurred. Please contact administrator');
+        }
+
+
+        //$('select#vartypeid').change(function () {
+        //    var SelectedVartypeId = $('#vartypeid :selected').val();
+        //    var SelectedVartypeName = $('#vartypeid :selected').text();
+        //    var SelectedclientId = $('#ClientId :selected').val();
+
+        //    var ReportId = $('#ReportId')[0].value;
+        //    var ReportType = $('#ReportType')[0].value;
+        //    var ReportName = $('#txtReportName')[0].value;
+
+        //    if (SelectedclientId != 0 && SelectedVartypeName != "") {
+        //        var href = window.location.href.split('/');
+        //        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        //        var baseurl = '';
+        //        if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+        //            //alert('local url');
+
+        //            var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/';
+        //        }
+        //        else {
+        //            //alert('server');
+        //            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/'
+        //            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/HeatMapSetupBuilder/DisplayDataSets/?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}'
+        //        }
+
+        //        baseurl += '?ClientId={clientid}&vartypename={vartypename}&ReportId={reportid}&vartypeid={vartypeid}&ReportType={reporttype}&ReportName={reporname}';
+
+        //        baseurl = baseurl.replace("{clientid}", SelectedclientId);
+        //        baseurl = baseurl.replace("{vartypename}", SelectedVartypeName);
+        //        baseurl = baseurl.replace("{reportid}", ReportId);
+        //        baseurl = baseurl.replace("{vartypeid}", SelectedVartypeId);
+        //        baseurl = baseurl.replace("{reporttype}", ReportType);
+        //        baseurl = baseurl.replace("{reporname}", ReportName);
+
+
+
+
+        //        window.location = baseurl;
+        //    }
+
+        //});
+    });
+</script>
+         

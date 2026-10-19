@@ -1,0 +1,49 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using WebUI.Areas.DemandManager.Dto
+
+@model DMPostDemandInput
+
+<div id="ApproversList" style="width:100%;margin:auto"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+        var href = window.location.href.split('/');
+
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+        var baseurl = '';
+        if (ItemId != null) {
+
+            $('#ApproversList').jtable({
+                title: 'Approvers List',
+                actions: {
+                    listAction: "@Url.Action("GetApproversList")" + "?DemandId=" + ItemId
+                },
+
+                fields: {
+                    Name: {
+                        title: 'Approver Name',
+                        width: '50%'
+                    },
+
+                    ApprovedDate: {
+                        title: 'Approved Date',
+                        width:'50%'
+                    }
+
+                }
+
+            });
+
+            $('#ApproversList').jtable('load');
+        }
+
+    });
+
+
+</script>
+

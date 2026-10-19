@@ -1,0 +1,186 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model WebUI.Areas.AlignmentManager.Dto.PAReportsInput
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+@section PPMenu {
+    @Html.Partial("_PPTopMenu")
+
+}
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required" })
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+
+    
+
+
+            <!--end of breadcrumb container-->
+            <div class="container" style="padding:0;">
+                <div class="treeMenuArea tab-pane Opened" id="treeMenuArea">
+                    <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+                    @Html.Partial("_CMDBCatelog")
+                    <div class="treeMenuContent">
+
+
+                           <div class="container" style="padding:0;">
+
+                                @if (Model.ReportName == "sctypeI")
+                                {
+                                    <div class="well well-sm">Scatter Chart - Type I</div>
+                                }
+                                else if (Model.ReportName == "sctypeII")
+                                {
+                                    <div class="well well-sm">Scatter Chart - Type II</div>
+                                }
+                                else
+                                {
+                                    <div class="well well-sm">Scatter Chart</div>
+                                }
+
+                                @if (Model.ClientId != 0)
+                                {
+                                    <div class="slaleftpane">
+                                        <div class="clear clearfix">&nbsp;</div>
+                                        @if (Model.ReportName == "sctypeI")
+                                        {
+                                        <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptCloudMigrator&ClientId=" + Model.ClientId)' border="0" frameborder="0" height="750px" width="1150px"></iframe>
+
+                                        }
+                                        else if (Model.ReportName == "sctypeII")
+                                        {
+                                        <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptCloudMigrator_Type2&ClientId=" + Model.ClientId)' border="0" frameborder="0" height="750px" width="1150px"></iframe>
+                                        }
+                                        else
+                                        {
+                                        <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>
+                                        }
+
+
+                                </div>
+                                }
+                                    </div><!--/.treeMenuContent container-->
+                        </div><!--/.treeMenuContent-->
+                </div><!--/.treeMenuArea-->
+
+            </div><!--/.container-->
+
+            @section scripts
+{
+                @*<script>
+                    $(document).ready(function () {
+
+                        $('.treemenuOpen').click();
+                        $("#navigation").treeview({
+                            //persist: "location",
+                            collapsed: false,
+                            unique: true
+                        });
+                    });
+                </script>*@
+            }
+
+            <script>
+                $(document).ready(function () {
+
+
+
+
+                    $('select#VariableCategoryId').change(function () {
+                        var clientId = $("select#VariableCategoryId").val().toString();
+                        alert(clientId);
+
+                    });
+
+
+                    $('#btnAddNewChain').click(function () {
+
+
+                        var clientId = $("select#ClientId").val().toString();
+                        if (clientId == "0" || clientId == "") {
+                            alert('Please select Client to create new value chain details');
+                            return false;
+                        }
+
+                        var href = window.location.href.split('/');
+                        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                        var baseurl = '';
+
+                        var SelectedclientId = $('#ClientId :selected').val();
+
+                        if (href[3].toLowerCase() == 'alignmentmanager') {
+                            var baseurl = href[0] + '//' + href[2] + '/' + '/AlignmentManager/AlignmentManager/AddVariable/?ClientId=' + SelectedclientId
+                        }
+                        else {
+                            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/AddVariable/?ClientId=' + SelectedclientId
+                        }
+
+                        window.location = baseurl;
+                        return false;
+                        //var SelectedclientId = $('#ClientId :selected').val();
+                        //var strUrl = window.Location.constructor("http://" + window.location.host + "/"+ window.location.pathname.split("/")[1]+    "/AlignmentManager/AlignmentManager/AddVariable/?ClientId=" + SelectedclientId);
+                        //window.location = strUrl;
+
+                    });
+
+                });
+
+
+                function isNumberKey(evt) {
+                    var charCode = (evt.which) ? evt.which : event.keyCode;
+                    if (charCode != 46 && charCode != 44 && charCode > 31
+                      && (charCode < 48 || charCode > 57))
+                        return false;
+
+                    return true;
+                }
+
+
+                $('select#ClientId').change(function () {
+                    var SelectedclientId = $('#ClientId :selected').val();
+
+                    if (SelectedclientId != 0) {
+                        var href = window.location.href.split('/');
+                        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                        var baseurl = '';
+
+                        if (href[3].toLowerCase() == 'alignmentmanager') {
+                            var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetup/DisplayClientsPAReports/?ClientId={clientid}'
+                        }
+                        else {
+                            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetup/DisplayClientsPAReports/?ClientId={clientid}'
+                        }
+
+                        baseurl = baseurl.replace("{clientid}", SelectedclientId);
+                        window.location = baseurl;
+                    }
+
+                });
+
+
+
+            </script>

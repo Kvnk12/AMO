@@ -1,0 +1,170 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager;
+@using WebUI.Areas.IdeaManager.Models
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model  IMIdeaReassignModel
+
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    @*<script src="~/Scripts/jquery-3.6.0.min.js"></script>*@
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+
+    @{
+        ViewBag.Title = "Idea Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+        Layout = "~/Views/Shared//GenericIdeaManagerLayout.cshtml";
+
+        ClientDetail client = (ClientDetail)Session["SessionClient"];
+        var cont = new PostIdeaController();
+        var impList = cont.GetListOfAdmin(client.ClientId);
+
+    }
+    <style>
+        .im-Reassign-icon {
+            background-image: url('../../Content/images/add_role.svg');
+            background-position: center;
+            background-repeat: no-repeat;
+            color: rgb(91,121,171);
+            cursor: pointer;
+            text-align: center;
+            border: none;
+            text-indent: -14px;
+            background-color: transparent;
+            background-size: 1.5em;
+            padding: 0.8em;
+            display: inline-grid;
+        }
+    </style>
+    <div class="content-main dark-bg grid-delete">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Idea Manager</li>
+                <li class="active">Assign Idea</li>
+            </ol>
+        </div>
+        <div class="custom-kendo-grid">
+            @(Html.Kendo().Grid<IMIdeaReassignModel>()
+                   .Name("IMIdeaReassignModel")
+
+  .Columns(columns =>
+  {
+      columns.Bound(e => e.IdeaId).Hidden();
+      columns.Bound(e => e.IdeaNumber).Title("Idea No.").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(100);
+    //  columns.Bound(e => e.ItemName).Title("Idea Name").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(300);
+      columns.Template(@<text></text>).Title("Idea Name").Width(300)
+.ClientTemplate("<a target='_blank' rel='noopener noreferrer' href='" + Url.Action("Index", "PostIdea", new { IdeaId = "#=IdeaId#" }) + "'>#=ItemName#</a>");
+
+      columns.Bound(p => p.CreatedByName).Title("Created By/ Proposed By").Width(160).Filterable(ftb => ftb.Multi(true));
+      columns.Bound(p => p.AssignedByUser).Hidden();
+      columns.Bound(e => e.Status).Title("Status").Filterable(ftb => ftb.Cell(cell => cell.Operator("contains").SuggestionOperator(FilterType.Contains))).Width(150);
+
+      // columns.ForeignKey(e => e.ImpManagers, impList, "Value", "Text").Width(300).Title("Assign").EditorTemplateName("ImplementationMgdropdown");
+      columns.Bound(p => p.Id).Title("Action").Width(110).Filterable(false).Sortable(false)
+.ClientTemplate("##<div style='display: flex;justify-content:center;align-items: center;width: 80 %;'><button title='Reassign Idea' class='im-Reassign-icon' id=#:IdeaId# onclick='openPopupassign(#:IdeaId#);'></button></div>##");
+
+
+  })
+  .Scrollable()
+  .Pageable()
+  .Editable(editable => editable.Mode(GridEditMode.PopUp))
+    .Filterable()
+
+  .DataSource(dataSource => dataSource
+  .Ajax()
+  .Model(model => { model.Id(f => f.Id);
+
+  })
+    .Read(read => read.Action("ReadAssignIdea", "DetailIdea"))
+  )
+
+  )
+        </div>
+    </div>
+    @Html.Partial("_UpdateReassignModel",Model)
+  <script>
+      function openPopupassign(IdeaId) {
+          console.log(IdeaId);
+
+      var mod = {
+          Id: IdeaId,
+
+      };
+
+      var data1 = JSON.stringify(mod);
+      baseurl1 = '@Url.Content("~/IdeaManager/Detailidea/getIdeadetail")';
+
+      $.ajax(
+          {
+              url: baseurl1,
+              type: 'post',
+              data: data1,
+              async: false,
+              contentType: 'application/json; charset=utf-8',
+              success: function (data) {
+                  document.getElementById('IdeaNumber').innerText = data.IdeaNumber + "/" + data.ItemName;
+               //   $("#IdeaNumber").val(data.IdeaNumber + "/" + data.ItemName);
+                  $("#Ideaid").val(data.IdeaId);
+                  $("#ItemName").val(data.ItemName);
+                  $("#Status").val(data.Status);
+                  $("#CreatedByName").val(data.CreatedByName);
+                  var popup = $("#OpenReassignView").data("kendoWindow");
+                  popup.open();
+                  popup.center();
+
+              }
+          })
+
+
+
+
+        }
+
+      function onConfirmCloneYes() {
+          var IdeaId = document.getElementById('Ideaid').value;
+          var NewOwnerId = $("#ImpManagers").data("kendoDropDownList").value();
+          var Ideaname = document.getElementById('ItemName').value;
+          var mod = {
+              Id: IdeaId,
+              NewOwnerId: NewOwnerId,
+              Ideaname: Ideaname
+          }; console.log(mod);
+          var data1 = JSON.stringify(mod);
+              baseurl1 = '@Url.Content("~/IdeaManager/Detailidea/SaveNewUser")';
+               $.ajax({
+                   type: 'post',
+                   url: baseurl1,
+                   async: false,
+                   data: data1,
+                   contentType: 'application/json; charset=utf-8',
+                   success: function (response) {
+                       $("#IMIdeaReassignModel").data("kendoGrid").dataSource.read();
+                       $("#ImpManagers").data("kendoDropDownList").value(0);
+                       var popup = $("#OpenReassignView").data("kendoWindow");
+                       popup.close();
+                   },
+                   error: function (err, response) {
+                   }
+       });
+
+      }
+      function onclosepopupassign() {
+          $("#ImpManagers").data("kendoDropDownList").value(0);
+          var popup = $("#OpenReassignView").data("kendoWindow");
+          popup.close();
+      }
+            </script>

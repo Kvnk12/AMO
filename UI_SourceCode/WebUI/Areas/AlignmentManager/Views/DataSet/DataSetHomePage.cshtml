@@ -1,0 +1,225 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model  NTTData.AMOPortal.WebUI.Dto.DataSetupInput
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+
+@section PPMenu {
+
+    @Html.Partial("_PPTopMenu")
+    
+    }
+
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                      @using (Html.BeginForm())
+                          {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required" })  
+                          }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+
+@*<div class="clear">
+</div>*@
+
+<div class="container" style="padding: 0;">
+    <!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent" style="min-height: 700px">
+            <div class="well well-sm"><strong>Data Set Home</strong></div>
+            <div class="">
+                <!--valchainContent-->
+                <div class="container_12">
+                    <button  tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">New Data Set</button>
+                    <div class="grid_4 height400">
+                        <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th width="27%" scope="col">Dataset Name</th>
+                                    @*<th width="12%" scope="col">BA Designation</th>*@
+                                    <th width="35%" scope="col">Source Column</th>
+                                    <th width="35%" scope="col">Virtual Column</th>
+@*                                    <th width="21%" scope="col">Metric</th> 
+                                    <th width="28%" scope="col">Weight</th>*@
+                                </tr>
+                            </thead>
+
+                            @{
+                                if (Model.ClientId > 0)
+                                    {
+                                        
+                                    
+                                    IList<vwRegDataSet> vwRegDataSets = Model.RegDataSets;
+                                    string dataSetObjectName = "";
+                                    foreach (vwRegDataSet vwItem in vwRegDataSets)
+                                        {
+                                        if (dataSetObjectName != vwItem.DataSetName)
+                                            {
+                                            dataSetObjectName = vwItem.DataSetName;
+                                        <tr>
+                                            <td>@Html.ActionLink(dataSetObjectName, "DisplayViewDataSet", "DataSetAddEdit", new { ClientId = Model.ClientId, RegDataSetId = vwItem.RegisterDatasetId }, null)</td>  
+                                        @*<td><a= <b>@dataSetObjectName</b> </td>*@
+                                        <td>@vwItem.DatasetColumnName</td>
+                                        <td>@vwItem.VariableType</td>
+                                        </tr>
+                                            }
+                                        else
+                                            {
+                                        <tr>
+                                        <td></td>
+                                        <td>@vwItem.DatasetColumnName</td>
+                                        <td>@vwItem.VariableType</td>
+                                        </tr>
+                                            }
+
+                                        }
+
+
+                                    }
+                                
+                             }
+                            </table>
+                </div>
+            </div>
+            <!--.valchainContent-->
+                
+
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+
+</div>
+    </div>
+<script>
+    $(document).ready(function () {
+
+        //if ($('#pp38Home').length > 0) {
+        //    $('#pp38Home').fixedHeaderTable({ altClass: 'odd', footer: 'false' });
+        //}
+    });
+ </script>
+<script>
+    $(document).ready(function () {
+        
+        
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            var href = window.location.href.split('/');
+            if (SelectedclientId != 0) {
+                var baseurl = '';
+                if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                    //alert('local url');
+
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/DataSet/DisplayHomePage/?clientId={clientId}';
+                }
+                else {
+                    //alert('server');
+                    var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/DataSet/DisplayHomePage/?clientId={clientId}'
+                }
+
+                baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                window.location = baseurl;
+                return false;
+            }
+
+
+
+            
+            //if (SelectedclientId != 0) {
+            //    var localToServer = "/";
+            //    var sPageURL = window.location.search.substring(1);
+            //    var sURLVariables = sPageURL.split('&');
+
+            //    if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+            //        localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            //    }
+
+            //    var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?clientId={clientId}");
+
+            //    //window.location = strUrl;
+
+            //    strUrl = strUrl.replace("{clientId}", SelectedclientId);
+            //    window.location = strUrl;
+            //}
+
+        });
+
+        $('#btnAdd').click(function () {
+
+
+            var SelectedclientId = $('#ClientId :selected').val();
+            if (SelectedclientId == "" || SelectedclientId == "0")
+            {
+                alert('Please Select Client name from the list');
+                return false;
+            }
+
+
+            var baseurl = '';
+            var href = window.location.href.split('/');
+            if (href[3].toLocaleLowerCase() == 'alignmentmanager') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add';
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add'
+            }
+
+            
+            window.location = baseurl;
+
+
+
+
+@*                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add");
+
+                window.location = strUrl;*@
+
+          });
+
+    });
+
+</script>
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+﻿@using WebUI.Dto;
+@using NTTData.AMOPortal.Domain.Entities;
+@{
+  //  Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+
+<div class="treemenu">
+    <div class="dsh">
+        <h3><span class="glyphicon glyphicon-th dshimgbg"></span> Dashboard Catalog</h3>
+        <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+    </div>
+    <ul class="treeMenuUl">
+
+        <li>@Html.ActionLink("Type I", "DisplayCMReports", "HeatMapSetup", new { area = "AlignmentManager", cid = client.ClientId, rptName = "sctypeI" }, null)</li>
+        <li>@Html.ActionLink("Type II", "DisplayCMReports", "HeatMapSetup", new { area = "AlignmentManager", cid = client.ClientId, rptName = "sctypeII" }, null)</li>
+
+        @*<li>
+                <a href="#">Scatter Charts</a>
+                <ul>
+                    <li>@Html.ActionLink("Type I", "DisplayCMReports", "HeatMapSetup", new { area = "AlignmentManager", cid = client.Id, rptName = "sctypeI" }, null)</li>
+                    <li>@Html.ActionLink("Type II", "DisplayCMReports", "HeatMapSetup", new { area = "AlignmentManager", cid = client.Id, rptName = "sctypeII" }, null)</li>
+                </ul>
+            </li>*@
+
+    </ul>
+</div>

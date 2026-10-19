@@ -1,0 +1,272 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+
+@model Survey_Model
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logoClientProfile.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+
+
+    ViewBag.Title = "SurveyViewModel";
+    var dictionary = new Dictionary<string, string>
+    {
+    { "APR", "APR" },
+    { "Cloud Migrator", "Cloud Migrator" },
+    { "General", "General" },
+    };
+
+}
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/JScript/jquery.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+@using (Html.BeginForm("cloneSurvey", "Survey", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+
+<div>
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb container">
+            <li><a href="#">Client Profile Manager</a></li>
+            <li><a href="#">Survey</a></li>
+            <li class="active"><a href="#">Setup Survey</a></li>
+        </ol>
+    </div>
+    <div class="container" style="padding: 0; height:1000px;">
+        <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treeMenuContent" style="min-height: 700px">
+                
+                <div class="well well-sm;" style="text-align:center;">
+                    <div class="right"><button type="submit" tabindex="32" class="btn btn-default" onclick="location.href='@Url.Action("Index", "Survey")';return false;">Back</button></div>
+                <h5><strong>Clone Survey</strong></h5>
+                   
+                </div>
+                <div class="">
+                    <!--valchainContent-->
+                    <div class="container_12">
+                        @*<button tabindex="30" class="btn btn-primary" data-id="@Model.ClientId" id="btnAdd" style="margin-bottom:10px">New Template</button>*@
+                        <table>
+                            <tr>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.Id, new
+                               {
+                                   id = "Id",
+                                   Name = "Id"
+                               })
+                                    <span data-for="ID" class="k-invalid-msg"></span>
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.ClientId, new
+                               {
+                                   id = "ClientId",
+                                   Name = "ClientId"
+                               })
+                                </td>
+
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.CreatedBy, new
+                               {
+                                   id = "CreatedBy",
+                                   Name = "CreatedBy"
+                               })
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.UpdatedBy, new
+                               {
+                                   id = "UpdatedBy",
+                                   Name = "UpdatedBy"
+                               })
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.Createddt, new
+                               {
+                                   id = "Createddt",
+                                   Name = "Createddt"
+                               })
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.updateddt, new
+                               {
+                                   id = "updateddt",
+                                   Name = "updateddt"
+                               })
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.Launchdt, new
+                               {
+                                   id = "Launchdt",
+                                   Name = "Launchdt"
+                               })
+                                </td>
+                                <td style="width:150px">
+                                    @Html.HiddenFor(x => x.LaunchedBy, new
+                               {
+                                   id = "LaunchedBy",
+                                   Name = "LaunchedBy"
+                               })
+                                </td>
+
+                            </tr>
+                        </table>
+                        
+                        <table style="width:100%;height:100%;margin-left:45px;">
+                            <tr>
+                                <td>
+                                    <table>
+
+                                        <tr>
+                                            @*<td>@(Html.Kendo().TextBoxFor(m => m.Id)
+                        .Enable(false)
+                        .Name("Id")
+                                            )</td>*@
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="right" style="margin-right:30px">Name :</label>
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.Name))
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width: 30%">
+                                                <label class="right" style="margin-right:30px">Survey Type: </label>
+</td>
+                                            <td>
+                                                @(Html.Kendo().DropDownListFor(m => m.SurveyType)
+.Name("SurveyType")
+.OptionLabel("Select")
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo(new SelectList(dictionary, "Key", "Value")))
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="right" style="margin-right:30px">Description :</label>
+                                            </td>
+                                            <td>
+                                                @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = "5", placeholder = "Description", tabindex = "5", style = "width:60%; height:10%" })
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="right" style="margin-right:30px">End Date :</label>
+                                                @*@(Html.Kendo().TextBoxFor(m => m.enddate))*@
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().DatePicker()
+.Name("enddate")
+.Value("10/10/2011")
+.HtmlAttributes(new { style = "width: 35%", title = "datepicker" })
+                                                )
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="right" style="margin-right:30px">Created By:</label>
+                                            </td>
+                                            <td>
+                                                @(Html.Kendo().TextBoxFor(m => m.CreatedByName)
+.Name("CreatedByName")
+.Format("c")
+.Enable(false)
+                                                )
+                                            </td>
+                                            </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td><br /></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+
+                                            </td>
+                                            <td>
+                                                <div class="text-center">
+                                                    @(Html.Kendo().Button()
+.Name("submitButton")
+.HtmlAttributes(new { style = "width: 15%", @class = "btn-primary" })
+.Content("Submit")
+                                                    )
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                       
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+
+}
+
+<script>
+
+    $("#SurveyGrid").data().kendoGrid.options.editable.window.width = "1000px";
+
+
+    @*$('#submitButton').on('click', function () {
+        alert("Im here too");
+        $.ajax({
+            
+            url: '@Url.Action("cloneSurvey", "Survey", Model)',
+            type: 'POST',
+            success: function (data) {
+                //alert(data);
+                alert("Yes I'm in!");
+            },
+            error: function () {
+                console.log("Clone Survey error rendering page");
+            }
+        });
+    });*@
+
+
+
+
+
+    //function cloneSurvey(e)
+    //{
+    //    alert("Yes");
+    //}
+</script>

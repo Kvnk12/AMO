@@ -1,0 +1,259 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using System.Data;
+@model ApplicationDashboardModel
+
+<div class="container">
+    <label>Year :</label> @(Html.Kendo().DropDownList()
+    .Name("costyear")
+    .DataValueField("Value")
+    .OptionLabel("OverAll Cost")
+    .DataTextField("Text")
+    .DataSource(datasource => datasource
+    .Read(read => read.Action("getAppYears", "AppDashboard").Data("GetAppID"))
+
+    )
+    .Events(eve => eve.Change("RefreshCostChart"))
+    )
+    
+                <div class="form-group">
+                    <br />
+                    <table>
+                        <tr>
+                           
+                            <th style="background-color:#47a3da;color:white">
+                                Application Cost Summary
+                            </th>
+                        </tr>
+                        @*<tr>
+                            <td>
+                                <button class='export-pdfcost k-button'>Export as PDF</button>
+
+                                <button class='export-imgcost k-button'>Export as Image</button>
+                            </td>
+                        </tr>*@
+                        <tr>
+                            
+                            <td>
+                                @(Html.Kendo().Chart<_costSummary>(Model.CostSummary)
+        .Name("CostSummaryChart")
+        .Legend(legend => legend
+        .Visible(false)
+        )
+        .Events(e => e
+
+                .SeriesClick("CostChartClick")
+            )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        )
+        //.SeriesColors(new string[] { "#76448A", "#F1C40F", "#2E86C1", "#D98880", "#0B5345", "#03a9f4", "#ff9800", "#fad84a", "#4caf50" })
+        .Series(series =>
+        {
+            series.Pie(model => model.amount, model => model.CostType, model => model.color)
+               .Labels(labels => labels
+               .Template("#= category #: \n #= kendo.toString(value, 'c0')#")
+                .Background("transparent")
+                 .Visible(true)
+                 .Position(ChartPieLabelsPosition.Center)
+                 .Format("{0:C}")
+            )
+            .StartAngle(150);
+        })
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= category #: \n #= value#")
+        )
+                                )
+                            </td>
+                        </tr>
+                        <tr>
+
+                        </tr>
+                        @*<tr>
+                           <td>
+                                <div>
+                                    <div class="form-group"></div>
+                                    <label> FTE: Table View</label>
+                                   <div>
+                                            @(Html.Kendo().Grid<_labor>(Model.Labor)
+    .Name("FTEGrid")
+    .Columns(column =>
+    {
+        column.Bound(m => m.WorkType);
+        column.Bound(m => m.InternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+        column.Bound(m => m.ExternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+
+    })
+
+    .Scrollable()
+    .Pageable()
+    .DataSource(data => data
+    .Ajax()
+    .PageSize(5)
+    )
+                                            )
+                                        </div>
+                                    </div>
+                                </td>*@
+                            @*<td>
+                                <div>
+                                    <div class="form-group"></div>
+                                    <label> Cost: Table View</label>
+                                    <div>
+                                            @(Html.Kendo().Grid<_costSummary>(Model.CostSummary)
+    .Name("CostGrid")
+    .Columns(column =>
+    {
+        column.Bound(m => m.CostType);
+        column.Bound(m => m.amount).HtmlAttributes(new { @style = "text-align:right" });
+
+    })
+
+    .Scrollable()
+    .Pageable()
+    .DataSource(data => data
+    .Ajax()
+    .PageSize(5)
+    )
+                                            )
+                                        </div>
+                                    </div>
+
+                                </td>
+                        </tr>*@
+                        
+                    </table>
+
+                    <table>
+                        <tr>
+                            <th style="background-color:#47a3da;color:white">
+                                Application FTE Cost
+                            </th>
+                           
+                        </tr>
+                        @*<tr>
+                            <td>
+                                <button class='export-pdfcost k-button'>Export as PDF</button>
+
+                                <button class='export-imgcost k-button'>Export as Image</button>
+                            </td>
+                        </tr>*@
+                        <tr>
+                            <td>
+                                @(Html.Kendo().Chart<_labor>(Model.Labor)
+        .Name("LaborChart")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Top)
+        )
+        .Series(series =>
+        {
+            series.Column(model => model.InternalLabor).Name("Internal Labour").Color("#F1C40F").CategoryField("WorkType");
+            series.Column(model => model.ExternalLabor).Name("External Labour").Color("#76448A").CategoryField("WorkType");
+
+        })
+        .CategoryAxis(axis => axis
+                .Categories(cat => cat.WorkType)
+            .Labels(labels => labels.Rotation(-90))
+            .MajorGridLines(lines => lines.Visible(false))
+        )
+        .ValueAxis(axis => axis.Numeric()
+            .Labels(labels => labels.Format("{0:N0}"))
+            .Title("Cost")
+            .Min(0)
+            .Line(line => line.Visible(false))
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Format("{0:N0}")
+        )
+        .Events(e => e
+
+                .SeriesClick("LaborChartClick")
+            )
+                                )
+                            </td>
+                            
+                        </tr>
+                        <tr></tr>
+                      
+
+                    </table>
+                </div>
+
+</div>
+
+@(Html.Kendo().Window()
+    .Name("FTEGridWindow")
+    .Title("Ticket details")
+    .Content(@<text>
+      @(Html.Kendo().Grid<_labor>(Model.Labor)
+.Name("FTEGrid")
+.Columns(column =>
+{
+    column.Bound(m => m.WorkType);
+    column.Bound(m => m.InternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+    column.Bound(m => m.ExternalLabor).HtmlAttributes(new { @style = "text-align:right" });
+
+})
+
+//.Scrollable()
+
+.HtmlAttributes(new { @style = "width:460px" })
+.Pageable()
+.DataSource(data => data
+.Ajax()
+.PageSize(5)
+))
+    </text>)
+         
+         .Visible(false)
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+)
+
+
+@(Html.Kendo().Window()
+    .Name("CostGridWindow")
+    .Title("Ticket details")
+    .Content(@<text>
+        @(Html.Kendo().Grid<_costSummary>(Model.CostSummary)
+.Name("CostGrid")
+.Columns(column =>
+{
+    column.Bound(m => m.CostType);
+    column.Bound(m => m.amount).HtmlAttributes(new { @style = "text-align:right" });
+
+})
+
+//.Scrollable()
+.HtmlAttributes(new { @style = "width:460px" })
+.Pageable()
+.DataSource(data => data
+.Ajax()
+.PageSize(5)
+)
+        )
+    </text>)
+         .Visible(false)
+         //.HtmlAttributes(new { @style = "padding:10px" })
+    .Draggable()
+    .Resizable()
+    .Width(500)
+    .AutoFocus(true)
+    .Modal(true)
+
+    .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+)
+
+

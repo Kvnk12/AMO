@@ -1,0 +1,561 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model APRHostlistModel
+@{
+    var v = new APRAjaxServiceController();
+    var Vendorlist = v.Vendorlist();
+    // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+}
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+}
+<style>
+    .AddBtn {
+        margin-right: 10em !important;
+        background: transparent;
+        color: white;
+       
+        font-family: 'HelveticaNeue-Light';
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+   
+</style>
+<div class="content-main dark-bg">
+   
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+            <li class="active">Technology Stack</li>
+        </ol>
+   
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<APRHostlistModel>()
+.Name("GridAppHostlist")
+.Columns(columns =>
+{
+
+    columns.Bound(p => p.HostName);
+    columns.Bound(p => p.IPAddress);
+    columns.Bound(p => p.OperatingSystem);
+    columns.Bound(p => p.TotalCPUs).HtmlAttributes(new { style = "text-align: right;" });
+    columns.Bound(p => p.VendorName);
+    //columns.ForeignKey(p => p.HostId, (System.Collections.IEnumerable)ViewData["host"], "Id", "HostName").Title("Host Name");
+
+    //  columns.Group(g => g
+    //.Title("Application")
+    //.Columns(location =>
+    //{
+    //    location.Bound(p => p.Environment).Title("Environment");
+    //    location.Bound(p => p.AppDeployedDate).Title("Deployed Date").Format("{0:d}").HtmlAttributes(new { style = "text-align: right;" });
+    //    location.Bound(p => p.AppAge).Title("Age (Years)").HtmlAttributes(new { style = "text-align: right;" });
+    //}));
+
+    //  columns.Group(g => g
+    // .Title("Allocated Hardware")
+    // .Columns(location =>
+    // {
+    //     location.Bound(p => p.AppAllocatedStorage).Title("Storage");
+    //     location.Bound(p => p.AppAllocatedHardwareCost).Title("Cost ($)").Format("{0:c}").HtmlAttributes(new { style = "text-align: right;" });
+    // }));
+
+
+    //  columns.Group(g => g
+    //  .Title("CPU Consumption")
+    //  .Columns(location =>
+    //  {
+
+    //      location.Bound(p => p.CPUConsumptionVolume).Title("Volume");
+    //      location.Bound(p => p.CPUConsumptionUnit).Title("Unit");
+    //  }));
+
+    columns.Command(command => { command.Destroy(); }).Width(250);
+
+})
+.HtmlAttributes(new { style = "height: 100%;width:100%" })
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+.Sortable()
+.Pageable()
+.ToolBar(
+   tools =>
+   {
+       tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" });
+       //tools.Create();
+       tools.Custom().Text("Add New Host").HtmlAttributes(new { @class = "AddBtn", id = "AddNewHost" });
+   }
+
+
+
+
+                            )
+                        .Events(events => events
+      .Change("onChange")
+
+    )
+    //.Editable(editable => { editable.Mode(GridEditMode.InLine); })
+    //.Scrollable(scr => scr.Height(100))
+    .AutoBind(false)
+    .Resizable(resize => resize.Columns(true))
+    .Selectable(selectable => selectable
+            .Mode(GridSelectionMode.Single))
+    .PersistSelection(true)
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(p => p.Id).Editable(false);
+            //model.Field(p => p.ApplicationId).Editable(true);
+        })
+          .Read(read => read.Action("GetAppHostlist", "APRAjaxService"))
+        //   .Create(update => update.Action("CreateAppHardware", "TechnologyStack").Data("ApplicationIDValue"))
+
+        //.Update(update => update.Action("UpdateAppHardware", "TechnologyStack"))
+        .Destroy(update => update.Action("DestroyAPRHost", "APRAjaxService"))
+
+     )
+        )
+
+        <br />
+
+        <div style="padding:0;">
+            <div>
+                @*@(Html.Kendo().Button()
+                    .Name("AddNew")
+                    .Content("Add New Host")
+                    .HtmlAttributes(new { @class = "k-primary" })
+                    .Events(ev => ev.Click("onAddClick")))*@
+
+                @(Html.Kendo().Button()
+            .Name("Edit")
+            .Content("Edit Host")
+            .HtmlAttributes(new { @class = "k-primary", @style = "background-color:rgb(91,121,171)" })
+            .Events(ev => ev.Click("onEditClick")))
+            </div>
+            <br />
+            <div style=" padding: 1em; background: white;">
+                @using (Html.BeginForm("TechnologyStackMetadata", "MetaData", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "form" }))
+
+                {
+                    @*@Html.HiddenFor(m => m.Id, new { id = "Id" })*@
+
+
+                    <table>
+                        <tr>
+                            <td>
+                                @Html.Label("host", "Host Name : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+                        .Name("HostName")
+                            )
+                                @Html.Hidden("Id")
+                                @*@(Html.Kendo().TextBoxFor(m => m.HostName))*@
+
+                            </td>
+                            <td>
+                                @Html.Label("AssetTag", "Asset Tag : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("AssetTag")
+                            )
+                            </td>
+
+                            <td>
+                                @Html.Label("IPAddress", "IP Address : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("IPAddress")
+                            )
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                @Html.Label("OS", "Operating System : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("OperatingSystem")
+                            )
+                            </td>
+                            <td>
+                                @Html.Label("OSVersion", "OS Version : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("OSVersion")
+                            )
+                            </td>
+
+                            <td>
+                                @Html.Label("ServerModel", "Server Model : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("ServerModel")
+                            )
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                @Html.Label("TotalCPUs", "Total CPUs : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("TotalCPUs").HtmlAttributes(new { style = "text-align: right;" })
+                            )
+                            </td>
+                            <td>
+                                @Html.Label("NoOfCoreProcessors", "# Core Processors : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("NoOfCoreProcessors").HtmlAttributes(new { style = "text-align: right;" })
+                            )
+                            </td>
+
+                            <td>
+                                @Html.Label("CPUSpeed", "CPU Speed : ")
+                            </td>
+                            <td>
+
+                                @(Html.Kendo().TextBox()
+            .Name("CPUSpeed")
+                            )
+                            </td>
+                        </tr>
+
+                        <tr>
+
+                            <td>
+                                @Html.Label("RAM", "RAM(GB) : ")
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+            .Name("RAM").HtmlAttributes(new { style = "text-align: right;" })
+                            )
+                            </td>
+                            <td>
+                                @Html.Label("DiskSpace", "Disk Space : ")
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+            .Name("DiskSpace").HtmlAttributes(new { style = "text-align: right;" })
+                            )
+                            </td>
+
+                            <td>
+                                @Html.Label("VendorName", "Vendor Name : ")
+                            </td>
+                            <td>
+                                @(Html.Kendo().ComboBox()
+                        .Name("VendorName")
+                        .Placeholder("Select")
+                    .DataTextField("Text")
+                    .DataValueField("Text")
+                    .BindTo(Vendorlist)
+                    .AutoBind(true)
+                            )
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                @Html.Label("ServerBuilding", "Server Building : ")
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+            .Name("ServerBuilding")
+                            )
+                            </td>
+                            <td>
+                                @Html.Label("ServerLocation", "Server Location : ")
+                            </td>
+                            <td>
+                                @(Html.Kendo().TextBox()
+            .Name("ServerLocation")
+                            )
+                            </td>
+
+
+                        </tr>
+                    </table>
+
+
+
+                }
+
+            </div>
+            <div style="margin-top:1em;text-align:right">
+                @(Html.Kendo().Button()
+            .Name("Save")
+            .Content("Save")
+            .HtmlAttributes(new { @class = "k-primary", @style="background-color:rgb(91,121,171)" })
+            .Events(ev => ev.Click("onSaveClick")))
+                @(Html.Kendo().Button()
+            .Name("Cancel")
+            .Content("Cancel")
+
+            .Events(ev => ev.Click("onCancelClick")))
+
+            </div>
+
+        </div>
+        </div>
+
+    </div>
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                //$("#form :input").prop("disabled", true);
+               
+                $('#form input[type!=checkbox]').addClass('formGrayOut').attr('disabled', 'disabled');
+                var vendorcombo = $("#VendorName").data("kendoComboBox");
+                vendorcombo.enable(false);
+                var GridAppHostlist = $("#GridAppHostlist").data("kendoGrid");
+                GridAppHostlist.dataSource.read();
+
+                 
+               
+            });
+    function onChange(args) {
+        var rows = args.sender.select();
+        rows.each(function (e) {
+            var grid = $("#GridAppHostlist").data("kendoGrid");
+            var dataItem = grid.dataItem(this);
+
+            getHost(dataItem.Id);
+        })
+    };
+
+
+
+
+
+    $("#AddNewHost").click(function (e) {
+        e.preventDefault();
+        displayLoading("#form");
+        resetForm($('#form'));
+        $('#form input[type!=checkbox]').removeClass('formGrayOut').removeAttr('disabled');
+        var vendorcombo = $("#VendorName").data("kendoComboBox");
+        vendorcombo.enable(true);
+        //$("#form :input").prop("disabled", false);
+        //var chart = $("#chart").data("kendoChart");
+        //chart.dataSource.read();
+        //chart.refresh();
+        //$("#window").data("kendoWindow").open();
+        //$("#customButtonCost").hide();
+        //put custom logic here
+    });
+
+    function onEditClick(e) {
+        displayLoading("#form");
+        $('#form input[type!=checkbox]').removeClass('formGrayOut').removeAttr('disabled');
+        var vendorcombo = $("#VendorName").data("kendoComboBox");
+        vendorcombo.enable(true);
+        //$("#form :input").prop("disabled", false);
+        e.preventDefault();
+
+        //tabs.select(getTabAtIndex(currentIndex + 1));
+        //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+        //financeGrid.dataSource.read();
+    }
+
+    function onCancelClick(e) {
+
+        //$("#form :input").prop("disabled", true);
+        $('#form input[type!=checkbox]').addClass('formGrayOut').attr('disabled', 'disabled');
+        var vendorcombo = $("#VendorName").data("kendoComboBox");
+        vendorcombo.enable(false);
+        resetForm($('#form'));
+        e.preventDefault();
+        //e.preventDefault();
+
+        //tabs.select(getTabAtIndex(currentIndex + 1));
+        //var financeGrid = $("#GridFinance").data("kendoGrid");
+
+        //financeGrid.dataSource.read();
+    }
+
+    function onSaveClick(e) {
+
+        displayLoading("#form");
+        e.preventDefault();
+        InsertUpdateHost();
+        //tabs.select(getTabAtIndex(currentIndex + 1));
+        var GridAppHostlist = $("#GridAppHostlist").data("kendoGrid");
+
+        GridAppHostlist.dataSource.read();
+    }
+
+    function resetForm($form) {
+        $form.find('input:text, input:password, input:file, select, textarea').val('');
+        $form.find('input:radio, input:checkbox')
+             .removeAttr('checked').removeAttr('selected');
+    }
+
+
+
+    function getFormData($form) {
+        var unindexed_array = $form.serializeArray();
+        var indexed_array = {};
+
+        $.map(unindexed_array, function (n, i) {
+            indexed_array[n['name']] = n['value'];
+        });
+
+        return indexed_array;
+    }
+
+    function InsertUpdateHost() {
+        var $form = $("#form");
+        var data = JSON.stringify(getFormData($form));
+
+        //var model=JSON.stringify( $("#form").serializeArray() );
+        //alert(data);
+        var RootUrl = '@Url.Content("~/")';
+        //var model = {
+        //    AppId: appid
+        //};
+
+        //alert(myArray[0].id + " ," + myArray[0].value);
+        //var data1 = { 'listObject': myArray };
+        //var data = JSON.stringify(model)
+
+        $.ajax({
+
+            type: 'post',
+            url: RootUrl + 'APRAjaxService/InsertUpdateHostlist',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+
+            },
+            error: function (err, response) {
+                alert(err.responseText);
+            }
+        });
+    }
+    function ApplicationIDValue() {
+
+        var appid = $("#AppName").val();
+        //alert('check here'+appid);
+        return {
+            ApplicationID: appid
+        };
+    }
+
+
+    function getHost(hostid) {
+
+
+        //var appid = $("#AppName").val();
+
+        //var RootUrl = '@Url.Content("~/")';
+        var model = {
+            HostId: hostid
+        };
+        var data = JSON.stringify(model)
+
+        baseurl = '@Url.Content("~/APRAjaxService/GetAppHost")';
+        //baseurl = baseurl + '?ApplicationID=' + appid
+        //alert('post' + baseurl + $("ApplicationList").data("kendoComboBox").Value());
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'post',
+            data: data,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert(response.AppDomainId);
+                $('#Id').val(response.Id);
+                $('#HostName').val(response.HostName);
+                $("#AssetTag").val(response.AssetTag);
+                $("#IPAddress").val(response.IPAddress);
+                $("#OperatingSystem").val(response.OperatingSystem);
+                $("#OSVersion").val(response.OSVersion);
+                $("#ServerModel").val(response.ServerModel);
+                $("#NoOfCoreProcessors").val(response.NoOfCoreProcessors);
+                $("#CPUSpeed").val(response.CPUSpeed);
+                $("#RAM").val(response.RAM);
+                $("#TotalCPUs").val(response.TotalCPUs);
+                $("#DiskSpace").val(response.DiskSpace);
+                $("#ServerBuilding").val(response.ServerBuilding);
+                $("#ServerLocation").val(response.ServerLocation);
+                $("#VendorName").data("kendoComboBox").value(response.VendorName);
+                //$("#AppDomainId").data("kendoDropDownList").value(response.AppDomainId);
+                //$("#AliasName").val(response.AliasName);
+                //$("#OwningCompanies").val(response.OwningCompanies);
+
+            },
+            error: function (data) {
+                //alert('err' + data);
+            }
+
+        });
+    }
+        </script>
+<script type="text/javascript">
+      $(function() {
+          $('#form input[type!=checkbox]').addClass('formGrayOut').attr('disabled', 'disabled');
+         //$('#MyForm input#checkIDfield').click(function() {
+         //    $('#form input[type!=checkbox]').removeClass('formGrayOut').removeAttr('disabled');
+         //   $(this).attr('checked','checked');
+         //});
+
+      });
+
+
+      function displayLoading(target) {
+          var element = $(target);
+          kendo.ui.progress(element, true);
+          setTimeout(function () {
+              kendo.ui.progress(element, false);
+          }, 1000);
+      }
+</script>
+
+<style>
+    .formGrayOut {
+        background: #ccc;
+    }
+</style>
+

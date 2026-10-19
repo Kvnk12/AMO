@@ -1,0 +1,323 @@
+﻿@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@model WebUI.Areas.PortfolioAnalyzer.Models.ApplicationInformationModel
+@{
+    ViewBag.Title = "Financial";
+
+}
+@*ViewData["Foo"] = @Model.Id;*@
+<h2>Financial</h2>
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+}
+<div class="container" style="padding:0;">
+
+    @(Html.Kendo().Grid<APRFinancialModel>()
+.Name("GridFinance")
+.Columns(columns =>
+{
+    columns.Bound(p => p.AppId).Title("AppId");
+
+    columns.Bound(p => p.Year).Title("Year");
+    columns.Bound(p => p.TotalExternalCost).Title("Total External Cost");
+    columns.Bound(p => p.TotalExternalFTEs).Title("Total External FTEs");
+    columns.Bound(p => p.TotalInternalCost).Title("Total Internal Cost");
+    columns.Bound(p => p.TotalInternalFTEs).Title("Total Internal FTEs");
+    columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+    //columns.Bound(p => p.Id).ClientTemplate("<a href='#' data-id='" + "/#= Id #'" + ">Edit</a>");
+})
+.HtmlAttributes(new { style = "height: 100%;width:100%" })
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+.Sortable()
+.Pageable()
+.ToolBar(
+   tools =>
+   {
+       tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" });
+       tools.Create();
+   }
+
+
+
+
+                            )
+                    .Events(events => events
+  .Edit("onEdit")
+
+)
+.Editable(editable => { editable.Mode(GridEditMode.PopUp); })
+    //.Scrollable(scr => scr.Height(100))
+    .AutoBind(false)
+    .Resizable(resize => resize.Columns(true))
+
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(p => p.Id).Editable(false);
+            model.Field(p => p.AppId).Editable(true);
+        })
+          .Read(read => read.Action("GetApplicationinFinanceDetail", "DataCollection").Data("ApplicationIDValue"))
+           .Create(update => update.Action("CreateFinancial", "DataCollection"))
+
+        .Update(update => update.Action("UpdateFinancial", "APRAjaxService"))
+        .Destroy(update => update.Action("DestroyFinancial", "DataCollection"))
+
+     )
+    )
+
+</div>
+
+<div class="demo-section k-content wide">
+    @(Html.Kendo().Chart<APRFinancialModel>()
+        .Name("chart")
+        .Title("Cost Summary")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Top)
+        )
+        .DataSource(ds => ds.Read(read => read.Action("GetApplicationinCostSummary", "APRAjaxService").Data("ApplicationIDValue")))
+        .Series(series =>
+        {
+            series.Line(model => model.TotalDiscretionaryCost).Name("Discretionary").CategoryField("Year");
+            series.Line(model => model.TotalEnhancementCost).Name("Enhancement").CategoryField("Year");
+            series.Line(model => model.TotalInfrastructureCost).Name("Infrastructure").CategoryField("Year");
+            series.Line(model => model.TotalLicensingCost).Name("Licensing").CategoryField("Year");
+            series.Line(model => model.TotalSupportCost).Name("Support").CategoryField("Year");
+            series.Line(model => model.TotalOtherCost).Name("Other").CategoryField("Year");
+        })
+        .CategoryAxis(axis => axis
+            .Labels(labels => labels.Rotation(-90))
+            .Crosshair(c => c.Visible(true))
+        )
+        .ValueAxis(axis => axis.Numeric()
+            .Labels(labels => labels.Format("{0:c}"))
+        //.MajorUnit(10000)
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Shared(true)
+            .Format("{0:c}")
+        )
+    )
+</div>
+
+
+<div id="listview"></div>
+
+<script id="tmp" type="text/x-kendo-template">
+    <div class="listItem">
+        <input class="checkbox" type="checkbox" value="#= id #" />
+        <span>&nbsp;</span>
+        <span>#: item #</span>
+    </div>
+</script>
+
+<script>
+    var dataSource = new kendo.data.DataSource({
+        data: [
+            { id: 1, item: "Item 1", foo: 1 },
+            { id: 2, item: "Item 2", foo: 2 },
+            { id: 3, item: "Item 3", foo: 3 },
+            { id: 4, item: "Item 4", foo: 4 },
+            { id: 5, item: "Item 5", foo: 5 },
+            { id: 6, item: "Item 6", foo: 6 }
+        ],
+        schema: {
+            model: {
+                id: "id",
+                fields: {
+                    id: { type: "number" },
+                    item: { type: "string" },
+                    foo: { type: "number" }
+                }
+            }
+        }
+    });
+
+    $("#listview").kendoListView({
+        dataSource: dataSource,
+        template: $("#tmp").html(),
+        change: function (e) {
+            var dataItem = this.dataSource.getByUid(e.item.data("uid"));
+
+            console.log(dataItem);
+        },
+        dataBound: function (e) {
+            this.element.find(".checkbox").on("change", onChange);
+        }
+    });
+
+    function onChange(e) {
+        var item = $(e.target).closest(".listItem");
+
+        if (e.target.checked) {
+            item.addClass("k-state-selected");
+            $("#listview").data("kendoListView").trigger("change", { item: item });
+
+        } else {
+            item.removeClass("k-state-selected");
+        }
+
+
+    }
+</script>
+
+<div class="demo-section k-content">
+    <div>
+        <h4>Check nodes</h4>
+        @(Html.Kendo().TreeView()
+            .Name("treeview")
+            .Checkboxes(checkboxes => checkboxes
+                .Name("Regionlist")
+                .CheckChildren(true)
+            )
+             .Events(events => events
+                .Check("onCheck")
+            )
+            .Items(treeview =>
+            {
+                treeview.Add().Text("Asia Pacific").Id("Asia Pacific");
+
+                treeview.Add().Text("EMEA").Id("EMEA");
+
+                treeview.Add().Text("Global").Id("Global");
+
+                treeview.Add().Text("Latin America").Id("Latin America");
+                treeview.Add().Text("North America").Id("North America");
+                treeview.Add().Text("Unknown").Id("Unknown");
+            })
+        )
+    </div>
+    <div style="padding-top: 2em;">
+        <h4>Status</h4>
+        <p id="result">No nodes checked.</p>
+    </div>
+</div>
+<script>
+
+    // function that gathers IDs of checked nodes
+    function checkedNodeIds(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked) {
+                checkedNodes.push(nodes[i].id);
+            }
+
+            if (nodes[i].hasChildren) {
+                checkedNodeIds(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+    // show checked node IDs on datasource change
+    function onCheck() {
+        var checkedNodes = [],
+            treeView = $("#treeview").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+        if (checkedNodes.length > 0) {
+            message = "IDs of checked nodes: " + checkedNodes.join(",");
+        } else {
+            message = "No nodes checked.";
+        }
+
+        $("#result").html(message);
+    }
+</script>
+@*<style>
+    #treeview .k-sprite {
+        background-image: url("@Url.Content("~/Content/web/treeview/coloricons-sprite.png")");
+    }
+
+    .rootfolder { background-position: 0 0; }
+    .folder     { background-position: 0 -16px; }
+    .pdf        { background-position: 0 -32px; }
+    .html       { background-position: 0 -48px; }
+    .image      { background-position: 0 -64px; }
+</style>*@
+
+        <script type="text/javascript">
+            function displayLoading(target) {
+                var element = $(target);
+                kendo.ui.progress(element, true);
+                setTimeout(function () {
+                    kendo.ui.progress(element, false);
+                }, 1000);
+            }
+            $(document).ready(function () {
+                displayLoading("#GridFinance");
+                var financeGrid = $("#GridFinance").data("kendoGrid");
+
+                financeGrid.dataSource.read();
+                financeGrid.refresh();
+                if ($("#AppName").val()) {
+                    //AppNameChange();
+
+
+                }
+            });
+
+            function AppNameChange() {
+                // alert('here1');
+                updateDashboard();
+
+            }
+            function ApplicationIDValue() {
+
+                var appid = $("#AppName").val();
+                //alert('check here'+appid);
+                return {
+                    ApplicationID: appid
+                };
+            }
+
+            function ApplicationIDValue1() {
+
+                var appid = $("#AppName").val();
+                //alert('check here'+appid);
+                return {
+                    AppId: appid
+                };
+            }
+
+            function onEdit(e) {
+
+                //execute your custom logic to get the max value
+                var maxValue = 5;
+
+                //check if record is new
+                if (e.model.isNew()) {
+                    e.model.set("AppId", 1);
+                    //set the required field value
+                    var numeric = e.container.find("input[name=AppId]").data("kendoNumericTextBox");
+                    //e.container.find("[name=AppId]").hide();
+                    //numeric.value(1);
+                    numeric.enable(false);
+                    //numeric.hide();
+                }
+            }
+
+
+        </script>
+        <style>
+            .k-edit-form-container {
+                padding: 5px;
+                width: 97%;
+            }
+        </style>
+           

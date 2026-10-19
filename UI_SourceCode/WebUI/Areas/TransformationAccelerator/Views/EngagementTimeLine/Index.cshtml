@@ -1,0 +1,234 @@
+@using NTTData.AMOPortal.Domain.Entities
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.UI.Fluent;
+@using System.Web.Mvc;
+@using System.Web.Mvc.Razor;
+@using System.Web.Mvc.Html;
+@using System.Web.Mvc.Ajax;
+@using System.Web.Mvc.Async;
+@using WebUI.Dto;
+@using WebUI.Areas.TransformationAccelerator.Model;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+
+@model  BaseLineDataModel
+
+@{
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+    ViewBag.Title = "Client Engagement Timeline";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/transformation_accelerator_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var ClientName = client.ClientName;
+
+}
+<style>
+    #live {
+        right: -30px;
+    }
+</style>
+<div class="content-main dark-bg engagement-timeleine-container">
+    <ol class="breadcrumb">
+        <li>Transformation Accelerator</li>
+        <li class="active">Engagement TimeLine</li>
+    </ol>
+    <h4 style="color:white">
+        Engagement TimeLine   &nbsp;
+        &nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="errorlabel" style='position:center;color:red'></span>
+    </h4>
+
+    <div class="custom-kendo-grid ">
+        @(Html.Kendo().Grid<EngagementType>()
+                     .Name("ClientEngagemenetTimeline")
+                     .Columns(columns =>
+                     {
+                         columns.Bound(e => e.Id).Hidden();
+                         columns.Bound(e => e.EngagementTypes).Title("Phase");
+                         columns.Bound(e => e.StartDate).Title("Start Date").Format("{0:MM/dd/yyyy}");
+                         columns.Bound(e => e.EndDate).Title("End Date").Format("{0:MM/dd/yyyy}");
+                         columns.Bound(e => e.ModifiedBy).Title("Modified By");
+                         columns.Bound(e => e.ModifiedDate).Title("Modified On").Format("{0:MM/dd/yyyy}");
+                         columns.Command(command => { command.Edit().Text(" ") ; /*command.Destroy().Text(" ")*//*.Visible("deleteVisible")*/; }).Title("Action");
+
+                     })
+                    .Scrollable()
+                    .HtmlAttributes(new { style = ""})
+                    .ToolBar(toolbar =>
+                    {
+                        toolbar.Create().Text("Add New Renewal");
+
+                    })
+                    .Editable(editable => editable.Mode(GridEditMode.PopUp).CreateAt(GridInsertRowPosition.Bottom)/*.ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?")*/)
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+
+                        .Model(model =>
+                        {
+                            model.Id(p => p.Id);
+                        })
+                          .Read(read => read.Action("getTimeLine", "EngagementTimeLine"))
+                          .Create(create => create.Action("ClientEngagementCreate", "EngagementTimeLine"))
+                          .Update(update => update.Action("ClientEngagementUpdate", "EngagementTimeLine"))
+                     // .Destroy(destroy => destroy.Action("ClientEngagementDelete", "EngagementTimeLine"))
+                     .Events(events => events.Error("errorFunct"))
+                     )
+                    .Events(e => e.Edit("onEdit"))
+
+                   )
+    </div>
+    <div class="tab-container">
+        <div >
+            <div class="export-link" id="Export">
+                <button id="live" type="button" onclick="LiveINCount();" style="border-radius: 50%;transition-duration: 0.4s;padding: 5px;" class="btn btn-primary button">Live Data</button>
+                &nbsp;&nbsp;Export -
+                <span class="export-icon" onclick="fnExcelReport();"></span>
+            </div>
+        </div>
+       
+
+        @(Html.Kendo().TabStrip()
+                                         .Name("tabstrip")
+                                         .Items(tabstrip =>
+                                         {
+                                             tabstrip.Add().Text("BaseLine Data")
+                                                 .Selected(true)
+                                                 .Content(m => Html.Partial("_BaseLine",Model));
+
+                                             tabstrip.Add().Text("Resource Details")
+                                                 .Enabled(false)
+                                                 .Content(m =>Html.Action("ResourceDetails", "EngagementTimeLine"));
+                                           //  .Content(m => Html.Partial("_ResourceDetails", Model.resDetails));
+
+                                         })
+
+    )
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+    var tabStrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+    //tabStrip.enable(tabStrip.tabGroup.children().eq(0), false);
+    tabStrip.enable(tabStrip.tabGroup.children(), true);
+
+    //$("#ClientEngagemenetTimeline").change()
+    //{
+    //    console.log("1");
+
+    //    var tabStrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+    //    tabstrip.select(value);
+    //    tabstrip.reload(tabstrip.items()[value]);
+    //}
+
+    //$("#ClientEngagemenetTimeline").onEdit(e)
+    //{
+    //    var tabStrip = $("#tabstrip").kendoTabStrip().data("kendoTabStrip");
+    //    tabstrip.select(value);
+    //    tabstrip.reload(tabstrip.items()[value]);
+    //}
+
+
+    function onEdit(e) {
+        $('[name="Id"]').attr("readonly", true);
+        $('[name="EngagementTypes"]').attr("readonly", true);
+        $('[name="ModifiedBy"]').attr("readonly", true);
+        $('[name="ModifiedDate"]').attr("readonly", true);
+        document.getElementById("errorlabel").innerHTML = "";
+    }
+
+    function errorFunct(e) {
+        console.log(e.errors["EndDate"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["EndDate"].errors + " </span>";
+
+    }
+
+    function LiveINCount() {
+        var actionurl ='@Url.Content("~/EngagementTimeLine/getBaseLineINData")';
+       $.ajax({
+           url: actionurl,
+           type: "post",  
+           contentType: 'application/json; charset=utf-8',
+           success: function (data) {
+               if (data != null) {
+                   //console.log($('#BaseLinePeriod').val());
+                   //console.log($('#IncMonth').val());
+                   //console.log($('#EveMonth').val());
+                   //console.log($('#SRMonth').val());
+                   //console.log(data);
+                   //console.log(data.BaseLinePeriod);
+                   //console.log(data.IncMonth);
+                   //console.log(data.EveMonth);
+                   //console.log(data.SerReqMonth);
+                   $('#BaseLinePeriod').html(data.BaseLinePeriod);
+                  // $('#BaseLinePeriod').val(data.BaseLinePeriod);
+                   $('#IncMonth').val(data.IncMonth);
+                   $('#EveMonth').val(data.EveMonth);
+                   $('#SRMonth').val(data.SerReqMonth);
+               } else {
+                   console.log(data);
+               }
+           },
+        });
+    }
+
+    function fnExcelReport() {
+
+        var selectedTab = $("#tabstrip >ul").find(".k-item.k-state-active").index();
+        console.log(selectedTab);
+
+        var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+        var textRange; var j = 0;
+        if (selectedTab == 0) {
+            tab = document.getElementById('BaseTable'); // id of table
+        }
+        else if (selectedTab == 1) {
+            tab = document.getElementById('tb1'); // id of table
+        }
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+
+        }
+
+        tab_text = tab_text + "</table>";
+        tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+        tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+        tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+        {
+            txtArea1.document.open("txt/html", "replace");
+            txtArea1.document.write(tab_text);
+            txtArea1.document.close();
+            txtArea1.focus();
+            sa = txtArea1.document.execCommand("SaveAs", true, "Say Thanks to Sumit.xlsx");
+        }
+        else                 //other browser not tested on IE 11
+            sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+        return (sa);
+    }
+
+</script>
+

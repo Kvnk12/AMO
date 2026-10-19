@@ -1,0 +1,281 @@
+﻿
+@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities;
+@using Domain.Entities
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+
+
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+@{
+
+    ViewBag.Title = "Demand Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+
+    //var cl = (Client)Session["Client"];
+    //var c = new ConfigController();
+    //var list = c.getallPhases(cl.Id);
+
+
+
+}
+<style>
+    .k-grid tbody .k-button {
+    min-width: 5px;
+}
+    .rightarea .form-group input {
+        text-align: left;
+    }
+   
+    .k-grid-header th.k-header{
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+</style>
+
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+
+
+<div class="content-main" id="wrap" style="height:900px">
+    <div>
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">Config ProgressStatus/Status/Role/Resource</li>
+        </ol>
+    </div>
+    <div style="padding-top:10px">
+       
+            <div class="leftarea form-horizontal" style="width:45%">
+                <div>                  
+                        <label><strong style="font-size:medium; align-content:center">PROGRESS STATUS</strong></label>                 
+                        @*<label style="background-color:#2A6496; color:#ffffff; margin-left:3px"><b>PROGRESS STATUS</b></label>*@
+                        @(Html.Kendo().Grid<DMProgressStatusModel>()
+             .Name("ProgressStatus")
+             .Columns(columns =>
+             {
+                 //columns.Bound(e => e.Id).Hidden(true);
+                 columns.Bound(e => e.Status).Title("Project Status").Width(120);
+                 columns.Bound(e => e.Color).Title("Color").Width(35).EditorTemplateName("DMProgressStatus").ClientTemplate("<div style='background-color: #: Color#;padding:10px;'>&nbsp;</div>");
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(120);
+             })
+             .Scrollable()
+             .Editable(editable => editable.Mode(GridEditMode.InLine))
+
+             .ToolBar(toolbar => toolbar.Create().Text("Add New Status"))
+             //.TableHtmlAttributes(new { @style="width:30px"})
+             .HtmlAttributes(new { style = "height:350px;" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              //.PageSize(5)
+              .Model(model =>
+              {
+                  model.Id(f => f.Id);
+                  model.Field(p => p.Color).DefaultValue("#ffffff");
+              })
+              .Read(read => read.Action("readProgressStatus", "ConfigDemand"))
+              .Create(create => create.Action("AddProgressStatus", "ConfigDemand"))
+              .Update(update => update.Action("UpdateProgressStatus", "ConfigDemand"))
+              .Destroy(destroy => destroy.Action("DeleteProgressStatus", "ConfigDemand"))
+               )
+               .Events(events => events
+               .Save("SaveProgressStatus"))
+                        )                   
+                   
+                </div>
+                <br />
+                <div>
+                  
+                     <label><strong style="font-size:medium; align-content:center">ROLE</strong></label>
+                    @(Html.Kendo().Grid<DMRoleModel>()
+                         .Name("Role")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Id).Hidden();
+                             columns.Bound(e => e.RoleName).Title("Role Name");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Scrollable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Role"))
+                      .HtmlAttributes(new { style = "height:350px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(5)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetRole", "ConfigDemand"))
+                      .Create(create => create.Action("AddRole", "ConfigDemand"))
+                      .Update(update => update.Action("EditRole", "ConfigDemand"))
+                      .Destroy(destroy => destroy.Action("DeleteRole", "ConfigDemand"))
+
+                          )
+               .Events(events => events
+               .Save("SaveRole"))
+                    )
+                   
+                </div>
+               
+            </div>
+            <div class="rightarea form-horizontal" style="width:45%">
+                <div>
+                    <label><strong style="font-size:medium; align-content:center">STATUS</strong></label>
+                        @*<label style="background-color:#2A6496; color:#ffffff; margin-left:3px"><b>STATUS</b></label>*@
+                        @(Html.Kendo().Grid<DMStatusModel>()
+             .Name("Status")
+             .Columns(columns =>
+             {
+                 columns.Bound(e => e.Id).Hidden(true);
+                 columns.Bound(e => e.Status).Title("Status Code Name").Width(120);
+                 columns.Command(command => { command.Edit(); command.Destroy(); }).Width(120);
+             })
+             .Scrollable()
+             .Editable(editable => editable.Mode(GridEditMode.InLine))
+             .ToolBar(toolbar => toolbar.Create().Text("Add New Status"))
+             //.TableHtmlAttributes(new { @style="width:30px"})
+             .HtmlAttributes(new { style = "height:350px;" })
+             .DataSource(dataSource => dataSource
+              .Ajax()
+              //.PageSize(5)
+              .Model(model =>
+              {
+                  model.Id(f => f.Id);
+              })
+              .Read(read => read.Action("readStatus", "ConfigDemand"))
+              .Create(create => create.Action("AddStatus", "ConfigDemand"))
+              .Update(update => update.Action("UpdateStatus", "ConfigDemand"))
+              .Destroy(destroy => destroy.Action("DeleteStatus", "ConfigDemand"))
+               )
+                .Events(events => events
+               .Save("SaveStatus"))
+                        )
+
+                    
+                </div>
+                <br />
+                <div>
+                   
+                    <label><strong style="font-size:medium; align-content:center">RESOURCE/RESPONSIBLE</strong></label>
+                    @(Html.Kendo().Grid<DMResourceResponseModel>()
+                         .Name("ResourceResponse")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Id).Hidden();
+                             columns.Bound(e => e.ResourceName).Title("Resource Group Name");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      .Scrollable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Resource Group"))
+                      .HtmlAttributes(new { style = "height:350px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      //.PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetResource", "ConfigDemand"))
+                      .Create(create => create.Action("AddResource", "ConfigDemand"))
+                      .Update(update => update.Action("EditResource", "ConfigDemand"))
+                      .Destroy(destroy => destroy.Action("DeleteResource", "ConfigDemand"))
+
+                          )
+                         .Events(events => events
+               .Save("SaveResource"))
+                    )
+
+
+                    
+                </div>
+            </div>
+       
+
+        
+    </div>
+</div>
+
+
+<script>
+
+
+    function SaveProgressStatus(e) {
+        //var notificationWidget = $("#ProgressStatus").data("kendoNotification");
+        var ProgressStatusName = e.model.Status.toUpperCase();
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Status.toUpperCase() === ProgressStatusName && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Project Status Already Exists.Please select unique Name");
+                //notificationWidget.show("Project Status Already Exits!Please select unique Name!", "error");
+               
+            }
+        }
+
+    }
+
+    function SaveRole(e) {
+        //var notificationWidget = $("#Role").data("kendoNotification");
+        var RoleName = e.model.RoleName.toUpperCase();
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].RoleName.toUpperCase() === RoleName && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Role Name Already Exists.Please select unique Name");
+                //notificationWidget.show("Role Name Already Exits!Please select unique Name!", "error");
+               
+            }
+        }
+
+    }
+
+    function SaveResource(e) {
+        //var notificationWidget = $("#Role").data("kendoNotification");
+        var ResourceName = e.model.ResourceName.toUpperCase();
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].ResourceName.toUpperCase() === ResourceName && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Resource Name Already Exists.Please select unique Name");
+                //notificationWidget.show("Role Name Already Exits!Please select unique Name!", "error");
+            
+            }
+        }
+
+    }
+
+    function SaveStatus(e) {
+        
+        var StatusName = e.model.Status.toUpperCase();
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Status.toUpperCase() === StatusName && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Status Name Already Exists.Please select unique Name");
+               
+              
+            }
+        }
+
+    }
+</script>

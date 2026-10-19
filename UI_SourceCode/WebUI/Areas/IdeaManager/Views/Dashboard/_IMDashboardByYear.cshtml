@@ -1,0 +1,167 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+<style>
+    .valTable .k-grid {
+        width: 38% !important;
+        margin-top: -1px;
+        border: 1px solid #bfb9b9;
+        margin-bottom: 1em;
+        border-top: none;
+        overflow-x: hidden;
+        background-color: transparent;
+    }
+        .valTable .k-grid table{
+            background-color:unset;
+        }
+    .valTable .k-grid-header th.k-header{
+       // display:none;
+    }
+    .valTable {
+        position: absolute;
+        bottom: 52px;
+        z-index: 999;
+        left: 6px;
+        width: 19em;
+    }
+        .valTable .k-grid tr td, .valTable .k-grid-header tr:first-child th.k-header > .k-link {
+            font-size: 8px;
+        }
+        .valTable .k-grid-header th.k-header{
+            padding:unset;
+        }
+        .valTable .k-grid::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .valTable .k-grid::-webkit-scrollbar-thumb {
+            background-color: rgb(91,121,171);
+            border: none;
+            border-radius: 5px;
+        }
+
+        .valTable .k-grid::-webkit-scrollbar-track {
+            background-color: #e7e9ec;
+            border: none;
+            border-radius: 5px;
+        }
+</style>
+<div class="graph-3" id="graph3div">
+    <div class="top-content-heading">
+        <h6>Distribution by Year</h6>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c6">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartDistributionbyYear()"></span>
+        </div>
+    </div>
+
+
+    <div class="chart-content" style="color: #000;padding: 0 18px;position:relative">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<IMChartDashboardModel>()
+                                        .Name("Chart6")
+                                          .Legend(legend => legend
+                                        .Visible(true)
+                                         .Align(ChartLegendAlign.Start)
+                                         .Position(ChartLegendPosition.Bottom)
+                                        )
+
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "Dashboard").Data("GetDistributionYearParameter")))
+                                        .AutoBind(true)
+                                        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+                                        .Series(series =>
+                                        {
+                                            series.Donut(model => model.IdeaCount, model => model.Dim, null)
+                                            .Labels(labels => labels
+                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                            .Background("transparent")
+                                            .Visible(true)
+                                            .Position(ChartPieLabelsPosition.OutsideEnd)
+                                            )//SharpBevel
+                                            .Overlay(ChartPieSeriesOverlay.None)
+                                            .StartAngle(150);
+                                        })
+
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                    )
+                                     .Events(events => events
+                                        .SeriesClick("onYearSeriesClick")
+                                        )
+        )
+        </div>
+        <div class="valTable">
+            
+            @(Html.Kendo().Grid<IMChartDashboardModel>
+                                        ()
+                                        .Name("ChaGrid")
+                                        .Columns(columns =>
+                                        {
+
+                                            columns.Bound(e => e.Dim).Title("Year").Width(50).ClientFooterTemplate("Total");
+                                            columns.Bound(e => e.cumm_value).Title("QtyFication(in $)").Width(60).ClientFooterTemplate("#=sum#");
+                                        })
+                                        .HtmlAttributes(new { style = "height:79px;" })
+                                        .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                         .Aggregates(agg =>
+                                         {
+                                             agg.Add(p => p.cumm_value).Sum();
+                                         })
+                                        .Read(read => read.Action("GetDashboard2TrendvalGrid", "Dashboard").Data("GetDistributionYearValParameter"))
+                                        )
+        )
+        </div>
+    </div>
+    <div class="table-content hide" style="color: #000;padding: 0 18px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:89px" onclick="kendoGridHeaderSort('Chart6Grid', 'Dim')">Year</div>
+            <div style="width:89px" onclick="kendoGridHeaderSort('Chart6Grid', 'IdeaCount')">Idea Count</div>
+            <div style="width:107px" onclick="kendoGridHeaderSort('Chart6Grid', 'QtyFication')">QtyFication</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('Chart6Grid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<IMChartDashboardModel>
+                                        ()
+                                        .Name("Chart6Grid")
+                                        .Columns(columns =>
+                                        {
+
+                                            //columns.Bound(e => e.DrpCategory).Title("Yearly").ClientFooterTemplate("Total");
+                                            columns.Bound(e => e.Dim).Title("Year").Width(89).ClientFooterTemplate("Total");
+                                            columns.Bound(e => e.IdeaCount).Title("Idea Count").Width(89).ClientFooterTemplate("#=sum#");
+                                            columns.Bound(e => e.cumm_value).Title("QtyFication").Width(107).ClientFooterTemplate("#=sum#");
+                                            columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+                                        })
+                                        // .Scrollable()
+                                        .AutoBind(false)
+                                        .HtmlAttributes(new { style = "height:235px;" })
+                                        .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                         .Aggregates(agg =>
+                                         {
+                                             agg.Add(p => p.IdeaCount).Sum();
+                                             agg.Add(p => p.cumm_value).Sum();
+                                             agg.Add(p => p.Percent).Sum();
+                                         })
+                                        .Read(read => read.Action("GetDashboard2TrendGrid", "Dashboard").Data("GetDistributionYearParameter"))
+                                        )
+        )
+    </div>
+
+</div>

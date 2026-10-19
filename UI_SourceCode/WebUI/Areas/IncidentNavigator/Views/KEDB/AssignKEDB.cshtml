@@ -1,0 +1,565 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity
+
+@model  KEDBInstanceModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/jszip.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<script src="~/Content/js/bootstrap-multiselect.js"></script>
+<script src="~/Content/js/bootstrap.js"></script>
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+@{
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+
+}
+<style>
+    .custom-kendo-grid .kedb-description {
+        text-overflow: ellipsis;
+        display: block;
+        resize: none;
+        width: 95%;
+        height: 100%;
+        border-color: grey;
+    }
+    *[data-tooltip] {
+        position: fixed;
+        width:8em !important
+    }
+
+        *[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 20px;
+            right: -20px;
+            width: 190px;
+            pointer-events: none;
+            opacity: 0;
+            display: block;
+            font-size: 12px;
+            text-align:center;
+            color:white;
+            line-height: 16px;
+            background: rgba(74, 73, 73, 0.8) !important;
+            padding: 2px 2px;
+            border: rgb(74,73,73,0.8) !important;
+            box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        *[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+    
+</style>
+
+<div class="content-main dark-bg ">
+    <div>
+        <ol class="breadcrumb">
+            <li>Incident Navigator</li>
+            <li>KEDB</li>
+            <li class="active">ReAssign KEDB Mapping</li>
+        </ol>
+    </div>
+    <input type="hidden" id="Kedbids" name="Kedbids" value=@Model.Incid>
+    <input type="hidden" id="kid" name="kid" value=@Model.KEDBID>
+    <input type="hidden" id="gridcheck" name="gridcheck" value="unchecked">
+    <div class="kedb-assign">
+        <div class="kedb-assign-eye">
+            <div>
+                <span class="assign-eye-icon"></span>
+                <label class="custom-white-label">Ticket-KEDB Mapping</label>
+            </div>
+            <button type="submit" class="btn return" onclick="location.href='@Url.Action("Index","KEDB",new { Clause = Model.Clause  })';return false;">Return to Search Criteria</button>
+        </div>
+        <div class="kedb-mapping">
+            <div class="kedb-mapping-grid">
+                <div class="kedb-mapping-head ">
+                    <div class="kedb-mapping-label">
+                        <label class="custom-white-label">Source KEDB Tickets</label>
+                    </div>
+                </div>
+                <div class="kedb-assign-grid">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<KEDBInstanceModel>()
+                                 .Name("kedbSourceGridMapping")
+                                 .Columns(columns =>
+                                 {
+                                     //columns.Select().Width(50);
+                                     columns.Bound(p => p.KEDBNumber).Title("KEDB#")
+                                    .ClientTemplate("#if(data.KEDBNumber!=null){#<div class='kedb-block' style='display:flex;'><input onclick='onSourceGridChange();' id='chkkedbid#=Id#' value='#=Id#' name='kedbchkbtn' type='checkbox'/>&nbsp; <label class='kedb-grid-label' for='chkkedbid#=Id#'> #=KEDBNumber#</label> <div style = 'background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-repeat: no-repeat; width:1.5em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='showKedbAssign(#:Id#);' ></ div ></div>#}#").Title("KEDB/Ticket ID").Width(150);
+                                     columns.Bound(p => p.Description).Title("KEDB/Ticket Description")
+                                      .ClientTemplate("\\ <textarea disabled name='kedbtextarea' class='kedb-description'>  #=Description# </textarea > \\");
+                                     columns.Bound(p => p.Id).Hidden();
+                                 })
+                                 .Scrollable()
+                                 .AutoBind(true)
+                                 .Events(e => {
+                                     e.DataBound("expandDetails");
+                                     e.Change("onSourceGridChange");
+                                     })
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+                                  .ServerOperation(false)
+                                  .Model(model =>
+                                  {
+                                      model.Id(f => f.Id);
+                                  })
+                                       .Read(read => read.Action("GetSourceKEDBDetail", "KEDB").Data("getSourceKEDBParam"))
+                                   )
+                                   .ClientDetailTemplateId("IncidentGridTemplate")
+        )
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="kedb-mapping-grid">
+                <div class="kedb-mapping-head">
+                    <div class="kedb-mapping-label">
+                        <label class="custom-white-label">Destination KEDB</label>
+                    </div>
+                </div>
+                <div class="kedb-assign-grid grid-destination">
+                    <div class="custom-kendo-grid">
+                        @(Html.Kendo().Grid<KEDBInstanceModel>()
+                                 .Name("kedbGridMapping2")
+                                 .Columns(columns =>
+                                 {
+                                     //columns.Select().Width(50);
+                                     columns.Bound(p => p.Id).Hidden();
+                                     columns.Bound(p => p.KEDBNumber).Title("KEDB#").Width(100)
+                                     .ClientTemplate("#if(data.KEDBNumber!=null){#<div style='display:flex;'><input onclick='onDestinationGridChange();' id='kedbid#=Id#' value='#=Id#' name='kedbradiobtn' type='radio'/>&nbsp; #=KEDBNumber# <div style = 'background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-repeat: no-repeat; width:1.5em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='showKedbAssign(#:Id#);' ></ div ></div>#}#").Title("Select the KEDB");
+                                     columns.Bound(p => p.Description).Title("KEDB Description").Width(150)
+                                     .ClientTemplate("\\ <textarea disabled name='kedbtextarea' class='kedb-description'>  #=Description# </textarea > \\");
+                                 })
+                                 .AutoBind(true)
+                                 .Scrollable()
+                                 .ToolBar(tools => tools.Search().Text("Search KEDB..."))
+                                 .Search(search => { search.Field(f => f.Description);
+                                     search.Field(f => f.KEDBNumber);
+                                 })
+                                  .DataSource(dataSource => dataSource
+                                  .Ajax()
+
+                                  .Model(model =>
+                                  {
+                                      model.Id(f => f.Id);
+                                  })
+                                      .Read(read => read.Action("GetKEDBDetail", "kedb").Data("getSourceKEDBParam"))
+                                   )
+        )
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <div>
+        <footer class="kedb-footer">
+            <div class="kedb-assign-button">
+                <button class="custom-button" type="button" onclick="buttonReAssigncom()" id="btnReAssign" value="ReAssign" disabled>RE ASSIGN</button>
+                <button class="custom-button" type="button" onclick="buttonCancel()" id="btnCancel" value="cancel">CANCEL</button>
+
+            </div>
+        </footer>
+    </div>
+
+    @Html.Partial("_ViewKEDB")
+
+</div>
+
+<div class="modal fade kedb-dialog-popup" id="ReAssignModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Submit Task</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/warning_icon.svg" />
+                <h4>Are you sure?</h4>
+                <h6>
+                    Do you really want to "Reassign this/these Tickets to selected KEDB "?
+                </h6>
+                <h6>
+                    If all Tickets moved to Destination KEDB, source KEDB will be no longer available.
+                </h6>
+                <h6>
+                    Once Submit, this Action cannot be undone.
+                </h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="custom-button" data-bs-dismiss="modal">NO</button>
+                <button type="button" data-bs-dismiss="modal" class="custom-button" onclick="buttonReAssign()">YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade kedb-dialog-popup" id="cancelReAssign" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Delete Task</h5>
+
+                <button type="button"  class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/warning_icon.svg" />
+                <h4>Are you sure?</h4>
+                <h6 style="font-size:11px">
+                    Do you really want to Cancel this/these Tickets to KEDB Mapping "?
+                </h6>
+                <h6 style="font-size:11px">
+                    Once Cancel, This mapping will not be saved & Tickets/KEDB will move to previous state
+                </h6>
+                <h6 style="font-size:11px">
+                    This Action cannot be undone.
+                </h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="custom-button" data-bs-dismiss="modal">NO</button>
+                <button type="button" data-bs-dismiss="modal" class="custom-button" onclick="undoSelection()">YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade kedb-dialog-popup" id="WarningReAssign" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModalLabel">Warning</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img style="height: 40px;margin-bottom: 0.5em;" src="~/Content/images/warning_icon.svg" />
+                <h4>Your selection is Blank</h4>
+                <h6 style="font-size:11px">
+                    Please select the TicketId and Destination KEDB
+                </h6>
+                @*<h6 style="font-size:11px">
+                        Once Cancel, This mapping will not be saved & Tickets/KEDB will move to previous state
+                    </h6>
+                    <h6 style="font-size:11px">
+                        This Action cannot be undone.
+                    </h6>*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="custom-button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="alertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+            <button type="button" onclick="location.href='@Url.Action("Index","KEDB",new { Clause = Model.Clause  })';return false;" class="close" data-bs-dismiss="modal">&times;</button>
+            <div id="lblErr" hidden>
+                <label class="alert alert-danger" id="lblErr1">Error while saving data.</label>
+            </div>
+            <div id="lblSuccess" hidden>
+                <label class="alert alert-success" id="lblSuccess1">Selected Tickets got reassigned to destination KEDB  <span id="kedbassignednum"> </span>.</label>
+            </div>
+        </div>
+    </div>
+</div>
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+<script>
+    $('.scrollbar-rail').scrollbar();
+
+    function undoSelection() {
+        //var gridPersonnel = $("#kedbGridMapping").data("kendoGrid");
+        //if ($("#kedbGridMapping .k-state-selected").length > 0) {
+        //    gridPersonnel.clearSelection();
+        //}
+
+        //var gridList = $("#kedbGridMapping2").data("kendoGrid");
+        //var dataItems = gridList.dataSource.view();
+        //$.each(dataItems, function (i, item) {
+        //    var CheckBoxctrl = '#kedbid' + item.Id;
+        //    if ($(CheckBoxctrl).is(":checked")) {
+        //        $(CheckBoxctrl).prop("checked", false);
+
+        //    }
+        //});
+
+        location.href='@Url.Action("Index","KEDB")';
+        location.href = '@Url.Action("Index","KEDB",new { Clause = Model.Clause  })';
+    }
+    function buttonReAssigncom() {
+        var bthValue = document.getElementById('btnReAssign').value;
+        if (bthValue == "ReAssign") {
+            $('#ReAssignModal').modal('show');
+        }
+    }
+    function buttonCancel() {
+        var bthValue = document.getElementById('btnCancel').value;
+        if (bthValue == "cancel") {
+            $('#cancelReAssign').modal('show');
+        }
+    }
+    function buttonReAssign() {
+        var str = '';
+        var kednum = '';
+        var gridList = $("#kedbGridMapping2").data("kendoGrid");
+        var dataItems = gridList.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#kedbid' + item.Id;
+            if ($(CheckBoxctrl).is(":checked")) {
+                str = item.Id;
+                kednum = item.KEDBNumber;
+                console.log(str);
+                console.log(kednum);
+
+        }
+        });
+        var grid = $("#kedbGridMapping").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        console.log(selectedIDs);
+        if (selectedIDs == "" || str=='') {
+            $('#WarningReAssign').modal('show');
+        }
+        var skedbid = document.getElementById("kid").value;
+        var mod = {
+            sourceKedb: skedbid,
+            Ids: selectedIDs,
+            kedbID: str
+        };
+        console.log("mod", mod);
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/KEDB/ReAssignKEDB")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log("success");
+                    var gridPersonnel = $("#kedbGridMapping").data("kendoGrid");
+                    if ($("#kedbGridMapping .k-state-selected").length > 0) {
+                        gridPersonnel.clearSelection();
+                    }
+
+                    var gridList = $("#kedbGridMapping2").data("kendoGrid");
+                    var dataItems = gridList.dataSource.view();
+                    $.each(dataItems, function (i, item) {
+                        var CheckBoxctrl = '#kedbid' + item.IncId;
+                        if ($(CheckBoxctrl).is(":checked")) {
+                            $(CheckBoxctrl).prop("checked", false);
+
+                        }
+                    });
+                    $("#kedbSourceGridMapping").data("kendoGrid").dataSource.read();
+                    $("#kedbGridMapping").data("kendoGrid").dataSource.read();
+
+
+
+                    $("#kedbassignednum").text(kednum);
+
+                    $('#alertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#lblSuccess').show();    
+
+                },
+                error: function (response) {
+                    $('#alertModal').modal('show');
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+
+                }
+       })
+    }
+    function getAssignIncidentParam() {
+        var incs = document.getElementById("Kedbids").value;
+        var kedbid = document.getElementById("kid").value;
+        console.log(kedbid);
+        return {
+            Incids: incs,
+            sourcekedbid: kedbid
+        };
+    }
+    function getSourceKEDBParam() {
+        var kedbid = document.getElementById("kid").value;
+        console.log(kedbid);
+        return {
+            sourcekedbid  : kedbid
+        };
+    }
+    function expandDetails(e) {
+        this.expandRow(this.tbody.find("tr.k-master-row"));
+    }
+    function showKedbAssign(KEDBID) {
+        document.getElementById('view-ticket-detail_view').innerHTML = 'View Ticket ID and Issue Description';
+        document.getElementById('viewTicketdetail_view').style.display = 'none';
+        $("#view-icon-detail_view").removeClass("hide-eye-icon");
+        console.log(KEDBID);
+        document.getElementById("View_KEDBID").value = KEDBID;
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+
+        console.log(KEDBID);
+        $.ajax({
+            url: 'viewKEDBDetails',
+            type: "GET",
+
+            data: {
+                KEDBID: KEDBID
+            },
+            error: function (response) {
+
+                alert('Error');
+            },
+            success: function (data) {
+                $("#Kedb_view").val(data.KEDBNumber);
+                $("#IssueType_view").val(data.KedbIssueType);
+                $("#SolutionCategory_view").val(data.SolutionCategory);
+                $("#Solutionstatus_view").val(data.SolStatus);
+                $("#BusinessFunction_view").val(data.BusinessFunction);
+                $("#Pointofcontact_view").val(data.PointOfContact);
+                $("#KnowledgeArticle_view").val(data.KnowledgeArticle);
+                $("#kedbDesc_view").val(data.Description);
+                $("#view_user").val(data.UpdatedUser);
+                $("#view_date").val(data.UpdatedDateTime);
+
+                $('#Kedb_view').prop("disabled", "disabled")
+                $('#IssueType_view').prop("disabled", "disabled")
+                $('#SolutionCategory_view').prop("disabled", "disabled")
+                $('#Solutionstatus_view').prop("disabled", "disabled")
+                $('#BusinessFunction_view').prop("disabled", "disabled")
+                $('#Pointofcontact_view').prop("disabled", "disabled")
+                $('#KnowledgeArticle_view').prop("disabled", "disabled")
+                $('#kedbDesc_view').prop("disabled", "disabled")
+                $('#view_user').prop("disabled", "disabled")
+                $('#view_date').prop("disabled", "disabled")
+                $("#statusname1").text(data.SolStatus);
+                $("#statusname2").text(data.SolStatus);
+                popup.open();
+                popup.center();
+                console.log("success");
+                $("#Ticket-viewgrid").data("kendoGrid").dataSource.read();
+
+            }
+        });
+    }
+    function buttonViewClose() {
+        var popup = $("#viewKEDBpopUp").data("kendoWindow");
+        popup.close();
+        document.getElementById("View_KEDBID").value = null;
+    }
+    function onSourceGridChange() {
+        var check = document.getElementById('gridcheck').value;
+        var grid = $("#kedbGridMapping").data("kendoGrid");
+        if (check == "unchecked") {
+            document.getElementById('gridcheck').value = "checked";
+            grid.select("tr");
+        } else {
+            document.getElementById('gridcheck').value = "unchecked";
+            if ($("#kedbGridMapping .k-state-selected").length > 0) {
+                grid.clearSelection();
+            }
+        }
+    }
+    function onSourceGridIncidentChange() {
+        checkSelection();
+    }
+    function onDestinationGridChange(e) {
+        console.log("right click");
+        checkSelection();
+    }
+    function checkSelection() {
+        var str = '';
+        var kid = '';
+        var gridList = $("#kedbGridMapping2").data("kendoGrid");
+        var dataItems = gridList.dataSource.view();
+        $.each(dataItems, function (i, item) {
+            var CheckBoxctrl = '#kedbid' + item.Id;
+            kid = item.id;
+            if ($(CheckBoxctrl).is(":checked")) {
+                str = item.Id;
+              //  console.log(str);
+            }
+        });
+        var grid = $("#kedbGridMapping").getKendoGrid()
+        var selectedIDs = grid.selectedKeyNames().join(", ");
+        console.log("selectedIDs " + selectedIDs + "  str  " + str);
+        if (selectedIDs == "" || str == '') {
+            console.log("disabled");
+            document.getElementById("btnReAssign").disabled = true;
+        } else {
+            console.log("not disabled");
+            document.getElementById("btnReAssign").disabled = false;
+        }
+
+    }
+
+
+</script>
+
+<script id="IncidentGridTemplate" type="text/kendo-tmpl">
+    <div class="custom-kendo-grid kedb-inner-grid">
+
+        @(Html.Kendo().Grid<KEDBAssIncModel>()
+                                                    .Name("kedbGridMapping")
+                                                    .Columns(columns =>
+                                                    {
+                                                        columns.Select().Width(50);
+                                                        columns.Bound(a => a.IncId).Hidden();
+                                                        columns.Bound(a => a.isAutoIdentifiedVal).Hidden();
+                                                        columns.Bound(a => a.TckTooltip).Hidden();
+                                                        columns.Bound(a => a.TicketId).Title("KEDB/Ticket ID").Width(120)
+                                                       .ClientTemplate("<div data-tooltip='"+ "\\#:TckTooltip\\#" + "' style = 'background-image: url(" + @Url.Content("\\#:isAutoIdentifiedVal\\#") + ");background-repeat: no-repeat; width:1.5em;margin-top: -10px;margin-left: 7px;padding-left:23px;cursor:pointer;' >\\#:TicketId\\#</div>");
+                                                        columns.Bound(a => a.TicketDescription)
+                                                            .ClientTemplate(" <textarea disabled name='kedbdesctextarea' class='kedb-description' >  \\#:TicketDescription\\# </textarea > ");
+                                                    })
+                                            .Events(ev => ev.Change("onSourceGridIncidentChange"))
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Model(model =>
+                                                {
+                                                    model.Id(o => o.IncId);
+                                                })
+                                                .Read(read => read.Action("GetKEDBIncidentDetailById", "KEDB").Data("getAssignIncidentParam"))
+                                            )
+
+                                            .ToClientTemplate()
+                            )
+   
+    </div>
+</script>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+   
+</script>

@@ -1,0 +1,265 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  IdeaViewModel
+
+@using (Html.BeginForm("SaveBasicIdeaDetails", "PostIdea", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.IdeaId)
+    @Html.HiddenFor(m => m.IdeaId)
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.ViewIdea)
+    @Html.HiddenFor(m => m.PostNewIdea)
+    @Html.HiddenFor(m => m.IsSysAdmin)
+    @Html.HiddenFor(m => m.IsImplementationManager)
+    @Html.HiddenFor(m => m.IsIdeaMine)
+    @Html.HiddenFor(m => m.IsCusUser)
+    @Html.HiddenFor(m => m.EditIdea)
+    @Html.HiddenFor(m => m.TabName)
+    @Html.HiddenFor(m => m.IdeaStatusID)
+    @Html.HiddenFor(m => m.ImpIdeaStatusID)
+    @Html.HiddenFor(m => m.IMAutoApprovalSelection)
+
+    <div class="im-postidea-home" id="im_home_tab">
+
+        <div class="im-post-idea-left leftarea form-horizontal">
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Idea Name</label>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.IdeaName)
+.Name("IdeaName")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "250" })
+                    )
+                    <!--  class = "form-control",  -->
+                    <label id="IdeaName_alert" style="display:none"><span class="mandate" style="font-size:small">This field is required!</span></label>
+                    <label id="IdeaNameExists_alert" style="display:none"><span class="mandate" style="font-size:small">This Name is already taken !!!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Value(Quantify in $)</label>
+                <div class="custom-numeric-textbox">
+                    <!--(Html.Kendo().NumericTextBox<decimal>()-->
+                    @(Html.Kendo().NumericTextBoxFor(e => e.QtyFication)
+.Name("QtyFication")
+.Format("c")
+.Spinners(false)
+//.Min(0)
+//.Max(1000000)
+.HtmlAttributes(new { style = "text-align:right;display:inline-block;", title = "currency" })
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Idea Type</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.IdeatypeId)
+    .Name("IdeaTypeId")
+    .DataTextField("Text")
+    //.HtmlAttributes(new { })
+    .Enable(true)
+    .OptionLabel("Select Idea Type")
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("IdeaTypeList", "PostIdea")))
+    .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Idea Source</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.IdeaSourceId)
+    .Name("IdeaSourceId")
+    .DataTextField("Text")
+    .OptionLabel("Select Idea Source")
+    //.HtmlAttributes(new { @class = "selectpicker" })
+    .Enable(true)
+    .DataValueField("Value")
+.Events(e =>
+{
+    e.Change("onchangeIdeaSource");
+})
+    .DataSource(d => d.Read(r => r.Action("IdeaSourceList", "PostIdea")))
+    .AutoBind(true)
+    .Value("NTT DATA - PAS")
+
+                    )
+                    <label id="IdeaSourceId_alert" style="display:none"><span class="mandate" style="font-size:small">This field is required!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Complexity</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.Complexity)
+    .Name("Complexity")
+    .DataTextField("Text")
+    //.HtmlAttributes(new { @class = "selectpicker" })
+    .OptionLabel("Select Complexity")
+    .Enable(true)
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("ComplexityList", "PostIdea")))
+    .AutoBind(true)
+                    )
+                    <label id="Complexity_alert" style="display:none"><span class="mandate" style="font-size:small">This field is required!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Problem/Opportunity</label>
+                <div id="desc_div">
+                    @(Html.Kendo().EditorFor(e => e.Description)
+        .Name("Description")
+        .HtmlAttributes(new { style = "width:90%;height:100%", aria_label = "editor" })
+        .Resizable(resizable => resizable.Content(true).Toolbar(true))
+
+                )
+                </div>
+
+                <label id="Description_alert" style="display:none"><span class="mandate" style="font-size:small">This field is required!</span></label>
+            </div>
+            <div class="custom-group im-last-group">
+                <span class="im-post-span mandate">* Mandatory Fields</span>
+            </div>
+
+        </div>
+
+        <!--Right Area-->
+        <div class="im-post-idea-right rightarea form-horizontal">
+
+            <div class="custom-group">
+                <label class="custom-blue-label">Internal Initiative</label>
+                <div class="custom-checkbox">
+                    @(Html.Kendo().CheckBoxFor(e => e.InternalInit)
+    .Name("InternalInit")
+    .Label("(Check for Yes)")
+    //.Checked(true)
+                    //.HtmlAttributes(new { @class = "checkbox" })
+                    )
+
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Team</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.TeamId)
+      .Name("TeamId")
+      .DataTextField("Text")
+      //.HtmlAttributes(new { @class = "selectpicker" })
+      .OptionLabel("Select Team")
+      .DataValueField("Value")
+      .DataSource(d => d.Read(r => r.Action("GetTeamFromSource", "PostIdea").Data("sourceData")))
+      .AutoBind(true)
+                    )
+                    <label id="Team_alert" style="display:none"><span class="mandate" style="font-size:small">This field is required!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">LOB Department</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.LOBId)
+    .Name("LOBId")
+    .DataTextField("Text")
+    //.HtmlAttributes(new { @class = "selectpicker" })
+    .OptionLabel("Select LOB..")
+    .Enable(true)
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("LobList", "PostIdea")))
+    .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">System Impacted Service</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.SystemImpactedId)
+    .Name("SystemImpactedId")
+    .DataTextField("Text")
+    //.HtmlAttributes(new { @class = "selectpicker" })
+    .OptionLabel("Select System Impacted Service")
+    .Enable(true)
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("SystemImpactedList", "PostIdea")))
+    .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Proposed By</label>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.ProposedBy)
+                    .Name("ProposedBy")
+                    .Enable(true)
+                    .HtmlAttributes(new { @maxlength = "100" })
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate"></span>Goal</label>
+                <div id="ImprovementTheme_div">
+                    @(Html.Kendo().EditorFor(e => e.ImprovementTheme)
+        .Name("ImprovementTheme")
+        .HtmlAttributes(new { style = "width:90%;height:100%", aria_label = "editor" })
+        .Resizable(resizable => resizable.Content(true).Toolbar(true))
+
+                )
+                </div>
+
+            </div>
+            <div class="custom-group im-last-group">
+                <footer id="action" class="text-right">
+                    <button class="im-custom-button im-btn-cancel" type="reset" id="cancelidea">Cancel</button>
+                    @if (Model.IdeaId == 0)
+                    {
+                        <button class="im-custom-button im-btn-save" id="btnSave" type="submit" name="command" value="Submit">Save</button>
+                    }
+                    else
+                    {
+                        <button class="im-custom-button im-btn-save" id="btnSave" type="submit" name="command" value="Submit">Update</button>
+                    }
+
+                </footer>
+            </div>
+
+
+        </div>
+
+    </div>
+    <div class="im-post-idea-bottom hide">
+        <footer id="action" class="text-right">
+            @*<button class="btn btn-primary im-custom-button" type="reset" id="cancelidea">Cancel</button>
+            @if (Model.IdeaId == 0)
+            {
+                <button class="btn btn-primary im-custom-button" id="btnSave" type="submit" name="command" value="Submit">Save</button>
+            }
+            else
+            {
+                <button class="btn btn-primary im-custom-button" id="btnSave" type="submit" name="command" value="Submit">Update</button>
+            }*@
+
+        </footer>
+    </div>
+}
+
+
+
+<script>
+
+    function onchangeIdeaSource() {
+        $("#TeamId").data("kendoDropDownList").dataSource.read();
+    }
+    function sourceData() {
+        return {
+            IdeaSource:   $("#IdeaSourceId").data("kendoDropDownList").value()
+        }
+      
+    }
+
+</script>

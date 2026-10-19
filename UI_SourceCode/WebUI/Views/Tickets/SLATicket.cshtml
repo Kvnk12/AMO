@@ -1,0 +1,403 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@model  SLAMaintenenceModel
+
+
+
+@{
+
+    ViewBag.Title = "SLA Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/sla_manager.png");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayout.cshtml";
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    List<SelectListItem> slist = new List<SelectListItem>();
+    var s1 = new SelectListItem { Text = "Created", Value = "CreatedDateTime" };
+    var s2 = new SelectListItem { Text = "Closed", Value = "ClosedDateTime" };
+    var s3 = new SelectListItem { Text = "Resolved", Value = "ResolutionDateTime" };
+    var s4 = new SelectListItem { Text = "Assigned", Value = "AssignedDateTime" };
+    var s5 = new SelectListItem { Text = "Last Updated", Value = "LastUpdatedDateTime" };
+
+    slist.Add(s1);
+    slist.Add(s2);
+    slist.Add(s3);
+    slist.Add(s4);
+    slist.Add(s5);
+
+
+
+
+
+}
+<style>
+    .k-tooltip, .k-tooltip.k-popup, .k-tooltip.k-widget {
+        /*// .k-tooltip {*/
+        border-radius: 4px;
+        border-color: #fff;
+        color: #000;
+        background-color: #fff;
+        max-width: 300px;
+    }
+
+    .forTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .ResponseTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    .ResolutionTooltips {
+        width: 90%;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /*padding: .929em 1.286em;*/
+    }
+
+    #GridTickets {
+        margin-top: 8px;
+        padding: 0;
+        border-width: 0;
+        height: 100%;
+    }
+
+    .custom-kendo-grid .k-button.k-button-icontext {
+        background-color: rgb(91,121,171);
+        color: white;
+        border: none;
+        font-family: HelveticaNeue-Light;
+        font-size: 13px;
+    }
+
+    .k-button.k-button-icontext.k-grid-cancel-changes {
+        margin-right: 10em;
+    }
+</style>
+<div class="content-main dark-bg support-body-container">
+
+    <ol class="breadcrumb ">
+        <li>SLA Manager</li>
+        <li class="active">Ticket Data Maintenance</li>
+
+    </ol>
+
+    <div class="parameter-slider-overlay"></div>
+    <div class="parameter-section">
+        <div class="action-items">
+            <span class="parameter-filter-icon"></span>
+        </div>
+
+        <div class="parameter-slider">
+            <span class="close-parameters"></span>
+            <div class="parameter-list-main">
+                @*start date*@
+                <ul>
+                    <li>
+                        Start Date:
+                        @(Html.Kendo().DatePicker()
+                                    .Name("start")
+                                    .Value(DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek))
+                        //.Value("10/10/2011")
+                        //.Max("10/10/2012")
+                        //.Events(e => e.Change("startChange"))
+                        //.HtmlAttributes(new { style = "width: 100%" })
+                        )
+
+                    </li>
+                    <li>
+                        End Date:
+                        @(Html.Kendo().DatePicker()
+                                    .Name("end")
+                                    .Value(DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek).AddDays(6))
+                        //.Value("10/10/2012")
+                        //.Min("10/10/2011")
+                        //.Events(e => e.Change("endChange"))
+                        //.HtmlAttributes(new { style = "width: 100%" })
+                        )
+                    </li>
+                    <li>
+                        <label for="ConfigItem"> Date Filter: </label>
+                        @(Html.Kendo().DropDownListFor(m => m)
+                        .Name("Drpdown1")
+                        //.Placeholder("Select Config Item")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .Value("CreatedDateTime")
+                        .Enable(true)
+                        .AutoBind(true)
+                        //.CascadeFrom("fabric")
+                        .HtmlAttributes(new { style = "width:200px;" })
+                        .BindTo(slist)
+                        )
+
+                    </li>
+                    <li>
+                        @(Html.Kendo().Button()
+                                    .Name("btnPreview")
+                                    .Content("Apply")
+                                    .HtmlAttributes(new { type = "button", @class = "k-primary  parameter-apply" })
+                        )
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="custom-kendo-grid">
+
+
+        @(Html.Kendo().Grid<SLAMaintenenceModel>
+                                    ()
+                                    .Name("GridTickets")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(p => p.TicketID).Title("Ticket ID").Width(100).Locked(true).Lockable(false);
+                                        columns.Bound(p => p.Type).Title("Ticket Type").Width(100).Locked(true).Lockable(false);
+                                        columns.Bound(p => p.Priority).Title("Priority").Width(100).Locked(true);
+                                        columns.Bound(p => p.Status).Title("Status").Width(100).Locked(true);
+
+                                        columns.Bound(p => p.Track).Title("Track").Width(100);
+                                        columns.Bound(p => p.AssignedToSupportGroup).Title("Assigned Group").Width(100);
+
+                                        columns.Group(group => group.Title("Ticket Dates").Columns(cost =>
+                                        {
+                                            cost.Bound(p => p.CreatedDateTime).Title("Created").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                            cost.Bound(p => p.AssignedDateTime).Title("Assigned").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                            cost.Bound(p => p.ResolutionDateTime).Title("Resolved").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                            cost.Bound(p => p.ClosedDateTime).Title("Closed").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                            cost.Bound(p => p.LastUpdatedDateTime).Title("Last Updated").Format("{0:MM/dd/yyyy HH:mm:ss}").Width(100);
+                                        }));
+
+                                        columns.Group(group => group.Title("Response").Columns(cost =>
+                                        {
+                                            cost.Bound(p => p.ResponseTarget).Title("Target").Width(100);
+                                            cost.Bound(p => p.ResponseTime).Title("Time").Width(100);
+                                           // cost.Bound(p => p.ResponseTimeMetSLA).Title("MetSLA").EditorTemplateName("MetSlaDrp").Width(100);
+                                            cost.Bound(p => p.ResponseTimeMetSLA).Title("MetSLA").Width(100);
+                                            cost.Bound(p => p.ResponseExceptionIndicator).Title("Waive?").Width(100).ClientTemplate(
+            "# if (ResponseExceptionIndicator == true) { #" +
+                "<span>Yes</span>" +
+            "# } else { #" +
+                "<span>No</span>" +
+            "# } #"
+        );
+                                            cost.Bound(p => p.ResponseExceptionReason).Title("Waive Reason").Width(100);
+                                            //cost.Bound(p => p.ResponseExceptionReason).Title("Waive Reason").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                            //                .ClientTemplate("<div class=\"ResponseTooltips\">#=ResponseExceptionReason#</div>");
+
+                                        }));
+
+
+                                        columns.Group(group => group.Title("Resolution").Columns(cost =>
+                                        {
+                                            cost.Bound(p => p.ResolutionTarget).Title("Target").Width(100);
+                                            cost.Bound(p => p.ResolutionTime).Title("Time").Width(100);
+                                           // cost.Bound(p => p.ResolutionTimeMetSLA).Title("MetSLA").Width(100).EditorTemplateName("MetSlaDrp");
+                                            cost.Bound(p => p.ResolutionTimeMetSLA).Title("MetSLA").Width(100);
+                                            cost.Bound(p => p.ResolutionExceptionIndicator).Title("Waive?").Width(100).ClientTemplate(
+            "# if (ResolutionExceptionIndicator == true) { #" +
+                "<span>Yes</span>" +
+            "# } else { #" +
+                "<span>No</span>" +
+            "# } #"
+        );
+                                            cost.Bound(p => p.ResolutionExceptionReason).Title("Waive Reason").Width(100);
+                                            //cost.Bound(p => p.ResolutionExceptionReason).Title("Waive Reason").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                            //  .ClientTemplate("<div class=\"ResolutionTooltips\">#=ResolutionExceptionReason#</div>");
+
+                                        }));
+
+                                        columns.Bound(p => p.WaiveSLAReport).Title("Waive from SLA Report").Width(100).ClientTemplate(
+            "# if (WaiveSLAReport == true) { #" +
+                "<span>Yes</span>" +
+            "# } else { #" +
+                "<span>No</span>" +
+            "# } #"
+        );
+                                        columns.Bound(p => p.WaiveReason).Title("Reason to Waive").Width(100);
+                                        columns.Bound(p => p.Description).Title("Description").Width(225).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+                                      .ClientTemplate("<div class=\"forTooltips\">#=Description#</div>");
+
+                                    })
+                                    .ToolBar(tools =>
+                                    {
+                                        tools.Save();
+                                        tools.Excel();
+                                    })
+                         .Pageable(p =>
+                         {
+                             p.PageSizes(new[] { 50, 150, 200, 250, 300, 350, 400, 450, 500 });
+                         })
+                                    // .Pageable(pager => pager.AlwaysVisible(true))
+                                    //.Pageable()
+                                    .Filterable()
+                                    //.Height(700)
+                                    .Sortable()
+                                    .Scrollable(e => e.Endless(false))
+                                    .Groupable()
+                                    .Excel(excel => excel.FileName("SLA_Ticket_Data_Maintenence Export.xlsx")
+                                    .Filterable(true)
+                                    .AllPages(true)
+                                    .ProxyURL(Url.Action("Export_Tickets_Save", "Tickets"))
+                                    )
+                                    .Reorderable(r => r.Columns(true))
+                                    .Resizable(r => r.Columns(true))
+                                    //.HtmlAttributes(new { @style = "min-height:480px;max-height:850px !important;" })
+                                    .ColumnMenu()
+
+                                    // .Events(events => events.DataBound("collapseGroupRows"))
+                                    //   .Events(events => events.Edit("myFunction"))
+                                    .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+
+                                    .Model(model =>
+                                    {
+                                        model.Id(p => p.Id);
+                                        model.Field(p => p.TicketID).Editable(false);
+                                        model.Field(p => p.Type).Editable(false);
+                                        model.Field(p => p.Priority).Editable(false);
+                                        model.Field(p => p.Status).Editable(false);
+                                        model.Field(p => p.Description).Editable(false);
+                                        model.Field(p => p.CreatedDateTime).Editable(false);
+                                        model.Field(p => p.AssignedDateTime).Editable(false);
+                                        model.Field(p => p.ResolutionDateTime).Editable(false);
+                                        model.Field(p => p.ClosedDateTime).Editable(false);
+                                        model.Field(p => p.LastUpdatedDateTime).Editable(false);
+                                        model.Field(p => p.Track).Editable(false);
+                                       // model.Field(p => p.ResolutionTimeMetSLA).Editable(false);
+                                        model.Field(p => p.ResolutionTime).Editable(false);
+                                        model.Field(p => p.ResolutionTarget).Editable(false);
+                                        model.Field(p => p.ResponseTarget).Editable(false);
+                                        model.Field(p => p.ResponseTime).Editable(false);
+                                       // model.Field(p => p.ResponseTimeMetSLA).Editable(false);
+                                        model.Field(p => p.AssignedToSupportGroup).Editable(false);
+                                    })
+                                    .PageSize(100)
+                                    .Batch(true)
+                                    .Read(read => read.Action("GetTickets", "Tickets").Data("getParams"))
+                                    .Update(update => update.Action("UpdateTickets", "Tickets"))
+                                    )
+        )
+        @(Html.Kendo().Tooltip()
+                                            .For("#GridTickets")
+                                            .Filter(".forTooltips")
+                                            .ContentHandler("getRatingTooltip")
+                                            .Position(TooltipPosition.Left)
+                                            .AutoHide(true)
+        )
+        @*@(Html.Kendo().Tooltip()
+                                                                .For("#GridTickets")
+                                                                .Filter(".ResolutionTooltips")
+                                                                .ContentHandler("getResolutionTooltip")
+                                                                .Position(TooltipPosition.Left)
+                                                                .AutoHide(true)
+            )
+            @(Html.Kendo().Tooltip()
+                                                       .For("#GridTickets")
+                                                       .Filter(".ResponseTooltips")
+                                                       .ContentHandler("getResponseTooltip")
+                                                       .Position(TooltipPosition.Left)
+                                                       .AutoHide(true)
+            )*@
+    </div>
+
+</div>
+
+<script>
+    //apply parameters
+    $('#btnPreview').on("click", function (e) {
+
+        //alert($("#start").val());
+        //alert($("#end").val());
+        updateGrid();
+        //return false;
+
+    });
+    //function DateTimeFilter(control) {
+    //    $(control).kendoDateTimePicker({
+    //        format: "MM/dd/yyyy HH:mm:ss",
+    //        timeFormat: "HH:mm:ss"
+    //    });
+    //}
+
+    function updateGrid() {
+
+        var gridTrend = $("#GridTickets").data("kendoGrid");
+        gridTrend.dataSource.read();
+    }
+
+    function getParams(e) {
+        var DateType = $("#Drpdown1").data("kendoDropDown");
+
+        return {
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            //DateType: encodeURIComponent(JSON.stringify(DateType.value)),
+            DateType: $("#Drpdown1").val()
+        };
+    }
+
+    function getRatingTooltip(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Description;
+        return content;
+    }
+
+    function getResponseTooltip(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ResponseExceptionReason;
+        return content;
+    }
+    function getResolutionTooltip(e) {
+        var dataItem = $("#GridTickets").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ResolutionExceptionReason;
+        return content;
+    }
+
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+        $('.parameter-slider').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+
+
+</script>

@@ -1,0 +1,209 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+<div style="margin:5px">
+
+
+    <div class="ideaManagerContent" style="height:375px;display:flex">
+
+        <div style="width:39%;border: 1px solid lightgrey;height:112%;">
+            <div class="form-horizontal" style="padding-left:40px;padding-top:25px;">
+                <div class="form-group" style="display:flex">
+                    <label class="col-sm-4 control-label">Project Health:</label>
+                    <div class="col-sm-5">
+                        @(Html.Kendo().DropDownList()
+    .Name("ProjectHealth")
+    .DataValueField("Value")
+    .DataTextField("Text")
+    .OptionLabel("Select Health..")
+    .DataSource(data => data
+    .Read(r => r.Action("ListOfProjectHealth", "Dashboard"))
+    )
+    .AutoBind(true))
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; padding: 1em 0">
+                    <label class="col-sm-4 control-label" for="promanager">Project Manager:</label>
+                    <div class="col-sm-5">
+                        @(Html.Kendo().TextBox().Name("ProjectManager").Enable(true))
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; padding: 1em 0">
+                    <label class="col-sm-4 control-label">Business Contact:</label>
+                    <div class="col-sm-4">
+                        @(Html.Kendo().TextBox().Name("BusinessContact").Enable(false))
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; padding: 1em 0">
+                    <label class="col-sm-4 control-label">Technical Contact:</label>
+                    <div class="col-sm-4">
+                        @(Html.Kendo().TextBox().Name("TechnicalContact").Enable(false))
+                    </div>
+                </div>
+                <div class="form-group" style="display: flex; padding: 1em 0">
+                    <label class="col-sm-4 control-label">Retirement Phase:</label>
+                    <div class="col-sm-4">
+                        @(Html.Kendo().TextBox().Name("RetirementPhase").Enable(false))
+                    </div>
+                </div>
+                <div class="form-group"  style="display:flex;padding:1em 0">
+                    <label class="col-sm-4 control-label">Retirement Stage:</label>
+                    <div class="col-sm-4">
+                        @(Html.Kendo().TextBox().Name("RetirementStage").Enable(false))
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div  style="text-align:left;width:60%;border: 1px solid lightgrey;">
+
+            <table class="table" border="1">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <label>Retirement Disposition Recommendations:</label>
+
+                        </td>
+                    </tr>
+                    <tr style="line-height:3 ;">
+                        <td>Replace</td>
+                        <td class="col-sm-5">
+
+
+
+                            @(Html.Kendo().RadioButton().Label("Full").Name("ReplacementScope").Value((int)ReplacementScope.Full).Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Partial").Name("ReplacementScope").Value((int)ReplacementScope.Partial).Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Obsolete").Name("ReplacementScope").Value((int)ReplacementScope.Obsolete).Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Replaced").Name("ReplacementScope").Value((int)ReplacementScope.Replaced).Enable(false)
+
+                            )
+
+                        </td>
+                        <td class="col-sm-5">
+                            @(Html.Kendo().RadioButton().Label("Execute").Name("ReplaceAction").Value("Execute").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Investigate").Name("ReplaceAction").Value("Investigate").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Monitor").Name("ReplaceAction").Value("Monitor").Enable(false)
+
+                            )
+
+                        </td>
+                    </tr>
+
+                    <tr style="line-height:3;">
+                        <td>Archive</td>
+                        <td class="col-sm-5">
+                            @(Html.Kendo().RadioButton().Label("Yes").Name("ArchiveData").Value("true").Enable(false))
+                            @(Html.Kendo().RadioButton().Label("No").Name("ArchiveData").Value("false").Enable(false))
+                        </td>
+                        <td class="col-sm-5">
+                            @(Html.Kendo().RadioButton().Label("Execute").Name("ArchivalAction").Value("Execute").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Investigate").Name("ArchivalAction").Value("Investigate").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Monitor").Name("ArchivalAction").Value("Monitor").Enable(false)
+
+                            )
+                        </td>
+
+                    </tr>
+
+                    <tr style="line-height: 3;">
+                        <td>Decom</td>
+                        <td class="col-sm-5">
+                            @(Html.Kendo().RadioButton().Label("Yes").Name("IsDeCommissioned").Value("true").Enable(false))
+                            @(Html.Kendo().RadioButton().Label("No").Name("IsDeCommissioned").Value("false").Enable(false))
+                        </td>
+                        <td class="col-sm-5">
+                            @(Html.Kendo().RadioButton().Label("Execute").Name("DecommAction").Value("Execute").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Investigate").Name("DecommAction").Value("Investigate").Enable(false)
+
+                            )
+                            @(Html.Kendo().RadioButton().Label("Monitor").Name("DecommAction").Value("Monitor").Enable(false)
+
+                            )
+                        </td>
+                    </tr>
+                    <tr style="line-height:3;">
+                        <td colspan="3">
+                            <label>Progress/Plans/Issues/Risks/Notes:</label>
+                            <br />
+
+                            @Html.TextArea("Notes", new { @class = "form-control", rows = "10", style = "height:100px;width:740px;", id = "Notes", disabled = "disabled" })
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            @*<div class="form-group">
+                    <label class="col-sm-5 control-label">Progress/Plans/Issues/Risks/Notes:</label>
+
+
+                    @Html.TextArea("Notes", new {@class = "form-control", rows = "10", style = "height:100px;width:500px;", id = "Notes" })
+                </div>*@
+        </div>
+    </div>
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<RATaskModel>()
+                         .Name("RATaskModelGrid")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Title);
+                             columns.Bound(e => e.Status);
+
+                             columns.Group(g => g.Title("EndDate")
+                                  .Columns(location =>
+                                  {
+                                      location.Bound(c => c.End).Title("Orig").Format("{0:dd/MM/yyyy}");//wrong data
+                                      location.Bound(c => c.End).Title("Plan").Format("{0:dd/MM/yyyy}");
+                                      location.Bound(c => c.End).Title("Acual").Format("{0:dd/MM/yyyy}");//wrong data
+                                  })
+              );
+                             columns.Group(g => g.Title("Effort (hrs)")
+                                 .Columns(location =>
+                                 {
+                                     location.Bound(c => c.EstimatedEfforts).Title("Orig");//wrong data
+                                     location.Bound(c => c.EstimatedEfforts).Title("Plan");
+                                     location.Bound(c => c.ActualEfforts).Title("Acual");
+                                 })
+             );
+                             columns.Bound(e => e.PercentComplete);
+
+                         })
+                      .Sortable()
+                      .Scrollable()
+                      .HtmlAttributes(new { style = "height:250px;width:1308px;" })
+        //.DataSource(datasource => datasource
+        //.Ajax()
+        //.Model(model => model.Id(f => f.Id))
+        //.Read(read => read.Action("GetTaskDetail", "Dashboard").Data("GetAppId"))
+
+        //    )+
+        .DataSource(data => data
+        .Ajax()
+        .Read(read => read.Action("GetTaskDetail", "Dashboard").Data("GetAppId")))
+        )
+    </div>
+
+
+</div>

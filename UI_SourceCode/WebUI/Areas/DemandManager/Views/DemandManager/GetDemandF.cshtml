@@ -1,0 +1,153 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.DemandInput
+
+
+
+@{ ViewBag.Title = "Demand Manager";
+                ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+                Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml"; }
+
+@section DMTOPMenu {
+
+    @Html.Partial("_DMTopMenu")
+
+}
+<div class="clear">
+</div>
+<div class="container">
+    <ol class="breadcrumb container">
+        <li>Demand Manager</li>
+        <li>Dashboard</li>
+        <li class="active">Completed Demands</li>
+    </ol>
+</div>
+
+<div class="container" style="padding:0;">
+
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+
+        <div>
+
+            <!-- treemenu ends-->
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DBDMCatelog")
+            <div class="treeMenuContent">
+                <div class="container" style="padding:0;">
+                    <div class="leftslarea">
+                        <h4>Completed Demand - Financial Benefit by LOB Trend</h4>
+                        @if (Model.ClientId != 0)
+                        {
+            <div class="clear clearfix">&nbsp;</div>
+                            <iframe src='@Url.Content("~/Reports/ReportViewer.aspx?ReportName=rptDemandLOBTrend")' border="0" frameborder="0" height="750px" width="750px"></iframe> }
+                                        else
+                                        {
+                            <iframe border="0" frameborder="0" height="750px" width="750px"></iframe>}
+                    </div>
+                    <!--END OF LEFTAREA-->
+                    <!--/.treeMenuContent container-->
+                </div>
+                <!--/.treeMenuContent-->
+
+
+            </div>
+        </div>
+        <!--end of grid-->
+    </div>
+    <!--.valchainContent-->
+    <!--/.treeMenuContent container-->
+</div>
+<!--/.treeMenuContent-->
+@*</div>*@
+<!--/.treeMenuArea-->
+
+
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (SelectedclientId != 0) {
+
+
+                var href = window.location.href.split('/');
+                //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+                var baseurl = '';
+
+
+
+                if (href[3].toLowerCase() == 'demandmanager') {
+                    var baseurl = href[0] + '//' + href[2] + '/' + 'DemandManager/DemandManager/DisplayHomePage/?clientId={clientId}';
+                }
+                else {
+                    var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'DemandManager/DemandManager/DisplayHomePage/?clientId={clientId}';
+                }
+
+                baseurl = baseurl.replace("{clientId}", SelectedclientId);
+                window.location = baseurl;
+                return false;
+
+            }
+
+        });
+
+    });
+
+
+    $('#cancelDemand').click(function () {
+
+
+        var confirm = window.confirm('Do you want cancel the changes?');
+        if (confirm) {
+
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+
+
+            if (href[3].toLowerCase() == 'demandmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'demandmanager/demandmanager/DisplayDemands/?clientId={clientId}';
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'demandmanager/demandmanager/DisplayDemands/?clientId={clientId}';
+            }
+
+            baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+            window.location = baseurl;
+            return false;
+            }
+            else { return false; }
+
+            });
+
+    $('#homepage').click(function () {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'demandmanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'demandmanager/demandmanager/DisplayDemands/?clientId={clientId}';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'demandmanager/demandmanager/DisplayDemands/?clientId={clientId}';
+        }
+        baseurl = baseurl.replace("{clientId}", "@Model.ClientId");
+        window.location = baseurl;
+        return false;
+
+    });
+
+</script>

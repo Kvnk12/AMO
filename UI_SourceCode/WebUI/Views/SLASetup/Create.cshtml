@@ -1,0 +1,775 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.MetricSpecificationInput
+@using NTTData.AMOPortal.Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto;
+@{
+    ViewBag.Title = "SLA Manager";
+   // Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "~/Views/Shared/GenericLayoutWithoutFooter.cshtml";
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/slam.png");
+    HomeInput menuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    var Userrole = menuItemsInput.UserRole;
+}
+
+
+@using (Html.BeginForm())
+{
+
+    <!--/.selectappArea-->
+    <div class="clear"></div>
+ 
+    <!--end of breadcrumb container-->
+
+    if (@User.IsInRole("User") == true || @User.IsInRole("CustomerUser") == true)
+    {
+        <div class="alert alert-info container readonly">
+            You are in <b>READ ONLY</b> mode.
+        </div>
+    }
+<div class="content-main" style="padding: 0;">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>SLA Manager</li>
+            <li>Metric Management</li>
+            <li class="active">SLA Setup</li>
+        </ol>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#metricSetupArea" data-toggle="tab">SLA Setup</a></li>
+        <li class=""><a href="#metricresponse" data-toggle="tab">Response Time/Resolution Time</a></li>
+    </ul>
+
+    <div>
+
+        @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+        {
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+        }
+
+        @if (ViewData.ModelState.ContainsKey("Success"))
+        {
+
+            @Html.ValidationSummary(false, "", new { @class = "alert alert-success container" })
+        }
+    </div>
+
+
+
+
+
+    <div class="MetricSetup tab-pane opened" id="metricSetupArea">
+        <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            <div class="treemenu">
+                <div class="hdr">
+                    <h3>Metric Catalog</h3>
+                    <a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                </div>
+                <ul class="treeMenuUl">
+                    <li>
+                        <a href="#">Application Support</a>
+                        <ul>
+                            <li>
+                                <a href="#">Service Level Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricServiceIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Capacity Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricCapIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Availability Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricAvailIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">IT Security Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricITSecIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Incident Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricIncidentIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Service Desk Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricServDeskIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Configuration Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricConfMgmtIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Problem Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricpblmgmtIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Maintenance Request Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricMRmgmtIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Change Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricChgmgmtIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Release Management</a>
+                                <ul>
+                                    @foreach (var item in Model.MetricRlsmgmtIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Portfolio / Project Management</a>
+                        <ul>
+                            <li>
+                                <a href="#">General</a>
+                                <ul>
+                                    @foreach (var item in Model.PortfolioIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Testing</a>
+                        <ul>
+                            <li>
+                                <a href="#">General</a>
+                                <ul>
+                                    @foreach (var item in Model.TestingIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Service desk</a>
+                        <ul>
+                            <li>
+                                <a href="#">General</a>
+                                <ul>
+                                    @foreach (var item in Model.SDIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Infrastructure / Operations</a>
+                        <ul>
+                            <li>
+                                <a href="#">Incident Management</a>
+                                <ul>
+                                    @foreach (var item in Model.InfraIMList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Fulfillment</a>
+                                <ul>
+                                    @foreach (var item in Model.InfraFulfilList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Infrastructure Management</a>
+                                <ul>
+                                    @foreach (var item in Model.InfraManagementList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Infrastructure Change Management</a>
+                                <ul>
+                                    @foreach (var item in Model.InfraChangeManagementList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">Systems Availability</a>
+                                <ul>
+                                    @foreach (var item in Model.InfraSystemAvailList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">Enhancements</a>
+                        <ul>
+                            <li>
+                                <a href="#">General</a>
+                                <ul>
+                                    @foreach (var item in Model.EnhanceIdList)
+                                    {
+                                        <li>@Html.ActionLink(item.Name, "SetUpView", new { setupId = 0, mid = item.ID, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = item.Name, priority = 1 })<input type="checkbox" checked="@item.Availability" disabled="disabled"></li>
+                                    }
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- treemenu ends-->
+
+            <div class="treeMenuContent">
+                <div class="container" style="padding: 0;">
+
+
+
+                    <div class="leftarea form-horizontal">
+
+                        <div class="metricsetupattrtab">
+                            <div class="form-group">
+                                <label for="metricStatus" class="col-sm-5 control-label" id="">Account</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.AccountId, new SelectList(Model.ClientAccounts, "value", "text", Model.AccountId), "", new { @class = "selectpicker", id = "drpAccount" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="metricStatus" class="col-sm-5 control-label" id="">Account contract</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.ContractId, new SelectList(Model.ClientAccountsContracts, "value", "text", Model.ContractId), "", new { @class = "selectpicker", id = "drpAccountContract" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="slacu" id="slasetupPriority">Priority</label>
+                                @*<label class="col-sm-5 control-label" for="" id="">Metric SLA Name</label>*@
+                                <!--input and dropdown combo-->
+                                <div class="col-sm-5">
+                                    <div class="input-group">
+                                        <div class="input-group-btn">
+                                            @Html.HiddenFor(m => m.ClientId, new { @id = "hidclientid" })
+                                            @Html.HiddenFor(m => m.Id, new { id = "itemid" })
+                                            @Html.DropDownListFor(m => m.Priority, new List<SelectListItem>
+                                     {
+                                         new SelectListItem{ Text="1", Value = "1" },
+                                         new SelectListItem{ Text="2", Value = "2" },
+                                         new SelectListItem{ Text="3", Value = "3" },
+                                         new SelectListItem{ Text="4", Value = "4" },
+                                         new SelectListItem{ Text="5", Value = "5" },
+                                         new SelectListItem{ Text="6", Value = "6" },
+                                         new SelectListItem{ Text="7", Value = "7" },
+                                         new SelectListItem{ Text="8", Value = "8" }
+                                     }, new { @class = "selectpicker", id = "priority" }/*, new { setupId= , mid = Model.MetricId, clientid = Model.ClientId == null ? 0 : Model.ClientId, name = Model.MetricName  }*/)
+                                        </div>
+
+
+                                    </div>
+                                    <!--ends here-->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="" id="">Metric Name</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricName, new { @class = "form-control", id = "metricName", tabindex = "" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="metricID" id="">Metric ID</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricId, new { @class = "form-control", tabindex = "4", id = "MId", style = "text-align:right" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="metricStatus" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Metric Status</label>
+                                <div class="col-sm-5">
+                                    @Html.DropDownListFor(m => m.MetricStatusId, new SelectList(Model.MetricStatusList, "value", "text", Model.MetricStatusId), "", new { @class = "selectpicker", id = "statusMetric", tabindex = "6" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="hasSLA" id=""><span class="mandate">*</span>Has SLA</label>
+                                <div class="col-sm-1">
+                                    @Html.CheckBoxFor(m => m.HasSLA, new { tabindex = "", id = "chkSLA" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Metric Start Date</label>
+                                <div id="sandbox-container">
+                                    <div class="input-append date col-sm-4">
+                                        @Html.TextBoxFor(m => m.StartDate, String.Format("{0:d}", Model.StartDate), new { @class = "form-control", id = "StartDate", tabindex = "22", style = "text-align:center" })<span class="add-on"><i class="icon-th"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="IndustrySub-Vertical" class="col-sm-5 control-label">Metric End Date</label>
+                                <div id="sandbox-container">
+                                    <div class="input-append date col-sm-4">
+                                        @Html.TextBoxFor(m => m.EndDate, String.Format("{0:d}", Model.EndDate), new { @class = "form-control", id = "EndDate", tabindex = "", style = "text-align:center" })<span class="add-on"><i class="icon-th"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="metricBase" id="">Metric Baseline</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricBaseline, new { @class = "form-control", onkeypress = "return isNumberKey(event)", tabindex = "", style = "text-align:right;" })
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="metricTarget" id=""><span class="mandate">*</span>Metric Target</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricTarget, new { @class = "form-control", onkeypress = "return isNumberKey(event)", id = "targetMetric", tabindex = "", style = "text-align:right;" })
+                                    <!--<span>This field is Mandatory is "Has SLA" is selected</span>-->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="metricUnit" id="">Metric Unit</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricUnit, new { @class = "form-control", tabindex = "2", @readonly = "readonly" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label" for="metownder" id="">Metric Owner</label>
+                                <div class="col-sm-5">
+                                    @Html.TextBoxFor(m => m.MetricOwner, new { @class = "form-control", tabindex = "4", id = "MetricOwner" })
+                                </div>
+                            </div>
+
+                        </div><!--/.metricsetupattr-->
+                    </div><!--/.leftarea-->
+
+                    <div class="rightarea form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="metownder" id="">SLA Compliance Calculation</label>
+                            <div class="col-sm-8">
+                                @Html.TextAreaFor(m => m.CalculationData, new { @class = "form-control", rows = "10", placeholder = "Description", tabindex = "15" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="slacu" id="">Clock Type</label>
+                            <div class="col-sm-4">
+                                @Html.DropDownListFor(m => m.Clocksetup, new SelectList(Model.SLAClockTypeList, "value", "text", Model.Clocksetup), "", new { @class = "selectpicker", id = "slaClockType", tabindex = "6" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="slacu" id="">SLA Compliance Units</label>
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.ComplianceUnits, new { @class = "form-control", tabindex = "" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="slacb" id="">SLA Compliance Baseline</label>
+                            <div class="col-sm-1">
+                                &gt=
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.ComplianceBaseline, new { @class = "form-control", tabindex = "" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="slact" id="">SLA Compliance Target</label>
+                            <div class="col-sm-1">
+                                &gt=
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.ComplianceTarget, new { @class = "form-control", tabindex = "" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="exsla" id="">Exceeds SLA Expectations</label>
+                            <div class="col-sm-1">
+                                &gt
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.ExceedsExpectation, new { @class = "form-control", tabindex = "" })
+                            </div>
+                            <div class="col-sm-2">
+                                <span class="greenblk">&nbsp;</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="exmet" id="">Met SLA Expectations</label>
+                            <div class="col-sm-1">
+                                btw
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.MetExpectationlowerlimit, new { @class = "form-control", tabindex = "" })
+                            </div>
+                            <div class="col-sm-1">
+                                and
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.MetExpectationhigherlimit, new { @class = "form-control", tabindex = "" })
+                            </div>
+                            <div class="col-sm-2">
+                                <span class="blublk">&nbsp;</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="belowsla" id="">Below SLA Expectations</label>
+                            <div class="col-sm-1">
+                                &lt
+                            </div>
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.BelowExpectation, new { @class = "form-control", tabindex = "" })
+                            </div>
+                            <div class="col-sm-2">
+                                <span class="rdblk">&nbsp;</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--rightarea -->
+
+
+                    <div class="metricaction">
+                        <button class="btn btn-primary" tabindex="" value="Save" id="btnSave" type="submit" @((Userrole == "User" || Userrole == "CustomerUser") ? "disabled" : "")>Save</button>
+                        <button id="btnaddnew" class="btn btn-default" onclick="location.href='@Url.Action("Cancel", "SLASetup", new { clientid = Model.ClientId })';return false;">Cancel</button>
+                        <button class="btn btn-default" onclick="location.href='@Url.Action("DelSLASetup", "SLASetup", new { id = Model.Id, clientid = Model.ClientId })';return false;" @((Userrole == "User" || Userrole == "CustomerUser") ? "disabled" : "")>Delete</button>
+                    </div>
+
+                </div>
+                <!--/.treeMenuContent container-->
+            </div>
+
+        </div>
+        <!--/.treeMenuArea-->
+    </div>
+
+    <div class="MetricSetup tab-pane tab-pane closed" id="metricresponse">
+        @*<div class="treeMenuContent">*@
+        <div class="container" style="padding: 0;min-height:900px">
+
+            @*<div class="">*@
+            <div class="wrap">
+                @*<div class="grid_4">*@
+                @*<table class="table table-striped" style="width:61%" cellpadding="0" cellspacing="0">*@
+                @*<thead>
+                        <tr>
+                            <th width="40px;">Field Name</th>
+                            <th width="40px;">Field Value</th>
+                            <th width="40px;">Preference</th>
+                            <th width="40px;">Action</th>
+                        </tr>
+                    </thead>*@
+                @*<tbody>
+                    <tr>
+                        <td>*@
+
+                <label><strong>Field Name :</strong></label> @Html.DropDownList("slaCalcType", new List<SelectListItem>
+{
+new SelectListItem{ Text="ResponseCalcX", Value = "ResponseCalcX" },
+new SelectListItem{ Text="ResponseCalcY", Value = "ResponseCalcY" },
+new SelectListItem{ Text="ResolutionCalcX", Value = "ResolutionCalcX" },
+new SelectListItem{ Text="ResolutionCalcY", Value = "ResolutionCalcY" }
+}, "", new { @class = "selectpicker", id = "slaCalcType", tabindex = "6" })
+                @*</td>*@
+                <label><strong>Field Value :</strong></label> @Html.DropDownList("slafieldname", new SelectList(Model.SlaFieldCol, "value", "text", ""), "", new { @class = "selectpicker", id = "slafieldname", tabindex = "6" })
+                <label><strong>Preference :</strong></label> @Html.DropDownList("slaPriority", new List<SelectListItem>
+{
+new SelectListItem{ Text="1", Value = "1" },
+new SelectListItem{ Text="2", Value = "2" },
+new SelectListItem{ Text="3", Value = "3" },
+new SelectListItem{ Text="4", Value = "4" },
+new SelectListItem{ Text="5", Value = "5" },
+}, new { @class = "selectpicker", id = "slaPriority", @style = "width:100px;" })
+                <button type="button" class="btn btn-primary" id="btnAdd">Add</button>
+                <div id="partialDiv">
+                    @Html.Partial("~/Views/SLASetup/_SLACalDetail.cshtml", Model.CalSetupList)
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    @*</div>*@
+</div>
+
+
+        @*</div>*@
+
+    @*</div>*@
+    <!--/.container-->
+
+}
+
+
+
+
+<script>
+    ////$(function () {
+    ////    cbpHorizontalMenu.init();
+    ////});
+
+    ////$('.selectpicker').selectpicker();
+    ////// $('.selectpicker').selectpicker('val', ['Ketchup', 'Relish']);
+
+    ////$('#sandbox-container .input-append.date').datepicker({
+    ////    keyboardNavigation: false,
+    ////    autoclose: true,
+    ////    todayHighlight: true
+    ////});
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode
+        if (charCode != 46 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $('#UpperLimit').focusout(function () {
+        //to allow decimals,use/[^0-9\.]/g
+        var upper = parseFloat(document.getElementById("UpperLimit").value);
+        var target = parseFloat(document.getElementById("targetMetric").value);
+        if (upper < target) {
+            var upperlimit = document.getElementById("UpperLimit");
+            alert("The Upper Limit must be above the Target value");
+            upperlimit.focus();
+            return true;
+        }
+        return false;
+    });
+
+    $('#LowerLimit').focusout(function () {
+        //to allow decimals,use/[^0-9\.]/g
+        var lower = parseFloat(document.getElementById("LowerLimit").value);
+        var target = parseFloat(document.getElementById("targetMetric").value);
+        if (lower > target) {
+            var lowerlimit = document.getElementById("LowerLimit");
+            alert("The Lower Limit must be below the Target value");
+            lowerlimit.focus();
+            return true;
+        }
+        return false;
+    });
+
+    $('#EndDate').focusout(function () {
+        //to allow decimals,use/[^0-9\.]/g
+
+        var startDate = new Date($('#StartDate').val());
+        var endDate = new Date($('#EndDate').val());
+        var todaysDate = new Date();
+        var enddateId = document.getElementById("EndDate");
+        if (startDate > endDate) {
+            alert("The end date must fall after the start date");
+            enddateId.focus();
+            return true;
+
+        }
+        if (endDate == todaysDate) {
+            alert("The metric end date has passed. Either extend the end date or change the Metric Status to Inactive");
+            enddateId.focus();
+            return true;
+
+        }
+        return false;
+    });
+
+    $(document).ready(function () {
+
+        document.getElementById("metricName").readOnly = "readonly";
+        document.getElementById("MId").readOnly = "readonly";
+    });
+
+
+
+
+    $("#btnSave").click(function () {
+        var metricid = document.getElementById("MId").value;
+
+        var metricstatus = document.getElementById("statusMetric").value;
+        var startdate = new Date($('#StartDate').val());
+
+        // Metric id field should always greter than zero.
+        if (metricid == null || metricid == "" || metricid == 0) {
+            alert("Metric Id is mandatory");
+            return false;
+        }
+
+
+        // start date should not be empty
+        if (startdate == null || startdate == "") {
+            alert("Please select Start Date");
+            return false;
+        }
+
+    });
+
+    $("#btnAdd").on("click", function () {
+
+        var href = window.location.href.split('/');
+        var baseurl = '@Url.Content("~/SLASetup/SaveSLAcal")';;
+
+
+        //var SelectedclientId = $('#ddlClientId :selected').val();
+        var SelectedclientId = $('#hidclientid').val();
+
+        var fldNm= $('#slafieldname :selected').val();
+        var prty= $('#slaPriority :selected').val();
+        var calTp= $('#slaCalcType :selected').val();
+
+        if (calTp=='' || fldNm=='' || prty=='')
+            return false;
+
+        var dataToPost = {
+            clientid: SelectedclientId,
+            fieldname: fldNm,
+            priority: prty,
+            calType: calTp
+        };
+       // alert(baseurl)
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $("#partialDiv").html(data);
+            },
+            error: function () {
+
+            }
+        });
+    });
+
+    function FillMetricDetails(id, name) {
+        document.getElementById("MId").value = id;
+        document.getElementById("metricName").value = name;
+    }
+
+    $('#drpAccount').change(function () {
+       // alert('account');
+        var Id = $(this).find(":selected").val();
+        //var href = window.location.href.split('/');
+        var baseurl = '@Url.Content("~/SLASetup/ClientAccountsContract")';
+       // alert(Id);
+        //if ($("#drpAccount :selected").val() != "") {
+            $.ajax({
+                url: baseurl,
+                type: 'GET',
+                data: { accountid: Id },
+                success: getContracts,
+                failure: errorInDropdownPopulation
+            })
+       // }
+    });
+
+    $('#drpAccountContract').change(function () {
+        callSetupView();
+    });
+
+    function errorInDropdownPopulation(err)
+    {
+        alert(err.stringify())
+    }
+    function getContracts(data, status) {
+
+        $("select#drpAccountContract").empty();
+        $("select#drpAccountContract").selectpicker('refresh');
+        $("select#drpAccountContract").append("<option value='0'></option>");
+        $.each(data, function (key, value) {
+            $("select#drpAccountContract").append("<option value='" + value.Value + "'>" + value.Text + "</option>");
+        });
+        $("select#drpAccountContract").selectpicker('refresh');
+        $("#drpAccountContract").css("display", "block");
+        $("#drpAccountContract +.btn-group.bootstrap-select").css("display", "none");
+       
+    }
+
+    function callSetupView()
+    {
+        var selectedpriority = $('#priority :selected').val();
+        var selectedaccount = $('#drpAccount :selected').val();
+        var selectedcontract = $('#drpAccountContract :selected').val();
+        var selectedclientId = $('#hidclientid').val();
+        var mid = $('#MId').val();
+        if (mid == '') {
+            alert('Please select metric name from the left menu.');
+            return false;
+        }
+        var mname = $('#metricName').val();
+        var path = '@Url.Content("~/SLASetup/SetUpView")';
+        path = path + '?setupId=0&mid=' + mid + '&clientid=' + selectedclientId + '&name=' + mname + '&priority=' + selectedpriority + '&accountid=' + selectedaccount + '&contractid=' + selectedcontract;
+        window.location = path;
+
+    }
+
+    $('#priority').change(function () {
+
+        callSetupView();
+    });
+
+
+</script>

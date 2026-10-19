@@ -1,0 +1,108 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@model INNewDashboardModel
+<div>
+    <div class="top-content-heading">
+        <h6>Distribution by Priority</h6>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c2">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartPriority()"></span>
+
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<INChartDashboardModel>()
+                                .Name("ChartPriority")
+                               //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                               .Legend(legend => legend
+                                .Visible(true)
+                                .Align(ChartLegendAlign.Start)
+                                .Position(ChartLegendPosition.Bottom)
+                                //.Offset(1, 1)
+                                )
+                                .ChartArea(chartArea => chartArea
+                                .Background("transparent")
+                                .Height(280)
+                                )
+                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("GetPriorityParameter")))
+                               //   .SeriesDefaults(seriesDefaults => seriesDefaults
+                                                   //.Column().Overlay(ChartBarGradient.None)
+                                              //  )
+                                .Series(series =>
+                                {
+                                    series.Bar(model => model.IncidentCount).Name("Tickets Count").Spacing(0).CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# #= kendo.format('{0:P}', percentage)#").Visible(true)).Color("#19BDFF");
+                                    series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %"))
+                                                                                                                                                .Color("LightGray");
+                                })
+                                .CategoryAxis(axis => axis
+                                .Categories(model =>model.DrpCategory)
+                                .Line(line => line.Visible(false))
+                                .AxisCrossingValue(10000, 0, 2)
+                                .Labels(labels => labels.Visible(true).Template("P:#= value# ")/*.Mirror(true)*/)
+                                .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                //.MajorGridLines(lines => lines.Visible(false))
+                                //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                )
+                                .ValueAxis(axis => axis
+                                .Numeric()
+                                //.Max(10)
+                                //.AxisCrossingValue(1)
+                                .Line(line => line.Visible(false))
+                                .Labels(labels => labels.Rotation("auto"))
+                                .MajorGridLines(lines => lines.Visible(false))
+                                //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                )
+                                   .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(false))
+            .Line(line => line.Visible(false))
+             .MajorGridLines(lines => lines.Visible(false))
+        )
+                                .Tooltip(tooltip => tooltip
+                                //.Background("transparent")
+                                .Visible(true)
+                                .Color("#000000")
+                                .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+                                )
+                                .Events(events => events
+                                               .SeriesClick("onPrioritySeriesClick"))
+        )
+        </div> 
+    </div>
+        <div class="table-content hide" style="color: #000;padding: 0 18px;">
+            @(Html.Kendo().Grid<INChartDashboardModel>
+                                    ()
+                                    .Name("PriorityTable")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(e => e.LongCategory).Title("Priority").ClientFooterTemplate("Total");
+                                        columns.Bound(e => e.IncidentCount).Title("Ticket Count").ClientFooterTemplate("#=sum#");
+                                        columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+
+                                    })
+                                    .AutoBind(false)
+                                    .Sortable()
+                                    .HtmlAttributes(new { style = "height:235px;" })
+                                    .DataSource(dataSource => dataSource
+                                    .Ajax()
+                                     .Aggregates(agg =>
+                                                {
+                                                    agg.Add(p => p.IncidentCount).Sum();
+                                                    agg.Add(p => p.Percent).Sum();
+                                                })
+                                        .Read(read => read.Action("GetINDashboardDataDynamicGrid", "Dashboard").Data("GetPriorityParameter"))
+                                        )
+        )
+
+        </div>
+    </div>

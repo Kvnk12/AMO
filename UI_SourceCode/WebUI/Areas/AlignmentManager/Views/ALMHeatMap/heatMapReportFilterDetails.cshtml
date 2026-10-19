@@ -1,0 +1,100 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using System.Data;
+@using NTTData.AMOPortal.WebUI.Dto
+@model heatMapInput 
+
+@{
+    Layout = null;
+}
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/jquery.dataTables.js"></script>
+<script src="~/Areas/AlignmentManager/Content/DataTables/Scripts/dataTables.jqueryui.js"></script>
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery-ui.css"  rel="stylesheet"/>
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/dataTables.jqueryui.css" rel="stylesheet" />
+<link href="~/Areas/AlignmentManager/Content/DataTables/CSS/jquery.dataTables.css" rel="stylesheet" />
+@*<link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet">*@
+
+
+
+
+@{
+    int reportId = Model.HeatMapReportId == null ? 0 : Convert.ToInt32(Model.HeatMapReportId);
+    int clientId = Model.ClientId == null ? 0 : Convert.ToInt32(Model.ClientId);
+    Model.heatMapData = new heatMapData();
+    DataTable htReport = Model.heatMapData.HeatMapReportFilterData(clientId, reportId, Model.heatMapVariableName);
+  }
+<h3 style="text-align:center">Heat Map Report: @Model.HeatMapReportName</h3>
+<h3 style="text-align:center">@Model.heatMapVariableName</h3>
+@*<div class="" style="width:80%;grid-row-align:center">*@
+<table class="display"  id="heatMapReport" cellspacing="0" >
+    <thead>
+            <tr>
+                @{
+        
+            foreach(DataColumn dcol in htReport.Columns)
+            {
+                    <th>@dcol.ColumnName</th>
+            }   
+            }
+        </tr>
+    </thead>
+
+     @*<tfoot>
+            <tr>
+                @{
+        
+            foreach(DataColumn dcol in htReport.Columns)
+            {
+                    <th>@dcol.ColumnName</th>
+            }   
+            }
+        </tr>
+    </tfoot>*@
+    <tbody>
+        @{
+            foreach(DataRow drow in htReport.Rows)
+            {
+                <tr>
+                    @{
+            foreach (var item in drow.ItemArray)
+            {
+                <td>@item.ToString()</td> 
+            }    
+                     }
+                    
+                </tr>
+            }
+         }
+    </tbody>
+ </table>
+@*</div>*@
+
+
+
+
+<script >
+
+    $(document).ready(function () {
+        $('#heatMapReport').dataTable({
+            //"sScrollX": "100%",
+            //"sScrollXInner": "110%",
+            //"bScrollCollapse": true
+
+            "sScrollX": "100%",
+            "sScrollY": "500px",
+            "sScrollXInner": "120%",
+            "bScrollCollapse": true,
+            "bLengthChange": true,
+            "bInfo": false,
+            "jQueryUI": true,
+            "paging": true,
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            "sDom": '<"top"fpl>rt<"bottom"><"clear">'
+
+
+        }
+           );
+    });
+
+</script>

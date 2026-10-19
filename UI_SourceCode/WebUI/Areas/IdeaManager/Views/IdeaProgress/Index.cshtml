@@ -1,0 +1,24 @@
+﻿<div class="k-content">
+    @(Html.Kendo().TabStrip()
+    .Name("tabstrip")
+    .Animation(animation =>
+    animation.Open(effect =>
+    effect.Fade(FadeDirection.In)))
+    .Items(tabstrip =>
+    {
+    tabstrip.Add().Text("Paris")
+    .Selected(true)
+    .Content(m => Html.Partial("_contactInfo", Model)
+
+    tabstrip.Add().Text("New York")
+    .Content(m => Html.Partial("_contactInfo", Model)
+
+    tabstrip.Add().Text("Moscow")
+    .Content(m => Html.Partial("_contactInfo", Model)
+
+    tabstrip.Add().Text("Sydney")
+    .Content(m => Html.Partial("_contactInfo", Model)
+
+    })
+    )
+</div>

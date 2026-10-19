@@ -1,0 +1,55 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@{
+   // var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+    var clientId = objclient.ClientId.ToString();
+    var clientName = objclient.ClientName.ToString();
+}
+@model ClusterManagementInput
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/incident_navigator_icon.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+<div class="content-main custom-grid">
+    <div class="clear"></div>
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li class="active">Incident Navigator</li>
+            <li class="active">Inflow Outflow Backlog Analysis</li>
+        </ol>
+    </div>
+    <div class="content-wrapper">
+        <div class="clearfix"></div><!--This is to clear the floats-->
+        <iframe id="frameTrendig" src='@Url.Content("~/Areas/IncidentNavigator/AspxReport/IncidentAnalysis.aspx")' border="0" frameborder="0" height="1100px" width="100%"></iframe>
+        <style>
+            #export {
+                margin: 0 0 10px 1px;
+                float: right;
+            }
+        </style>
+
+    </div><!--/.treeMenuContent container-->
+    <!--/.container-->
+
+
+</div>

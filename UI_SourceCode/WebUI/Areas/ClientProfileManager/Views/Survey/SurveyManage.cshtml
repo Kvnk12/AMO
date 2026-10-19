@@ -1,0 +1,243 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+
+
+@model Survey_Model
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+
+
+    var sur_name = Model.Name;
+    ViewBag.Title = "Client Profile Manager";
+    // var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+<style>
+    .k-edit-form-container > div {
+        display: flex;
+    }
+    .k-edit-form-container div > label {
+        margin-top:10px;
+        margin-right:10px;
+    }
+</style>
+
+
+
+<div class="content-main dark-bg" >
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Manage Participants</li>
+    </ol>
+
+   
+    <div Class="text-right" style="display: flex; justify-content: space-between;">
+        <div class="well well-sm" style="color:white"><strong>Survey</strong></div>
+        <button type="submit" tabindex="32" class="btn btn-primary" style="text-align: right;" onclick="location.href='@Url.Action("Index","Survey", new { Id = Model.Id })';return false;">Back</button>
+    </div>
+    <div class="text-left" style="color:white"><strong>Survey Name: @sur_name</strong></div>
+    @*<br />*@
+
+    <div class="leftarea form-horizontal" style="width:48%">
+
+        <div class="form-group">
+            <br />
+            <label style="color:white"><b>Client Contacts</b></label>
+            <div class="custom-kendo-grid">
+                @(Html.Kendo().Grid<SurveyUserModel>()
+.Name("userGrid")
+
+
+.Columns(columns =>
+{
+    columns.Select().Width(60);
+    // columns.Bound(e => e.PersonnelId);
+    //columns.Bound(e => e.idforgridrow);
+    columns.Bound(e => e.PersonnelName).Title("Contact Person");
+   columns.Bound(e => e.SurveyFor).Title("Survey For");
+    columns.Bound(e => e.Email).Title("Email Id");
+})
+.Pageable()
+.Scrollable()
+//.ToolBar(t => t.Save())
+//.Editable(e=>e.Mode(GridEditMode.InCell))
+.PersistSelection()
+.HtmlAttributes(new { style = "height:487px;" })
+.DataSource(dataSource => dataSource
+.Ajax()
+//.ServerOperation(false)
+//.Batch(true)
+.PageSize(10)
+.Model(model => model.Id(f => f.idforgridrow))
+//.Model(model => model.Id(f => f.idforgridrow.ToString() + "_" + f.SurveyForRefId.ToString()))
+.Read(read => read.Action("ReadSurveyUsers", "Survey", new { suryId = Model.Id }))
+//.Create(create => create.Action("AddQuestion", "Survey", new { surId = Model.Id }))
+//.Update(update => update.Action("Editing_Update", "Survey"))
+//.Destroy(destroy => destroy.Action("DeleteQuesion", "Survey"))
+)
+
+
+                    )
+            </div>
+            <br />
+            <div class="right"><button type="submit" class="btn btn-primary" tabindex="30" onclick="onChange(this)" id="UserSubmit">Add Selected Users</button></div>
+        </div>
+    </div>
+
+
+
+    <div class="rightarea form-horizontal" style="width:48%">
+        <div class="form-group">
+            @*<div class="text-center"><h5><strong>Exixting Users for Survey</strong></h5></div>*@
+
+            <br />
+            <label style="color:white"><b>Selected Contacts for the Survey</b></label>
+            <div class="custom-kendo-grid">
+                @(Html.Kendo().Grid<SurveyUserModel>()
+.Name("userGrid1")
+
+
+.Columns(columns =>
+{
+    columns.Bound(e => e.SurveyForRefId).Hidden();
+    columns.Bound(e => e.PersonnelName).Title("Survey Participant");//.Editable("returnfalse");
+    columns.Bound(e => e.Email).Title("Email Id");//.Editable("returnfalse");
+    columns.Bound(e => e.SurveyFor).Title("Survey For");/*.EditorTemplateName("AddAppToSurveyUser");*/
+    columns.Command(command => {command.Edit(); command.Destroy().Text("Remove"); });
+})
+.Pageable()
+.Scrollable()
+// .ToolBar()
+.Sortable()
+.Groupable()
+.Editable(e => e.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to remove? "))
+
+//.HtmlAttributes(new { style = "height:400px;" })
+.DataSource(dataSource => dataSource
+
+.Ajax()
+//.Group(g => g.Add(p => p.PersonnelName))
+.PageSize(10)
+.Model(model => model.Id(f => f.Id))
+.Read(read => read.Action("showExistinUsers", "Survey", new { SurvyID = Model.Id }))
+.Update(update=>update.Action("UpdateSurveyUserApp", "Survey"))
+.Destroy(destroy => destroy.Action("deleteSurveyUser", "Survey"))
+)
+.Events(e=>e.Save("adsasd"))
+
+                    )
+            </div>
+            <br />
+            <div class="right"><button type="submit" class="btn btn-primary" onclick="sendLink(this)" tabindex="30">Send Survey Link</button></div>
+        </div>
+
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+
+    function sendLink(arg) {
+        var modd = {
+            surId: @Model.Id};
+        var data1 = JSON.stringify(modd);
+        baseurl1 = '@Url.Content("~/Survey/SendSurveyLink")';
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+
+                if(data == 2){
+                    alert("Survey Link Sent Successfully");
+                }
+                else if(data == 0)
+                {
+                    alert("Survey Link has already been sent. ");
+                }
+                else if(data == 1)
+                {
+                    alert("Cannot send Expired Survey to participant(s)!! extend the survey end-date.");
+                }
+
+            }
+
+
+       })
+    }
+
+
+    $('#GridName').data('kendoGrid').dataSource.read();
+    $('#GridName').data('kendoGrid').refresh();
+
+
+    function onChange(arg) {
+        var grid = $("#userGrid").getKendoGrid();
+        var selValues = grid.selectedKeyNames().join(", ");
+
+       // var exp = grid.this.selectedKeyNames().join(", ")
+        /// alert("The selected product ids are: " +grid.selectedKeyNames().join(", ") + "]");  this.selectedKeyNames().join(", ")
+        //alert(selValues);
+        var mod = {
+            surId: @Model.Id,
+            parpId: selValues
+
+        };
+        var data = JSON.stringify(mod);
+    baseurl = '@Url.Content("~/Survey/addPersonnel")';
+    //baseurl = baseurl + '?ApplicationID=' + appid
+    //alert('post' + baseurl + $("ApplicationList").data("kendoComboBox").Value());
+    $.ajax(
+    {
+        url: baseurl,
+        type: 'post',
+        data: data,
+        async: false,
+        contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#userGrid1').data('kendoGrid').dataSource.read();
+            $('#userGrid1').data('kendoGrid').refresh();
+            //alert("Participants Successfully Added");
+        }
+    })
+    }
+
+
+
+    function adsasd(e){
+
+        var appid1 = $("#SurveyForRefId").data().kendoDropDownList.value();
+        var appname1 = $("#SurveyForRefId").data().kendoDropDownList.text();
+
+        //$('#userGrid1').data('kendoGrid').dataSource.read();
+        //$('#userGrid1').data('kendoGrid').refresh();
+        e.model.set("SurveyFor",appname1);
+
+        e.model.set("SurveyForRefId",appid1);
+    }
+</script>

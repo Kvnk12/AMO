@@ -1,0 +1,419 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using WebUI.Areas.IdeaManager.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+
+@(Html.Kendo().Window()
+                .Name("chartTrendWindow")
+                .Title("Idea Trend by Year/Month")
+                .Content(@<text>
+                    @(Html.Kendo().Chart<IMChartDashboardModel>
+                                                ()
+                                                .Name("winChartTrend")
+                                                .Legend(legend => legend
+                                                    .Visible(true)
+                                                    .Align(ChartLegendAlign.Start)
+                                                    .Position(ChartLegendPosition.Bottom)
+                                                    )
+                                                      .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                .Height(400)
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTrend", "Dashboard").Data("ParameterDataTrend")))
+                                                 .AutoBind(false)
+                                                .Series(series =>
+                                                {
+                                                    series.Line(model => model.IdeaCount).Name("No. of Approved Ideas").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#19BDFF").Visible(true)).Color("#19BDFF").Visible(true)
+                                                                                                                                                                                                           .Color("#19BDFF");
+                                                    series.Line(model => model.ResolvedCount).Name("No. of Implemented Ideas").Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("#2FB447").Padding(0, 0, -45, 0).Visible(true))
+                                                                                                                                                                                            .Color("#2FB447").Visible(false);
+                                                    series.Line(model => model.TrendVal).Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(true);
+                                                    series.Line(model => model.ResolvedTrend).Name("ImplementedTrend").Style(ChartLineStyle.Smooth).DashType(ChartDashType.Dot).Markers(markers => markers.Visible(false)).Axis("TktCnt").Labels(labels => labels.Visible(false)).Color("#616A6B").Visible(false);
+
+
+
+                                                })
+                                                .CategoryAxis(axis => axis
+                                                .Min(0)
+                                                .Max(13)
+                                                .Categories(model => model.DrpCategory)
+                                                .MajorGridLines(lines => lines.Visible(false))
+                                                .Labels(labels => labels.Rotation("auto"))
+                                                .AxisCrossingValue(0, 1000)
+                                                .Crosshair(c => c.Visible(true).DashType(ChartDashType.Dot))
+                                                //.Title(title => title.Text("Year/Month").Font("12px Arial,Helvetica,sans-serif"))
+                                                )
+
+                                                .ValueAxis(axis => axis.Numeric("TktCnt")
+                                                .Labels(labels => labels.Format("{0:N0}"))
+                                                //.Visible(true)
+                                                 .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                //.MajorGridLines(lines => lines.Visible(true))
+                                                //.MajorUnit(100)
+                                                )
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= series.name #: #= value #"))
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                 .Events(events => events
+
+            .DataBound("winInflow_onDataBound")
+           // .Render("onRender")
+        )
+
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("ChartPriortyWindow")
+                .Title("Distribution By Priority")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<IMChartDashboardModel>()
+                                                .Name("winChartPriority")
+                                               .Legend(legend => legend
+                                .Visible(true)
+                                .Align(ChartLegendAlign.Start)
+                                .Position(ChartLegendPosition.Bottom)
+                                //.Offset(1, 1)
+                                )
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                //.Height(280)
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("GetPriorityParameter")))
+                                                .AutoBind(false)
+                                                .Series(series =>
+                                                {
+                                                    series.Bar(model => model.IdeaCount).Name("Ideas Count").Spacing(0).CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# #= kendo.format('{0:P}', percentage)#").Visible(true)).Color("#19BDFF");
+                                                    series.Bar(model => model.Percent).Name("Percentage").Axis("%").CategoryField("DrpCategory").Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true)).Tooltip(tooltip => tooltip.Visible(true).Color("#000000").Template("#= series.name #: #= value # %")).Color("LightGray");
+
+
+                                                })
+                                                .CategoryAxis(axis => axis
+                                                //.Categories(model =>model.)
+                                                 .Labels(labels => labels.Visible(true).Template("P:#= value# ")/*.Mirror(true)*/)
+                                                .Line(line => line.Visible(false))
+                                               // .Labels(labels => labels.Rotation("auto"))
+                                                .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot)
+                                                //.MajorGridLines(lines => lines.Visible(true))
+                                                //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                                )
+                                                .ValueAxis(axis => axis
+                                                .Numeric()
+                                                //.Max(10)
+                                                .Line(line => line.Visible(false))
+                                                .Labels(labels => labels.Rotation("auto"))
+                                                .MajorGridLines(lines => lines.Visible(false))
+
+                                                )
+                                                     .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(false))
+            .Line(line => line.Visible(false))
+             .MajorGridLines(lines => lines.Visible(false))
+        // .AxisCrossingValue(-10)
+        )
+                                                .Tooltip(tooltip => tooltip
+                                                //.Background("transparent")
+                                                .Visible(true)
+                                                .Color("#000000")
+                                                .Template("#= series.name #: #= value #  #= kendo.format('{0:P}', percentage)#")
+
+                                                )
+                    )
+
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1100)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("ChartStatusWindow")
+                .Title("Distribution By Status")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<IMChartDashboardModel>()
+                                                .Name("winStatusChart")
+                                                .Legend(legend => legend.Position(ChartLegendPosition.Right)
+                                                )
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                )
+                                                .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("GetStatusParameter")))
+                                                 .AutoBind(false)
+                                                .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+
+                                                .Series(series =>
+                                                {
+                                                            series.Donut(model => model.IdeaCount, model => model.LongCategory, null)
+            .Labels(labels => labels
+            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+            .Background("transparent")
+            .Visible(true)
+            .Position(ChartPieLabelsPosition.OutsideEnd)
+
+            )
+             .Overlay(ChartPieSeriesOverlay.None)
+            .StartAngle(150);
+                                                        })
+
+                                                .Tooltip(tooltip => tooltip
+                                                .Visible(true)
+                                                .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                                )
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+
+                                                .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("Chart4Window")
+                .Title("Idea Distribution")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<IMChartDashboardModel>()
+                                                .Name("winChart4")
+                                                .Legend(legend => legend
+                                                .Visible(false)
+                                                )
+
+                                                .ChartArea(chartArea => chartArea
+                                                .Background("transparent")
+                                                //.Height(480)
+                                                )
+    .DataSource(ds => ds.Read(read => read.Action("GetDashboardTower", "Dashboard").Data("ParameterDatanew4")))
+    .AutoBind(false)
+    .Series(series =>
+    {
+        series.Column(model => model.Percent).Name("Percentage").Axis("%").CategoryField("LongCategory").Spacing(-1).Labels(labels => labels.Background("transparent").Template("#= value# %").Visible(true).Position(ChartBarLabelsPosition.InsideBase)).Visible(true).Color("transparent");
+        series.Column(model => model.IdeaCount).Name("Idea Count").CategoryField("LongCategory").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+
+    })
+    .CategoryAxis(axis => axis
+    .Min(0)
+    .Max(8)
+    //.Categories(model =>model.)
+    .MajorGridLines(lines => lines.Visible(false))
+    .Labels(labels => labels.Rotation(-90))
+    .AxisCrossingValue(0, 1000)
+    .Title(title => title.Text("Idea Type"))
+    )
+
+    .ValueAxis(axis => axis
+    .Numeric()
+    //.Max(10)
+    .Line(line => line.Visible(true))
+    //.Labels(labels => labels.Rotation(-90))
+    //.MajorGridLines(lines => lines.Visible(true))
+    .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+    .Title(title => title.Text("Total Ideas"))
+    // .Title(title => title.Text("drpval"))
+    )
+    .ValueAxis(axis => axis
+            .Numeric("%")
+             .Min(0).Max(100)
+             .Labels(labels => labels.Format("{0}%").Visible(true))
+            .Line(line => line.Visible(false))
+              .MajorGridLines(lines => lines.Visible(false))
+        )
+
+
+                                                .Tooltip(tooltip => tooltip
+                                                //.Background("transparent")
+                                                .Visible(true)
+                                                .Color("#000000")
+                                                .Template("#= series.name #: #= value #")
+
+                                                )
+                                                .Pannable(pannable => pannable
+                                                .Lock(ChartAxisLock.Y)
+                                                )
+                                                .Zoomable(zoomable => zoomable
+                                                .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                                .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                                )
+                                                   .Events(events => events
+            .DataBound("onChangeWinTitle_onDataBound")
+        )
+                    )
+                </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1000)
+                                                .Height(500)
+                                                .AutoFocus(true)
+                                                .Modal(true)
+                                                .Actions(actions => actions.Close())
+)
+@(Html.Kendo().Window()
+                .Name("DistributionbyYearChartWindow")
+                .Title("Distribution By Year")
+                .Content(@<text>
+
+@(Html.Kendo().Chart<IMChartDashboardModel>()
+                                        .Name("winDistributionbyYearChart")
+                                        .Legend(legend => legend.Position(ChartLegendPosition.Right).Visible(true)
+                                )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "Dashboard").Data("GetDistributionYearParameter")))
+                                        .AutoBind(false)
+                                        .SeriesColors(new string[] {  "#60B4F9" , "#1AE5E5", "#F9EF55", "#89EA97","#F2B1B1", "#D7DBDD", "#FFC639","#BA91CD", "#B997FF", "#FCA1C1",
+                                                                       "#3BA3F8", "#18C6BD", "#EAD900","#4BD161", "#EF8B8B", "#BDC3C7","#FFA100","#9F66BC", "#9B67FF", "#FF64A3",
+                                                                       "#1086E8", "#0FA896", "#DBB700", "#2FB447", "#D15D5D", "#909497", "#FF7F00","#8D48AB", "#7C33FF", "#FC3F9E",
+                                                                      "#0E75C9", "#0A937F", "#B58602", "#258B39", "#AF3E3E", "#727D7E", "#E06300",  "#7B409B", "#6500FF", "#D60578",
+                                                                      "#0B61AF", "#04755F", "#8E6902", "#15602E", "#842523", "#616A6B", "#BF4F02", "#6B3782", "#4D20BC", "#AA026E",
+                                                                })
+
+                                        .Series(series =>
+                                        {
+                                            series.Donut(model => model.IdeaCount, model => model.Dim, null)
+                                            .Labels(labels => labels
+                                            .Template("#= category #: \n #= value#, #= kendo.format('{0:P}', percentage)#")
+                                            .Background("transparent")
+                                            .Visible(true)
+                                            .Position(ChartPieLabelsPosition.OutsideEnd)
+                                            )//SharpBevel
+                                            .Overlay(ChartPieSeriesOverlay.None)
+                                            .StartAngle(150);
+                                        })
+
+                                    .Tooltip(tooltip => tooltip
+                                        .Visible(true)
+                                        .Template("#= category #: \n #= value#,  #= kendo.format('{0:P}', percentage)#")
+                                    )
+)
+
+
+
+                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)
+@(Html.Kendo().Window()
+                .Name("DistributionbyMonthChartWindow")
+                .Title("Distribution By Month")
+                .Content(@<text>
+
+                    @(Html.Kendo().Chart<IMChartDashboardModel>()
+                                        .Name("winDistributionbyMonthChart")
+                                        .Legend(legend => legend
+                                                        .Visible(true)
+                                                        .Labels(labels => labels
+                                                        .Template("Values in Numbers")
+                                                        )
+                                                        .Align(ChartLegendAlign.Start)
+                                                        .Position(ChartLegendPosition.Bottom)
+                                                        )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        //.Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "Dashboard").Data("GetDistributionMonthParameter")))
+                                        .AutoBind(false)
+                                        .Series(series =>
+                                        {
+                                            series.Column(model => model.IdeaCount).Name("Idea Count").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+                                        })
+                                        .CategoryAxis(axis => axis
+                                         .Min(0)
+                                         .Max(8)
+                                         .Line(line => line.Visible(false))
+                                        //.Categories(model =>model.)
+                                        .MajorGridLines(lines => lines.Visible(false))
+                                        // .Labels(labels => labels.Rotation(-90))
+                                        //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+                                        .ValueAxis(axis => axis
+                                        .Numeric()
+                                        //.Max(10)
+                                        .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                        .Line(line => line.Visible(false))
+                                        //.Labels(labels => labels.Rotation(-90))
+                                        //.MajorGridLines(lines => lines.Visible(true))
+                                        //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                        )
+                                        .Tooltip(tooltip => tooltip
+                                        //.Background("transparent")
+                                        .Visible(true)
+                                        .Color("#000000")
+                                        .Template("#= series.name #: #= value #")
+
+                                        )
+                                        .Pannable(pannable => pannable
+                                        .Lock(ChartAxisLock.Y)
+                                        )
+                                        .Zoomable(zoomable => zoomable
+                                        .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                        .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                    )
+                    )
+
+
+                                    </text>)
+                    .Visible(false)
+                    .Draggable()
+                    .Resizable()
+                    .Width(1000)
+                    .Height(500)
+                    .AutoFocus(true)
+                    .Modal(true)
+
+                    .Actions(actions => actions.Close())
+
+)

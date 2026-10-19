@@ -1,0 +1,40 @@
+﻿
+
+
+
+
+
+<div style="margin:5px;" class="custom-kendo-tabstrip">
+
+    @(Html.Kendo().TabStrip()
+                                 .Name("RomEstimateLevel2")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Replacement")
+                                     .Enabled(true)
+                                         .Content(m => Html.Partial("_Replacement"));
+
+                                     tabstrip.Add().Text("Archival & Decommisioning")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_ArchivalDecommision"));
+
+                                     tabstrip.Add().Text("Project Management/ Other")
+                                     .Enabled(true)
+                                     .Content(m => Html.Partial("_ProjectManagement"));
+
+                                     tabstrip.Add().Text("Ongoing Archival Support")
+                                     .Enabled(true)
+                                     .Content(m => Html.Partial("_OngoingArchival"));
+
+
+
+                                 })
+
+
+    )
+
+</div>
+
+
+
+

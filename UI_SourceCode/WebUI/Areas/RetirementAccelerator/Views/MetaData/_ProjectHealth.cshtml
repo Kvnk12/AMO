@@ -1,0 +1,70 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities;
+@using Domain.Entities
+@{
+    ViewBag.Title = "_ProjectHealth";
+}
+
+
+
+<div>
+    <div style="margin:10px">
+        <h5 style="text-align:center">Project Health</h5>
+        
+        <div style="margin:10px; padding:5px; padding-top:0px;"class="custom-kendo-grid">
+            @(Html.Kendo().Grid<ProjectHealthModel>()
+                .Name("ProjectHealthGrid")
+                .Columns(column =>
+                {
+                    column.Bound(e => e.Id).Hidden();
+                    column.Bound(e => e.ProjectHealth);
+                    column.Bound(e => e.Color).Title("Color").Width(150).EditorTemplateName("ProjectHealth").ClientTemplate("<div style='background-color: #: Color#;padding:10px;'>&nbsp;</div>");
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+                .Sortable()
+                .Scrollable()
+                 .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Project Health"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => { model.Id(f => f.Id);
+                          model.Field(p => p.Color).DefaultValue("#ffffff");
+                      })
+                      .Read(read => read.Action("GetProjectHealth", "MetaData"))
+                      .Create(create => create.Action("AddProjectHealth", "MetaData"))
+                      .Update(update => update.Action("EditProjectHealth", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteProjectHealth", "MetaData"))
+                       )
+                          //           .Events(events => events
+                          //.Save("SaveProgressStatus"))
+
+                          )
+        </div>
+    </div>
+</div>
+<script>
+    function SaveProgressStatus(e) {
+        var ProgressStatusName = e.model.Status.toUpperCase();
+        var Id = e.model.Id;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].Status.toUpperCase() === ProgressStatusName && data[i].Id != Id) {
+                e.preventDefault();
+                alert("Project Health Already Exists.Please select unique Name");
+                //notificationWidget.show("Project Status Already Exits!Please select unique Name!", "error");
+
+            }
+        }
+
+    }
+</script>

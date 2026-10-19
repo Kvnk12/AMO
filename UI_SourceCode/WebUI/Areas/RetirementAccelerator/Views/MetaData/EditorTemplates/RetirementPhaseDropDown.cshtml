@@ -1,0 +1,26 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Controllers
+@using WebUI.Areas.RetirementAccelerator
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+@model int?
+
+
+@{ 
+    //  var client = (Client)Session["Client"];
+    ////ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+    ////var cont = new MetaDataController();
+    var RPhaseList = (IEnumerable<SelectListItem>) ViewData["RPhaseList"];
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+                            .Name("RetirementPhaseId")
+                            .OptionLabel("Select Phase..")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .BindTo(RPhaseList)
+                            .AutoBind(true)
+                            
+
+
+)

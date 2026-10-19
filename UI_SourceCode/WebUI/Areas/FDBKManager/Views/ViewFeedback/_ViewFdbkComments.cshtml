@@ -1,0 +1,19 @@
+﻿@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+
+@model FeedbackViewModel
+<div id="fdbkComments">
+    @foreach (var item in Model.Comments)
+    {
+        <div class="comment-view">
+            <div class="user-icon">PR</div>
+            <div style=" width: 88%; ">
+                <div class="userName">@item.CommentedBy   <span>@item.CommentedOn</span></div>
+                <div class="userComment">
+                    @item.Comments
+                    <span hidden>@item.fdbkId</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>

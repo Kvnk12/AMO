@@ -1,0 +1,233 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+
+
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+<style>
+
+    #ViewCmpDetails .CompTitle {
+        background-color: rgb(91,121,171);
+        color: white;
+        padding: 5px;
+        border-bottom: 1px solid;
+        font-size: 1vw;
+    }
+   
+</style>
+<html>
+<body>
+    <div class="DashBoardCmpDetails">
+        @(Html.Kendo().Window()
+    .Name("ViewCmpDetails")
+    .Title("Component Details")
+    .Content(@<text>
+             <div class="CompTitle"><span id="cmpName" style="position: absolute; z-index: 9;"></span></div>
+             <div class="custom-kendo-grid report-drilldowm" id="grid-2" style=" margin-top: -1vw; position: relative;display:none">
+                    @(Html.Kendo().Grid<DashModel>()
+                                                                .Name("DashboardDetail")
+                                                                .AutoBind(false)
+                                                                .Columns(columns =>
+                                                                {
+
+                                                                    columns.Bound(p => p.AspectName).Title("Aspect").Sortable(true).Width(100);
+                                                                    columns.Group(group => group
+                                                                             .Title("First Assessment")
+                                                                             .Columns(info =>
+                                                                             {
+                                                                                 info.Bound(x => x.FirstMaturityLevel).Title("First maturity level").Width(150).Filterable(ftb => ftb.Multi(true));
+                                                                                 info.Bound(x => x.FirstComment).Title("Comments").Width(225).Encoded(false);
+                                                                             })
+                                                                         );
+                                                                    columns.Group(group => group
+                                                                             .Title("Second Assessment")
+                                                                             .Columns(info =>
+                                                                             {
+                                                                                 info.Bound(x => x.SecondMaturityLevel).Title("Second maturity level").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                                                 info.Bound(x => x.SecondComment).Title("Comments").Width(225).Encoded(false);
+                                                                             })
+                                                                         );
+                                                                })
+                                                                .ToolBar(tools =>
+                                                                {
+                                                                    tools.Excel().Text("Export -");
+                                                                })
+                                                                .Events(e => e.ExcelExport("exportexcelCmp"))
+                                                                .Resizable(r => r.Columns(true))
+                                                                .Sortable()
+                                                                .Filterable()
+                                                                .DataSource(dataSource => dataSource
+                                                                .Ajax()
+                                                                .PageSize(100)
+                                                                .Model(model =>
+                                                                {
+                                                                    model.Id(p => p.AspectName);
+
+                                                                })
+                                                                .Read(read => read.Action("ComparativeCompDeatils", "Assessment").Data("GetCmpDetails"))
+                                                                )
+                    )
+
+             </div>
+         <div class="custom-kendo-grid report-drilldowm" id="grid-3" style=" margin-top: -1vw; position: relative;">
+        @(Html.Kendo().Grid<DashModel>()
+                                                    .Name("DashboardDetail3")
+                                                    .AutoBind(false)
+                                                    .Columns(columns =>
+                                                    {
+
+                                                        columns.Bound(p => p.AspectName).Title("Aspect").Sortable(true).Width(100);
+                                                        columns.Group(group => group
+                                                                 .Title("First Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.FirstMaturityLevel).Title("First maturity level").Width(150).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.FirstComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                        columns.Group(group => group
+                                                                 .Title("Second Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.SecondMaturityLevel).Title("Second maturity level").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.SecondComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                        columns.Group(group => group
+                                                                 .Title("Third Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.ThirdMaturityLevel).Title("Third maturity level").Width(150).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.ThirdComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                       
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Events(e => e.ExcelExport("exportexcelCmp"))
+                                                    .Resizable(r => r.Columns(true))
+                                                    .Sortable()
+                                                    .Filterable()
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.AspectName);
+
+                                                    })
+                                                    .Read(read => read.Action("ComparativeCompDeatils3", "Assessment").Data("GetCmpDetails3"))
+                                                    )
+        )
+
+ </div>
+         <div class="custom-kendo-grid report-drilldowm" id="grid-4" style=" margin-top: -1vw; position: relative;display:none">
+        @(Html.Kendo().Grid<DashModel>()
+                                                    .Name("DashboardDetail4")
+                                                    .AutoBind(false)
+                                                    .Columns(columns =>
+                                                    {
+
+                                                        columns.Bound(p => p.AspectName).Title("Aspect").Sortable(true).Width(100);
+                                                        columns.Group(group => group
+                                                                 .Title("First Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.FirstMaturityLevel).Title("First maturity level").Width(150).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.FirstComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                        columns.Group(group => group
+                                                                 .Title("Second Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.SecondMaturityLevel).Title("Second maturity level").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.SecondComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                        columns.Group(group => group
+                                                                 .Title("Third Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.ThirdMaturityLevel).Title("Third maturity level").Width(150).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.ThirdComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                        columns.Group(group => group
+                                                                 .Title("Four Assessment")
+                                                                 .Columns(info =>
+                                                                 {
+                                                                     info.Bound(x => x.FourMaturityLevel).Title("Fourth maturity level").Width(160).Filterable(ftb => ftb.Multi(true));
+                                                                     info.Bound(x => x.FourComment).Title("Comments").Width(225).Encoded(false);
+                                                                 })
+                                                             );
+                                                    })
+                                                    .ToolBar(tools =>
+                                                    {
+                                                        tools.Excel().Text("Export -");
+                                                    })
+                                                    .Events(e => e.ExcelExport("exportexcelCmp"))
+                                                    .Resizable(r => r.Columns(true))
+                                                    .Sortable()
+                                                    .Filterable()
+                                                    .DataSource(dataSource => dataSource
+                                                    .Ajax()
+                                                    .PageSize(100)
+                                                    .Model(model =>
+                                                    {
+                                                        model.Id(p => p.AspectName);
+
+                                                    })
+                                                    .Read(read => read.Action("ComparativeCompDeatils4", "Assessment").Data("GetCmpDetails4"))
+                                                    )
+        )
+
+ </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    //.Width(900)
+    //.Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+
+</body>
+</html>
+
+<script>
+    
+    function exportexcelCmp(e) {
+        var sheet = e.workbook.sheets[0];
+        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+            var row = sheet.rows[rowIndex];
+            var cmtdata = row.cells[2].value;
+            cmtdata = cmtdata.replaceAll("<br>", " ; ");
+            cmtdata = cmtdata.replaceAll("&nbsp;", "");
+           
+            console.log(row.cells[2].value);
+            console.log(cmtdata);
+            row.cells[2].value = cmtdata;
+
+        }
+
+    }
+</script>

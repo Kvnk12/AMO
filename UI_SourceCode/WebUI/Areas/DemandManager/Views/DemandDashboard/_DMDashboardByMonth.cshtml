@@ -1,0 +1,114 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers;
+@using WebUI.Areas.DemandManager.Dto;
+@using WebUI.Areas.DemandManager.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+<div>
+    <div class="top-content-heading">
+        <div class="top-content-head ticket-trend-chart">
+            <h6>Distribution by Month </h6>
+        </div>
+        <div class="top-content-right">
+            <p class="view-type graph-view" id="d1c5">Table/Graph</p>
+            <span class="expand-view" title="Maximise the chart" onclick="maximiseChartDistributionbyMonth()"></span>
+        </div>
+    </div>
+    <div class="chart-content">
+        <div class="chart-area">
+            @(Html.Kendo().Chart<DMChartDashboardModel>()
+                                        .Name("Chart5")
+                                        //.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+                                        .Legend(legend => legend
+    .Visible(true)
+    .Labels(labels => labels
+    .Template("Values in Numbers")
+    )
+    .Align(ChartLegendAlign.Start)
+    .Position(ChartLegendPosition.Bottom)
+    )
+                                        .ChartArea(chartArea => chartArea
+                                        .Background("transparent")
+                                        .Height(280)
+                                        )
+                                        .DataSource(ds => ds.Read(read => read.Action("GetDashboard2Trend", "DemandDashboard").Data("GetDistributionMonthParameter")))
+                                        .Series(series =>
+                                        {
+                                            series.Column(model => model.DemandCount).Name("Demand Count").CategoryField("Dim").Labels(labels => labels.Position(ChartBarLabelsPosition.OutsideEnd).Background("transparent").Visible(true)).Color("#19BDFF");
+                                        })
+                                        .CategoryAxis(axis => axis
+                                         .Min(0)
+                                         .Max(8)
+                                        //.Categories(model =>model.)
+                                        .Line(line => line.Visible(false))
+                                        .MajorGridLines(lines => lines.Visible(false))
+                                        .Labels(labels => labels.Rotation(0))
+                                        //.Title(title => title.Text("Priority").Font("12px Arial,Helvetica,sans-serif"))
+                                        )
+                                        .ValueAxis(axis => axis
+                                        .Numeric()
+                                        //.Max(10)
+                                        .Line(line => line.Visible(false))
+                                        //.Labels(labels => labels.Rotation(-90))
+                                        //.MajorGridLines(lines => lines.Visible(true))
+                                        .MajorGridLines(1, "#D7DBDD", ChartDashType.Dot).Visible(true)
+                                        //.Title(title => title.Text("Incident Count").Font("12px Arial,Helvetica,sans-serif"))
+
+                                        )
+                                        .Tooltip(tooltip => tooltip
+                                        //.Background("transparent")
+                                        .Visible(true)
+                                        .Color("#000000")
+                                        .Template("#= series.name #: #= value #")
+
+                                        )
+                                        .Pannable(pannable => pannable
+                                        .Lock(ChartAxisLock.Y)
+                                        )
+                                        .Zoomable(zoomable => zoomable
+                                        .Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+                                        .Selection(selection => selection.Lock(ChartAxisLock.Y))
+                                    )
+                                         .Events(events => events
+                                        .SeriesClick("onMonthSeriesClick")
+                                        )
+        )
+        </div>
+    </div>
+    <div class="table-content hide" style="color: #000;padding: 0 18px;">
+        <div class="head-div" style="display: flex; border: 2px solid rgb(91,121,171); width: 101.1%; padding: 2px 0 0 4px ">
+            <div style="width:149px" onclick="kendoGridHeaderSort('Chart5Grid', 'Dim')">Month</div>
+            <div style="width:109px" onclick="kendoGridHeaderSort('Chart5Grid', 'DemandCount')">Demand Count</div>
+            <div style="width:37px" onclick="kendoGridHeaderSort('Chart5Grid', 'Percent')">in %</div>
+        </div>
+        @(Html.Kendo().Grid<DMChartDashboardModel>
+                                        ()
+                                        .Name("Chart5Grid")
+                                        .Columns(columns =>
+                                        {
+
+                                            columns.Bound(e => e.LongCategory).Title("Category").Hidden();
+                                            columns.Bound(e => e.Dim).Title("Month").Width(149).ClientFooterTemplate("Total");
+                                            columns.Bound(e => e.DemandCount).Title("Demand Count").Width(109).ClientFooterTemplate("#=sum#");
+                                            columns.Bound(e => e.Percent).Title("in %").ClientFooterTemplate("100");
+                                        })
+                                        // .Scrollable()
+                                        .AutoBind(true)
+                                        .HtmlAttributes(new { style = "height:235px;" })
+                                        .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                         .Aggregates(agg =>
+                                         {
+                                             agg.Add(p => p.DemandCount).Sum();
+                                             agg.Add(p => p.Percent).Sum();
+                                         })
+                                        // .PageSize(25)
+                                        .Read(read => read.Action("GetDashboard2TrendGrid", "DemandDashboard").Data("GetDistributionMonthParameter"))
+                                                                                                                                                                                                                                                  )
+        )
+    </div>
+
+</div>

@@ -1,0 +1,404 @@
+﻿@using WebUI.Dto
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions
+
+@model NTTData.AMOPortal.WebUI.Dto.UserProfileModel
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.Title = "Edit Profile";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    Layout = "~/Views/Shared/GenericLayout.cshtml";
+}
+<style>
+    #IDEditFormSubmit .form-control {
+        width: 250px;
+        display: inline-block;
+    }
+
+    .pcBold {
+        font-weight: bold;
+    }
+    .btn.dropdown-toggle.selectpicker.btn-default {
+        width:250px;
+    }
+    .verifiedCls {
+        position: absolute;
+        top: 50%;
+        right: 16px;
+        margin-top: -2px;
+        vertical-align: middle;
+    }
+    .newVerifiedClass {
+        position: absolute;
+        right: -102px;
+        top: 5px;
+        font-size: 20px;
+    }
+
+    #IDEditFormSubmit .glyphicon-ok-sign:before {
+        content: "\e084";
+        position: absolute;
+        top: -14px;
+        margin-left: 2px;
+    }
+</style>
+<div class="content-main"id="wrap" style="height:1000px;">
+    <div class="well well-sm"><strong>Edit User Details</strong></div>
+    <div style="margin:15px;">
+
+        <div class="leftarea form-horizontal">
+            @using (Html.BeginForm("User_UpdateProfile", "Account", FormMethod.Post, new { @class = "form-horizontal", id = "IDEditFormSubmit" }))
+            {
+                <div class="alert alert-danger" style="width:73%" id="IDShowPageErrorMsg" hidden></div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UserName, new { @class = "col-sm-4 control-label" })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control", @readonly = true })
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.FirstName, new { @class = "col-sm-4 control-label" })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.LastName, new { @class = "col-sm-4 control-label " })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <strong>@Html.Label("Country", new { @class = "col-sm-4 control-label pcBold" })</strong>
+                    <div class="col-sm-3">
+                        @Html.DropDownListFor(m => m.CountryCode, new SelectList(Model.CountryList, "Value", "Text", Model.CountryCode), "", new
+                   {
+                       @class = "selectpicker",
+                   })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <strong>@Html.Label("Phone", new { @class = "col-sm-4 control-label pcBold" })</strong>
+                    <div class="col-sm-8" style="display:inline-block">
+                        @Html.TextBoxFor(m => m.Phone, new {
+                       @class = "form-control",
+                       id = "IDPhoneTextBox",
+                       @type = "tel",
+                       pattern = "[0-9]{3}-[0-9]{3}-[0-9]{4}",
+                       required = true,
+                       maxlength="10"
+                   })
+
+                    @{
+                        if (Model.IsPhoneVerified)
+                        {
+                        <span id="phoneVerifiedSign" class="glyphicon glyphicon-ok-sign" style="color:green;display:inline-block;font-size: 18px;position: relative;" data-toggle="tooltip" title="Verified Number">
+                        </span>
+                        }
+                    }
+
+                    </div> 
+                    
+
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.JobTitle, new { @class = "col-sm-4 control-label" })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.JobTitle, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ReportingManager, new { @class = "col-sm-4 control-label" })
+                    <div class="col-sm-3">
+                        @Html.TextBoxFor(m => m.ReportingManager, new { @class = "form-control" })
+                    </div>
+                </div>
+
+                @Html.HiddenFor(m => m.Id)
+
+
+                <div class="col-sm-5 pull-right">
+                    @*<button class="btn btn-primary" id="IDEditBtn">Save</button>*@
+                    <a href="#" class="btn btn-primary" onclick="OnSaveDetails()">Save</a>
+                    <a href="@Url.Action("Appstore", "Home")" class="btn btn-default">Back</a>
+                </div>
+            }
+        </div>
+        <div class="rightarea form-horizontal">
+            @* Kendo Grid *@
+            <div style="width:60%">
+
+                @(Html.Kendo().Grid<LoggedDevices>()
+                                   .Name("SavedDevices")
+                                   .Columns(columns =>
+                                   {
+                                       columns.Bound(e => e.MFADeviceId).Hidden();
+                                       columns.Bound(e => e.DeviceName).Title("Logged In Devices");
+                                       columns.Command(command => { command.Destroy(); }).Width(100);
+                                   })
+                                   .Sortable()
+                                   .Scrollable()
+
+                                   .HtmlAttributes(new { style = "height:300px;" })
+                                   .DataSource(dataSource => dataSource
+                                       .Ajax()
+                                       .Model(model => model.Id(e => e.MFADeviceId))
+                                       .Destroy(update => update.Action("DeleteSavedDevice", "MFA"))
+                                       .Read(read => read.Action("GetDeviceList", "MFA"))
+                                       )
+
+                )
+            </div>
+
+
+
+        </div>
+    </div>
+
+</div>
+
+<div class="modal active" id="PhoneVerifyModal">
+    <div class="modal-dialog" style="width:35%; margin:auto">
+        <div class="modal-content">
+
+            <div class="modal-header" style="text-align:center; margin:3px; ">
+                <button type="button" class="close" data-bs-dismiss="modal" id="modalCloseBtn" aria-hidden="true">×</button>
+                <h4 class="modal-title">Verify your Phone Number</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="width:300px;">
+                    <div id="IDerrorMessage" class="alert alert-danger" hidden>
+
+                    </div>
+                    <div id="IDsuccessMessage" class="alert alert-success" hidden>
+
+                    </div>
+                </div>
+                <div>
+
+                    <input type="text" name="verificationCode" id="IDverificationCode" class="form-control" required />
+                    <div id="countdown-timer"></div>
+                    <div style="margin:3px;">
+                        <span>Didn't receive yet? </span><a href='#' onclick='ReSendVerificationCode()'>Resend OTP</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#"  onclick="verifyCode();" id="btnVerifyCode"  class="btn btn-primary">Verify</a>
+                <button class="btn btn-default" data-bs-dismiss="modal" id="modalCloseBtn1">Cancel</button>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+    <script type="text/javascript">
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+        $("#modalCloseBtn").click(function (e) {
+            $('#PhoneVerifyModal').hide();
+            $('#IDsuccessMessage').hide();
+            $('#IDerrorMessage').hide();
+        });
+        $("#modalCloseBtn1").click(function (e) {
+            $('#PhoneVerifyModal').hide();
+            $('#IDsuccessMessage').hide();
+            $('#IDerrorMessage').hide();
+        });
+
+        $("#IDPhoneTextBox").change(function (e) {
+            $("#phoneVerifiedSign").hide();
+            if ($("#IDPhoneTextBox").val().trim() == '' || $("#IDPhoneTextBox").val().trim().length!=10) {
+                $("#btnVerifyCode").prop("disabled", true);
+                $('#PhoneVerifyModal').hide();
+                $('#phoneVerifiedSign').hide();
+                document.getElementById("IDShowPageErrorMsg").innerText = 'Invalid Phone!';
+               
+            }
+            else {
+                $("#btnVerifyCode").prop("disabled", false);
+            }
+        });
+
+        function OnSaveDetails() {
+            var cc = $('#CountryCode :selected').val();
+            var ph = $('#IDPhoneTextBox').val();
+            if ('@Model.Phone' != ph || '@Model.CountryCode' != cc) {
+
+
+                $('#PhoneVerifyModal').show();
+                if (SendVerificationCode(ph, cc)) {
+                    return false;
+
+                }
+                else {
+
+                    return false;   
+                }
+                return false;
+
+
+            }
+            else {
+                //alert('Invalid Entries!');
+                //return false;
+                $("#IDEditFormSubmit").submit();
+            }
+        }
+
+        function ReSendVerificationCode() {
+
+            $('#IDsuccessMessage').hide();
+            $('#IDerrorMessage').hide();
+            var CCode = $('#CountryCode :selected').val();
+            var phone = $('#IDPhoneTextBox').val();
+            var baseurl = '';
+            baseurl = '@Url.Content("~/Account/AjaxSendOTP")';
+            // alert(baseurl);
+            var dataToPost = {
+                Phone: phone,
+                CountryCode: CCode
+            };
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'POST',
+                async:false,
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.success) {
+                        $('#btnVerifyCode').prop('disabled', false);
+                        $('#IDsuccessMessage').show();
+                        document.getElementById("IDsuccessMessage").innerText = data.success;
+                        return false;
+                    }
+                    else {
+                        document.getElementById("IDerrorMessage").innerText = '';
+                        document.getElementById("IDerrorMessage").innerText = data.failure;
+                        $('#IDerrorMessage').show();
+                        return false;
+                    }
+                },
+                error: function (err) {
+                    document.getElementById("IDerrorMessage").innerText = err.message;
+                    $('#IDerrorMessage').show();
+                    return false;
+                }
+            });
+        }
+
+        function SendVerificationCode(phone, CCode) {
+            $('#IDerrorMessage').hide();
+            $('#IDsuccessMessage').hide();
+            var baseurl = '';
+            baseurl = '@Url.Content("~/Account/AjaxSendOTP")';
+            // alert(baseurl);
+            var dataToPost = {
+                Phone: phone,
+                CountryCode: CCode
+            };
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'POST',
+                async:false,
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data.success) {
+                            document.getElementById("IDsuccessMessage").innerText = 'OTP Sent!';
+                            $('#IDsuccessMessage').show();
+                        }
+                        else {
+                            document.getElementById("IDerrorMessage").innerText = '';
+                            document.getElementById("IDerrorMessage").innerText = data.failure;
+                            $('#IDerrorMessage').show();
+                        }
+                        
+                },
+                error: function (err) {
+                    document.getElementById("IDerrorMessage").innerText = err.message;
+                    $('#IDerrorMessage').show();
+                    return false;
+                }
+            });
+        }
+
+
+        function verifyCode () {
+            $('#IDerrorMessage').hide();
+            $('#IDsuccessMessage').hide();
+            var baseurl = '';
+            baseurl = '@Url.Content("~/Account/AjaxVerifyPhoneNumber")';
+           // alert(baseurl);
+            var dataToPost = {
+                Code: $('#IDverificationCode').val(),
+            };
+            $.ajax(
+            {
+                url: baseurl,
+                type: 'POST',
+                async:false,
+                data: JSON.stringify(dataToPost),
+                contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        if (data.success) {
+                            document.getElementById("IDsuccessMessage").innerText = 'Verified!';
+                            $('#IDsuccessMessage').show();
+                            $("#IDEditFormSubmit").submit();
+                        }
+                        else {
+                            document.getElementById("IDerrorMessage").innerText = '';
+                            document.getElementById("IDerrorMessage").innerText = data.failure;
+                            $('#IDerrorMessage').show();
+                            return false;
+                        }
+                },
+                    error: function (err) {
+                        document.getElementById("IDerrorMessage").innerText = err.message;
+                        $('#IDerrorMessage').show();
+                    return false;
+                }
+            });
+
+        };
+
+        @*function deleteDevice(Id) {
+
+        var baseurl = '';
+        baseurl = '@Url.Content("~/MFA/AjaxDeleteSavedDevice")';
+       // alert(baseurl);
+        var dataToPost = {
+            RowID: Id,
+        };
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $('#PhoneVerifyModal').hide();
+                window.location.reload(true);
+            },
+            error: function () {
+                alert('Server Error!');
+            }
+        });
+
+    };*@
+
+    </script>
+</div><!-- /.modal -->
+

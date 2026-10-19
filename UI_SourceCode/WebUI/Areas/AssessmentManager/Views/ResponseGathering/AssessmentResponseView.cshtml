@@ -1,0 +1,1075 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@using System.IO;
+
+@model A3MMModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    List<A3MMModel> QuestionSetList = new List<A3MMModel>();
+
+}
+<style>
+    .pager-btn {
+        width: 100%;
+        border: none;
+        text-align: left;
+        padding-left: 15px !important;
+    }
+
+    #EngagementResponseDiv table tbody tr td.k-editor-content .k-iframe {
+        height: 5vw;
+    }
+
+    .ques-eng-editor table.k-editor .k-editable-area {
+        height: 4vw;
+    }
+
+    #EngagementResponseDiv table tbody tr td.k-editor-toolbar-wrap ul.k-toolbar.k-editor-toolbar.k-toolbar-resizable {
+        height: 2vw;
+    }
+
+    #saveAlertModal .alert {
+        width: 30vw;
+        height: 4.5vh !important;
+        padding: unset;
+        display: flex;
+    }
+
+    .arrow1 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow1::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow1.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow2 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow2::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow2.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow3 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow3::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow3.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow4 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow4::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow4.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+    .arrow5 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow5::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow5.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+        
+    .arrow11 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow11::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow11.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .arrow22 {
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        /* justify-content: space-between; */
+        align-items: center;
+    }
+
+        .arrow22::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform-origin: 0 50%;
+            transform: rotate(90deg);
+            transition: transform .5s;
+            margin-top: -0.5em;
+        }
+
+        .arrow22.down::before {
+            position: relative;
+            content: '';
+            width: 0;
+            height: 0;
+            border: .5em solid transparent;
+            border-left-color: #5876AA;
+            transform: rotate(0deg);
+            transition: transform .25s;
+            margin-top: -0.5px;
+        }
+
+    .fileAttachment {
+        display: flex;
+        font-size: 0.9vw;
+        padding: 2px 5px;
+        color: rgb(91,121,171);
+        background-color: white;
+        margin-right: 0.5vw;
+        border-radius: 5px;
+        border: 1px solid rgb(91,121,171);
+        margin-top: 9px;
+    }
+
+    .refMat .k-widget {
+        border-color: transparent;
+    }
+
+    .refMat .k-upload {
+        border-radius: unset;
+    }
+
+    .refMat .k-dropzone {
+        color: transparent;
+        background-color: transparent;
+        padding: unset;
+    }
+
+    .refMat .k-button-solid-base {
+        border-color: rgb(91,121,171);
+        color: white;
+        background-color: rgb(91,121,171);
+        padding: 2px;
+        margin-right: 4px;
+    }
+
+    .fileAtt-delbtn {
+        font-size: 1.5vw;
+        padding-left: 0.7vw;
+        cursor: pointer;
+        height: 1vw;
+        margin-top: -0.6vw;
+    }
+
+    .k-dropzone .k-upload-status, .k-dropzone .k-dropzone-hint, .k-upload .k-action-buttons, .k-upload-files.k-reset {
+        display: none;
+    }
+
+
+    #selfAssessmentSaveAlertModal .alert {
+        width: 30vw;
+        height: 4.5vh !important;
+        padding: unset;
+        display: flex;
+    }
+
+    /* Self Assessment Styles*/
+    .eng-dg-SA {
+        margin: 1em 1em 1em 1em;
+    }
+
+    .eng-ratingButton {
+        margin-right: 1em;
+        border-radius: 4px;
+        height: 1.25em;
+        width: 0.5em;
+        border: none;
+        color: white;
+        font-weight: bold;
+    }
+
+    #ratingSelected {
+        color: red;
+        margin-top: -1vw;
+        font-style: italic;
+        font-size: 12px;
+        margin-left: 0.3vw;
+    }
+
+
+    #ratingImg {
+        background-size: 12px;
+        background-repeat: no-repeat;
+        height: 12px;
+        margin-top: -0.8vw;
+    }
+
+
+    textarea::placeholder {
+        color: black;
+        font-style: italic;
+        font-size: x-small;
+    }
+
+    .eng-comments {
+        /*margin-left: -0.5vw;*/
+        margin-top: -1vw;
+        /*//height:10px;*/
+    }
+
+    .mark-as-complete {
+        margin-top: 1vw;
+    }
+
+        .mark-as-complete .k-checkbox + .k-checkbox-label, .k-checkbox-label + .k-checkbox {
+            margin-left: 4px;
+            margin-top: 0.5vw;
+        }
+
+        .mark-as-complete .k-checkbox:checked {
+            border-color: black;
+            color: black;
+            background-color: white;
+        }
+
+    /*.k-window-titlebar .k-window-action {
+    display: none;
+    }*/
+
+
+    .custom-scrollbar1::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar1::-webkit-scrollbar-track-piece {
+        background-color: #CCCCCC;
+        border-radius: 7px;
+    }
+
+    .custom-scrollbar1::-webkit-scrollbar-thumb:vertical {
+        background-color: rgb(91,121,171);
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    eng-ratingButton:hover {
+        border-style: dashed;
+        border-width: 3px;
+        color: white;
+        height: 13.2vh;
+        width: 7vw;
+        border-radius: 21px;
+        position: relative;
+        margin-top: -5%;
+        margin-left: -5%;
+    }
+
+    .eng-ratingButton:hover {
+        border-style: dashed;
+        border-width: 2px;
+        color: black;
+        height: 1.25em;
+        width: 0.5em;
+        border-radius: 5px;
+    }
+
+    .eng-dg-SA-ratingButtons {
+        height: 3em;
+    }
+
+    #selfAssessmentSaveAlertModal #engagementSASuccessLabel {
+        width: 19vw;
+        height: 8.5vh !important;
+        padding: unset;
+        display: flex;
+        margin-left: 112%;
+        margin-top: 8%;
+    }
+
+    .k-animation-container .k-tooltip.k-popup .k-tooltip-content {
+        min-height: 20px;
+        max-width: 300px;
+        min-width: 50px;
+        width: unset !important;
+    }
+
+    .eng-ratingButton {
+        position: relative; /* This allows us to position the pseudo-elements relative to the button */
+        padding: 8px 16px;
+        background-color: #f0f0f0;
+        outline: none;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 2em;
+        border-radius: 4px;
+        height: 1.5em;
+        width: 0.5em;
+        color: white;
+        border: none;
+        text-align: center;
+    }
+
+        .eng-ratingButton::before {
+            content: '';
+            position: absolute;
+            pointer-events: none; /* This ensures the pseudo-elements don't interfere with button interaction */
+            transition: all 0.3s ease; /* Smooth transition for hover and click effects */
+        }
+
+
+
+        .eng-ratingButton::after {
+            content: '';
+            position: absolute;
+            pointer-events: none; /* This ensures the pseudo-elements don't interfere with button interaction */
+            transition: all 0.3s ease; /* Smooth transition for hover and click effects */
+        }
+
+        .eng-ratingButton::before,
+        .eng-ratingButton::after {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .eng-ratingButton:hover::before {
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 2px solid #000;
+            border-radius: 6px;
+        }
+
+        .eng-ratingButton:hover::after {
+            top: -7px;
+            left: -7px;
+            right: -7px;
+            bottom: -7px;
+            border: 2px dashed #000;
+            border-radius: 8px;
+        }
+
+        .eng-ratingButton.clicked::before {
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 2px solid #000;
+            border-radius: 6px;
+        }
+
+        .eng-ratingButton.clicked::after {
+            top: -7px;
+            left: -7px;
+            right: -7px;
+            bottom: -7px;
+            border: 2px dashed #000;
+            border-radius: 8px;
+        }
+</style>
+
+@Html.HiddenFor(m => m.AssessmentID)
+<input type="hidden" value="@Model.AssessmentID" id="AssessmentId" />
+<input value="@Model.VersionID" id="VersionId" type="hidden" />
+<div class="content-main dark-bg " style="padding: 0 30px 48px">
+    <ol class="breadcrumb" style="font-size: 11px;">
+        <li>Assessment Manager</li>
+        <li class="active"> Assessment Respone View</li>
+    </ol>
+    <div class=" neweg-bg egdscreen" style="display:flex;">
+        <label style="color: white; font-size: 12px;">Assessment : @Model.AssessmentName</label>
+        <label style="color: white; font-size: 12px; margin-left: 12px; border-left: 1px dashed; padding-left: 10px;">Assessment Status : @Model.Status</label>
+    </div>
+    <div class="eng-que-quedrp">
+
+        <label style="font-size:12px;color: white; padding-right: 1em; border-right: 1px solid #ffffff;">Question Identifier</label>
+
+        <div style="display:flex">
+
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Discipline : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.DisciplineId)
+           .DataTextField("Text")
+           .DataValueField("Value")
+           .BindTo(Model.DisciplineList)
+           .Enable(true)
+           .Value(Model.DisciplineId.ToString())
+           .Name("DisciplineId")
+           .Events(e =>
+           {
+               e.Change("onChangeDscName");
+           })
+           .HtmlAttributes(new { style = "width:12vw;background-color:#fff;" })
+                                )
+                </div>
+            </div>
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Component : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.ComponentId)
+           .DataTextField("Text")
+           .DataValueField("Value")
+           //.BindTo(Model.ComponentList)
+           .Value(Model.ComponentId.ToString())
+           .Enable(true)
+           .Name("ComponentId")
+           .Events(e =>
+           {
+               e.Change("onChangeCompName");
+           })
+
+           //.AutoBind(false)
+           .DataSource(d => d.Read(r => r.Action("Readcomponent", "Assessment").Data("loadcomponent")))
+
+
+           .HtmlAttributes(new { style = "width:12vw;background-color:#fff;padding-right: 0.2em;" })
+                               )
+                </div>
+            </div>
+            <div class="eng-ques-drpsec">
+                <div class="eng-ques-drplbl">Aspect : </div>
+                <div class="new-dropdown">
+                    @(Html.Kendo().DropDownListFor(m => m.AspectID)
+          .DataTextField("Text")
+          .DataValueField("Value")
+          //.BindTo(Model.AspectList)
+          .Value(Model.AspectID.ToString())
+          .Enable(true)
+
+           .Events(e =>
+           {
+               e.Change("onChangeAspName");
+           })
+           // .AutoBind(false)
+           .DataSource(d => d.Read(r => r.Action("ReadAspect", "Assessment").Data("loadAspect")))
+          .HtmlAttributes(new { style = "width:12vw;background-color:#fff;" })
+           )
+                </div>
+            </div>
+            <div style="padding-left: 2em;  border-left: 1px solid #ffffff;"></div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 0.3vw; margin-right: -2vw; ">
+
+                <button style=" width: 5vw; font-size: 0.95vw; margin-right: 1em; margin-left: -7px;" class="custom-button " type="button" onclick="onChangeADCName()"> APPLY </button>
+                <button style="width: 5vw; color: #fff; font-size: 0.9vw; margin-top: 2px; margin-right: 1em; background-image: url(../../Content/images/revise.svg); background-repeat: no-repeat; border: none; background-color: transparent; padding-left: 1vw; background-size: 0.9vw; background-position: left;" class="custom-button" type="button" onclick="onclearADCName()">CLEAR</button>
+            </div>
+        </div>
+    </div>
+    <div class="question-content">
+        <div class="ques-nav">
+            @Html.Partial("_QuestionNavigation")
+        </div>
+
+        <div class="ques-detail">
+            <div class="ques-detail-head">
+                Details
+            </div>
+            <div class="ques-detail-content">
+                @Html.Partial("_AssessmentViewQuestionDetail")
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while Submitting.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em;">Response Submitted Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess2" style="display: none; width: 29vw; height: 5.5vh !important;">
+                <div style="display:flex">
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em;">Question set has been deleted.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="deleteDraftModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span hidden id="refId"></span>
+                <span>Do you want to delete the reference material</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="deleteFileRef()">OK</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="selfAssessmentSaveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblError1" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while Submitting.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-danger" id="lblError2" style="display: none; height:11.5vh !important;">
+                <div style="display:flex">
+
+                    <label id="labelContent" style="width: 26vw; margin-top: 4px; margin-left: 1em; ">Response for this question is marked as complete, Self assessment can not be provided</label>
+                    <button style="margin-top: -5px;cursor:pointer; " type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-success" id="engagementSASuccessLabel" style="display:none">
+                <div style="display:flex">
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <label style="width: 18em; margin-top: 1vw;">Response is saved successfully</label>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        $('#RefFiles').attr('title', '');
+        var responseStatus = @Html.Raw(Json.Encode(Model.Response));
+
+         var loadedSQno =@Html.Raw(Json.Encode(Model.SQNo));
+         $(".pager-btn").removeClass("ques-selected");
+         $("#Quesid_" + loadedSQno).addClass("ques-selected");
+         var grpsec = $("#Quesid_" + loadedSQno).attr('data-grp');
+         callleftQuestionNavigation(grpsec);
+    });
+    var isdrpchanged = 0;
+    var isdiscChanged = 0;
+    var iscompChanged = 0;
+    var isAspChanged = 0;
+    var GDisciplineId = 0;
+    var GComponentId = 0;
+    var GAspectID = 0;
+    function onChangeDscName() {
+        isdiscChanged = 1;
+        iscompChanged = 0;
+        isAspChanged = 0;
+        $("#ComponentId").data("kendoDropDownList").dataSource.read();
+        $("#AspectID").data("kendoDropDownList").dataSource.read();
+        GDisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+    }
+    function onChangeCompName() {
+        isdiscChanged = 0;
+        iscompChanged = 1;
+        isAspChanged = 0;
+        $("#AspectID").data("kendoDropDownList").dataSource.read();
+        GComponentId = $("#ComponentId").data("kendoDropDownList").value();
+    }
+    function onChangeAspName() {
+        isdiscChanged = 0;
+        iscompChanged = 0;
+        isAspChanged = 1;
+        GAspectID = $("#AspectID").data("kendoDropDownList").value();
+    }
+    function onChangeADCName() {
+         isdrpchanged = 1;
+
+     var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+     var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+     var AspectID = $("#AspectID").data("kendoDropDownList").value();
+     var mod = {
+         AssessmentID: @Model.AssessmentID,
+         DisciplineId: DisciplineId,
+         ComponentId: ComponentId,
+         AspectID: AspectID,
+         isdiscChanged: isdiscChanged,
+         iscompChanged: iscompChanged,
+         isAspChanged: isAspChanged
+
+			};
+
+			var data1 = JSON.stringify(mod);
+			baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/GetAssessmentTypeWithACD")';
+
+         $.ajax(
+             {
+                 url: baseurl1,
+                 type: 'post',
+                 data: data1,
+                 async: false,
+                 contentType: 'application/json; charset=utf-8',
+                 success: function (data) {
+                     //console.log(data);
+                     $('#Id-ques-navigation-main').html(data);
+                     var assId = document.getElementById("AssessmentId").value;
+                     var sqno = document.getElementById("nav-Sqno-id").value;
+
+                    // console.log(sqno, assId);
+                     pageSelectalert(sqno, assId);
+                        }
+                 });
+
+ }
+    function loadcomponent() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        // var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId
+        }
+    }
+    function loadAspect() {
+
+        var DisciplineId = $("#DisciplineId").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId,
+            ComponentId: ComponentId
+        }
+    }
+    var ischanged = false;
+    function pageSelectalert(QNo, AssessmentID) {
+
+            pageClick(QNo, AssessmentID);
+
+    }
+    function pageClick(QNo, AssessmentID) {
+        $(".pager-btn").removeClass("ques-selected");
+        $("#Quesid_" + QNo).addClass("ques-selected");
+        var grpsec = $("#Quesid_" + QNo).attr('data-grp');
+        callleftQuestionNavigation(grpsec);
+            var mod = {
+	        AssessmentID: AssessmentID,
+			SQNo : QNo
+		  };
+          var data1 = JSON.stringify(mod);
+          baseurl1 = '@Url.Content("~/AssessmentManager/ResponseGathering/GetPageClickAssessmentDetailforResponseView")';
+$.ajax(
+	{
+		url: baseurl1,
+		type: 'post',
+		data: data1,
+		async: false,
+		contentType: 'application/json; charset=utf-8',
+        success: function (data) {
+            $('#Id-dynamicpartial').html(data);
+            //$("#EngagementSAComments").val("");
+            //document.getElementById("EngagementSAComments").value = "";
+
+
+
+            var responseStatus = $('#responseStatusOnQuestionClick').text();
+
+            if (responseStatus == 'Completed') {
+
+               // console.log("response status on Question click : ", responseStatus);
+
+                var elements = document.getElementsByClassName("editdisablebtn");
+
+              //  console.log("button elements ",elements);
+              //  console.log("button elements length",elements.length);
+                for (var i = 0; i < elements.length; i++) {
+
+                 //   console.log(elements[i]);
+                 //   console.log("individual button element id", elements[i].id);
+                    document.getElementById(elements[i].id).disabled=true;
+                }
+
+                var elements1 = document.getElementsByClassName("eng-res-texteditor");
+            //    console.log(elements1);
+            //    console.log(elements1.length);
+                for (var i = 0; i < elements1.length; i++) {
+
+                 //   console.log(elements1[i]);
+                 //   console.log("individual element id", elements1[i].id);
+                    $($('#' + elements1[i].id).data().kendoEditor.body).attr('contenteditable', false);
+                }
+
+
+                //document.getElementById('RefFiles').disabled = true;
+                var browseUpload = $("#RefFiles").data("kendoUpload");
+              //  browseUpload.disable();
+
+            //    document.getElementById('browseSave').disabled = true;
+            //    document.getElementById('selfAssessmentbtn').disabled = true;
+             //   document.getElementById('btnrating').disabled = true;
+
+                $(".fileAtt-delbtn").css('display', 'none');
+
+            }
+            var Id_Discipline = document.getElementById("Id-Discipline").value;
+            var Id_Component = document.getElementById("Id-Component").value;
+            var Id_Aspect = document.getElementById("Id-Aspect").value;
+
+			var DisciplineDropdown = $("#DisciplineId").data("kendoDropDownList");
+			DisciplineDropdown.value(Id_Discipline);
+			var ComponentDropdown = $("#ComponentId").data("kendoDropDownList");
+                  ComponentDropdown.dataSource.read();
+                  setTimeout(function () {
+                      ComponentDropdown.value(Id_Component);
+                  }, 500);
+                  var AspectDropdown = $("#AspectID").data("kendoDropDownList");
+                  setTimeout(function () {
+                      AspectDropdown.dataSource.read();
+                      setTimeout(function () {
+                          AspectDropdown.value(Id_Aspect);
+                      }, 900);
+
+                  }, 1000);
+
+
+
+		}
+          })
+
+    }
+    function onclearADCName() {
+        isdiscChanged = 0;
+        iscompChanged = 0;
+        isAspChanged = 0;
+        $("#DisciplineId").data("kendoDropDownList").select(0);
+        $("#ComponentId").data("kendoDropDownList").select(0);
+        $("#AspectID").data("kendoDropDownList").select(0);
+        onChangeADCName();
+    }
+    function Downloaduploadedfile(fid) {
+   var mod = {
+       fileId: fid
+   };
+   var data1 = JSON.stringify(mod);
+   baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/DownloaduploadedfileAction")';
+   $.ajax(
+       {
+           url: baseurl1,
+           type: 'post',
+           data: data1,
+           async: false,
+           contentType: 'application/json; charset=utf-8',
+           success: function (response) {
+                x = fid;
+               window.location = '@Html.Raw(@Url.Action("DownloaduploadedfileAction", "Assessment"))' + '?fileId=' + x;
+           },
+           error: function (err, response) {
+           }
+       })
+  }
+    function callleftQuestionNavigation(grpsec) {
+        if (grpsec == 'unans') {
+            $(".blockA").addClass("active");
+            $('.blockA').css('display', 'block')
+            $(".arrow1").removeClass("down");
+            Ggroupname = "Unanswered";
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $(".arrow3").addClass("down");
+            $('.blockC').css('display', 'none')
+            $(".blockC").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'Resinprogress') {
+            $(".blockB").addClass("active");
+            $('.blockB').css('display', 'block')
+            $(".arrow2").removeClass("down");
+            Ggroupname = "ResponseInProgress";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow3").addClass("down");
+            $('.blockC').css('display', 'none')
+            $(".blockC").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'Responded') {
+            $(".blockC").addClass("active");
+            $('.blockC').css('display', 'block')
+            $(".arrow3").removeClass("down");
+            Ggroupname = "Responded";
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'RatingInProgress') {
+            $(".blockD").addClass("active");
+            $('.blockD').css('display', 'block')
+            $(".arrow4").removeClass("down");
+            Ggroupname = "RatingInProgress";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockE').css('display', 'none')
+            $(".arrow5").addClass("down")
+            $(".blockE").removeClass("active")
+        } else if (grpsec == 'comp') {
+            $(".blockE").addClass("active");
+            $('.blockE').css('display', 'block')
+            $(".arrow5").removeClass("down");
+            Ggroupname = "Completed";
+
+            $(".arrow1").addClass("down");
+            $('.blockA').css('display', 'none')
+            $(".blockA").removeClass("active");
+
+            $(".arrow2").addClass("down");
+            $('.blockB').css('display', 'none')
+            $(".blockB").removeClass("active");
+
+            $('.blockC').css('display', 'none')
+            $(".arrow3").addClass("down")
+            $(".blockC").removeClass("active")
+
+            $('.blockD').css('display', 'none')
+            $(".arrow4").addClass("down")
+            $(".blockD").removeClass("active")
+        }
+
+    }
+
+</script>

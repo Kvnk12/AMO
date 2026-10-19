@@ -1,0 +1,357 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data.Entity;
+@using WebUI.Dto;
+@using WebUI.App_Start;
+@*@model  ConfigureAgingReportModel*@
+
+
+
+@{
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    <script src="~/Content/js/bootstrap.js"></script>
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    //ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var cont = new ServicePlanController();
+
+    var cont = new ConfigureAgingReportController();
+    var dateTypeList = cont.GetListOfDateType();
+
+    var count = ViewData["Count"];
+}
+
+<style>
+    .k-button.k-button-icontext.k-grid-save-changes {
+        background-color: transparent;
+        color: white;
+        border: none;
+        margin-bottom: -1px;
+        font-family: 'HelveticaNeue-Light';
+    }
+
+    .k-button.k-button-icontext.k-grid-cancel-changes {
+        background-color: transparent;
+        color: white;
+        border: none;
+        margin-bottom: -2px;
+        font-family: 'HelveticaNeue-Light';
+    }
+</style>
+
+<div class="content-main dark-bg service-agreement-container">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Incident Navigator</li>
+        <li class="active">Configure Aging Report</li>
+    </ol>
+
+    <div class="custom-kendo-grid ">
+        @* ---------------------------------------------------------------------------------------------------------------------------------------*@
+        @(Html.Kendo().Grid<ConfigureAgingReportModel>()
+                         .Name("ConfigureAging")
+                         .Columns(columns =>
+                         {
+
+                             columns.Bound(e => e.ID).Hidden();
+
+                             columns.Bound(e => e.SeqNo).Width(80);
+                             columns.Bound(e => e.Titlevalue).Title("Aging Group Title").Width(150);
+                             columns.ForeignKey(e => e.Datetype, dateTypeList, "Value", "Text").Width(200).EditorTemplateName("ConfigAgingDateTypeDrp").Title("Date Type").ClientTemplate("#:Datetype#");
+                             columns.Bound(e => e.StartValue).Title("Start Value").Width(140);
+                             columns.Bound(e => e.EndValue).Title("End Value").Width(140);
+                             columns.Bound(p => p.Count).Title("Delete").Width(120)
+                             .ClientTemplate("#=GetFileExtType(SeqNo,Count,ID) #");
+                             //.ClientTemplate("#<div> abc </div>#");
+                             //columns.Bound(p => p.KEDBNumber).Title("KEDB#").Width(150).Filterable(ftb => ftb.Multi(true))
+                             //.ClientTemplate("#if(data.KEDBNumber!=null){#<div style='display:flex;'> #=KEDBNumber# <div style = 'background-image: url(" + @Url.Content("~/Content/images/view_blue.svg") + ");background-repeat: no-repeat; width:1.5em;height:2em;margin-top: 2px;margin-left: 7px;cursor:pointer;' onclick='showKedb1(#:KEDBID#);' ></ div ></div>#}#");
+                         })
+                          .Scrollable()
+                          .Editable(editable => editable.Mode(GridEditMode.InCell).CreateAt(GridInsertRowPosition.Bottom))
+                          .ToolBar(toolbar =>
+                          {
+                              toolbar.Create().Text("Add New Configuration for Aging");
+                              toolbar.Save();
+                          })
+                          .HtmlAttributes(new { @style = "height:350px;" })
+                          .DataSource(dataSource => dataSource
+                          .Ajax()
+                          .Batch(true)
+                          .ServerOperation(false)
+                          .Events(ev =>
+                          {
+                              ev.Change("onChange");
+                              ev.RequestEnd("onRequestEnd");
+                          })
+                          .Model(model =>
+                          {
+                              model.Id(p => p.ID);
+                              model.Field(r => r.SeqNo).Editable(false);
+                              model.Field(r => r.Titlevalue).Editable(false);
+                              model.Field(r => r.Datetype);
+                              model.Field(r => r.StartValue);
+                              model.Field(r => r.EndValue);
+                          })
+                             .Read(read => read.Action("GetConfigAging", "ConfigureAgingReport"))
+                             .Create(create => create.Action("AddConfigAging", "ConfigureAgingReport"))
+                             .Update(update => update.Action("EditConfigAging", "ConfigureAgingReport"))
+                             .Events(events => events.Error("errorFunct"))
+                           //.Destroy(destroy => destroy.Action("DeleteConfigAging", "ConfigureAgingReport"))
+                           )
+        )
+
+    </div>
+
+</div>
+<div id="alertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body" style="width: 55em;">
+            <button type="button" style="margin-right: 4px;" @*onclick="location.href='@Url.Action("Index","KEDB",new { Clause = Model.Clause  })';return false;"*@ class="close" data-bs-dismiss="modal">&times;</button>
+            <div style="height:7em;padding-left:1em;padding-top:2em;" id="lblErr" hidden>
+                <label class="alert alert-danger" id="lblErr1" >Error while saving data.</label>
+            </div>
+            <div id="lblSuccess" style="height:7em;padding-left:1em;padding-top:2em;" hidden>
+                <label class="alert alert-success" id="lblSuccess1">Selected Tickets got reassigned to destination KEDB  <span id="kedbassignednum"> </span>.</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+
+    function errorFunct(e) {
+        console.log(e.errors["Id"].errors);
+        document.getElementById("errorlabel").innerHTML = "<span style='top:16px;color:red' class='alert alert-danger'>" + e.errors["Id"].errors + " </span>";
+
+        var grid = $('#ConfigureAging').data('kendoGrid');
+        grid.dataSource.read();
+
+    }
+
+    function edit(e) {
+        if (e.model.isNew() == false) {
+            $("#ConfigureAging").attr("readonly", true);
+        }
+    }
+
+    function onChange(e) {
+        console.log(e);
+        if (e.items.length != 0) {
+            var id = e.items[0].ID;
+            var current = "";
+            /*var grid = $("#ConfigureAging").getKendoGrid();*/
+            var grid = $('#ConfigureAging').data('kendoGrid').dataSource;
+            /* console.log(grid._data.length);*/
+            var recLength = grid._data.length;
+            for (var i = 0; i < recLength; i++) {
+                /* console.log(grid._data[i]);*/
+                if (id == grid._data[i].ID) {
+                    current = i;
+                }
+            }
+            if (e.field == "StartValue" && recLength > current + 1) {
+                var curentSt = grid._data[current].StartValue;
+                var nextEn = grid._data[current + 1].EndValue;
+                //console.log(grid._data[current].ID);
+                //console.log(grid._data[current].StartValue);
+                //console.log(grid._data[current + 1].EndValue);
+                if (curentSt != nextEn) {
+                    //alert(curentSt + " StartValue Validation alert " + nextEn);
+                    $('#alertModal').modal('show');
+                    document.getElementById("lblErr").innerHTML = "Start Value Validation alert - Start Value of selected group (" + curentSt + ") should be equal to end value of the next group (" + nextEn+")"
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+                    $(".k-grid-save-changes").kendoButton({ enable: false })
+                        .data("kendoButton").enable(false);
+                }
+                else {
+                    $(".k-grid-save-changes").kendoButton({ enable: true })
+                        .data("kendoButton").enable(true);
+                }
+            }
+            if (e.field == "EndValue" && current != 0) {
+                var curentEn = grid._data[current].EndValue;
+                var prevSt = grid._data[current - 1].StartValue;
+                //console.log(grid._data[current].ID);
+                //console.log(grid._data[current].EndValue);
+                //console.log(grid._data[current - 1].StartValue);
+                if (curentEn != prevSt) {
+                   // alert(curentEn + " EndValue Validation alert " + prevSt);
+                    $('#alertModal').modal('show');
+                    document.getElementById("lblErr").innerHTML = "End Value  Validation alert - End Value of selected group (" + curentEn + ") should be equal to Start Value of the Previous group (" + prevSt + ")"
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+                    $(".k-grid-save-changes").kendoButton({ enable: false })
+                        .data("kendoButton").enable(false);
+                } else {
+                    $(".k-grid-save-changes").kendoButton({ enable: true })
+                        .data("kendoButton").enable(true);
+                }
+            }
+            if (e.field == "Datetype") {
+                var datatypeGrid = $("#ConfigureAging").data("kendoGrid").dataSource;
+                var dataType1 = datatypeGrid._data[0].Datetype;
+                var changedDtType = grid._data[current].Datetype;
+                console.log("dataType1 : " + dataType1);
+                console.log("changedDtType : " + changedDtType);
+                if (dataType1 != changedDtType) {
+                    //alert("Data Type should be same for all the records");
+                    $('#alertModal').modal('show');
+                    document.getElementById("lblErr").innerHTML = "Date Type should be same for all the records"
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+                    $(".k-grid-save-changes").kendoButton({ enable: false })
+                        .data("kendoButton").enable(false);
+                } else {
+                    $(".k-grid-save-changes").kendoButton({ enable: true })
+                        .data("kendoButton").enable(true);
+                }
+            }
+            if (e.field == "Datetype" && current == 0) {
+                var datatypeGrid = $("#ConfigureAging").data("kendoGrid").dataSource;
+
+                for (var i = 1; i < recLength; i++) {
+                    /* console.log(grid._data[i]);*/
+                    if (e.items[0].Datetype != grid._data[i].Datetype) {
+                        //alert("Please change Date Type of other records to enable save changes button");
+                        $('#alertModal').modal('show');
+                        document.getElementById("lblErr").innerHTML = "Please change Date Type of other records to enable save changes button"
+                        $('#lblErr').show();
+                        $('#lblSuccess').hide();
+                        $(".k-grid-save-changes").kendoButton({ enable: false })
+                            .data("kendoButton").enable(false);
+                        break;
+                    }
+                    else {
+                        $(".k-grid-save-changes").kendoButton({ enable: true })
+                            .data("kendoButton").enable(true);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    $(document).ready(function () {
+
+        var grid = $("#ConfigureAging").data("kendoGrid");
+
+        grid.bind("cancel", grid_cancel);
+
+    });
+
+    function onRequestEnd(e) {
+        console.log("On Request end");
+        var grid = $("#ConfigureAging").data("kendoGrid");
+        var data = grid.dataSource;
+        if (e.type == "create" || e.type == "update") {
+            if (!e.response.Errors)
+                data.read();
+            else console.log("I had some issues");
+        }
+    }
+
+
+
+
+
+    function grid_cancel(e) {
+        $(".k-grid-save-changes").kendoButton({ enable: true })
+            .data("kendoButton").enable(true);
+
+    }
+
+
+    function deleteSub(ID) {
+        console.log(ID);
+    }
+
+    function GetFileExtType(SeqNo,Count,ID) {
+
+        if (SeqNo ==Count) {
+            return " <img onclick='deleteConfig("+SeqNo+","+ID+")' style='width:1em;cursor: pointer;' src='../../Content/images/delete_icon_blue.svg'/>";
+        }
+        else{
+            return " <img onclick='deleteConfig2()' style='width:1em;cursor: pointer;' src='../../Content/images/delete.svg'/>";
+        }
+    }
+
+    function deleteConfig(SeqNo,ID) {
+        //alert(SeqNo+" , "+ID);
+         var mod = {
+             SeqNo: SeqNo,
+             ID: ID
+        };
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/ConfigureAgingReport/deleteConfig")';
+
+        $.ajax(
+        {
+            url: baseurl1,
+            type: 'post',
+            data: data1,
+            async: false,
+            contentType: 'application/json; charset=utf-8',
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                    $('#alertModal').modal('show');
+                    document.getElementById("lblErr").innerHTML = "Please change Date Type of other records to enable save changes button"
+                    $('#lblErr').show();
+                    $('#lblSuccess').hide();
+            },
+            success: function (data) {
+                //alert('deleted');
+                $('#alertModal').modal('show');
+                document.getElementById("lblSuccess").innerHTML = "Record has been successfully deleted from the database"
+                $('#lblErr').hide();
+                $('#lblSuccess').show();
+                $("#ConfigureAging").data("kendoGrid").dataSource.read();
+            }
+         });
+
+
+    }
+
+    function deleteConfig2() {
+        //alert("Cannot delete intermediate rows , last record can be deleted");
+        
+        $('#alertModal').modal('show');
+        document.getElementById("lblErr").innerHTML = "Intermediate records deletion has been restricted , last record of the current configuration can be deleted";
+        $('#lblErr').show();
+        $('#lblSuccess').hide();
+    }
+
+    function errorFunct(e) {
+        console.log(e.errors["Id"].errors);
+        $('#alertModal').modal('show');
+        document.getElementById("lblErr").innerHTML = "New group has not been created as the number of groups for the current configuration has reached the limit of 15  ";
+        $('#lblErr').show();
+        $('#lblSuccess').hide();
+        $("#ConfigureAging").data("kendoGrid").dataSource.read();
+
+    }
+
+</script>

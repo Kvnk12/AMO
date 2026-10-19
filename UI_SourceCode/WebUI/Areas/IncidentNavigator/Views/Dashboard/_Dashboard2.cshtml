@@ -1,0 +1,140 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+
+@model INNewDashboardModel
+
+<div class="dashboard2 dashboard-content">
+    <div class="top-content">
+        <div>
+            <div class="top-content-heading">
+                <h6>Distribution - By Year</h6>
+                <div class="top-content-right">
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="top-content-heading">
+                <h6>Distribution - By Month</h6>
+                <div class="top-content-right">
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+        <div class="graph-3">
+            <div class="top-content-heading">
+                <h6>Distribution - By Day</h6>
+                <div class="top-content-right">
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bottom-content">
+        <div>
+            <div class="top-content-heading">
+                <h6>Priority Distribution - By Day</h6>
+                <div class="top-content-right">
+                    <div class="chart-type">
+
+                        @(Html.Kendo().DropDownListFor(m => m)
+                        .Name("sample2")
+                        .OptionLabel("")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .BindTo(new List<SelectListItem>()
+                        {
+                            new SelectListItem() {
+                                Text = "Priority",
+                                Value = "Priority"
+                            },
+                            new SelectListItem() {
+                                Text = "Ticket Type",
+                                Value = "Ticket Type"
+                            },
+                            new SelectListItem() {
+                                Text = "Tower",
+                                Value = "Tower"
+                            }
+                        })
+                        .AutoBind(true)
+                        )
+                    </div>
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="top-content-heading">
+                <h6>Ticket Count Flow - By Hour</h6>
+                <div class="top-content-right">
+                    <div class="chart-type">
+
+                        @(Html.Kendo().DropDownListFor(m => m)
+                            .Name("sample3")
+                            .OptionLabel("")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .BindTo(new List<SelectListItem>()
+                            {
+                                    new SelectListItem() {
+                                        Text = "Priority",
+                                        Value = "Priority"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "Ticket Type",
+                                        Value = "Ticket Type"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "Tower",
+                                        Value = "Tower"
+                                    }
+                        })
+                        .AutoBind(true)
+                        )
+                    </div>
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+        <div class="graph-3">
+            <div class="top-content-heading">
+                <h6>Distribution - By Hour</h6>
+                <div class="top-content-right">
+                    <div class="chart-type">
+
+                        @(Html.Kendo().DropDownListFor(m => m)
+                            .Name("sample4")
+                            .OptionLabel("")
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .BindTo(new List<SelectListItem>()
+                            {
+                                    new SelectListItem() {
+                                        Text = "Priority",
+                                        Value = "Priority"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "Ticket Type",
+                                        Value = "Ticket Type"
+                                    },
+                                    new SelectListItem() {
+                                        Text = "Tower",
+                                        Value = "Tower"
+                                    }
+                            })
+                            .AutoBind(true)
+                        )
+                    </div>
+                    <span class="expand-view"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

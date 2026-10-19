@@ -1,0 +1,227 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto
+@model KEDBInstanceModel
+
+<div class="delinkKedbpopUpDiv scrollbar-rail">
+    @(Html.Kendo().Window()
+                .Name("DelinkKEDBpopUp")
+                .Title("Delink KEDB")
+                .Content(@<text>
+
+       <div class="delinkKedb">
+           <div class="viewTicketID">
+             <div class="hideTicketDetail">
+                <div class="view-icon" id="delinkview-icon-detail">
+
+                </div>
+                <div>
+                    <span class="custom-blue-label" id="delinkview-ticket-detail" > Ticket ID and Issue Description</span>
+                </div>
+             </div>
+                <div class="hidden-grid" id="delinkviewTicketdetail" style=" margin-bottom:1em;">
+                    <div style="display:flex;">
+                       <div class="firstrowFields">
+                          <span class="custom-blue-label">Ticket ID:</span>
+                          @(Html.Kendo().TextBoxFor(m => m.TicketId).Name("delink_TicketId"))
+                       </div>
+                      <div class="secondrowFields" style="margin-left:1.5em;">
+                         <span class="custom-blue-label">Issue Description:</span>
+                         @Html.TextAreaFor(m => m.TicketDescription, new { @class = "k-textbox", id= "delink_TicketDesc", rows = 3, cols = 8, style = "width:47em;resize:none; height:100%; overflow:auto;border:none;color:darkgrey;margin-left:0.5em;" })
+
+                      </div>
+                   </div>
+
+                </div>
+            </div>
+
+          <div class="kedbTicketDetails">
+            <div class="popUpfirstrow">
+                <div class="firstrowFields">
+                   <span class="custom-blue-label">KEDB #:</span>
+                      @Html.HiddenFor(m => m.Id, new { id = "delink_Id" })
+                      @Html.HiddenFor(m => m.IncidentId, new { id = "delink_IncidentId" })
+                 @(Html.Kendo().TextBoxFor(m => m.KEDBNumber).Name("delink_KEDB"))
+                </div>
+                <div class="firstrowFields">
+                    <span class="custom-blue-label">Symptom/Issue Type:</span>
+                     @(Html.Kendo().TextBoxFor(m => m.KedbIssueType).Name("delink_IssueType"))
+                </div>
+                <div class="firstrowFields">
+                     <span class="custom-blue-label">Business Funtion:</span>
+                     @(Html.Kendo().TextBoxFor(m => m.BusinessFunction).Name("delink_BusinessFunction"))
+                </div>
+            </div>
+            <div class="popUpSecondrow">
+               <div class="secondrowFields" style="width:66%;">
+                 <span class="custom-blue-label">KEDB Description:</span>
+                    @Html.TextAreaFor(m => m.Description, new { @class = "k-textbox", id= "delink_Description", rows = 3, cols = 12, style = "width:38em;resize:none; height:100%; overflow:auto;border:none;color:darkgrey;" })
+               </div>
+               <div class="secondrowFields" style="display:flex;flex-direction:column;width:35%">
+                   <div style="display:flex;margin-bottom:1.5em">
+                       <span class="custom-blue-label" style="margin:0 1.5em 0 1.5em;">Solution Category:</span>
+                       @(Html.Kendo().TextBoxFor(m => m.SolutionCategory).Name("delink_SolutionCategory"))
+                   </div>
+                   <div style="display:flex;margin-left:1.3em">
+                    <span class="custom-blue-label"style="margin:0 3.5em 0 0;">Solution Status:</span>
+                       @(Html.Kendo().TextBoxFor(m => m.SolStatus).Name("delink_SolutionStatus"))
+                   </div>
+               </div>
+            </div>
+             <div class="popUpThirdrow">
+                 <div class="thirdrowFields article">
+                     <div class="third-row-article">
+                         <div class="article-title">
+                          <label class="custom-blue-label">
+                            <span class="mandate" style="margin-right:0em;">*</span>
+                            Resolution Details
+                          </label>
+                         </div>
+                     <div class="row" style="display:flex;">
+
+                            <span class="custom-blue-label" style="margin-left: 1em;">Knowledge Article:</span>
+
+                         <div style="margin-left: 0.5em; ">
+                           @(Html.Kendo().TextBoxFor(m => m.KnowledgeArticle).Name("delink_KnowledgeArticle"))
+                         </div>
+                       <div class="search-article-icon" onclick="searchViewKnwArticle()"></div>
+                     </div>
+                     <p class="custom-blue-label" style="margin-left:8.5em;margin-top:1em">or</p>
+                     <div class="res-details" style="display:flex;">
+
+                                 <div class="row" style="display: flex; margin-left: 8.5em;">
+                        <div>
+                          @(Html.Kendo().TextBoxFor(m => m.FileName).Name("FileName_delink"))
+                        </div>
+                          <div class="kedb-download-icon" onclick="downloadViewKnwArticle1()"></div>
+
+                                 </div>
+
+                         </div>
+                     <div class="row" style="display:flex;">
+                          <div class="col-md-3">
+                               <label class="custom-blue-label" for="ResSteps">
+
+                                  Resolution Steps:
+                                </label>
+                          </div>
+                          <div class="col-md-3" style=" margin-left: -4.5em;">
+                        @Html.TextAreaFor(m => m.ResolutionSteps, new { @class = "k-textbox", id = "ResStep_delink", rows = 2, cols = 10, style = "width: 32.3em;resize: none;height: 5em;overflow: auto;box-shadow: none;margin-left:-1em" })     @*-------------------------11*@
+                          </div>
+                      </div>
+                     </div>
+
+                 </div>
+
+
+                  <div class="thirdrowFields contact">
+                    <span class="custom-blue-label">Point of Contact:</span>
+                      @(Html.Kendo().TextBoxFor(m => m.PointOfContact).Name("delink_PointOfContact"))
+                 </div>
+
+            </div>
+            <div class="delinkkedb_User" >
+                 <div class="userid">
+                    <span class="custom-blue-label">Delinking By:</span>
+                      @(Html.Kendo().TextBoxFor(m => m.UpdatedUser).Name("delink_user"))
+                 </div>
+                 <div class="updateddate" style="display:flex">
+                    <span class="custom-blue-label">Delinking On:</span>
+                      @(Html.Kendo().TextBoxFor(m => m.UpdatedDate).Name("delink_date"))
+                     <div class="cal-icon"></div>
+                 </div>
+            </div>
+    <div class="kedb-buttons">
+         <div style="display: flex; margin-right: 1em; margin-top: 1em;">
+          <div class="info-icon"> </div>
+          <span class="copyPaste" style="color:#ff9100;font-size:10px;" id="ambernote">On click of "DELINK",removes the link between Ticket ID and KEDB ID</span>
+        </div>
+        <div style="margin: 0 1em 0 0;">
+        <button class="custom-button" type="button" style="background-color:lightgrey;color:white"onclick="onDelinkCancelClick()" id="cancelDelink" >CANCEL</button>
+        </div>
+        <div style="margin: 0 1.5em 0 0;"id="delinkdiv">
+        <button class="custom-button" type="button" onclick="onDelinkClick()" id="DelinkKedb">DELINK</button>
+        </div>
+        <div style="margin: 0 1.5em 0 0;display:none;"id="confirmdiv">
+        <button class="custom-button" type="button" onclick="onConfirmClick()" id="ConfirmKedb">CONFIRM</button>
+        </div>
+    </div>
+
+        </div>
+
+
+       </div>
+               </text>)
+                                                .Visible(false)
+                                                .Draggable()
+                                                .Resizable()
+                                                .Width(1050)
+                                                .Height(480)
+                                                .AutoFocus(false)
+                                                .Modal(true)
+
+
+)
+
+</div>
+<script>
+    function searchKnwArticle() {
+        var searchart = $("#delink_KnowledgeArticle").val();
+        if (searchart.trim() != '') {
+            //  window.location.href = searchart;
+            window.open(searchart, "_blank");
+        }
+    }
+
+    function downloadViewKnwArticle1() {
+        var values = $("#delink_KEDB").val();
+        var filename = $("#FileName_delink").val();
+            console.log("download value"+values);
+            baseurl = '@Url.Content("~/KEDB/DownloadFile")';
+            //baseurl = baseurl + '?KEDBId=' + values;
+            var x = null;
+            var mod1 = {
+                KEDBId: values
+
+            }
+            var mod = JSON.stringify(mod1);
+            if (filename != "") {
+                $.ajax({
+
+                    type: 'post',
+                    url: baseurl,
+                    async: false,
+                    data: mod,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (response) {
+                        //$("#kedbGrid").data("kendoGrid").dataSource.read();
+                        //var popup = $("#AddKEDBpopUp").data("kendoWindow");
+                        //popup.close();
+
+                        x = $("#delink_KEDB").val();
+                    @*window.location = '@Url.Action("DownloadFile", "KEDB", new { KEDBId =  })';*@
+                        window.location = '@Html.Raw(@Url.Action("DownloadFile", "KEDB"))' + '?KEDBId=' + x;
+                        //$.ajax.load(url);
+                        /* console.log(response);*/
+                        /*return response;*/
+
+
+
+
+                    },
+                    error: function (err, response) {
+                        // alert(err.responseText);
+                    }
+                });
+            }
+            else {
+                $("#FileName_delink").val("File not found / not uploaded");
+            }
+        }
+
+</script>

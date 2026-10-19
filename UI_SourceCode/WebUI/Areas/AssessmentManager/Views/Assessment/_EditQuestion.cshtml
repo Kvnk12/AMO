@@ -1,0 +1,415 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+@model A3MMModel
+
+
+@{
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+}
+
+
+<style>
+    .custom-kendo-grid.kedb-view-grid {
+        height: 12em !important;
+        overflow: auto;
+    }
+    .k-input.k-textarea {
+        width: 29vw !important;
+        resize: none;
+        height: 5vh;
+        overflow: visible;
+        box-shadow: none;
+        border: 1px solid black;
+        margin-left: 1.7em;
+    }
+
+    .mergeStatus .k-input.k-textbox {
+        margin-left: 2em;
+    }
+    .k-widget.k-window.k-display-inline-flex {
+        width: 70vw !important;
+        height: 31vw !important;
+    }
+    .k-window-title {
+        font-size: 1.2vw;
+    }
+    .custom-blue-label {
+        width: 9vw !important;
+    }
+</style>
+
+
+<html>
+<body>
+    <div class="editQuestionpopUpDiv">
+        @(Html.Kendo().Window()
+    .Name("EditQuestionpopUp")
+    .Title("Edit Question")
+    .Content(@<text>
+
+
+         <div class="editQuestion">
+             <div class="QuestionDetails">
+                <div class="popUpfirstrow">
+                   <div class="mergeAC" style="display:flex">
+                       <div style="display:flex;justify-content:space-between">
+                           <div>
+                                <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em;margin-top:1em">
+
+                                 <div class="custom-blue-label" >Assessment Type :</div>
+                                      <div class="custom-dropdown Assessment" >
+                                           <input type="hidden" id="questionIDHidden" name="questionhidden" value="">
+                                           @(Html.Kendo().DropDownListFor(m => m.AssessmentID)    @*----------------------4*@
+                                          .DataTextField("Text")
+                                          .DataValueField("Value")
+                                          .BindTo(Model.AssessmentList)
+                                           .Name("AssessmentID_edit")
+                                           .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                                           )
+                                       </div>
+                                 </div>
+                                <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em; ">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Questionnaire Version # :</div>
+                          <div class="custom-textbox" >
+                           @(Html.Kendo().TextBox()
+                             .Name("QVerTxtBox_edit")
+                             .Value("Ver - 0.1")
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                            )
+                              </div>
+                    </div>
+                                <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                            @*<span class="mandate">*</span>*@
+                            <div class="custom-blue-label" >Discipline :</div>
+                              <div class="custom-dropdown" >
+                                   @(Html.Kendo().DropDownListFor(m => m.DisciplineId)    @*----------------------4*@
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .BindTo(Model.DisciplineList)
+                                  .Name("DisciplineId_edit")
+                                  .Events(e =>
+                                       {
+                                           e.Change("onEditdrpdwndscchange");
+                                       })
+                                   .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                                   )
+                                    <span style="color:red;display:none" id="id_editdis">* Select Discipline</span>
+
+                                  </div>
+                                    </div>
+                                <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 2em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Component :</div>
+                          <div class="custom-dropdown" >
+                                 @(Html.Kendo().DropDownListFor(m => m.ComponentId)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              //.BindTo(Model.ComponentList)
+                               .Name("ComponentId_edit")
+                                .OptionLabel("Select Component")
+                                .AutoBind(false)
+                                   .DataSource(d => d.Read(r => r.Action("Readcomponent", "Assessment").Data("loadeditcomponent")))
+                                .Events(e =>
+                                {
+                                    e.Change("onEditdrpdwncmpchange");
+                                })
+                               .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                               )
+                                <span style="color:red;display:none" id="id_editcomp">* Select Component</span>
+
+                              </div>
+                    </div>
+                                <div class="firstrowFields" style="display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label">Aspect :</div>
+                          <div class="custom-dropdown Aspect">
+                               @(Html.Kendo().DropDownListFor(m => m.AspectID)
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                             //.BindTo(Model.AspectList)
+                               .OptionLabel("Select Aspect")
+                               .Name("AspectID_edit")
+                                .Events(e =>
+                                       {
+                                           e.Change("onEditdrpdwnchange");
+                                       })
+                                .AutoBind(false)
+                                .DataSource(d => d.Read(r => r.Action("ReadAspect", "Assessment").Data("loadeditAspect")))
+                           .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                               )
+
+                                <span style="color:red;display:none" id="id_editAsp">* Select Aspect</span>
+                              </div>
+                    </div>
+                                 <div class="firstrowFields" style=" display: flex; width: 28vw; margin-left: 2em; margin-top: 1em;">
+                        @*<span class="mandate">*</span>*@
+                        <div class="custom-blue-label" >Question # :</div>
+                          <div class="custom-textbox" >
+                           @(Html.Kendo().TextBox()
+                             .Name("QNumber_edit")
+                             .Value("")
+                             .Enable(false)
+                             .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                            )
+                              </div>
+                    </div>
+                           </div>
+                       </div>
+                       <div style="display:flex;justify-content:space-between">
+                           <div>
+
+                                <div class="questionComponent" style="display: flex; margin-top: 1em;">
+                        <div class="custom-blue-label" >Question :</div>
+
+                        <div class="textBoxScroll ">
+                            @Html.TextAreaFor(m => m.Question, new { @class = "k-textbox scrollbar-rail", id = "Question_edit", rows = 6, cols = 10, style = "width:24vw !important;resize:none; height:9vh; overflow:auto;box-shadow:none;font-size:0.95vw!important" })
+                            <span style="color:red;display:none" id="id_editQ">* Enter question</span>
+                        </div>
+                      </div>
+                                <div class="AnswerComponent" style="display:flex; margin-top: 1em;">
+                        <div class="custom-blue-label" >Example Answer :</div>
+
+                        <div class="textBoxScroll ">
+                            @Html.TextAreaFor(m => m.ExampleAnswer, new { @class = "k-textbox scrollbar-rail", id = "ExampleAnswer_edit", rows = 6, cols = 10, style = "width:24vw !important;resize:none; height:9vh; overflow:auto;box-shadow:none;font-size:0.95vw!important" })
+                        </div>
+                      </div>
+                                <div class="mergeStatus" style="display: flex; margin-top: 0.8em;">
+
+                              <div class="custom-blue-label">Data Source:</div>
+                          <div class="custom-dropdown">
+                               @(Html.Kendo().DropDownListFor(m => m.DatasourceId)    @*----------------------4*@
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .BindTo(Model.DataSourceList)
+                               .Name("DatasourceId_edit")
+                          .HtmlAttributes(new { style = "width: 15.5vw;font-size:0.95vw!important" })
+                               )
+
+                              </div>
+                        </div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+             </div>
+             <div class="actionButtons" style="margin-top: 1em;display:flex;justify-content:flex-end">
+
+                     <div style="margin: 0 1.5em 0 0;">
+                       <button style="width:5vw; font-size: 1vw ;display:block;" class="custom-button" type="button" id="btnfinalize" onclick="onFinalizeClickEdit()">Finalize</button>
+                    </div>
+                    <div style="margin: 0 1.5em 0 0;">
+                        <button style=" width: 5vw; font-size: 1vw; display: block;" class="custom-button" type="button" onclick="onEditClick()" id="btnEdit">SAVE</button>
+                     </div>
+                    <div style="margin: 0 1em 0 0;">
+                       <button style=" width: 5vw; font-size: 1vw; display:block;" class="custom-button" type="button" id="btncancelledit" onclick="onCancelClickEdit()">CANCEL</button>
+                    </div>
+                </div>
+         </div>
+
+
+        </text>)
+    .Visible(false)
+    .Draggable()
+    .Resizable()
+    //.Width(900)
+    //.Height(360)
+    .AutoFocus(false)
+    .Modal(true)
+    .Events(events => events
+    .Close("onWinClose")
+    )
+    .Actions(actions => actions.Close())
+
+    )
+    </div>
+</body>
+</html>
+
+<script>
+     function onEditClick() {
+
+           // console.log("EDIT ");
+         var questionID = document.getElementById('questionIDHidden').value;
+            var AssessmentID = $("#AssessmentID_edit").data("kendoDropDownList").value();
+        //if (AssessmentID == '') {
+        //    $('#AssessmentID_alert').show();
+        //    return false;
+        //}
+
+            var DisciplineId = $("#DisciplineId_edit").data("kendoDropDownList").value();
+            var ComponentId = $("#ComponentId_edit").data("kendoDropDownList").value();
+         var AspectID = $("#AspectID_edit").data("kendoDropDownList").value();
+         if (DisciplineId == '') {
+             document.getElementById("id_editdis").style.display = 'block';
+             return false;
+         } else {
+             document.getElementById("id_editdis").style.display = 'none';
+         }
+         if (ComponentId == '') {
+             document.getElementById("id_editcomp").style.display = 'block';
+             return false;
+         } else {
+             document.getElementById("id_editcomp").style.display = 'none';
+         }
+         if (AspectID == '') {
+             document.getElementById("id_editAsp").style.display = 'block';
+             return false;
+         } else {
+             document.getElementById("id_editAsp").style.display = 'none';
+         }
+
+         var QVerTxtBox = $("#QVerTxtBox_edit").data("kendoTextBox").value();
+
+
+
+
+        //QVerTxtBox = QVerTxtBox.toString();
+        //if (QVerTxtBox.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    QVerTxtBox = " ";
+        //}
+
+         var QuestionField = $("#Question_edit").val();
+         if (QuestionField == "") {
+
+             document.getElementById("id_editQ").style.display = 'block';
+             return false;
+         }
+         else {
+             // console.log("in");
+             document.getElementById("id_editQ").style.display = 'none';
+
+         }
+        //QuestionField = QuestionField.toString();
+        //if (QuestionField.trim() == '') {
+        //    QuestionField = " ";
+        //}
+
+
+        //var AnswerField = $("#ExampleAnswer").val();
+        //AnswerField = AnswerField.toString();
+        //if (AnswerField.trim() == '') {
+        //    AnswerField = " ";
+        //}
+            var AnswerField = $("#ExampleAnswer_edit").val();
+        //var dataSource = $("#dSourceBox").data("kendoTextBox").value();
+            var dataSource = $("#DatasourceId_edit").data("kendoDropDownList").value();
+        //if (dataSource.trim() == '') {
+        //    //$('#KnowledgeArticle_alert').show();
+        //    //return false;
+        //    dataSource = " ";
+        //}
+         //   console.log(questionID +" "+AssessmentID + " " + DisciplineId + " " + ComponentId + " " + AspectID + " " + QVerTxtBox+" "+QuestionField+" "+AnswerField)
+
+
+
+         var ParentID = document.getElementById('ParentIDHidden').value;
+
+          var mod ={
+              AssessmentID: AssessmentID,
+              DisciplineId: DisciplineId,
+              ComponentId: ComponentId,
+              AspectID: AspectID,
+              VersionID: QVerTxtBox,
+              Question: QuestionField,
+              ExampleAnswer: AnswerField,
+              DatasourceId: dataSource,
+              QuestionId: questionID,
+              ParentID: ParentID,
+              isEditdrpdwnchange: isEditdrpdwnchange,
+              isEditDisciplineComponentChange: isEditDisciplineComponentChange
+        }
+
+            var data1 = JSON.stringify(mod);
+             baseurl = '@Url.Content("~/AssessmentManager/Assessment/SaveQuestionEdit")';
+            $.ajax({
+
+                type: 'post',
+                url: baseurl,
+                async: false,
+                data: data1,
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    isEditdrpdwnchange = false;
+                    //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                    $("#New_QuestionsTreeList").data("kendoTreeList").dataSource.read();
+                   // console.log(response);
+                    var popup = $("#EditQuestionpopUp").data("kendoWindow");
+                    popup.close();
+                    $('#saveAlertModal').modal('show');
+                    $('#lblErr').hide();
+                    $('#labelSuccess').text("Question Edited Successfully");
+                    $('#lblSuccess1').show();
+                },
+                error: function (err, response) {
+                    $('#saveAlertModal').modal('show');
+                    $('#lblSuccess1').hide();
+                    $('#labelError').text("Error while saving edited Question");
+
+                    $('#lblErr').show();
+                }
+            });
+    }
+
+
+    function onCancelClickEdit() {
+        document.getElementById("id_editQ").style.display = 'none';
+        document.getElementById("id_editdis").style.display = 'none';
+        document.getElementById("id_editcomp").style.display = 'none';
+        document.getElementById("id_editAsp").style.display = 'none';
+        var popup = $("#EditQuestionpopUp").data("kendoWindow");
+        popup.close();
+    }
+
+    function onEditdrpdwnchange() {
+        isEditdrpdwnchange = true;
+    }
+
+    function onEditdrpdwndscchange() {
+      //  console.log("loading dsp")
+        isEditdrpdwnchange = true;
+        isEditDisciplineComponentChange = true; // for Question Identifier on edit 
+        $("#AspectID_edit").data("kendoDropDownList").select(0);
+        $("#ComponentId_edit").data("kendoDropDownList").dataSource.read();
+        $("#ComponentId_edit").data("kendoDropDownList").select(0);
+    }
+    function onEditdrpdwncmpchange() {
+        //console.log("loading cmp")
+        isEditdrpdwnchange = true;
+        isEditDisciplineComponentChange = true; //for Question Identifier on edit
+        $("#AspectID_edit").data("kendoDropDownList").dataSource.read();
+        $("#AspectID_edit").data("kendoDropDownList").select(0);
+    }
+    function loadeditcomponent() {
+
+        var DisciplineId = $("#DisciplineId_edit").data("kendoDropDownList").value();
+      //  console.log("component load:DisciplineId" + DisciplineId)
+        // var ComponentId = $("#ComponentId").data("kendoDropDownList").value();
+        return {
+            DisciplineId: DisciplineId
+        }
+    }
+    function loadeditAspect() {
+
+        var DisciplineId = $("#DisciplineId_edit").data("kendoDropDownList").value();
+        var ComponentId = $("#ComponentId_edit").data("kendoDropDownList").value();
+      //  console.log("Aspect load:DisciplineId" + DisciplineId + "ComponentId" + ComponentId)
+
+        return {
+            DisciplineId: DisciplineId,
+            ComponentId: ComponentId
+        }
+    }
+</script>
+

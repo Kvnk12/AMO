@@ -1,0 +1,149 @@
+﻿@using WebUI.Dto;
+@{
+
+    IEnumerable<SelectListItem> userClients = new List<SelectListItem>();
+    var client = "->";
+    var clientId = "";
+    //if (Session["Client"] != null)
+    //{
+    //    var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+    //    client = objclient.ClientName;
+    //    clientId = objclient.Id.ToString();
+    //}
+    if (Session["SessionClient"] != null)
+    {
+        // var objclient = (NTTData.AMOPortal.Domain.Entities.Client)Session["Client"];
+        ClientDetail objclient = (ClientDetail)Session["SessionClient"];
+        client = objclient.ClientName;
+        clientId = objclient.ClientId.ToString();
+    }
+    NTTData.AMOPortal.WebUI.Dto.HomeInput MenuItemsInput = (NTTData.AMOPortal.WebUI.Dto.HomeInput)Session["MenuItemsInput"];
+    if (User.Identity.Name.Length > 0 && Session["UserId"] != null)
+    {
+        userClients = NTTData.AMOPortal.WebUI.Dto.GetDropDownListItems.UserClients((int)Session["UserId"]);
+
+    }
+}
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div style="max-width:1300px;">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+            <a class="navbar-brand" href="#">
+                @if (ViewBag.ImagePathTwo == null)
+                {
+                    if (ViewBag.PALanding == "PALanding")
+                    {
+                        <img alt="" height="40" width="50" src="@ViewBag.ImagePathOne">
+                    }
+                    else
+                    {
+                        <img alt="" src="@ViewBag.ImagePathOne">
+                    }
+                    <h5 style="display:inline;font-weight:bold;padding-top:10px">@ViewBag.Title</h5>
+                }
+                else
+                {
+                    <img alt="" src="@ViewBag.ImagePathOne">
+                    <img alt="" src="@ViewBag.ImagePathTwo">
+                }
+            </a>
+            @*</div>*@
+
+            @if (@User.Identity.Name.Length > 0)
+            {
+                @*<div class="collapse navbar-collapse row">*@
+            <ul class="nav navbar-nav">
+                @*<li><a href='@Url.Action("UserEditProfilePage", "Account", new { area = "" },null)'>Welcome! <b>@User.Identity.Name</b></a></li>*@
+                <li><a href="@Url.Action("Dashboard", "Home", new { area = "" }, null)">Welcome! <b>@User.Identity.Name</b></a></li>
+                <li class="active"><a href='@Url.Action("Appstore", "Home", new { area = "" }, null)'>Optimization Tools</a></li>
+                <li class="dropdown">
+                    @*@if (@User.IsInRole("Sysadmin"))*@
+                    @if (MenuItemsInput != null && (MenuItemsInput.UserRole.ToLower() == "sysadmin" || MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "superuser"))
+                    {
+                        <a href='@Url.Action("Users", "Account" , new { area = "" },null)' class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href='@Url.Action("Users", "Account", new { area = "" },null )'>User Management</a></li>
+                            @*<li><a href="@Url.Action("AssignApplication", "Account")">Access Management</a></li>*@
+                            <li><a href='@Url.Action("Register", "Account", new { area = "" }, null)'>User Registration</a></li>
+                        </ul>
+                    }
+                </li>
+                <li class="dropdown">
+                    <a href='@Url.Action("Manage", "Account", new { area = "" },null)' class="dropdown-toggle" data-toggle="dropdown">Manage<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href='@Url.Action("Manage", "Account", new { area = "" }, null)'>Change Password</a></li>
+                    </ul>
+                </li>
+                <li> <a href="#" onclick="$('#myModal').modal();" id="userClientLink">Working Client @client</a></li>
+
+                <li><a href='@Url.Action("LogOff", "Account", new { area = "" }, null)'>Logout</a></li>
+            </ul>
+
+            }
+        </div>
+
+    </div> <!--/.container -->
+
+</div> <!--/nav bar div closes here -->
+<!--/.nav-collapse -->
+<div class="modal active" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Set Working Client</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="clientdesc" class="col-sm-5 control-label">Client Name</label>
+                    <div class="col-sm-5">
+                        @Html.DropDownList("userWorkingClientId", new SelectList(userClients, "value", "text", clientId), "", new { @class = "selectpicker" })
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="form-group">
+                    <div class="col-sm-5">
+                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+                        <button type="button" onclick="applyClient();" name="btnSetClient" id="btnModalSave" class="btn btn-primary">Apply</button>
+                    </div>
+                 </div>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+    <script type="text/javascript">
+
+        
+
+       function applyClient () {
+           var indexurl = '@Url.Content("~/Account/")';
+        var baseurl = '';
+        baseurl = '@Url.Content("~/Account/SetUserWorkingClient")';
+       // alert(baseurl);
+        var dataToPost = {
+            ClientId: $('#userWorkingClientId :selected').val(),
+        };
+        $.ajax(
+        {
+            url: baseurl,
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                $('#myModal').hide();
+                if (data) {
+                    window.location.href = indexurl + data;
+                } else {
+                    $('#myModal').hide();
+                    window.location.reload(true);
+                }
+            },
+            error: function () {
+              //  $('#myModal').hide();
+            }
+        });
+
+    };
+    </script>
+</div><!-- /.modal -->

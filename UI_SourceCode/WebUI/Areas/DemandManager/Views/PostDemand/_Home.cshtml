@@ -1,0 +1,175 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Models
+@using WebUI.Areas.DemandManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  DemandViewModel
+
+@using (Html.BeginForm("SaveBasicDemandDetails", "PostDemand", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.DemandId)
+    @Html.HiddenFor(m => m.DemandId)
+    @Html.HiddenFor(m => m.ClientId)
+    @Html.HiddenFor(m => m.ViewDemand)
+    @Html.HiddenFor(m => m.PostNewDemand)
+    @Html.HiddenFor(m => m.IsSysAdmin)
+    @Html.HiddenFor(m => m.IsImplementationManager)
+    @Html.HiddenFor(m => m.IsDemandMine)
+    @Html.HiddenFor(m => m.IsCusUser)
+    @Html.HiddenFor(m => m.EditDemand)
+    @Html.HiddenFor(m => m.TabName)
+    @Html.HiddenFor(m => m.DemandStatusID)
+    @Html.HiddenFor(m => m.ImpDemandStatusID)
+    <div class="im-postidea-home">
+        <div class="im-post-idea-left leftarea form-horizontal">
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Demand Name</label>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.DemandName)
+.Name("DemandName")
+.Enable(true)
+.HtmlAttributes(new { @maxlength = "250" })
+                    )
+                    <!--  class = "form-control",  -->
+                    <label id="DemandName_alert" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+                    <label id="DemandNameExists_alert" hidden><span class="mandate" style="font-size:small">This Name is already taken !!!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Demand Type</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.DemandtypeId)
+    .Name("DemandtypeId")
+    .DataTextField("Text")
+    .Enable(true)
+    .OptionLabel("Select Demand Type")
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("DemandTypeList", "PostDemand")))
+    .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Demand Source</label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.DemandSourceId)
+    .Name("DemandSourceId")
+    .DataTextField("Text")
+    .Enable(true)
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("DemandSourceList", "PostDemand")))
+    .AutoBind(true)
+                    )
+                    <label id="DemandSourceId_alert" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+                </div>
+            </div>
+            <div class="custom-group" style="height:52px"></div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Description</label>
+                @(Html.Kendo().EditorFor(e => e.Description)
+        .Name("Description")
+        .Resizable(resizable => resizable.Content(true).Toolbar(true))
+         .HtmlAttributes(new { style = "width:90%;height:100%", aria_label = "editor" })
+                )
+                <label id="Description_alert" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+            </div>
+            <div class="custom-group im-last-group">
+                <span class="im-post-span mandate">* Mandatory Fields</span>
+            </div>
+        </div>
+        <!--Right Area-->
+        <div class="im-post-idea-right rightarea form-horizontal">
+            <div class="custom-group">
+                <label class="custom-blue-label">Internal Initiative</label>
+                <div class="custom-checkbox">
+                    @(Html.Kendo().CheckBoxFor(e => e.InternalInit)
+    .Name("InternalInit")
+    .Label("(Check for Yes)")
+                    )
+
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Workstream </label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.LOBId)
+    .Name("LOBId")
+    .DataTextField("Text")
+    .OptionLabel("Select Workstream..")
+    .Enable(true)
+    .DataValueField("Value")
+    .DataSource(d => d.Read(r => r.Action("LobList", "PostDemand")))
+    .AutoBind(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label">Platform Lead </label>
+                <div class="custom-textbox">
+                    @(Html.Kendo().TextBoxFor(e => e.DemandPlatformLead)
+                                                                 .Name("DemandPlatformLead")
+                                                                 .Enable(true)
+                    )
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate">*</span>Approved Architecture Available? </label>
+                <div class="custom-dropdown">
+                    @(Html.Kendo().DropDownListFor(e => e.Approved_Arch)
+                                                        .Name("Approved_Arch")
+                                                        .DataValueField("Value")
+                                                        .DataTextField("Text")
+                                                        .OptionLabel("Select ..")
+                                                        .Enable(true)
+                                                        .BindTo(new List<SelectListItem>() {
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "Yes",
+                                                                                                      Value = "Yes"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "No",
+                                                                                                      Value = "No"
+                                                                                                  },
+                                                                                                  new SelectListItem() {
+                                                                                                      Text = "NA",
+                                                                                                      Value = "NA"
+                                                                                                  },
+                                                                                              })
+                                                        )
+                    <label id="Approved_Arch_alert" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+                </div>
+            </div>
+            <div class="custom-group">
+                <label class="custom-blue-label"><span class="mandate"></span>Requirements</label>
+                @(Html.Kendo().EditorFor(e => e.ImprovementTheme)
+                .Name("ImprovementTheme")
+                .Resizable(resizable => resizable.Content(true).Toolbar(true))
+                 .HtmlAttributes(new { style = "width:90%;height:100%", aria_label = "editor" })
+                )
+            </div>
+            <div class="custom-group im-last-group">
+                <footer id="action" class="text-right">
+                    <button class="im-custom-button im-btn-cancel" type="reset" id="cancelDemand">Cancel</button>
+                    @if (Model.DemandId == 0)
+                    {
+                        <button class="im-custom-button im-btn-save" id="btnSave" type="submit" name="btnSubmit" value="Submit">Save</button>
+                    }
+                    else
+                    {
+                        <button class="im-custom-button im-btn-save" id="btnSave" type="submit" name="btnSubmit" value="Submit">Update</button>
+                    }
+                    <button class="im-custom-button im-btn-submitforreview" name="btnSubmit" type="submit" id="btnReview" value="Review">Submit For Review</button>
+
+                </footer>
+            </div>
+        
+        </div>
+    </div>
+}

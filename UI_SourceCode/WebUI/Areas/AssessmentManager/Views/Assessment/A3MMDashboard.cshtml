@@ -1,0 +1,401 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using WebUI.Dto;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using NTTData.AMOPortal.WebUI.Dto;
+
+@model A3MMDigiJrny
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+    <script src="~/Content/js/printThis.js"></script>
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Content/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="~/Content/css/custom-styles.css" />
+   
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    Layout = "~/Views/Shared/GenericLayOutWithoutFooter.cshtml";
+
+
+}
+<style>
+    .a3mm-dashboard {
+        margin: 1em 2em;
+        height: 51.5vw;
+        background-color: white;
+    }
+
+        .a3mm-dashboard .a3mm-dashboard-header {
+            color: white;
+            background-color: rgb(91,121,171);
+            font-size: 1.2vw;
+            letter-spacing: 0.5px;
+            padding: 10px;
+        }
+
+        .a3mm-dashboard .a3mm-dashboard-content {
+            width: 100%;
+            display: flex;
+        }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left {
+                width: 87%;
+                /*position:relative;*/
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .contract-duration {
+                    position: relative;
+                    color: white;
+                    background-color: orange;
+                    padding: 3px 1.2em;
+                    height: 2vw;
+                    border-radius: 9px;
+                    float: right;
+                    top: 13px;
+                    left: 60px;
+                    font-size: 1.05vw;
+                }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph {
+                     background-image: url(../../Content/images/A3MMDgtlJourney2.png);
+                    background-size: 60.59vw;
+                    background-repeat: no-repeat;
+                   /* position: absolute;
+                    top: 54px;*/
+                    width: auto;
+                    margin: 2em;
+                    height: 41.5vw;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-evenly;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-right {
+                width: 20%;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                margin-bottom: 5em;
+                color: black;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-right span {
+                    color: red;
+                    font-size: 12px;
+                }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-right li {
+                    list-style-type: disc;
+                    height: 1.5em;
+                    font-size: 12px;
+                }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-right .imp li::marker {
+                    color: rgb(60 164 220);
+                    font-size: 20px;
+                    vertical-align: middle;
+                }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-right li::marker {
+                    color: grey;
+                    font-size: 20px;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-1 {
+                color: black;
+                position: relative;
+                left: 13.5vw;
+                top: 1vw;
+                height: 6vw;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-1 li::marker {
+                    color: #FF3600;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-2 {
+                color: black;
+                position: relative;
+                left: 28vw;
+                top: 4.5vw;
+                height: 6vw;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-2 li::marker {
+                    color: #FF8600;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-3 {
+                color: black;
+                position: relative;
+                left: 38vw;
+                top: 5.5vw;
+                height: 6vw;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-3 li::marker {
+                    color: #FFB300;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-4 {
+                color: black;
+                position: relative;
+                left: 43vw;
+                top: 5vw;
+                height: 6vw;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-4 li::marker {
+                    color: #AAB300;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-5 {
+                color: black;
+                position: relative;
+                left: 45vw;
+                top: 4.5vw;
+                height: 6vw;
+            }
+
+                .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph .level-5 li::marker {
+                    color: #4CB539;
+                }
+
+            .a3mm-dashboard .a3mm-dashboard-content .a3mm-dgtlJrny-left .a3mm-dgtlJrny-graph ul {
+                height: 7vw;
+                width: fit-content;
+                max-width: 14vw;
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+                column-count: 1;
+                column-gap: 23px;
+                font-size: 0.95vw;
+            }
+
+    li {
+        list-style-type: disc;
+    }
+
+    .a3mm-dash-fields {
+        display: flex;
+        margin-left: 2.2em;
+        font-size: 1vw;
+    }
+
+    .custom-textbox .k-input {
+        background-color: transparent;
+        border: unset;
+        border-bottom: 1px solid white;
+        border-radius: 0px;
+        height: 1.5em;
+        pointer-events: none;
+        color: white;
+        padding-left: 4px;
+    }
+
+    .custom-textbox .k-textbox > input {
+        padding: unset;
+    }
+
+     body {
+              -webkit-print-color-adjust: exact;
+
+          }
+    #btnExp {
+        background-image: url("../../Content/images/export_pdf.svg");
+        background-color: transparent;
+        color: white;
+        background-repeat: no-repeat;
+        border: none;
+        background-position: right;
+        padding-right: 2em;
+        float: right;
+        margin-right: 0.5em;
+    }
+    input#AssessmentName::placeholder {
+        color: white;
+    }
+    .k-widget.k-window {
+        height: 34vw;
+        width: 69vw;
+    }
+    
+</style>
+<div class="content-main custom-grid dark-bg">
+    <div>
+        <ol class="breadcrumb ">
+            <li>A3MM</li>
+            <li class="active">Dashboard</li>
+        </ol>
+    </div>
+
+    <div class="content-wrapper incident-dashboard-container">
+        @*<div id="exportpdf_btn" onclick="downloadimage()">EXPORT to pdf</div>*@
+        <div class="a3mm-dash-fields">
+
+            <div class="custom-textbox" style="display: flex; width: 24%; margin-right: 2em;">
+                <div style="margin-right: 0.5em;width:6em">Account :</div>
+                @(Html.Kendo().TextBox()
+                             .Name("Account")
+                             .Value(Model.Account)
+                             .HtmlAttributes(new { style = "" })
+                            )
+            </div>
+
+            <div class="custom-textbox" style="display: flex; width: 35%; margin-right: 2em;">
+                <div style="margin-right: 0.5em; width: 13.5em">Assessment Name :</div>
+
+                @(Html.Kendo().TextBox()
+                             .Name("AssessmentName")
+                             .Value(Model.AssessmentName)
+                             .Placeholder("No Data")
+                             .HtmlAttributes(new { style = "" })
+                            )
+            </div>
+            <div class="custom-textbox" style="display: flex; width: 13%; margin-right: 2em;">
+                @*<div style="margin-right: 0.5em; width: 6em">Contract :</div>
+
+        @(Html.Kendo().TextBox()
+                         .Name("Contract")
+                         .Value(Model.Contract)
+                         .HtmlAttributes(new { style = "" })
+                        )*@
+               
+            </div>
+            
+        </div>
+
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items" style=" margin-top: -2.5vh;">
+                <button type="button" id="btnExp">Export - </button>
+                <span class="parameter-filter-icon"></span>
+            </div>
+           
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+                        <li>
+                            Assessment Name:
+                            @( Html.Kendo().DropDownList().Name("AssessmentList")
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .SelectedIndex(0)
+                                                            .BindTo(Model.AssessmentList)
+                                                             //.Events(e =>
+                                                             //{
+                                                             //e.Change("onSelectAccount");
+                                                             //})
+                               )
+                        </li>
+                        <li>
+                            @(Html.Kendo().Button()
+                                      .Name("btnPreview")
+                                      .Content("Apply")
+                                      .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div>
+                @Html.Partial("_DigitalJourney")
+            </div>
+        </div>
+
+
+    </div>
+
+    <div>
+        @Html.Partial("_SingleComponentDetails")
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+        $('.parameter-slider').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    var app;
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+        console.log("apply clicked");
+        app = $("#AssessmentList").data("kendoDropDownList");
+
+        var mod ={
+            AssessmentName: app.value()
+              }
+
+            var data1 = JSON.stringify(mod);
+            baseurl = '@Url.Content("~/AssessmentManager/Assessment/GetEngageLevelByAssName")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                console.log(response);
+               // $("#Account").value(response.Account);
+                $("#digiJourney").html(response);
+                var acct = $("#SelAccount").text();
+                $("#Account").val(acct);
+                $("#AssessmentName").val(app.value());
+            },
+            error: function (err, response) {
+                console.log(err);
+            }
+        });
+    });
+    var selCmp = "";
+    function cmpClick(cmpid) {
+        selCmp = $("#" + cmpid.id).text();
+        $("#SingleDashboardDetail").data("kendoGrid").dataSource.read();
+        $("#cmpName").text(selCmp);
+        var popup = $("#ViewSingleCmpDetails").data("kendoWindow");
+            popup.open();
+            popup.center();
+
+    }
+
+    function GetCmpDetails() {
+        return {
+            assessmentName: $("#AssessmentList").data("kendoDropDownList").value(),
+            ComponentName: selCmp
+        };
+    }
+    
+</script>

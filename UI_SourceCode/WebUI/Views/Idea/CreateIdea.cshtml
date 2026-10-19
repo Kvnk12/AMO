@@ -1,0 +1,589 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.IdeaInput
+
+@{
+       ViewBag.Title = "SLA Manager";
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/logo.png");
+    }
+
+
+ @using (Html.BeginForm("CreateIdea", "Idea", FormMethod.Post, new { @class = "form-horizontal" }))
+ {
+  
+
+        <!--.container-->
+        <div class="selectappArea">
+          <!-- Wrap all page content here -->
+          <div class="container">
+            <div class="selectApp form-horizontal">
+              <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id="mandate">Client Name</label>
+                <div class="col-sm-5">
+                   @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientsList, "value", "text",Model.ClientId), "", new { @class = "selectpicker", id = "ddlClient", tabindex = "1" })
+                    @Html.HiddenFor(m =>m.ClientId)
+                </div>
+              </div>
+            </div>
+            <!--/.selectApp-->
+            <div class="selectyearArea form-horizontal">
+              <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>	
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>-->
+              <!-- hidden for sprint two-->
+            </div>
+            <!--/.selectyearArea-->
+          </div>
+          <!--/.container-->
+        </div>
+        <!--/.selectappArea-->
+        <div class="clear"></div>
+        <div>
+          <!--start of breadcrumb-->
+          <ol class="breadcrumb container">
+            <li><a href="#">SLA Manager</a></li>
+            <li><a href="#">Data Administration</a></li>
+            <li><a href="#">Data Maintanence</a></li>
+            <li class="active">Idea</li>
+          </ol>
+        </div>
+        <!--end of breadcrumb container-->
+        <div class="container" style="padding:0;">
+          <!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+            @if (!ViewData.ModelState.IsValid)
+            {
+              @Html.ValidationSummary(false, "", new { @class = "alert alert-info container" })
+             }
+            
+            <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+            @Html.Partial("_DMCatelog")
+            <!-- treemenu ends-->
+            <div class="treeMenuContent">
+              <div class="container" style="padding:0;">
+                <div style="min-height:700px">
+                   <div class="timeZonearea">
+                    <div class="left timeLeft">
+                      <div class="form-group">
+                        <label class="col-sm-8 control-label" for="sametime">Add New Idea - @Model.ClientId</label>
+                        <p>@Html.ActionLink("View Idea", "ViewIdeabyClient", new {ClientId = Model.ClientId })</p>
+                      </div>
+                    </div>
+                    <!--.left-->  
+                    <!--/.right-->
+                  </div>
+                         	<table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped">
+                              
+                                  <tr>
+                                    <td>ClientId</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.ClientId, new { @class = "form-control", tabindex="4", disabled="disabled"})                               
+                                    </td>
+                                  
+                                    <td>Include</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Include, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                   <td>ApplicationId</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.ApplicationId, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>ChallengeId</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.ChallengeId, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>ChallengeDescription</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.ChallengeDescription, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>IdeaId</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaId, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaOrgin</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaOrgin, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaOwner</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaOwner, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaDescription</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaDescription, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>IdeaAsIs</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaASIS, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaToBe</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaTOBE, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaDateCreated</td>
+                                    <td>
+                                      <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaDateCreated, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaCreatedBy</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaCreatedBy, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaDateSubmitted</td>
+                                    <td>
+                                        <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaDateSubmitted, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaMonthSubmitted</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaMonthSubmitted, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaYearSubmitted</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaYearSubmitted, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaSubmittedBy</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaSubmittedBy, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaDateApproved</td>
+                                    <td>
+                                    <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaDateApproved, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaApprovedBy</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaApprovedBy, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>IncludeInRoadmap</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IncludeInRoadmap, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaPriority</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaPriority, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaRoadmapCycle</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaRoadmapCycle, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaRoadmapComments</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaRoadmapComments, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaNTTDATAApproval</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaNTTDATAApproval, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaClientApproval</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaClientApproval, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaStatus</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaStatus, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaSubmittedToClient</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaSubmittedToClient, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaSponsor</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaSponsor, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaRequestedCompletionDate</td>
+                                    <td>
+                                        <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaRequestedCompletionDate, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                
+                                    <td>IdeaEstimatedImplementationDate</td>
+                                    <td>
+                                      <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaEstimatedImplementationDate, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaEstimatedReleaseName</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaEstimatedReleaseName, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaActualCompletionDate</td>
+                                    <td>
+                                        <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaActualCompletionDate, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaActualCompletionDate_Month</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaActualCompletionDate_Month, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaActualCompletionDate_Year</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaActualCompletionDate_Year, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaActualReleaseName</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaActualReleaseName, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaCategory</td>
+                                    <td>
+                                    <div id="sandbox-container" >
+                                        @Html.TextBoxFor(m => m.IdeaCategory, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaServiceCategory</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IdeaServiceCategory, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaComment</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IdeaComment, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaOpenActionItems</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaOpenActionItems, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>EstimateSize</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.EstimateSize, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaEstimatedCost</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IdeaEstimatedCost, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaActualCost</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaActualCost, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>IdeaCostType</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IdeaCostType, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>RevenueIncrease</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.RevenueIncrease, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td>ProductivityGainNotes</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.ProductivityGainNotes, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IdeaPotentialValueSize</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaPotentialValueSize, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>EstimatedPaybackPeriod</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.EstimatedPaybackPeriod, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>IdeaBenefitsRealized</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IdeaBenefitsRealized, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>BusinessCapabilityL1</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.BusinessCapabilityL1, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>BusinessCapabilityL2</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.BusinessCapabilityL2, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>BenefitId</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.BenefitId, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaEstimatedBenefitDescription</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaEstimatedBenefitDescription, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>IdeaActualBenefitDescrition</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaActualBenefitDescrition, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>IncreasedRevenueEstimate_Low</td>
+                                    <td>
+                                     @Html.TextBoxFor(m => m.IncreasedRevenueEstimate_Low, new { @class = "form-control", tabindex="4"})                             
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>IncreasedRevenueEstimate_High</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IncreasedRevenueEstimate_High, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>CostofServiceReductionEstimate</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.CostofServiceReductionEstimate, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>SupportCapacityImpactEstimate</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.SupportCapacityImpactEstimate, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaEstBenefitRealizationDate</td>
+                                    <td>
+                                        <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.IdeaEstBenefitRealizationDate, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>IncreasedRevenueActual</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IncreasedRevenueActual, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 
+                                    <td>CostofServiceReductionActual</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.CostofServiceReductionActual, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>
+                                    <td>SupportCapacityImpactActual</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.SupportCapacityImpactActual, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  
+                                    <td>IdeaBenefitValueType</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IdeaBenefitValueType, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+                                   <tr>                                 
+                                    <td>LOBId</td>
+                                    <td>
+                                     @Html.TextBoxFor(m => m.LOBId, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>IdeaLOBImpacts</td>
+                                    <td>
+                                     @Html.TextBoxFor(m => m.IdeaLOBImpacts, new { @class = "form-control", tabindex="4"})                                
+                                    </td>
+                                  </tr>
+                                    <tr>                                  
+                                    <td>IncreaseClientsMarketShare</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.IncreaseClientsMarketShare, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                   <td>IncreaseClientsRevenue</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.IncreaseClientsRevenue, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                 </tr>
+                                   <tr>
+                                    <td>Provided access to new client VerticalsDomains</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Provided_access_to_new_client_VerticalsDomains, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>Enabled NTTDATA to offer new services to client</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.Enabled_NTTDATA_to_offer_new_services_to_client, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    </tr>
+                                   <tr>
+                                    <td>Increasein NTTDATA price premium</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Increase_in_NTTDATA_price_premium, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>Increase in NTTDATA Customer Satisfaction</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Increase_in_NTTDATA_Customer_Satisfaction, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    </tr>
+                                   <tr>
+                                    <td>Increase in NTTDATA employee satisfaction</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Increase_in_NTTDATA_employee_satisfaction, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>Increase in NTTDATA talent retention</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.Increase_in_NTTDATA_talent_retention, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                       </tr>
+                                   <tr>
+                                    <td>Improvement in NTTDATA Brand Perception</td>
+                                    <td>
+                                        @Html.TextBoxFor(m => m.Improvement_in_NTTDATA_Brand_Perception, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                    <td>DateLastUpdated</td>
+                                    <td>
+                                     <div id="sandbox-container" >
+                                         <div class="input-append date col-lg-12">
+                    						@Html.TextBoxFor(m => m.DateLastUpdated, new { @class = "form-control", tabindex = "4" })<span class="add-on"><i class="icon-th"></i></span>
+                    					 </div>
+                                      </div>
+                                    </td>
+                                   </tr>
+                                  <tr>
+                                    <td>LastUpdatedBy</td>
+                                    <td>
+                                    @Html.TextBoxFor(m => m.LastUpdatedBy, new { @class = "form-control", tabindex="4"})
+                                    </td>
+                                  </tr>
+							</table>
+                    <div class="metricaction">
+                       <button class="btn btn-primary" tabindex="" value="Save" id ="btnSave" type="submit">Save</button>
+                    </div>
+                  <!--/.well-->
+                  
+                </div>
+                <!--END OF LEFTAREA-->
+              </div>
+              <!--/.treeMenuContent container-->
+            </div>
+            <!--/.treeMenuContent-->
+          </div>
+          <!--/.treeMenuArea-->
+        </div>
+        <!--/.container-->
+    
+ }
+
+<script>
+    $(function () {
+        cbpHorizontalMenu.init();
+    });
+		</script>
+<script>
+    $('.selectpicker').selectpicker();
+    </script>
+<script>
+    $('#sandbox-container .input-append.date').datepicker({
+        keyboardNavigation: false,
+        autoclose: true,
+        todayHighlight: true
+    });
+    </script>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.fixedheadertable.js")"></script>
+
+<script>
+    $('select#ddlClient').change(function () {
+        var SelectedclientId = $('#ddlClient :selected').val();
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+        if (href[3] == 'Idea') {
+            //alert('local url');
+
+            var baseurl = href[0] + '//' + href[2] + '/' + 'Idea/ViewIdeabyClient/?ClientId='
+        }
+        else {
+            //alert('server');
+            var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'Idea/ViewIdeabyClient/?ClientId='
+        }
+
+        window.location = baseurl + SelectedclientId;
+
+    });
+
+</script>

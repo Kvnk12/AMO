@@ -1,0 +1,50 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.LOBandApplicationsInput 
+<div class="col-xs-6 col-sm-4 accountCont">
+    <div class="accContracthdr">
+        <div class="left">
+            Application Mapping<br>
+            <span>Line of Business: @Model.LOBName</span>
+        </div>
+
+        <div class="right">
+            <button class="btn btn-primary" tabindex="1500" type="button" id="btnAddApp">Add</button>
+        </div>
+    </div>
+    <form>
+    <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+     <input hidden id="LOBId" value="@Model.LOBId.ToString()"   />
+     <input hidden id="LOBName" value="@Model.LOBName.ToString()"   />
+
+        
+     </form>
+    <div class="tblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="70%" scope="col">Application Name</th>
+              <th scope="col">Action</th>
+            </tr>
+            
+
+            @{ 
+                if (Model.LOBId > 0)
+                    {
+                    foreach (var item in Model.ApplicationLOBJunctionList)
+                    {  
+                     //if(item.Applications.Id == item.AppId)
+                     //{  
+                    <tr>
+                 <td>@item.Applications.ApplicationName</td>   
+
+@*    appname to be displayed   <td>@Html.ActionLink(item.Applications.ApplicationName,"DisplayLOBandApplications",new {AppLOBId=item.Id,AppId=item.AppId, ClientId=@Model.ClientId, LOBId=item.LOBId, LOBName=@Model.LOBName})</td>   *@
+@*                      <td class="text-center"><a @Url.Action("DelAppLOB", "LOBandApplications", new { AppLOBId=item.Id,AppId=item.AppId, ClientId=@Model.ClientId, LOBId=item.LOBId, LOBName=@Model.LOBName}) class="del" title="delete"></a></td>*@
+                    @*<button type="submit" class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("DelIncident", "Incident", new { id = item.Id })'; return false;">Delete</button>*@
+                     <td class="text-center"><button type="submit"  class="btn btn-default" tabindex="22" onclick="location.href='@Url.Action("DelAppLOB", "LOBandApplications", new { AppLOBId=item.Id,AppId=item.AppId, ClientId=@Model.ClientId, lOBId=item.LOBId, LOBName=@Model.LOBName,subVerticalName=@Model.subVerticalName,verticalName = @Model.verticalName,tabs="Tab3"})'; return false;">Delete</button></td>
+
+                    </tr>
+           // }
+                    }
+            }
+            }
+        </table>
+    </div>
+</div>

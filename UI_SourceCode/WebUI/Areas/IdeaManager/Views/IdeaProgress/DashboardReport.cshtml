@@ -1,0 +1,407 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Domain.Entities
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions
+@using System.Data;
+@model WebUI.Areas.IdeaManager.Dto.TrackerDashboardModel
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/JScript/jquery.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IMlogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //var clll = (Client)Session["Client"];
+    //var cvvv = new IdeaProgressController();
+    //var statuslist = cvvv.GetIMStatus(clll.Id);
+
+
+}
+
+
+
+<script>
+    var resoucesdEdited = false;
+
+    function onEdit(e) {
+        var gantt = e.sender;
+        resoucesdEdited = false;
+
+        if (e.task) {
+            e.container.on('click', 'div[data-container-for="resources"] > a', function (event) {
+                event.preventDefault();
+                resoucesdEdited = true;
+                gantt._createResourceEditor(e.container.find('div.k-gantt-resources'), e.task);
+            });
+        }
+    }
+    function onSave(e) {
+        if (e.task && resoucesdEdited) {
+            this._updateAssignments(e.task.get("id"), e.task.get(this.resources.field));
+        }
+    }
+    function onUpdateCreate(e) {
+        e.End = e.End.toISOString();
+        e.Start = e.Start.toISOString();
+        var ticketType = $("#IdeaItem").data("kendoDropDownList");
+        if (ticketType == null || ticketType == '') {
+
+            e.IdeaPostId = 0;
+        }
+        else {
+
+            e.IdeaPostId = ticketType.value();
+
+        }
+    }
+    function getPppIdeaId() {
+        var ticketType123 = $("#IdeaItem").data("kendoDropDownList");
+        //alert(ticketType123.value());
+        if (ticketType123 == null || ticketType123 == '') {
+            //alert(ticketType.value());
+            return {
+                PppIdeaId: 0
+            };
+        }
+        else {
+            return {
+
+                PppIdeaId: ticketType123.value()
+            };
+        }
+    }
+    function getIdeaId() {
+        //alert('here');
+        var ticketType = $("#IdeaItem").data("kendoDropDownList");
+        if (ticketType == null || ticketType == '') {
+            //alert(ticketType.value());
+            return {
+                PIdeaId: 0
+            };
+        }
+        else {
+            return {
+
+                PIdeaId: ticketType.value()
+            };
+        }
+    }
+    function onChangeIdea(e)
+    {
+        var taskGrid = $("#TaskDetails").data("kendoGrid");
+        taskGrid.dataSource.read();
+
+        //var gantt = $("#TaskGantt").data("kendoGantt");
+        //gantt.dataSource.read();
+        //gantt.resize();
+        //gantt.refresh();
+
+        var PostIdea = $("#IdeaItem").data("kendoDropDownList");
+            var PostIdeaId = PostIdea.value();
+
+            var modu = {
+                IdeaId: PostIdeaId
+            };
+           // alert(JSON.stringify(modu));
+            //var data1 = JSON.stringify(modu);
+            var baseurl = '@Url.Content("~/IdeaProgress/ReportIdeaDetails")';
+            $.ajax({
+                url: baseurl,
+                type: "POST",
+                async: false,
+                data: modu,
+                error: function (response) {
+                   // alert(JSON.stringify(response));
+                },
+                success: function (response) {
+
+                    $("#IdeaName").empty();
+                    $("#LOBManager").empty();
+                    $("#IdeaDate").empty();
+                    $("#ProgressStatus").empty();
+
+                    $("#ActualStart").empty();
+                    $("#ActualEnd").empty();
+                    $("#PlannedStart").empty();
+                    $("#PlannedEnd").empty();
+
+                    $("#Complexity").empty();
+                    $("#Responsible").empty();
+                    $("#Risk").empty();
+                    $("#RiskMitigation").empty();
+
+                    $("#CurrentPriority").empty();
+                    $("#LastUpdatedPriority").empty();
+                    $("#ProgressStatusColor").css('background-color', "white");
+
+                    //assigning
+                    $("#IdeaName").append(document.createTextNode(response.IdeaName));
+                    $("#LOBManager").append(document.createTextNode(response.LOBManager));
+                    var respideaDate = kendo.toString(response.IdeaDate, 'MM/dd/yyyy HH:mm:ss');
+                    //alert(respideaDate);
+                    $("#IdeaDate").append(document.createTextNode(response.IdeaDate));
+                    $("#ProgressStatus").append(document.createTextNode(response.ProgressStatus));
+
+                    var resActStart = kendo.toString(response.ActualStart, 'MM/dd/yyyy HH:mm:ss');
+                    //$("#ActualStart").append(document.createTextNode(resActStart));
+                    $("#ActualStart").append(document.createTextNode(response.ActualStart));
+                    var resActEnd = kendo.toString(response.ActualEnd, 'MM/dd/yyyy HH:mm:ss');
+                    $("#ActualEnd").append(document.createTextNode(response.ActualEnd));
+                    var resPlanStart = kendo.toString(response.PlannedStart, 'MM/dd/yyyy HH:mm:ss');
+                    $("#PlannedStart").append(document.createTextNode(response.PlannedStart));
+                    var resPlanEnd = kendo.toString(response.PlannedEnd, 'MM/dd/yyyy HH:mm:ss');
+                    $("#PlannedEnd").append(document.createTextNode(response.PlannedEnd));
+
+                    $("#Complexity").append(document.createTextNode(response.Complexity));
+                    $("#Responsible").append(document.createTextNode(response.Responsible));
+                    $("#Risk").append(document.createTextNode(response.Risk));
+                    $("#RiskMitigation").append(document.createTextNode(response.RiskMitigation));
+
+                    $("#CurrentPriority").append(document.createTextNode(response.CurrentPriority));
+                    $("#LastUpdatedPriority").append(document.createTextNode(response.LastUpdatedPriority));
+                    $(".dot").css('background-color', response.ProgressStatusColor);
+                    //alert("asd");
+                    var gantt11 = $("#gantt").data("kendoGantt");
+                    gantt11.dataSource.read();
+                }
+            });
+
+
+    }
+
+    function GetIdeaId() {
+        //alert('here');
+        var ticketType = $("#IdeaItem").data("kendoDropDownList");
+        if (ticketType == null || ticketType == '') {
+            //alert(ticketType.value());
+            return {
+                PostIdeaId: 0
+            };
+        }
+        else {
+            return {
+
+                PostIdeaId: ticketType.value()
+            };
+        }
+    }
+</script>
+<div id="wrap" style="height:1100px">
+    <div class="" style="padding: 0;">
+        <div>
+            <ol class="breadcrumb">
+                <li><a href="#">Idea Manager</a></li>
+                <li class="active"><a href="#">Tracker Dashboard</a></li>
+            </ol>
+        </div>
+        <div class="form-group">
+            <label>Select Idea :</label> &nbsp;&nbsp;
+            @(Html.Kendo().DropDownList()
+                          .Name("IdeaItem")
+                          .DataTextField("Text")
+                          .DataValueField("Value")
+                          .OptionLabel("Select Idea")
+                          .DataSource(d => d.Read(e => e.Action("GetApprovedIdeas", "IdeaProgress")))
+                          .Events(ev => ev.Change("onChangeIdea")))
+        </div>
+
+        <table class="table table-striped">
+            @*<tr>
+                    <td>Idea</td>
+                    <td>@Html.DropDownListFor(m => m.Idea, new SelectList(Model.PostedIdeas, "value", "text", Model.Idea), "", new { @class = "selectpicker", id = "ideas" })</td>
+                </tr>*@
+            <tr>
+                <td>Idea Name</td>
+                <td>LOB Manager</td>
+                <td>Idea Approved date</td>
+                <td>Progress Status</td>
+            </tr>
+            <tr>
+                <td>
+                    <label id="IdeaName"></label>
+                </td>
+                <td>
+                    <label id="LOBManager"></label>
+                </td>
+                <td>
+                    <label id="IdeaDate"></label>
+                </td>
+                <td>
+
+                    <span class="dot"></span>
+                    &nbsp;&nbsp;
+                    <label id="ProgressStatus"></label>
+
+
+                </td>
+            </tr>
+            <tr>
+                <td>Actual Start Date</td>
+                <td>Actual End Date</td>
+                <td>Planned Start Date</td>
+                <td>Planned End Date</td>
+            </tr>
+            <tr>
+                <td>
+                    <label id="ActualStart"></label>
+                </td>
+                <td>
+                    <label id="ActualEnd"></label>
+                </td>
+                <td>
+                    <label id="PlannedStart"></label>
+                </td>
+                <td>
+                    <label id="PlannedEnd"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Complexity</td>
+                @*<td>Responsible</td>*@
+
+                <td>Risk</td>
+                <td>Risk Mitigation</td>
+                <td>Current Priority</td>
+            </tr>
+            <tr>
+                <td>
+                    <label id="Complexity"></label>
+                </td>
+                @*<td>
+                        <label id="Responsible"></label>
+                    </td>*@
+                <td>
+                    <label id="Risk"></label>
+                </td>
+                <td>
+                    <label id="RiskMitigation"></label>
+                </td>
+                <td>
+                    <label id="CurrentPriority"></label>
+                </td>
+
+            </tr>
+            <tr>
+
+                <td>Last Updated Priority</td>
+            </tr>
+            <tr>
+                <td>
+                    <label id="LastUpdatedPriority"></label>
+                </td>
+            </tr>
+        </table>
+        <br />
+        <div>
+            @(Html.Kendo().Grid<TasksDetails>()
+            .Name("TaskDetails")
+            .Columns(column =>
+            {
+                column.Bound(e => e.T_Phase).Title("Phase");
+                column.Bound(e => e.T_Status).Title("Status");
+                column.Bound(e => e.T_ActualStart).Title("Actual Start Date").Format("{0:MM/dd/yyyy}");
+                column.Bound(e => e.T_ActualEnd).Title("Actual End Date").Format("{0:MM/dd/yyyy}");
+                column.Bound(e => e.T_PlannedStart).Title("Planned Start Date").Format("{0:MM/dd/yyyy}");
+                column.Bound(e => e.T_PlannedEnd).Title("Planned End Date").Format("{0:MM/dd/yyyy}");
+                column.Bound(e => e.T_PercentCompleted).Title("Percentage Completed").Format("{0:p}");
+            })
+            .Pageable()
+            //.HtmlAttributes(new { style = "width:850px" })
+            .Sortable()
+
+            .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(7)
+            .Read(read => read.Action("ReadTaskDetails", "IdeaProgress").Data("getIdeaId"))
+                    )
+            )
+        </div>
+        <br />
+
+
+        <div>
+            @(Html.Kendo().Gantt<IdeaTaskModel, IdeaTaskDependencyModel>()
+                .Name("gantt")
+                 //.Columns(columns =>
+                 //{
+                 //    columns.Bound(c => c.TaskId).Title("ID").Width(50);
+                 //    columns.Bound(c => c.Title).Editable(true);
+                 //    columns.Bound(c => c.Start).Title("Start Time").Width(100).Editable(true).Sortable(true);
+                 //    columns.Bound(c => c.End).Title("End Time").Width(100).Editable(true).Sortable(true);
+                 //    // columns.Resources("resources").Editable(true).Title("Responsible");
+                 //    // columns.Bound(c => c.Critical).Title("Critical");
+                 //    //columns.Bound(c => c.Duration).Title("Duration(Hrs)");
+                 //})
+                 .RowHeight(50)
+                 .Height(700)
+                .Editable(false)
+                //.Editable(ff => ff.TemplateId("IdeaTaskPopupEditor"))
+                //.Events(e =>
+                //{
+                //    e.Save("onSave"); e.Edit("onEdit"); e.Add("checkIDdid");
+
+                //})
+                .Views(views =>
+                {
+                    views.DayView();
+                    views.WeekView(monthView => monthView.Selected(true));
+                    views.MonthView();
+                })
+
+              .Height(700)
+              .ShowWorkHours(false)
+              .ShowWorkDays(false)
+              .Snap(false)
+              .Resizable(true)
+              .DataSource(d => d
+              .ServerOperation(true)
+              .Model(m =>
+              {
+                  m.Id(i => i.TaskId);
+                  //m.ParentId(i => i.ParentId);
+                  //m.OrderId(i => i.OrderId);
+                  //m.Field(i => i.Expanded);
+              })
+              .Read(read => read.Action("timeLineTasksList", "IdeaProgress").Data("getPppIdeaId"))
+              //.Read(read => read.Action("Read_Tasks", "IdeaProgress").Data("GetIdeaId"))
+              )
+
+            )
+        </div>
+
+
+
+    </div>
+</div>
+<style>
+    .headersty {
+        background-color: #47a3da;
+        color: white;
+    }
+
+    .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+        background-color: #47a3da;
+        color: white;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .dot {
+        height: 25px;
+        width: 25px;
+        background-color: white;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>

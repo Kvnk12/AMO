@@ -1,0 +1,825 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc.Resources
+@using System.Data;
+@model ApplicationDashboardModel
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.Title = "Portfolio Analyzer";
+    var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/INlogo.png");
+   // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    //var client = (Client)Session["Client"];
+    //var a =new APRAjaxServiceController();
+    //var b = a.ApplicationList(client.Id);
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    }
+<style>
+    table, th, td {
+        /*border: 1px solid black;*/
+        padding: 9px;
+    }
+
+    /* .leftarea {
+            width: auto;
+            float: none;
+        }*/
+
+    h4 {
+        color: #26b2ee;
+    }
+
+     .k-grid-header th.k-header > .k-link {
+        font-weight: bold;
+    }
+     .form-horizontal .control-label {
+
+    text-align: left;
+    left: 10px;
+
+}
+     #exportalltopdf{
+         page-break-inside:auto;
+     }
+   </style>
+
+    <div class="content-main" id="wrap" style="height:1270px">
+        <div>
+            <ol class="breadcrumb">
+                <li>Portfolio Analyzer</li>
+                <li class="active">Application Dashboard</li>
+            </ol>
+        </div>
+        
+        <div class="container" id="AppDashboardOverview" style="padding:0;">
+            <div class="selectappArea">
+                <!-- Wrap all page content here -->
+                @Html.Partial("_APRHeaderFilters")
+            </div>
+   <div class="right"><button class="export-pdftab k-button">Export as PDF</button></div>
+           <br />
+            <div class="demo-section k-content">
+
+                <div id="exTab2" class="container">
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#appoverview" data-toggle="tab">Application Overview</a>
+                        </li>
+                        <li>
+                            <a href="#costdashboard" data-toggle="tab">Cost Report(s)</a>
+                        </li>
+                        <li>
+                            <a href="#appdashboard" data-toggle="tab">Values</a>
+                        </li>
+                        <li id="hideDashboard">
+                            <a href="#DispositionDashboard" data-toggle="tab">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#recommendation" data-toggle="tab">Recommendation</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="exportalltopdf">
+                        <div class="tab-pane active" id="appoverview">
+                            @Html.Partial("_appoverview", Model)
+                        </div>                     
+                        <div class="tab-pane" id="costdashboard">
+                            @Html.Partial("_costdashboard", Model)
+                        </div>                     
+                        <div class="tab-pane" id="appdashboard">
+                            @Html.Partial("_appdashboard", Model)
+                        </div>
+                        <div class="tab-pane" id="DispositionDashboard">
+                            @Html.Partial("_DispositionDashboard", Model)
+                        </div>
+                        <div class="tab-pane" id="recommendation">
+                            @Html.Partial("_recommendation", Model)
+                        </div>
+                    </div>
+                </div>
+
+
+
+                </div>
+            </div>
+    </div>
+
+<script>  
+
+    jQuery(document).ready(function ($) {
+        //Technical Architecture
+        $("#Tech_Toggle").click(function () {
+
+            $("#TechDetails").slideToggle("fast");
+
+            if ($("#Tech_Toggle").text() == "+Technical Architecture") {
+                $("#Tech_Toggle").html("-Technical Architecture")
+            }
+            else {
+                $("#Tech_Toggle").text("+Technical Architecture")
+            }
+
+        });
+
+        //Demographics
+        $("#Demo_Toggle").click(function () {
+
+            $("#DemoDetails").slideToggle("fast");
+
+            if ($("#Demo_Toggle").text() == "+Demographics") {
+                $("#Demo_Toggle").html("-Demographics")
+            }
+            else {
+                $("#Demo_Toggle").text("+Demographics")
+            }
+
+        });
+
+        //Disposition Details
+        $("#Disp_Toggle").click(function () {
+
+            $("#DispDetails").slideToggle("fast");
+
+            if ($("#Disp_Toggle").text() == "+Desposition Details") {
+                $("#Disp_Toggle").html("-Desposition Details")
+            }
+            else {
+                $("#Disp_Toggle").text("+Desposition Details")
+            }
+
+        });
+
+        //Application OwnerShip Details
+        $("#Grid_Toggle").click(function () {
+
+            $("#GridDetails").slideToggle("fast");
+
+            if ($("#Grid_Toggle").text() == "+Application Ownership") {
+                $("#Grid_Toggle").html("-Application Ownership")
+            }
+            else {
+                $("#Grid_Toggle").text("+Application Ownership")
+            }
+
+        });
+
+
+
+
+    });
+
+
+   
+    ////for Expand App overView 
+    //function TechExpand() {
+    //    $("#TD").Show();
+    //    $("#TE").hide();
+    //    $("#TechDetails").show();
+    //}
+    //function TechDrop() {
+    //    $("#TD").hide();
+    //    $("#TechDetails").hide();
+    //    $("#TE").show();
+    //}
+    ////demographics
+    //function DemoExpand() {
+    //    $("#DD").show();
+    //    $("#DE").hide();
+    //    $("#TechDetails").show();
+    //}
+    //function DemoDrop() {
+    //    $("#DD").hide();
+    //    $("#TechDetails").hide();
+    //    $("#DE").show();
+    //}
+    ////Disposition
+    //function DispExpand() {
+    //    $("#DDD").show();
+    //    $("#DDE").hide();
+    //    $("#DispDetails").show();
+    //}
+    //function DispDrop() {
+    //    $("#DDD").hide();
+    //    $("#DispDetails").hide();
+    //    $("#DDE").show();
+    //}
+    ////kendo grid
+    
+    //function KendoExpand() {
+    //    $("#KD").show();
+    //    $("#KE").hide();
+    //    $("#KendoDetails").show();
+    //}
+    //function KendoDrop() {
+    //    $("#KD").hide();
+    //    $("#KendoDetails").hide();
+    //    $("#KE").show();
+    //}
+
+    //$('#cApp').change(function(){
+    //    var id = $(this).val();
+    //document.getElementById("cApp").onchange = function () { changeApp(this) };
+
+    //$('#cApp').change(function(){
+    // var id = $(this).val();
+    $(document).ready(function () {
+        if ($("#AppName").val()) {
+            AppNameChange();
+
+
+        }
+    });
+
+    function LineItems_Databound(x) {
+        var formatNum = parseFloat(x).toFixed(1);
+        if (x < 3) {
+            return "<div style='background: red; text-align:right;'>" + formatNum + "&nbsp;&nbsp; </div>";
+        }
+        else if (x >= 3 && x < 4) {
+            return "<div style='background: yellow; text-align:right;'>" + formatNum + "&nbsp;&nbsp; </div>";
+        }
+        else if (x >= 4) {
+            return "<div style='background: green; text-align:right;'>" + formatNum + "&nbsp;&nbsp; </div>";
+        }
+        else {
+            return formatNum;
+        }
+    }
+
+
+    function BarChartColor(x) {
+       // alert(x.value);
+        if (x.value < 3) {
+            return "red";
+        }
+        else if (x.value >= 3 && x.value < 4) {
+            return "yellow";
+        }
+        else if (x.value >= 4) {
+            return "green";
+        }
+        
+    }
+
+    function GetAppID() {
+        var dataItem = $("#AppName").val();
+        return {
+            ApplId: dataItem
+        }
+    }
+    function RefreshCostYear() {
+        //var dataItem = $("#AppName").val(); 
+        $('#costyear').data('kendoDropDownList').dataSource.read();
+
+
+    }
+
+
+    function AppNameChange() {      
+     
+        var dataItem = $("#AppName").val(); // this.dataItem(e.item);
+        RefreshCostChart();
+        RefreshCostYear();
+        var dat = {
+            Id: dataItem
+        }
+        //alert('dataItem')
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/AppDashboard/appData")';
+        if (dataItem.Value != "") {
+            $.ajax({
+                async: false,
+                type: "post",
+                url: baseurl1,
+                data: dataa,
+                contentType: "application/json; charset=utf-8",
+                success: function (response) {
+                    if (response.IncludeAlternativeDashboard == 0) //hide the last tab
+                    {
+                        $("#hideDashboard").addClass("hide");
+                    }
+                    $("#AppAliasName").empty();
+                    $("#LblAppName").empty();
+                    $("#AppTicketCount").empty();
+
+                    $("#ClientAppId").empty();
+                    $("#AppDescription").empty();
+                    $("textarea#Appdesc").empty();
+                    $("textarea#Analys").empty();
+                    $("textarea#Reccoms").empty();
+                    $("#portfolioName").empty();
+                    $("#TechownerName").empty();
+                    $("#BusinessOwnerName").empty();
+                    $("#Criticality").empty();
+                    $("#NoOfUsers").empty();
+                    $("#RevenueImpact").empty();
+                    $("#CodeType").empty();
+                    $("#AppDomainName").empty();
+                    $("#SecurityLevel").empty();
+                    $("#PlannedDisposition").empty();
+                    $("#DispositionImmediacy").empty();
+                    $("#RetirementDate").empty();
+                    $("#Architecture").empty();
+                    $("#ApplicationSize").empty();
+                    $("#AppClassification").empty();
+                    $("#ExtHosting").empty();
+                   
+                    //////
+                    
+                    //////
+                    $("#AppAliasName").append(document.createTextNode(response.AliasName));
+                    //alert('here after data1');
+                    $("#LblAppName").append(document.createTextNode(response.ApplicationName));
+                    $("#AppTicketCount").append(document.createTextNode(response.AvgTickets));
+                    //alert('here after data1');
+                    $("#ClientAppId").append(document.createTextNode(response.ClientAppId));
+                    $("#lblAppDescription").append(document.createTextNode(response.AppDescription));
+                    $("#portfolioName").append(document.createTextNode(response.portfolioName));
+                    $("#TechownerName").append(document.createTextNode(response.TechownerName));
+                    $("#BusinessOwnerName").append(document.createTextNode(response.BusinessOwnerName));
+                    $("#Criticality").append(document.createTextNode(response.Criticality));
+                    $("#NoOfUsers").append(document.createTextNode(response.NoOfUsers));
+                    $("#RevenueImpact").append(document.createTextNode(response.RevenueImpact));
+                    $("#CodeType").append(document.createTextNode(response.CodeType));
+                    $("#AppDomainName").append(document.createTextNode(response.AppDomainName));
+                    $("#SecurityLevel").append(document.createTextNode(response.SecurityLevel));
+                    $("#PlannedDisposition").append(document.createTextNode(response.PlannedDisposition));
+                    $("#DispositionImmediacy").append(document.createTextNode(response.DispositionImmediacy));
+                    $("#RetirementDate").append(document.createTextNode(response.RetirementDate));
+                    $("#Architecture").append(document.createTextNode(response.Architecture));
+                    $("#ApplicationSize").append(document.createTextNode(response.ApplicationSize));
+                    $("#AppClassification").append(document.createTextNode(response.ApplicationClassification));
+                    $("#ExtHosting").append(document.createTextNode(response.ExternalHosting));
+
+
+                    if (response.IncludeAlternativeDashboard != 0) //hide the last tab
+                    {
+                        ////
+                        $("#lblLevel1Cat").empty();
+                        $("#lblLevel2Cat").empty();
+                        $("#lblLevel3Cat").empty();
+                        $("#lblUserRange").empty();
+                        $("#lblStandardStatus").empty();
+                        $("#lblDifferentiation").empty();
+                        $("#lblSystemPriority").empty();
+                        $("#lblDeploymentModel").empty();
+                        $("#lblInterfacesIn").empty();
+                        $("#lblInterfacesOut").empty();
+                        $("#lblInterfacesEntangled").empty();
+                        $("#lblInitialDisposition").empty();
+                        $("#lblReplacementTarget").empty();
+                        $("#lblAPRDisposition").empty();
+                        $("#lblDispositionSolution").empty();
+                        $("#lblReplacementAlternatives").empty();
+
+                        $('#lblLevel1Cat').text(response.Level1Cat);
+                        $("#lblLevel2Cat").text(response.Level2Cat);
+                        $("#lblLevel3Cat").text(response.Level3Cat);
+                        $("#lblUserRange").text(response.UserRange);
+                        $("#lblStandardStatus").text(response.StandardStatus);
+                        $("#lblDifferentiation").text(response.Differentiation);
+                        $("#lblSystemPriority").text(response.SystemPriority);
+                        $("#lblDeploymentModel").text(response.DeploymentModel);
+                        $("#lblInterfacesIn").text(response.InterfacesIn);
+                        $("#lblInterfacesOut").text(response.InterfacesOut);
+                        $("#lblInterfacesEntangled").text(response.InterfacesEntangled);
+                        $("#lblInitialDisposition").text(response.InitialDisposition);
+                        $("#lblReplacementTarget").text(response.ReplacementTarget);
+                        $("#lblAPRDisposition").text(response.APRDisposition);
+                        $("#lblDispositionSolution").text(response.DispositionSolution);
+                        $("#lblReplacementAlternatives").text(response.ReplacementAlternatives);
+
+                        //Disposition/alternative dashboard
+                        $("#AppDescription").data("kendoEditor").value(response.AppDescription);
+                        var descEditor = $('#AppDescription').data('kendoEditor');
+                        descEditor.body.contentEditable = false;
+                       // $("textarea#Appdesc").val(response.AppDescription);
+                        $("#Appdesc").html(response.AppDescription);
+
+                        var surRating = response.surveyRating;
+                        var surRatingDataSource = new kendo.data.DataSource({
+                            data: surRating
+                        });
+                        var surRatingGrid = $("#surRatingGrid").data("kendoGrid");
+                        surRatingGrid.setDataSource(surRatingDataSource);
+
+                    }
+
+
+
+
+
+                    //analysis and recommendations
+                    $("#Analysis").data("kendoEditor").value(response.Analysis);
+                    $("#Recommendation").data("kendoEditor").value(response.Reccommendation);
+                    var editor = $('#Analysis').data('kendoEditor');
+                    editor.body.contentEditable = false;
+                   // $("textarea#Analys").val(response.Analysis);
+                    //$("textarea#Reccoms").val(response.Reccommendation);
+                    $("#Analys").html(response.Analysis);
+                    $("#Reccoms").html(response.Reccommendation);
+
+                    var editor1 = $('#Recommendation').data('kendoEditor');
+                    editor1.body.contentEditable = false;
+                   
+                    //setting data to Kendo Grid
+                    var results = response.OwnerShipType;
+                    var dataSource = new kendo.data.DataSource({
+                                        data: results
+                                    });
+                    var grid11 = $('#AppOwner').data('kendoGrid');
+                    grid11.setDataSource(dataSource);
+                   // alert("1st");
+                    //rating summary
+                    //var ratingSumm = response.RatingSummary;
+                    //var ratDataSource = new kendo.data.DataSource({
+                    //    data: ratingSumm
+                    //});
+                    //var ratChart = $('#RatingSummaryChart').data('kendoChart');
+                    //ratChart.setDataSource(ratDataSource);
+
+                    //var ratingGrid = $('#RatingGrid').data('kendoGrid');
+                    //ratingGrid.setDataSource(ratDataSource);
+
+                    //cost Summary
+                    var costSumm = response.CostSummary;
+                    var costDataSource = new kendo.data.DataSource({
+                        data: costSumm
+                    });
+                    var costChart = $('#CostSummaryChart').data('kendoChart');
+                    costChart.setDataSource(costDataSource);
+
+                    var costGrid = $('#CostGrid').data('kendoGrid');
+                    costGrid.setDataSource(costDataSource);
+
+                    //labor Summary
+                    var labor = response.Labor;
+                    var labourDataSource = new kendo.data.DataSource({
+                        data: labor
+                    });
+                    var labourChart = $('#LaborChart').data('kendoChart');
+                    labourChart.setDataSource(labourDataSource);
+
+                    var FteGrid = $('#FTEGrid').data('kendoGrid');
+                    FteGrid.setDataSource(labourDataSource);
+                    //internal
+                    // alert("dasdadasdasd");
+
+                                        
+                },
+                error: function (response) {
+                alert("error occured");
+            }
+              
+            });
+          
+        }
+        else {
+            return null;
+        }
+
+        $('#appsurvey').data('kendoDropDownList').dataSource.read();
+        RefreshRatingChart();
+        RefreshCostChart();
+      
+    }
+
+    function CostChartClick(e) {
+
+        e.preventDefault();
+
+        //var grid = $("#CostGrid").data("kendoGrid");
+        //grid.dataSource.read();
+        var popup = $("#CostGridWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+    
+    function LaborChartClick(e) {
+
+        e.preventDefault();
+
+        //var grid = $("#FTEGrid").data("kendoGrid");
+        //grid.dataSource.read();
+        var popup = $("#FTEGridWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+
+    function ForPerspectiveRating() {
+        var Appdata = $("#AppName").val();
+        var PId = PerspectiveTypeID
+        var Sur = $("#appsurvey").data("kendoDropDownList");
+        PerspectiveTypeID = 0;//Setting
+        return {
+            SurveyId: Sur.value(),
+            PerspectiveId: PId,
+            AppId: Appdata
+        }
+    }
+    //Global Varaible to store PerspectiveId
+    var PerspectiveTypeID = 0;
+    function SummaryChartClick(e) {
+        e.preventDefault();
+        //Assigning Id to global Variable
+
+        PerspectiveTypeID = e.dataItem.PerspectiveId;
+        var PId = PerspectiveTypeID;
+        var Sur = $("#appsurvey").data("kendoDropDownList");
+        var Appdata = $("#AppName").val();
+        refreshRatingGrid1(PId, Sur.value(), Appdata);
+        //refreshRatingGrid();
+        var popup = $("#RatingGridWindow").data("kendoWindow");
+        popup.open();
+        popup.center();
+
+        // setTimeout(function () { refreshRatingGrid(); }, 1);
+    }
+    //refersh grid
+    function refreshRatingGrid(e) {
+
+        var Ratgrid = $("#RatingGrid").data("kendoGrid");
+        Ratgrid.refresh();
+        Ratgrid.dataSource.read();
+    }
+    function refreshRatingGrid1(PId, Sur, Appdata) {
+ 
+        var dat = {
+            SurveyId: Sur,
+            PerspectiveId: PId,
+            AppId: Appdata
+        }
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/AppDashboard/PerspectiveTypeRating")';
+
+        $.ajax({
+            async: false,
+            type: "post",
+            url: baseurl1,
+            data: dataa,
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                var ratDataSource = new kendo.data.DataSource({
+                    data: response
+                });
+                var ratingGrid = $('#RatingGrid').data('kendoGrid');
+                ratingGrid.setDataSource(ratDataSource);
+            }
+        });
+    }
+        
+    function RefreshRatingChart() {
+        var Appdata = $("#AppName").val(); // this.dataItem(e.item);
+        var Surveylist = $("#appsurvey").data("kendoDropDownList").value();
+         var dat = {
+            ApplicationID: Appdata,
+            surId:Surveylist
+        }
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/AppDashboard/AppSurveyRating")';
+        $.ajax({
+            async: false,
+            type: "post",
+            url: baseurl1,
+            data: dataa,
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+                //rating
+                var ratingSumm = response.ratingModel;
+                var ratDataSource = new kendo.data.DataSource({
+                    data: ratingSumm
+                });
+                var ratChart = $('#RatingSummaryChart').data('kendoChart');
+                ratChart.setDataSource(ratDataSource);
+
+                //var ratingGrid = $('#RatingGrid').data('kendoGrid');
+                //ratingGrid.setDataSource(ratDataSource);
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });
+    }
+
+    function RefreshCostChart() {
+        var dataItem = $("#AppName").val(); // this.dataItem(e.item);
+        var Yearlist = $("#costyear").data("kendoDropDownList").value();
+        var dat = {
+            AppId: dataItem,
+            Year: Yearlist
+        }
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/AppDashboard/applicationFTECost")';
+        $.ajax({
+            async: false,
+            type: "post",
+            url: baseurl1,
+            data: dataa,
+            contentType: "application/json; charset=utf-8",
+            success: function (response) {
+
+                //cost Summary
+                var costSumm = response.costModel;
+                var costDataSource = new kendo.data.DataSource({
+                    data: costSumm
+                });
+                var costChart = $('#CostSummaryChart').data('kendoChart');
+                costChart.setDataSource(costDataSource);
+
+                var costGrid = $('#CostGrid').data('kendoGrid');
+                costGrid.setDataSource(costDataSource);
+
+                //labor Summary
+                var labor = response.laborModel;
+                var labourDataSource = new kendo.data.DataSource({
+                    data: labor
+                });
+                var labourChart = $('#LaborChart').data('kendoChart');
+                labourChart.setDataSource(labourDataSource);
+
+                var FteGrid = $('#FTEGrid').data('kendoGrid');
+                FteGrid.setDataSource(labourDataSource);
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });   
+    }
+
+    $(".export-pdfcost").click(function () {
+        var chart = $("#CostSummaryChart").getKendoChart();
+        chart.exportPDF({ paperSize: "auto", margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" } }).done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "CostSummaryChart.pdf",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+    $(".export-imgcost").click(function () {
+        var chart = $("#CostSummaryChart").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "CostSummaryChart.png",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+
+    $(".export-pdffte").click(function () {
+        var chart = $("#LaborChart").getKendoChart();
+        chart.exportPDF({ paperSize: "auto", margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" } }).done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "LaborChart.pdf",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+    $(".export-imgfte").click(function () {
+        var chart = $("#LaborChart").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "LaborChart.png",
+                proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+            });
+    });
+    });
+
+
+     $(".export-pdftab").click(function (e) {
+        e.preventDefault();
+        var dataItem = $("#AppName").val(); // this.dataItem(e.item);
+        var dat = {
+            Id: dataItem
+         }
+        var dataa = JSON.stringify(dat);
+        var baseurl1 = '@Url.Content("~/AppDashboard/appData")';
+         if (dataItem.Value != "") {
+             $.ajax({
+                 async: false,
+                 type: "post",
+                 url: baseurl1,
+                 data: dataa,
+                 contentType: "application/json; charset=utf-8",
+                 success: function (response) {
+                     //  if (response.IncludeAlternativeDashboard == 0) //hide the last tab
+                     var idx = response.IncludeAlternativeDashboard;
+                     var Application = response.ApplicationName+"_Dashboard.pdf";
+
+                     var activeTab = $(".tab-content").find(".active");
+                     var id = activeTab.attr('id');
+                     $("#span.tabHeader").css('display', 'block');
+                     //$("#AppOwner .k-grid-header").css('padding', '0 !important');
+                     //$("#AppOwner .k-grid-content").css('overflow-y', 'auto');
+                     //$("#AppOwner .k-grid-content").css({
+                     //    "overflow-y": "hidden",
+                     //    "min-height":"10px"
+                     //});
+                     //$("#AppOwner").find(".k-pager-wrap").hide();
+                     $("#TechDetails").css('display', 'block');
+                     $("#DemoDetails").css('display', 'block');
+                     $("#DispDetails").css('display', 'block');
+                     $("#GridDetails").css('display', 'block');
+                     $("#appoverview").addClass('active');
+                     $("#costdashboard").addClass('active');
+                     $("#appdashboard").addClass('active');
+                     if (idx != 0) {
+                         $("#DispositionDashboard").addClass("active");
+                         $("#hideDesc").addClass('hide');
+                         $("#pdfDesc").removeClass('hide');
+                     }
+                     $("#recommendation").addClass('active');
+                     $("#hideAnalysis").addClass('hide');
+                     $("#pdfAnalysis").removeClass('hide');
+                     $("#hideRecom").addClass('hide');
+                     $("#pdfRecom").removeClass('hide');
+                     kendo.drawing.drawDOM($("#exportalltopdf"))
+                         .then(function (group) {
+
+                     return kendo.drawing.exportPDF(group, {
+                         paperSize: "auto",
+                         //margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" }
+                     });
+
+                 })
+                 .done(function (data) {
+
+                     kendo.saveAs({
+                         dataURI: data,
+                         fileName: Application,
+                         proxyURL: "@Url.Action("Pdf_Export_Save", "APRAjaxService")"
+                     });
+                 });
+             $("#TechDetails").css('display', 'none');
+             $("#DemoDetails").css('display', 'none');
+             $("#DispDetails").css('display', 'none');
+             $("#GridDetails").css('display', 'none');
+                     if (idx != 0) {
+                         $("#hideDesc").removeClass('hide');
+                         $("#pdfDesc").addClass('hide');
+                     }
+
+                     $("#hideAnalysis").removeClass('hide');
+                     $("#pdfAnalysis").addClass('hide');
+                     $("#hideRecom").removeClass('hide');
+                     $("#pdfRecom").addClass('hide');
+ 
+             if (id != "appoverview")
+                 $("#appoverview").removeClass('active');
+             if (id != "costdashboard")
+                 $("#costdashboard").removeClass('active');
+             if (id != "appdashboard")
+                         $("#appdashboard").removeClass('active');
+
+                     if (id != "DispositionDashboard" && idx != 0) {
+                         $("#DispositionDashboard").removeClass('active');
+                     }
+             if (id != "recommendation")
+                         $("#recommendation").removeClass('active');
+                 }
+             });
+         }
+    });
+
+
+    function LineItems_Color(answer , x) {
+        var formatNum = parseFloat(x).toFixed(1);
+        if (x < 3) {
+            return "<div style='background: red;'>" + answer + "&nbsp;&nbsp; </div>";
+        }
+        else if (x >= 3 && x < 4) {
+            return "<div style='background: yellow;'>" + answer + "&nbsp;&nbsp; </div>";
+        }
+        else if (x >= 4) {
+            return "<div style='background: green;'>" + answer + "&nbsp;&nbsp; </div>";
+        }
+        else {
+            return formatNum;
+        }
+    }
+
+
+</script>

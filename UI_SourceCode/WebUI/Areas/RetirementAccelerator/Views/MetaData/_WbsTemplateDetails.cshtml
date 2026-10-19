@@ -1,0 +1,56 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models
+@using Kendo.Mvc.UI
+@using Kendo.Mvc.Extensions
+<div>
+
+    <label><strong style="font-size:medium; align-content:center;">WBS Template</strong></label>
+    <div style="margin:10px;">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label>WBS Template Name:</label>
+                        &nbsp; &nbsp;
+                        @(Html.Kendo().DropDownList().DataTextField("Text").DataValueField("Value")  )
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    @(Html.Kendo().TreeList<WbsTemplateDetailsModel>()
+                .Name("WBSTemplateDetails")
+    .Toolbar(toolbar => toolbar.Create().Text("Add New WBS Template"))
+    .Columns(columns =>
+    {
+        columns.Add().Field(e => e.Task).Title("Phase/Progress");
+        columns.Add().Field(e => e.ResourceGroupId);
+        columns.Add().Title("Edit").Width(350).Command(c =>
+        {
+            c.Edit().Text("");
+            c.Destroy().Text("");
+            c.CreateChild().Text("Add Sub-Task");
+        })
+        .HtmlAttributes(new
+        {
+            // style = "text-align: center;"
+        });
+    })
+    .Editable(e => e.Mode("inline"))
+    .DataSource(dataSource => dataSource
+        .Create(create => create.Action("Create", "MetaData"))
+        .Read(read => read.Action("GetAllTemplates", "MetaData"))
+        .Update(update => update.Action("Update", "MetaData"))
+        .Destroy(delete => delete.Action("Destroy", "MetaData"))
+        .Model(m =>
+        {
+            m.Id(f => f.TaskId);
+            m.ParentId(f => f.TParentId);
+            m.Expanded(true);
+            m.Field(f => f.Task);
+        })
+    )
+    .Height(600)
+    )
+
+</div>

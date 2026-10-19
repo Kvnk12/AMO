@@ -1,0 +1,68 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientAndAccountsInput 
+<div class="accountCont">
+    <div class="accContracthdr">
+        <div class="left">
+            Account Contracts<br>
+            <span>@(Model.AccountName)</span>
+        </div>
+
+        <div class="right">
+            <button class="btn btn-primary" tabindex="1500" type="button" id="btnAddContract">Add</button>
+        </div>
+    </div>
+    <form>
+    <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+     <input hidden id="AccountId" value="@Model.AccountId.ToString()"   />
+     <input hidden id="AccountName" value="@Model.AccountName.ToString()"   />
+
+        
+     </form>
+    <div class="cptblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="70%" scope="col">Contract Name</th>
+                <th width="30%" scope="col">Status</th>
+            </tr>
+            
+
+            @{ 
+                if (Model.AccountId > 0)
+                    {
+                    foreach (var item in Model.ClientAccountContractFilterList)
+                    {  
+                    <tr>
+                    <td>@Html.ActionLink(@item.ContractName,"DisplayClientAccountContracts",new {ContractId=item.Id, ClientId=item.ClientId, AccountId=item.AccountId, AccountName=@Model.AccountName})</td>   
+                        <td><a href="#" id="showaccdetail">@item.ContractStatus</a></td>
+                    @*<td><a href="@Html.DisplayName(item.Id.ToString())" id="showaccdetail">@Html.DisplayName(item.Id)Active</a></td>*@
+
+                    @*<td>@Html.DisplayName(item.Id.ToString())</td></div>*@
+                    </tr>
+                    }
+            }
+            }
+        </table>
+    </div>
+</div>
+@*<script>
+$(document).ready(function ()
+    {
+        
+        $('#btnAddContract').click(function () {
+            
+            var clientId = $("#clientId").val().toString(); 
+            alert(clientId);
+            var AccountId = $("#AccountId").val().toString();
+            alert(AccountId);
+            if ((clientId == null && AccountId == null) || (clientId == 0 && AccountId == 0))
+            {
+                alert('Select Client/Account to Add new Contract');
+            }
+            alert("/?ClientId=" + clientId+"&AccountId=" + AccountId + "&Contract=Contractcreate");
+
+            window.location = "/?ClientId=" + clientId + "&AccountId=" + AccountId + "&Contract=Contractcreate";
+            
+        });
+
+       });
+
+</script>*@

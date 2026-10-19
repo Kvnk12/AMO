@@ -1,0 +1,7 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@model VariableInput 
+
+@using (Html.BeginForm())
+{
+@Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required="required"})  
+    }

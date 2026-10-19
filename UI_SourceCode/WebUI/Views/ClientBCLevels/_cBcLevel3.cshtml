@@ -1,0 +1,51 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.ClientBCLevelsInput 
+
+
+
+<div class="col-xs-6 col-sm-4 ">
+                    <div class="accContracthdr">
+                      <div class="left"> Sub - Capabilities<br>
+                        <span>Business Capability:  @{
+                             if(Model.InExValue=="Internal")
+                            {
+                            @Model.CLevel2Name
+                        }
+                        }</span> </div>
+                      <div class="right">
+                        <button class="btn btn-primary" tabindex="29" type="button" id="btnAddLevel3">Add</button>
+                      </div>
+                    </div>
+    <form>
+    <input hidden id="level2Id" value="@Model.CLevel2Id.ToString()"  />
+
+     <input hidden id="level2Name" value="@Model.CLevel2Name.ToString()"   />
+  <input hidden id="level1Id" value="@Model.CLevel1Id.ToString()"  />
+          <input hidden id="inExValue" value="@Model.InExValue.ToString()"   />  
+     <input hidden id="level1Name" value="@Model.CLevel1Name.ToString()"   />
+       <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+
+@*        <input hidden id="subvid" value="@Model.subVId.ToString()"  />*@
+        
+     </form>
+                    <div class="tblacc">
+                      <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+                         <tr>
+                          <th scope="col">Sub - Capabilities</th>
+                              <th scope="col">Importance</th>
+                        </tr>
+                        @{
+                            if(Model.CLevel2Id >0 && Model.InExValue=="Internal")
+                            {
+                                foreach(var item in Model.ClientBCLevel3List)
+                                {
+                                 <tr>
+                                <td>@Html.ActionLink(@item.ClientLevel3Name,"DisplayClientBClevels",new {ClientID=@Model.ClientId,CLevel3Id=item.Id,CLevel3Name = item.ClientLevel3Name, CLevel2Id=item.ClientLevel2Id,CLevel2Name=@Model.CLevel2Name,CLevel1Id = @Model.CLevel1Id,CLevel1Name = @Model.CLevel1Name,InExValue = @Model.InExValue})</td>   
+
+                                  <td>@item.ClientLevel3Importance</td>    
+                                 </tr>   
+                                }
+                            }
+                        }
+                      </table>
+                    </div>
+                  </div>

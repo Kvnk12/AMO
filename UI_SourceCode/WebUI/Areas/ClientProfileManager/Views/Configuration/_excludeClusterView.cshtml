@@ -1,0 +1,200 @@
+﻿
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using System.Web.Mvc;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+
+@model INClusterListModel
+
+<style>
+    #expText {
+        background-color: transparent;
+        border: none;
+        color: #fff;
+        background-image: url(../Content/images/download_white.svg);
+        background-repeat: no-repeat;
+        background-position: right center;
+        padding-right: 0px;
+        width: 5em;
+        height: 1.5em;
+        margin-left: 0.5em;
+        margin-top: 0;
+    }
+</style>
+
+<div class="cluster-content-bottom">
+    <div class="cluster-heading">
+        <div style=" margin-top: -27px; width: 12em;">&nbsp;<div> Excluded Cluster Words </div><div style="font-size: 11px; margin-top: -3px;">(Last Modified : @Model.lastModified)</div></div>
+        @*<label> <span class="mandate">*</span> select delimiter</label>*@
+
+        <span class="delim-drop">
+            @(Html.Kendo().DropDownList()
+             .Name("delimiter")
+             .DataTextField("Text")
+             .DataValueField("Value")
+             .OptionLabel("delimiter...")
+             //.Events(e => e.Change("change"))
+             .BindTo(new List<System.Web.WebPages.Html.SelectListItem>() {
+              new System.Web.WebPages.Html.SelectListItem() {
+                  Text = "#",
+                  Value = "1"
+              },
+              new System.Web.WebPages.Html.SelectListItem() {
+                  Text = ",",
+                  Value = "2"
+              },
+              new System.Web.WebPages.Html.SelectListItem() {
+                  Text = "!",
+                  Value = "3"
+              },
+              new System.Web.WebPages.Html.SelectListItem() {
+                  Text = ";",
+                  Value = "4"
+              }
+           
+          })
+          .HtmlAttributes(new { style = "width:6em; height: 1.5em; background-color: transparent;  color: white;" })
+    )
+        </span>
+
+
+        <span style="float: right; margin-top: 0em; width: 19em; ">
+            @*provide dropdown to select delimitter to be used*@
+
+
+            @(Html.Kendo().TextBox()
+                                                .Name("ExcludeWords")
+                                                .Enable(true)
+                                                .HtmlAttributes(new { placeholder = "Type Exclude Word",@class= "custom-kendotextbox" })
+                                      ) 
+            <span style="display: flex; margin-left: 16em; margin-top: -1.4em;">
+                <i class="parameter-filter-icon"></i>
+                <button id="expText" title="Download excluded words" onclick="exportDivData()"></button>
+            </span>
+        </span>
+
+      
+ 
+
+    </div>
+    <div class="excluster-word scrollbar-rail">
+        @{
+            if (Model.listofExcludedwords != null || Model.listofExcludedwords.Count() != 0)
+            {
+                foreach (var ii in Model.listofExcludedwords)
+                {
+                    <div class="excustWord">
+                        <span data-toggle="tooltip" data-placement="right" data-html="true" title="Excluded By: @ii.ExcludedBy &#013;Date:@ii.ExcludedDate "> &nbsp; @ii.Word &nbsp; </span>
+                        <i class="delete-icon" data-word="@ii.Word" data-id="@ii.Id"></i> &nbsp;
+                    </div>
+                }
+            }
+        }
+
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete</h5>
+
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5>Are you sure you want to delete "<b><span id="delWord" class="delete-word"> </span></b>"  from exclude word-list.</h5>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">NO</button>
+                <button type="button" data-bs-dismiss="modal" class="btn btn-primary  delete-word-modal">YES</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+     $('.parameter-filter-icon').on('click', function () {
+        console.log("Save excluster");
+         var a = $("#ExcludeWords").data("kendoTextBox").value();
+         var b = $("#delimiter").data("kendoDropDownList").text();
+         console.log(a);
+         console.log(b);
+
+        if (a!= "") {
+            $.ajax({
+                url: '@Url.Action("AddExcludeWords", "Configuration")',
+                type: 'post',
+                data: {'word':a,'delimiter':b},
+                success: function (data) {
+                    $("#excludepartialDiv").html(data);
+                    console.log(data);
+                    console.log("word excluded");
+                     },
+        });
+        }
+
+    });
+
+    $('.delete-icon').on('click', function () {
+        console.log("delete excluster");
+        var a = $(this).data('id');
+        var word=$(this).data('word');
+        console.log(a);
+        document.getElementById('delWord').innerHTML = word;
+        $('#deleteModal').modal('show');
+
+        $('#deleteModal').find('.delete-word').val(word);
+        id = a;
+
+        if (a!= "") {
+
+        }
+
+    });
+    $(".delete-word-modal").click(function () {
+
+        var word = $(this).parent().siblings('.modal-body').find('.delete-word').val();
+        console.log(word, id);
+        $.ajax({
+              url: '@Url.Action("DeleteExcludeWords", "Configuration")',
+              type: 'post',
+            data: { 'id': id },
+                success: function (data) {
+                    //$("#excludepartialDiv").html(data);
+                    //console.log("word deleted");
+                    location.reload();
+                     },
+        });
+    });
+
+     function exportDivData() {
+         console.log("exportDivData");
+         var delimiter = $("#delimiter").data("kendoDropDownList").text();
+         console.log("delimiter" + delimiter);
+
+         if (delimiter != "delimiter...") {
+
+             $.ajax({
+                 url: '@Url.Action("ExportToText", "Configuration")',
+                 type: 'post',
+                 data: { 'delimiter': delimiter },
+                 success: function (data) {
+                     console.log(data);
+                     window.location = '@Html.Raw(@Url.Action("ExportToText", "Configuration"))' + '?delimiter=' + delimiter;
+                 },
+             });
+
+
+         } else {
+             alert("Please select delimiter from the dropdown to download the file")
+             return false;
+         }
+    }
+
+
+</script>

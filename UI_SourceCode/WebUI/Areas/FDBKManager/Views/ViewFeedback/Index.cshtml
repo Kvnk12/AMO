@@ -1,0 +1,473 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model FeedbackViewModel
+
+@{
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <link rel="stylesheet" href="~/Content/css/bootstrap-multiselect.css" />
+
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Content/js/bootstrap-multiselect.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+  
+
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+
+    ViewBag.Title = "Feedback Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/idea_manager.png");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+    ViewBag.NucleusLogo = Url.Content("~/Content/images/NucleusLogo.png");
+
+}
+<style>
+    #filterList div {
+        display: inline-block;
+    }
+
+    #filterList.expandView {
+        height: auto !important;
+        overflow: unset !important;
+    }
+    #ShortDescription {
+        padding: 0.167em 4px;
+        font-size: 13px;
+    }
+</style>
+<div class="content-feedback-main">
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Home</li>
+        <li>Feedback Manager</li>
+        <li class="active">View/Post Feedback</li>
+    </ol>
+    <div class="feedback-manager-content">
+        <div class="main-heading-section">
+            <div class="view-fdbk-toggle">
+                <span class="active" id="allfdbk"> ALL FEEDBACKS </span>
+                <span id="myfdbk"> MY FEEDBACKS </span>
+            </div>
+            <div style="display:flex;">
+                <div class="feedback-type-dropdown">
+                    @(Html.Kendo().DropDownList()
+          .Name("SelectedFeedbackType")
+          .DataTextField("Text")
+          .DataValueField("Value")
+          .HtmlAttributes(new { style = "width: 100%" })
+          .Events(e => e.Change("OnTypeSeltnChange"))
+          .BindTo(new List<SelectListItem>()
+          {
+              new SelectListItem() {
+                Text = "Feedback Feature", Value ="1"
+              },
+              new SelectListItem() {
+                Text = "Business Opportunity", Value ="2"
+              }
+          })
+    )
+                </div>
+                <div style="display:flex">
+                    <input type="text" id="searchKeywords" placeholder="Type Search Keyword here" class="searchTextBox" />
+                    <div class="search-icon" onclick="searchKeyword()"></div>
+                </div>
+            </div>
+        </div>
+        <div class="filter-fdbk-content">
+            <div class="status-filter">Status<i class="filter-icon"></i></div>
+            <div class="custom-multiselect stat">
+                <select class="custom-multiselect-dropdown viewfdbk-filter" id="statusList" onchange="filterChange()" multiple="multiple">
+                    @{
+                        foreach (var item in Model.StatusList)
+                        {
+                            var str = item.Text.ToLower();
+                            <option value="@item.Value" selected>@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="product-filter">Product<i class="filter-icon" style="padding: 12px;"></i></div>
+            <div class="custom-multiselect prod">
+                <select class="custom-multiselect-dropdown viewfdbk-filter" id="productList" onchange="filterChange()" multiple="multiple">
+                    @{
+                        foreach (var item in Model.ProductList)
+                        {
+                            var str = item.Text.ToLower();
+                            <option value="@item.Value" selected>@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="digital-filter" style="display:none;">Digital Offering<i class="filter-icon" style="padding: 13px;"></i></div>
+            <div class="custom-multiselect digi" style="display:none;">
+                <select class="custom-multiselect-dropdown viewfdbk-filter" id="digitalList" onchange="filterChange()" multiple="multiple">
+                    @{
+                        foreach (var item in Model.offeringList)
+                        {
+                            var str = item.Text.ToLower();
+                            <option value="@item.Value" selected>@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="mostRecent-sort" onclick="recentSort()">Most Recent<i class="sortAsc-icon" style="padding: 12px;"></i></div>
+            <div class="mostVoted-sort" onclick="voteSort()">Most Voted<i class="sortAsc-icon"></i></div>
+            <div class="mostCommented-sort" onclick="commtSort()">Most Commented<i class="sortAsc-icon"></i></div>
+        </div>
+        <div class="filter-content">
+            <div class="filter-area">
+                <div onclick="filterclick()" style="display:flex">
+                    <div class="arrow_Left"></div>
+                    <div class="filter-heading">Filter Applied : </div>
+                </div>
+                <div id="filterList" class="filterList" style="width:70em;height:2.2em;overflow:hidden">
+
+                </div>
+            </div>
+            <div class="post-fdbk">
+                <button type="button" class="post-button" onclick="FdbkPostClick()">Post New Feedback</button>
+            </div>
+        </div>
+        <div class="view-feedback-content">
+            <div class="view-header"> <div style="padding: 6px 18px;width:40%">Feedback List</div> <div style="padding: 6px 18px;width:60%">Details</div></div>
+            <div style="display:flex">
+
+                <div class="left-view-content scrollbar-rail">
+                    <div>
+                        @Html.Partial("_FeedbackListView")
+                    </div>
+
+                </div>
+                <div class="right-view-content">
+                    <div>
+                        @Html.Partial("_FeedbackDetailView")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="Postfdbk" class="modalfdbkpost">
+            <span class="closefdbkpost" onclick="FdbkPostClose()">&times;</span>
+            @Html.Partial("_PostFeedback")
+        </div>
+    </div>
+
+</div>
+<link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+<script>
+    var recentSortVal = "Asc";
+    var moreVoteVal = "Asc";
+    var moreCmtVal = "Asc";
+    var fdbkVal = "All";
+    var inputstring = "";
+    var multisel;
+    function OnTypeSeltnChange(e) {
+        var index = this.dataItem(e.item);
+        console.log(index.Value);
+        switch (index.Value) {
+            case "1": $(".product-filter").css('display', 'unset');
+            case "1": $(".custom-multiselect.prod").css('display', 'unset');
+                $(".digital-filter").css('display', 'none');
+                $(".custom-multiselect.digi").css('display', 'none');
+                break;
+            case "2": $(".product-filter").css('display', 'none');
+            case "2": $(".custom-multiselect.prod").css('display', 'none');
+                $(".digital-filter").css('display', 'unset');
+                $(".custom-multiselect.digi").css('display', 'unset');
+                break;
+
+        }
+        filterChange();
+    }
+
+    $('.viewfdbk-filter').multiselect({
+        maxHeight: 200,
+        numberDisplayed: 1,
+        includeSelectAllOption: true,
+    });
+    $(".viewfdbk-filter").multiselect('selectAll', true);
+    $(".viewfdbk-filter").multiselect('updateButtonText');
+    //$('.scrollbar-rail').scrollbar();
+
+    $(document).ready(function () {
+        console.log("start");
+        $('iframe').contents().find('body').css('color', 'gray');
+        $('iframe').contents().find('body').css('font-size', '10px');
+        $('iframe').contents().find('body').css('font-style', 'italic');
+        $('iframe').contents().find('body').css('font-family', 'cursive');
+        multisel=$("#internalclient").kendoMultiSelect({
+            includeSelectAllOption: true,
+            placeholder: "Select Client...",
+          //  headerTemplate: "<div><input type='checkbox' id='Header1' class='Header_selectall'><label> Select All</label></div>",
+            autoClose: false,
+            dataTextField: "Name",
+            dataValueField: "Id",
+            tagMode: "single",
+            height: 400,
+        }).data("kendoMultiSelect");
+        //$(".Header_selectall").on('click', function (e) {
+        //    var required = $("#internalclient").kendoMultiSelect(
+        //    //    {               
+        //    //    headerTemplate: "<div><input type='checkbox' id='Header' class='Header_selectall'><label> Select All</label></div>",
+        //    //    tagMode: "single",
+        //    //    height: 400,
+        //    //}
+        //    ).data("kendoMultiSelect");
+        //    var values = $.map(required.dataSource.data(), function (dataItem) {
+        //        return dataItem.value;
+        //    });
+        //    required.value(values);
+        //});
+        //$('#internalclient').multiselect({
+        //    maxHeight: 200,
+        //    numberDisplayed: 1,
+        //    includeSelectAllOption: true,
+        //    includeResetOption: true
+        //});
+        ////$(".custom-multiselect-dropdown").multiselect('selectAll', true);
+        //$("#internalclient").multiselect('updateButtonText');
+
+        var stSel = $('#statusList').val();
+        for (var i = 0; i < stSel.length; i++) {
+            var id = $('#statusList option:selected')[i].value;
+            var status = $('#statusList option:selected')[i].text;
+            temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(1," + i + ")'></i><span>" + status + "</span></div>"
+            var para = document.createElement("div");
+            para.innerHTML = temp;
+            var element = document.getElementById("filterList");
+            element.appendChild(para);
+        }
+        var typeid = $("#SelectedFeedbackType").val();
+        if (typeid == "1") {
+            var pdSel = $('#productList').val();
+            for (var i = 0; i < pdSel.length; i++) {
+                var id = $('#productList option:selected')[i].value;
+                var product = $('#productList option:selected')[i].text;
+                temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(2," + i + ")'></i><span>" + product + "</span></div>"
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("filterList");
+                element.appendChild(para);
+            }
+        }
+        else {
+            var dgSel = $('#digitalList').val();
+            for (var i = 0; i < dgSel.length; i++) {
+                var id = $('#digitalList option:selected')[i].value;
+                var digital = $('#digitalList option:selected')[i].text;
+                temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(3," + i + ")'></i><span>" + digital + "</span></div>"
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("filterList");
+                element.appendChild(para);
+            }
+        }
+    });
+    $('.view-fdbk-toggle').on('click', 'span', function () {
+        $(this).addClass('active');
+        $(this).siblings().removeClass('active');
+        var FeedbackVar = $(this).attr('id');
+        console.log(FeedbackVar);
+    });
+    var PostfdbkModal = document.getElementById("Postfdbk");
+    function FdbkPostClose() {
+        //console.log("out");
+        OnClearall();
+        document.getElementById("Postfdbk").style.display = "none";
+    }
+    function FdbkSearchClick() {
+
+    }
+    function FdbkPostClick() {
+        OnClearall();
+        document.getElementById("Postfdbk").style.display = "block";
+        // console.log("out");
+    }
+    $(".multiselect.dropdown-toggle.btn.btn-default").click(function () {
+      //  $(".btn-group .multiselect-container.dropdown-menu").style.display = "block";
+
+    })
+
+
+    function recentSort() {
+        $(".mostRecent-sort .sortAsc-icon").toggleClass("sortDesc-icon");
+        if (recentSortVal == "Asc")
+            recentSortVal = "Desc";
+        else
+            recentSortVal = "Asc";
+        filterChange();
+    }
+    function voteSort() {
+        $(".mostVoted-sort .sortAsc-icon").toggleClass("sortDesc-icon");
+        if (moreVoteVal == "Asc")
+            moreVoteVal = "Desc";
+        else
+            moreVoteVal = "Asc";
+        filterChange();
+    }
+    function commtSort() {
+        $(".mostCommented-sort .sortAsc-icon").toggleClass("sortDesc-icon");
+        if (moreCmtVal == "Asc")
+            moreCmtVal = "Desc";
+        else
+            moreCmtVal = "Asc";
+    }
+    $(".feedback-view").click(function () {
+        console.log(this.className);
+        $("." + this.className).toggleClass(".selct-fdbk");
+    })
+    function commentclick() {
+        $("#commentBox").css("display", "block");
+        $("#addCmt").css("display", "none");
+    }
+    function postCommentclick() {
+        $("#commentBox").css("display", "none");
+        $("#addCmt").css("display", "block");
+    }
+
+    function filterChange() {
+        $('#filterList').empty();
+        var stSel = $('#statusList').val();
+        var stDesc = "";
+        for (var i = 0; i < stSel.length; i++) {
+            if (i > 0) { stDesc += "#"; }
+            var id = $('#statusList option:selected')[i].value;
+            stDesc += $('#statusList option:selected')[i].value;
+            var status = $('#statusList option:selected')[i].text;
+            temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(1," + i + ")'></i><span>" + status + "</span></div>"
+            var para = document.createElement("div");
+            para.innerHTML = temp;
+            var element = document.getElementById("filterList");
+            element.appendChild(para);
+        }
+        var pdSel = $('#productList').val();
+        var pdDesc = "";
+        var dgSel = $('#digitalList').val();
+        var dgDesc = "";
+        var typeid = $("#SelectedFeedbackType").val();
+        if (typeid == "1") {
+            for (var i = 0; i < pdSel.length; i++) {
+                if (i > 0) { pdDesc += "#"; }
+                var id = $('#productList option:selected')[i].value;
+                pdDesc += $('#productList option:selected')[i].value;
+                var product = $('#productList option:selected')[i].text;
+                temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(2," + i + ")'></i><span>" + product + "</span></div>"
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("filterList");
+                element.appendChild(para);
+            }
+        }
+        else {
+            for (var i = 0; i < dgSel.length; i++) {
+                if (i > 0) { dgDesc += "#"; }
+                var id = $('#digitalList option:selected')[i].value;
+                dgDesc += $('#digitalList option:selected')[i].value;
+                var digital = $('#digitalList option:selected')[i].text;
+                temp = "<div class='selected-filter'><i class='close-icon' onclick='deselectFilt(3," + i + ")'></i><span>" + digital + "</span></div>"
+                var para = document.createElement("div");
+                para.innerHTML = temp;
+                var element = document.getElementById("filterList");
+                element.appendChild(para);
+            }
+
+        }
+        var typeid = $("#SelectedFeedbackType").val();
+        var recentSort = "Asc";
+        var recentVote = "Asc";
+        var recentCmt = "Asc";
+
+        var model = {
+            statusSel: stDesc,
+            productSel: pdDesc,
+            digitalSel: dgDesc,
+            typeid: typeid,
+            recentSortVal: recentSortVal,
+            moreVoteVal: moreVoteVal,
+            moreCmtVal: moreCmtVal,
+            selMode: fdbkVal,
+            inputstring: inputstring
+        };
+        console.log(model);
+        var data = JSON.stringify(model);
+
+        $.ajax(
+            {
+                type: 'post',
+
+                url: 'ViewFeedback/GetFilteredFeedback',
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    //console.log(data);
+                    $('#feedbackListView').html(data);
+                    $("#detail_view").css("display", "none");
+
+                },
+                error: function (err, data) {
+                    console.log(arguments);
+                    //                    alert('Ajax Error');
+                }
+
+            });
+    }
+    $('.view-fdbk-toggle').on('click', 'span', function () {
+        $(this).addClass('active');
+        $(this).siblings().removeClass('active');
+
+        var fdbkVar = $(this).attr('id');
+
+        if (fdbkVar == 'allfdbk') {
+            fdbkVal = "All";
+            console.log(fdbkVar);
+        }
+        if (fdbkVar == 'myfdbk') {
+            fdbkVal = "user";
+            console.log(fdbkVar);
+        }
+        filterChange();
+    });
+
+    function selProduct(element, event) {
+        console.log(pdDesc);
+    }
+    function selDigital(element, event) {
+        console.log(dgDesc);
+    }
+    function filterclick() {
+        $(".arrow_Left").toggleClass("arrow_down");
+        $(".filterList").toggleClass("expandView");
+    }
+    function deselectFilt(filtertype, i) {
+
+        if (filtertype == 1) {
+            $("#statusList > option")[i].removeProp("selected");
+            console.log(id);
+        } else if (filtertype == 2) {
+            $("#productList > option")[i].removeProp("selected");
+            console.log(id);
+        } else if (filtertype == 3) {
+            $("#digitalList > option")[i].removeProp("selected");
+            console.log(id);
+        }
+    }
+    function searchKeyword() {
+        inputstring = document.getElementById("searchKeywords").value;
+
+        console.log(inputstring);
+        filterChange();
+    }
+</script>
+
+

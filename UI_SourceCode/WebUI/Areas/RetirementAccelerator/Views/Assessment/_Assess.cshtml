@@ -1,0 +1,79 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+
+
+<div>
+
+    <div>
+        <div class="validation-summary-errors alert alert-success container" data-valmsg-summary="true" id="AssessSaveSuccess" hidden>
+            <ul>
+                <li>Assessment recorded sucessfully.</li>
+            </ul>
+        </div>
+        <div class="validation-summary-errors alert alert-danger container" data-valmsg-summary="true" id="AssessSaveFailure" hidden>
+            <ul>
+                <li>Error while assigning.</li>
+            </ul>
+        </div>
+        <div style="margin-left: 10px; padding-top: 1em">
+            <button class="btn btn-primary" style="display:block;margin-left:auto;margin-right:10px" id="SaveAssess" onclick="setFinalAndOriginalRating()">Save Changes</button>
+        </div>
+        <div class="custom-kendo-grid" style="margin:10px;">
+            @(Html.Kendo().Grid<AssessmentModel>()
+    .Name("AssessGrid")
+    //.Events(e=>e.SaveChanges("setFinalAndOriginalRating"))
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.subPerspective).Title("Sub Perspective").Width(150);
+        columns.Bound(p => p.Question);
+        columns.Bound(p => p.OriginalRating).Hidden(true);
+        columns.Bound(p => p.FinalRating).Hidden(true);
+        columns.Bound(p => p.OR).Width(150).ClientTemplate("#= OriginalRatingTemplate(data) #").Title("Original ");
+        columns.Bound(p => p.FR).Width(150).ClientTemplate("#= FinalRatingTemplate(data) #").Title("Final ");
+        columns.Bound(p => p.Comments).Width(200);
+    })
+    .ToolBar(toolbar =>
+    {
+        //toolbar.Save();
+
+    })
+
+    .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Navigatable()
+    .Sortable()
+    .HtmlAttributes(new { @style = "height:550px" })
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .ServerOperation(false)
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+            model.Field(r => r.Question).Editable(false);
+            model.Field(r => r.subPerspective).Editable(false);
+            model.Field(r => r.OR).Editable(false);
+            model.Field(r => r.FR).Editable(false);
+            model.Field(r => r.OriginalRating);
+            model.Field(r => r.FinalRating);
+        })
+        .Read(read => read.Action("AssessRead", "Assessment").Data("GetAppId"))
+        .Update(up => up.Action("AssessSave", "Assessment"))
+    )
+            )
+        </div>
+
+    </div>
+
+</div>
+

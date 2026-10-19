@@ -1,0 +1,587 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.FDBKManager
+@using WebUI.Areas.FDBKManager.Controllers;
+@using WebUI.Areas.FDBKManager.Models;
+@using Domain.Entities;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model FeedbackViewModel
+@{
+    string userName = "";
+    string user = "";
+    var templateObject = new List<searchKeyFeedback>();
+    if (User.Identity.Name.Length > 0)
+    {
+        // userClients = NTTData.AMOPortal.WebUI.Dto.GetDropDownListItems.UserClients((int)Session["UserId"]);
+        //NTTData.AMOPortal.WebUI.Dto.UserProfileModel userObject = WebUI.App_Start.Helper.getUserDetails(User.Identity.Name);
+        userName = User.Identity.Name; // userObject.FirstName + " " + userObject.LastName;
+        user = FMHelper.GetUserNameOnEmail(userName);
+    }
+
+}
+<style>
+
+    .k-i-my-insert-image:before {
+        content: "\E501"
+    }
+
+    .k-placeholder {
+        color: grey !important;
+    }
+
+    .k-chip-solid-base {
+        border-color: rgb(243 238 238 / 30%);
+        color: white;
+        font-size: 12px;
+        background-color: transparent;
+    }
+
+    input#keyword::placeholder {
+        color: gray;
+    }
+
+    select.custom-multiselect-dropdown {
+        border: 0 !important;
+        clip: rect(0 0 0 0) !important;
+        height: 1px !important;
+        margin: -1px -1px -1px -3px !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        position: absolute !important;
+        width: 1px !important;
+        left: 50%;
+        top: 30px;
+    }
+
+    input#ShortDescription::placeholder {
+        color: gray;
+        font-size: 10px;
+        font-style: italic;
+    }
+
+    input#ShortDescription {
+        padding: 0.167em 4px;
+    }
+
+    .product {
+        float: left;
+        position: relative;
+        margin: 0 7px 7px 0;
+        padding: 0;
+    }
+
+        .product img {
+            min-width: auto;
+            min-height: auto;
+            width: 70px;
+            height: 70px;
+        }
+</style>
+
+<div class="post-feedback">
+    <div class="user-greet"> Hi @user, What would you like to do?</div>
+    <div class="post-feedback-content">
+        <div class="post-fdbk-cont" style="color:white;">
+            <div class="radio-button-sel">
+                @(Html.Kendo().RadioButton().Name("PostFeedback").Checked(true).HtmlAttributes(new { @name = "FeedbackPost", onclick = "viewPostcontent()" }).Label("Post New Feedback"))
+                @(Html.Kendo().RadioButton().Name("SearchFeedback").Checked(false).HtmlAttributes(new { @name = "FeedbackPost", onclick = "viewExplorecontent()" }).Label("Explore Feedbacks"))
+            </div>
+            <div class="post-content" id="postContent" style="padding: 0.5em 1em 0em;">
+                <span hidden id="fdbkid"></span>
+                <div class="fdbk-inputfield">
+                    <span class="labelField">Feedback Type :</span>
+                    <div class="fdbk-drp">
+
+                        @(Html.Kendo().DropDownList()
+                                           .Name("Typeid")
+                                           .HtmlAttributes(new { style = "width: 383px;" })
+                                           .DataTextField("Text")
+                                           .DataValueField("Value")
+                                           .BindTo(new List<SelectListItem>() {
+                                                new SelectListItem() {
+                                                    Text = "New Nucleus feedback",
+                                                    Value = "1"
+                                                },
+                                                new SelectListItem() {
+                                                    Text = "New Business Opportunity",
+                                                    Value = "2"
+                                                }
+                                            })
+                                           .Events(e => e.Change("OnTypeChange"))
+                                     )
+                    </div>
+                </div>
+                <div class="fdbk-inputfield" id="product">
+                    <span class="labelField">Product <span style="color:red">*</span>: </span>
+                    <div class="custom-dropdown-tree">
+                        @(Html.Kendo().DropDownTreeFor(e => e.Productid)
+                            .Name("Productid")
+                            .Filter("startswith")
+                             .Placeholder("Select Nucleus product...")
+                            .HtmlAttributes(new { style = "width:100%" })
+                            .BindTo((IEnumerable<DropDownTreeItemModel>)ViewBag.ProductItems)
+                            .Events(e => e.Change("OnProductChange"))
+                        )
+                        <label id="Product_alert" style="display:none"><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="fdbk-inputfield" id="digitalOff" style="display:none;">
+                    <span class="labelField">Digital Offerings <span style="color:red">*</span>:</span>
+                    <div class="fdbk-drp digitalDrp">
+                        @(Html.Kendo().DropDownListFor(e => e.Digitalid)
+                                           .Name("Digitalid")
+                                           .HtmlAttributes(new { style = "width: 383px;" })
+                                           .DataTextField("Text")
+                                           .DataValueField("Value")
+                                           .OptionLabel("Select digital offerings...")
+                                           .Filter("contains")
+                                            .BindTo(Model.offeringList)
+                                     //.DataSource(source =>
+                                     //{
+                                     //    source.Read(read =>
+                                     //    {
+                                     //        read.Action("FeedbackDigitalOffList", "ViewFeedback");
+                                     //    })
+                                     //    .ServerFiltering(false);
+                                     //})
+                                     .Events(e => e.Change("OnTDigiChange"))
+                                     )
+                        <label id="Digital_alert" style="display:none"><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="fdbk-inputfield">
+                    <span class="labelField">Client(s) :</span>
+                    <div class="custom-multiselect">
+                        <select class="custom-multiselect-dropdown" id="internalclient" multiple="multiple">
+                            @*<option value="all" id="chk_select_all">Select All</option>*@
+                            @{
+                                foreach (var item in Model.IntClient)
+                                {
+                                    var str = item.Text.ToLower();
+                                <option value="@item.Value">@item.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="fdbk-inputfield">
+                    <span class="labelField">Brief Description <span style="color:red">*</span>:</span>
+                    <div class="fdbk-textfield">
+                        @(Html.Kendo().TextBoxFor(e => e.ShortDescription)
+                                                     .Name("ShortDescription")
+                                                      .Placeholder("What's the title of your feedback? Keep it short...")
+                                                      //.Events(e => e.fadeout("onDescChange"))
+                                                     .Enable(true)
+                                    )
+                        <label id="ShortDesc_alert" style="display:none"><span class="mandate" style="font-size:small"> required!</span></label>
+                    </div>
+                </div>
+                <div class="fdbk-inputfield">
+                    <span class="labelField" style="height: 14em; padding-top: 3.5em;">Detailed description :<span style="color:red">*</span></span>
+                    <div class="fdbk-editor">
+                        <textarea id="DetailDesc_editor" rows="10" cols="30" style="width:383px;height:40px;color:white">
+                        </textarea>
+                        <label id="DetailDesc_alert" style="display:none"><span class="mandate" style="font-size:small"> required!</span></label>
+
+                    </div>
+                </div>
+                <div style="margin:0px" class="fdbk-inputfield">
+                    <span class="labelField"></span>
+                    <div id="products" style="margin-left:2em"></div>
+                </div>
+                <div class="action-button">
+                    <button class="button btn-clear" onclick="OnClearall()">Clear All</button>
+                    <div>
+                        <button class="button btn-draft" value="Draft" id="Draft" onclick="SaveFdbkParameters('Draft')">Save as Draft</button>
+                        <button class="button btn-post" value="Post" id="Post" onclick="SaveFdbkParameters('Post')">Submit My Feedback</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="explore-content" id="exploreContent" style="display: none; padding: 4.5em 1em;">
+                <div class="srchDRP">
+                    @(Html.Kendo().TextBox()
+                                  .Name("keyword")
+                                  .Placeholder("Type Keyword here to Search")
+                                  //.Events(e => e.Change("onDescChange"))
+                                  .Enable(true)
+                                    )
+                    <span class="search-icon" id="searchicon"></span>
+                </div>
+
+            </div>
+        </div>
+        <div class="post-search-fdbk">
+            <div class="search-heading">
+                <div>Save time or help similar feedbacks get visibility; upvote!</div>
+                <div style="width: 33em;">Here are some recommendations based on the feedback you are About to Post:</div>
+            </div>
+            <div class="empty-search-box" id="emptySearch">
+                <div class="info-icon"></div>
+                <div class="info-content">Select a product and type a brief description; matching feedbacks will be shown here.</div>
+            </div>
+            <div id="srchContent" style="display:none;">
+                @Html.Partial("_SearchFeedback", templateObject)
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var imgsrc = "";
+    function OnTDigiChange(e) {
+        var index = this.dataItem(e.item);
+        console.log(index.Value);
+        if (index.Value != "") {
+            $(".modalfdbkpost .post-feedback .post-fdbk-cont .post-content .fdbk-inputfield .fdbk-drp.digitalDrp span.k-input-value-text").css({
+                'color': 'white',
+                'font-size': '13px',
+                'font-style': 'unset'
+            });
+        }
+        else {
+            $(".modalfdbkpost .post-feedback .post-fdbk-cont .post-content .fdbk-inputfield .fdbk-drp.digitalDrp span.k-input-value-text").css({
+                'color': 'rgb(128, 128, 128)',
+                'font-size': '10px',
+                'font-style': 'italic'
+            });
+        }
+    }
+
+    function viewPostcontent() {
+        OnClearall();
+        document.getElementById("postContent").style.display = "block";
+        document.getElementById("exploreContent").style.display = "none";
+        document.getElementById("emptySearch").style.display = "flex";
+        document.getElementById("srchContent").style.display = "none";
+    }
+    function viewExplorecontent() {
+        OnClearall();
+        document.getElementById("postContent").style.display = "none";
+        document.getElementById("exploreContent").style.display = "block";
+        document.getElementById("emptySearch").style.display = "flex";
+        document.getElementById("srchContent").style.display = "none";
+    }
+
+    $("#DetailDesc_editor").kendoEditor({
+        placeholder: "Tell us everything about it.",
+        tools: [
+            "bold",
+            "italic",
+            "underline",
+            "insertUnorderedList",
+            "insertOrderedList",
+            "createLink",
+            "unlink",
+            {
+                name: "myInsertImage",
+                tooltip: "Insert an image",
+                exec: function (e) {
+                    var uploadInput = $("<input type='file' />");
+                    uploadInput.click();
+                    uploadInput.on("change", uploadInputChange);
+                }
+            }
+        ],
+        change: function () {
+            if (this.value() != "") {
+                $('iframe').contents().find('body').css({
+                    'color': 'white',
+                    'font-size': '11px',
+                    'font-style': 'unset',
+                    'font-family': 'Verdana,Geneva,sans-serif'
+                });
+            }
+            else {
+                $('iframe').contents().find('body').css({
+                    'color': 'gray',
+                    'font-size': '10px',
+                    'font-style': 'italic',
+                    'font-family': 'cursive'
+                });
+            }
+        },
+        select: function () {
+            if (this.value != "") {
+                $('iframe').contents().find('body').css({
+                    'color': 'white',
+                    'font-size': '11px',
+                    'font-style': 'unset',
+                    'font-family': 'Verdana,Geneva,sans-serif'
+                });
+            }
+        }
+    });
+
+    function uploadInputChange(ev) {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = imageIsLoaded;
+            reader.readAsDataURL(this.files[0]);
+            window.UPLOAD_TO_DESTROY = this;
+        }
+    }
+    function imageIsLoaded(ev) {
+        //   var editor = $("#DetailDesc_editor").data("kendoEditor");
+        var base64Src = ev.target.result;
+        // var img = $("<img src='" + base64Src + "' />")[0];
+        $("<div class='product'><img class='uploaded-files' src=" + base64Src + " /></div>").appendTo($("#products"));
+        // editor.paste(img.outerHTML);
+        //  img.remove();
+
+        if (UPLOAD_TO_DESTROY) {
+            $(UPLOAD_TO_DESTROY).off("change");
+            $(UPLOAD_TO_DESTROY).remove();
+            delete UPLOAD_TO_DESTROY;
+        }
+    }
+    function OnTypeChange(e) {
+        var selVal = $("#Typeid").data("kendoDropDownList").value();
+        switch (selVal) {
+            case "1": document.getElementById("product").style.display = "flex";
+                document.getElementById("digitalOff").style.display = "none";
+
+                $("#Productid").data("kendoDropDownTree").value(0);
+                $("#Digitalid").data("kendoDropDownList").value(0);
+
+                break;
+            case "2": document.getElementById("product").style.display = "none";
+                document.getElementById("digitalOff").style.display = "flex";
+
+                $("#Productid").data("kendoDropDownTree").value(0);
+                $("#Digitalid").data("kendoDropDownList").value(0);
+                break;
+        }
+    }
+    function SaveFdbkParameters(e) {
+        var getAllImages = document.getElementsByClassName('uploaded-files');
+        //  console.log(getAllImages)
+        for (var i = 0; i < getAllImages.length; i++) {
+            //console.log("getAllImages"+i)
+            imgsrc += getAllImages[i].currentSrc + "#";
+        }
+        // console.log(imgsrc)
+
+        var fdid = $('#fdbkid').text();
+        if (e == "Post") {
+            LogFdbkActivity("NewFdbkPosted", "New Feedback is submitted");
+        }
+        else if (e == "Draft") {
+            LogFdbkActivity("FdbkSavedAsDraft", "Feedback is Save as Draft");
+        }
+        var clSel = $('#internalclient').val();
+        var clDesc = "";
+        for (var i = 0; i < clSel.length; i++) {
+            if (i > 0) { clDesc += "#"; }
+            clDesc += $('#internalclient option:selected')[i].value;
+        }
+        var selectedbtnval = e;
+        document.getElementById("Product_alert").style.display = "none";
+        document.getElementById("Digital_alert").style.display = "none";
+        document.getElementById("ShortDesc_alert").style.display = "none";
+        document.getElementById("DetailDesc_alert").style.display = "none";
+        var selTypeId = $("#Typeid").data("kendoDropDownList").value();
+        var Productid = $("#Productid").data("kendoDropDownTree").value().id;
+        console.log(Productid)
+        var Digitalid = $("#Digitalid").data("kendoDropDownList").value();
+        var ShortDesc = $('#ShortDescription').val();
+        var DetailDesc = $('#DetailDesc_editor').val();
+        if (selTypeId == 1 && Productid == null) {
+            document.getElementById("Product_alert").style.display = "inline-block";
+            return false;
+        }
+        else if (selTypeId == 2 && Digitalid == '') {
+            document.getElementById("Digital_alert").style.display = "inline-block";
+            return false;
+        }
+        if (ShortDesc == '') {
+            document.getElementById("ShortDesc_alert").style.display = "inline-block";
+            return false;
+        }
+        if (DetailDesc == '') {
+            document.getElementById("DetailDesc_alert").style.display = "inline-block";
+            return false;
+        }
+        $("#detail_view").css("display", "none");
+        document.getElementById("Postfdbk").style.display = "none";
+        OnClearall();
+        $('#saveAlertModal').modal('show');
+        var model = {
+            Typeid: selTypeId,
+            Productid: Productid,
+            Digitalid: Digitalid,
+            ShortDesc: ShortDesc,
+            DetailDesc: DetailDesc,
+            ItrCl: clDesc,
+            BtnVal: selectedbtnval,
+            feedbackid: fdid,
+            fdbkimg: imgsrc
+        };
+        var data = JSON.stringify(model);
+
+        $.ajax(
+            {
+                type: 'post',
+                url: 'ViewFeedback/SaveFeedbackDetails',
+                data: data,
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    // console.log("Successfullysaved");
+                    $('#feedbackListView').html(data);
+                    $('#lblErr').hide();
+                    $('#lblSuccess1').show();
+                    filterChanged();
+                },
+                error: function (err, data) {
+                    $('#lblErr').show();
+                    $('#lblSuccess1').hide();
+                    // console.log(arguments);
+                }
+
+            });
+    }
+
+    $("#ShortDescription").focusout(function () {
+        document.getElementById("Product_alert").style.display = "none";
+        document.getElementById("Digital_alert").style.display = "none";
+
+        var inputString = $('#ShortDescription').val();
+        var selTypeId = $("#Typeid").data("kendoDropDownList").value();
+        var Productid = $("#Productid").data("kendoDropDownTree").value().id;
+        var Digitalid = $("#Digitalid").data("kendoDropDownList").value();
+        // console.log("Type-" + selTypeId + "Pro-" + Productid + "dig-" + Digitalid)
+        if (selTypeId == 1 && Productid == null) {
+            document.getElementById("Product_alert").style.display = "inline-block";
+            Digitalid = 0;
+            return false;
+        }
+        else if (selTypeId == 2 && Digitalid == '') {
+            Productid = 0;
+            document.getElementById("Digital_alert").style.display = "inline-block";
+            return false;
+        }
+        console.log(inputString.trim())
+        if (!inputString.trim()) {
+
+            return false;
+        } else {
+            onDescChange(selTypeId, Productid, Digitalid, inputString);
+        }
+
+
+
+    });
+    $("#keyword").focusout(function () {
+        LogFdbkActivity("ExploreFeedback", "ExploreFeedback");
+        var inputString = $('#keyword').val();
+        if (!inputString.trim()) {
+            return false;
+        }
+        var selTypeId = 0;
+        var Productid = 0;
+        var Digitalid = 0;
+        onDescChange(selTypeId, Productid, Digitalid, inputString);
+
+    });
+    function onDescChange(selTypeId, Productid, Digitalid, inputString) {
+
+        var baseurl = 'ViewFeedback/SearchFeedbackwithKey';
+        var model = {
+            Typeid: selTypeId,
+            Productid: Productid,
+            Digitalid: Digitalid,
+            inputString: inputString
+        };
+        //console.log(model);
+        var data = JSON.stringify(model);
+        //console.log(data);
+        $.ajax({
+            url: baseurl,
+            type: 'GET',
+            data: {
+                Typeid: selTypeId,
+                Productid: Productid,
+                Digitalid: Digitalid,
+                inputString: inputString
+            },
+            success: function (temp) {
+                if (inputString != "") {
+                    document.getElementById("emptySearch").style.display = "none";
+                    document.getElementById("srchContent").style.display = "unset";
+                }
+                else {
+                    document.getElementById("emptySearch").style.display = "flex";
+                    document.getElementById("srchContent").style.display = "none";
+                }
+                //  console.log(temp)
+                $('#dvProductDetails').html(temp);
+
+
+            },
+            error: function (err, data) {
+                //  console.log(arguments);
+            }
+        });
+
+
+    }
+
+
+    function OnClearall() {
+        $("#Typeid").data("kendoDropDownList").value(1);
+        $("#Productid").data("kendoDropDownTree").value("");
+        $("#Digitalid").data("kendoDropDownList").value(0);
+        document.getElementById("Product_alert").style.display = "none";
+        document.getElementById("Digital_alert").style.display = "none";
+        document.getElementById("product").style.display = "flex";
+        document.getElementById("digitalOff").style.display = "none";
+        document.getElementById("emptySearch").style.display = "flex";
+        document.getElementById("srchContent").style.display = "none";
+        $('#ShortDescription').val('');
+        $('#keyword').val('');
+        //$("#internalclient")[0].selectedIndex = 0;
+        document.getElementById('DetailDesc_editor').innerHTML = "";
+        var editor = $("#DetailDesc_editor").data("kendoEditor");
+        editor.value(""); // set value
+        multisel.value("")
+        // $("#internalclient option:selected").removeAttr("selected");
+        // $("#internalclient")[0].selectedIndex = 0;
+        //$('#internalclient').children().removeProp('selected');
+        //$('#internalclient').children().removeAttr('selected');
+        //var TowerctrlSel = $('#internalclient').val();
+        //for (var i = 0; i < TowerctrlSel.length; i++) {
+        //    $('#internalclient option:selected').removeAttr("selected");
+        //}
+        //$('#internalclient option').each(function (index, option) {
+        //    $(option).remove();
+        //});
+        const container = document.getElementById('products');
+
+        container.textContent = '';
+    }
+    function OnProductChange(e) {
+        var selTypeId = $("#Typeid").data("kendoDropDownList").value();
+        var Productid = $("#Productid").data("kendoDropDownTree").value().id;
+        console.log(Productid)
+        var Digitalid = $("#Digitalid").data("kendoDropDownList").value();
+        if (selTypeId == 1 && Productid == null) {
+            document.getElementById("Product_alert").style.display = "inline-block";
+            return false;
+        }
+        else {
+            document.getElementById("Product_alert").style.display = "none";
+            return true;
+        }
+        if (selTypeId == 2 && Digitalid == '') {
+            document.getElementById("Digital_alert").style.display = "inline-block";
+            return false;
+        }
+        else {
+            document.getElementById("Digital_alert").style.display = "none";
+            return true;
+        }
+    }
+</script>

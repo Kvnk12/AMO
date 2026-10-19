@@ -1,0 +1,580 @@
+﻿@using NTTData.AMOPortal.Domain.Entities;
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model Survey_ScheduleEmailConfigModel
+
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    ViewBag.Title = "SurveyViewModel";
+    
+
+}
+
+<style>
+
+    .commun-msg {
+        margin-left: -0.5vw;
+        margin-top: -1vw;
+        /*height:10px;*/
+    }
+
+    .communr1-msg {
+        margin-left: -0.5vw;
+        margin-top: -1vw;
+        /*height:10px;*/
+    }
+
+    .communr2-msg {
+        margin-left: -0.5vw;
+        margin-top: -1vw;
+        /*height:10px;*/
+    }
+
+    .emailconf {
+        /*width: 20%;*/
+        background-color: #fff;
+        /*border-right: 1px solid #ccc;*/
+    }
+
+    textarea::placeholder{
+        color:black;
+    }
+
+    #saveAlertModal .alert {
+        width: 32vw;
+        height: 4.5vh !important;
+        padding: unset;
+        display: flex;
+    }
+    .comm-nav-head {
+        color: #fff;
+        height: 40px;
+        background-color: rgb(91,121,171);
+        /*align-content: center;*/
+        padding-left: 10px;
+    }
+    .ques-detail-survmain {
+        color: #5876AA;
+        background-color: white;            
+    }
+    .btncommconf
+    {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        padding: 10px;
+    }
+</style>
+
+<div class="content-main dark-bg">
+
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Survey</li>
+        <li class="active">Email Configuration</li>
+    </ol>
+
+    <div Class="text-right" style="display: flex; justify-content: space-between;">
+        <div class="well well-sm" style="color:white"><strong>Survey Communication Setup</strong></div>
+        <button type="submit" tabindex="32" class="btn btn-primary" style="text-align: right; margin-right: 0.5em; margin-bottom:0.5em;" onclick="location.href='@Url.Action("Index","Survey", new { Id = Model.Id })';return false;">Back</button>
+    </div>
+   @* <div class="text-left" style="color:white"><strong>  surveyid:@Model.Survey_ID  </strong></div>*@
+    
+
+<div class="ques-detail-survmain" style="color:#5876AA;background-color:white;">
+    <div class="comm-nav-head">
+        <label style="margin-top:0.5em; margin-bottom:1em;margin-left:1em;font-size:16px;">
+            <strong>Configuration for communication in survey builder</strong>
+        </label>
+    </div>
+    <div style="border-top: 2px solid #5876AA; margin-bottom: 1em;"></div>
+    <div style="display:flex">
+        <div class="mark-Acknowledgement" style="display: flex; margin-top: 2em; margin-bottom: 0em;margin-left:2em;float:left; " title="Acknowledgement">
+            <label style="margin-right:1em;">
+                <lable style=" margin-right:2em;margin-left:0em;">Acknowledgement :</lable>
+                @* @(Html.Kendo().CheckBox().Name("Acknowledgement").Checked(false))*@
+                  <input id="Acknowledgement"  />
+
+            </label>
+        </div>
+        <div style="display:flex">
+
+            <label style="margin-left: 4em; margin-right: 2em; margin-top: 2em; display: inline-block;">Communication Message  : </label>
+            @Html.TextAreaFor(m => m.Ack_Message, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "AckMessage", rows = 2, cols = 10, value = "sample acknoldge", @placeholder = "Type your comments here...", style = "width:50.5em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+
+        </div>
+
+    </div>
+    <label id="RatingValidationack" style="visibility: hidden; color: red; margin-left:10em; "> Please check the Acknolwdge checkbox and provide its corresponding message.</label>
+
+
+    <div class="comunctn">
+        <div style="border-top: 1px solid #5876AA; margin-bottom: 0em; margin-top: 1em;"></div>
+        <div><label style="margin-top:1em; margin-bottom:1em;margin-left:2em;"><strong>Communication for participants not responded.</strong></label></div>
+        <div> <label style="margin-top:1em; margin-bottom:1em; margin-left:3em;"><strong>Send Reminder :</strong> </label></div>
+        <div>
+            <div class="remndr1" style="display:flex">
+                <div style="display:flex" ; title="Reminder 1">
+                    <label style="margin-top: 2em; margin-bottom: 2em; margin-left: 4em; margin-right: 2em;">
+                        @* @(Html.Kendo().CheckBox().Name("Reminder1").Checked(false))*@
+
+                        <label style="margin-left:1em;margin-right:2em;">Reminder 1 : </label>
+                        <input id="Reminder1" />
+                    </label>
+                </div>
+                <div style="display:flex">
+                    <label style="margin-left: 3em; margin-top: 1em; margin-right: 2em; display: inline-block;">Communication Message  : <br /> <span>(1 week after launching)</span></label>
+                    @Html.TextAreaFor(m => m.FirstReminder_Message, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "FirstReminderMessage", rows = 2, cols = 10, @placeholder = "Type your comments here...", style = "width:50.5em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+
+                </div>
+            </div>
+            <label id="RatingValidationrm1" style="visibility: hidden; color: red; margin-left:10em; "> Please check the Reminder1 checkbox and provide its corresponding message.</label>
+        </div>
+        <div>
+            <div class="remndr2" style="display:flex">
+                <div style="display:flex" title="Reminder 2">
+                    <label style="margin-top: 2em; margin-bottom: 2em; margin-left: 4em;margin-right: 2em; ">
+                        @* @(Html.Kendo().CheckBox().Name("Reminder2").Checked(false))*@
+
+                        <label style="margin-left: 1em; margin-right: 2em;">Reminder 2 : </label>
+                        <input id="Reminder2" />
+                    </label>
+                </div>
+
+                <div style="display:flex">
+                    <label style="margin-left: 3em; margin-top: 1em; margin-right: 2em; display: inline-block;">Communication Message  : <br /> <span>(1 week before closing)</span></label>
+                    @Html.TextAreaFor(m => m.SecondReminder_Message, new { @class = "k-textbox scrollbar-rail custom-scrollbar1", id = "SecondReminderMessage", rows = 2, cols = 10, @placeholder = "Type your comments here...", style = "width:50.5em !important;resize:none; height:5em; overflow:auto;box-shadow:none;border-color: black;" })
+
+                </div>
+
+
+            </div>
+            <label id="RatingValidationrm2" style="visibility: hidden; color: red; margin-left:10em; "> Please check the Reminder2 checkbox and provide its corresponding message.</label>
+        </div>
+
+
+
+    </div>
+    <label id="RatingValidationfn" style="visibility: hidden; color: red; margin-left:57em; "> Please check the checkbox and provide its corresponding message.</label>
+
+    <div style="padding-left: 79em; padding-bottom: 1em; display: inline-block;">
+        <button type="button" class="btn btn-primary" id="suremailconfig">Save Reminder</button>
+    </div>
+
+
+</div>
+</div>
+
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblErr" style="display:none">
+                <div style="display:flex">
+
+                    <label style="width: 18vw; margin-top: 4px; margin-left: 1em; ">Error while Saving Reminders.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess" style="display:none">
+                <div style="display:flex">
+
+                    <label id="lblsuccesstext" style="width: 20vw; margin-top: 4px; margin-left: 1em;">Reminder saved Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+
+    $(document).ready(function () {
+        $(function () {
+            $("#suremailconfig").click(function () {
+
+                var Acknowledgement = $("#Acknowledgement").data("kendoSwitch"); 
+                
+                console.log("markAcknowledgement :" + Acknowledgement.check())
+
+                var markReminder1 = $("#Reminder1").data("kendoSwitch");
+                console.log("markReminder1 :" + markReminder1.check())
+
+                var markReminder2 = $("#Reminder2").data("kendoSwitch");
+                console.log("markReminder2 : " + markReminder2.check())
+
+                var Ack_Message = $("#AckMessage").val();
+                console.log("Ack_Message : " + Ack_Message)
+
+                var Reminder1_Message = $("#FirstReminderMessage").val();
+                console.log("Reminder1_Message : " + Reminder1_Message)
+
+                var Reminder2_Message = $("#SecondReminderMessage").val();
+                console.log("Reminder2_Message : " + Reminder2_Message)
+
+
+                var ACK = 0; var ACKC = 0; var ACKT = 0;
+                var RM1 = 0; var RM1C = 0; var RM1T = 0;
+                var RM2 = 0; var RM2C = 0; var RM2T = 0;
+                if (Acknowledgement.check() == false) { var ACKC = 1; } console.log("ACKC : " + ACKC)
+                if (Ack_Message == null || Ack_Message == '') { var ACKT = 1; }
+                if (ACKC == '1' && ACKT == '1') { var ACK = 1; }
+
+                if (markReminder1.check() == false) { var RM1C = 1; }
+                if (Reminder1_Message == null || Reminder1_Message == '') { var RM1T = 1; }
+                if (RM1C == '1' && RM1T == '1') { var RM1 = 1; }
+
+                if (markReminder2.check() == false) { var RM2C = 1; }
+                if (Reminder2_Message == null || Reminder2_Message == '') { var RM2T = 1; }
+                if (RM2C == '1' && RM2T == '1') { var RM2 = 1; }
+                    
+             
+
+
+                if (ACK =='1' && RM1 == '1' && RM2 == '1' ) {
+
+                    console.log("all blank validation");
+                    document.getElementById('RatingValidationfn').style.visibility = 'visible';
+
+                    setTimeout(function () {
+                        document.getElementById('RatingValidationfn').style.visibility = 'hidden';
+
+                    }, 2000);
+
+
+                    return 0;
+                }
+
+
+                var ACKt = 0;
+                var RM1t = 0;
+                var RM2t = 0;
+                if (Acknowledgement.check() == true) {
+                    if (Ack_Message == null || Ack_Message == '') {
+                        var ACKt = 1;
+                        document.getElementById('RatingValidationack').style.visibility = 'visible';
+
+                        setTimeout(function () {
+                            document.getElementById('RatingValidationack').style.visibility = 'hidden';
+
+                        }, 2000);
+                    }
+                }
+                else {
+                    ACKt = 0;
+                }
+
+                if (markReminder1.check() == true) {
+
+                   if (Reminder1_Message == null || Reminder1_Message == '') {
+                       var RM1t = 1;
+                       document.getElementById('RatingValidationrm1').style.visibility = 'visible';
+
+                       setTimeout(function () {
+                           document.getElementById('RatingValidationrm1').style.visibility = 'hidden';
+
+                       }, 2000);
+                    }
+                }
+                else {
+                    RM1t = 0;
+                }
+                if (markReminder2.check() == true) {
+                    if (Reminder2_Message == null || Reminder2_Message == '') {
+                        var RM2t = 1;
+                        document.getElementById('RatingValidationrm2').style.visibility = 'visible';
+
+                        setTimeout(function () {
+                            document.getElementById('RatingValidationrm2').style.visibility = 'hidden';
+
+                        }, 2000);
+                    }
+                }
+                else {
+                    RM2t = 0;
+                }
+                console.log("Reminderack : " + ACKt)
+                console.log("Reminderrm1 : " + RM1t)
+                console.log("rm2 : " + RM2t)
+                if (ACKt == '1' || RM1t == '1' || RM2t == '1') {
+
+                    console.log("check box validation");
+                    //document.getElementById('RatingValidationfn').style.visibility = 'visible';
+
+                    //setTimeout(function () {
+                    //    document.getElementById('RatingValidationfn').style.visibility = 'hidden';
+
+                    //}, 2000);
+
+
+                    return 0;
+                }
+
+
+                var ACKc = 0;
+                var RM1c = 0;
+                var RM2c = 0;
+                if (Ack_Message.length>0) {
+                    if (Acknowledgement.check() == false) {
+
+                    var ACKc = 1;
+                    console.log("ackmsg validation");
+                    document.getElementById('RatingValidationack').style.visibility = 'visible';
+
+                    setTimeout(function () {
+                        document.getElementById('RatingValidationack').style.visibility = 'hidden';
+
+                    }, 2000);
+                    }
+                }
+                else {
+                    ACKc = 0;
+                }
+
+                if (Reminder1_Message.length > 0) {
+                    if (markReminder1.check() == false) {
+
+
+                    var RM1c = 1;
+                    document.getElementById('RatingValidationrm1').style.visibility = 'visible';
+
+                    setTimeout(function () {
+                        document.getElementById('RatingValidationrm1').style.visibility = 'hidden';
+
+                    }, 2000);
+                    }
+                }
+                else {
+                    RM1c = 0;
+                }
+
+                if (Reminder2_Message.length > 0) {
+                    if (markReminder2.check() == false) {
+
+                    var RM2c = 1;
+                    document.getElementById('RatingValidationrm2').style.visibility = 'visible';
+
+                    setTimeout(function () {
+                        document.getElementById('RatingValidationrm2').style.visibility = 'hidden';
+
+                    }, 2000);
+
+                    }
+                }
+                else {
+                    RM2c = 0;
+                }
+                console.log("Reminderackc : " + ACKc)
+                console.log("Reminderrm1c : " + RM1c)
+                console.log("rm2c : " + RM2c)
+                if (ACKc == '1' || RM1c == '1' || RM2c == '1') {
+
+                    console.log("text validation");
+                    //document.getElementById('RatingValidationfn').style.visibility = 'visible';
+
+                    //setTimeout(function () {
+                    //    document.getElementById('RatingValidationfn').style.visibility = 'hidden';
+
+                    //}, 2000);
+
+
+                    return 0;
+                }
+
+
+                var mod = {
+
+                    SurveyID: @Model.Survey_ID,
+                    Ack_Message: Ack_Message,
+                    FirstReminder_Message: Reminder1_Message,
+                    SecondReminder_Message: Reminder2_Message,
+
+                };
+                var data = JSON.stringify(mod);
+    baseurl = '@Url.Content("~/Survey/AddSurveyEmailConfig")';
+                $.ajax({
+
+                    url: baseurl,
+                    type: 'post',
+                    data: data,
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (response) {
+                        console.log(response);
+                        var res = response.Acknowledgement;
+                        console.log("res"+res)
+                        //alert("saved successfully");
+                        $('#saveAlertModal').modal('show');
+                        $('#lblErr').hide();
+
+                        $('#lblSuccess').show();
+                    },
+                      error: function (err,response) {
+
+                          //alert("Error while submitting");
+                          $('#saveAlertModal').modal('show');
+                          $('#lblErr').show();
+
+                          $('#lblSuccess').hide();
+                        }
+
+
+                });
+
+            });
+        });
+
+    });
+
+
+    $(document).ready(function () {
+       
+       
+        var Acknowledgement1 = $("#Acknowledgement").data("kendoSwitch");
+        var setReminder1 = $("#Reminder1").data("kendoSwitch");
+        var setReminder2 = $("#Reminder2").data("kendoSwitch");
+       
+        var Ack_Message1 = $("#AckMessage").val();
+        console.log("Ack_Message1 : " + Ack_Message1)
+        var Reminder1_Message1 = $("#FirstReminderMessage").val();
+        console.log("Reminder1_Message1 : " + Reminder1_Message1)
+        var Reminder2_Message1 = $("#SecondReminderMessage").val();
+        console.log("Reminder2_Message1 : " + Reminder2_Message1)
+        if (Ack_Message1.length > 0) {          
+            Acknowledgement1.check(true);
+            
+        }
+        else {
+            Acknowledgement1.check(false);
+        }
+
+        if (Reminder1_Message1.length>0) {
+            setReminder1.check(true);
+        }
+        else {
+            setReminder1.check(false); 
+        }
+
+        if (Reminder2_Message1.length > 0) {
+           setReminder2.check(true);
+        }
+        else {
+            setReminder2.check(false);
+        }
+
+    });
+
+
+
+
+    $("#Acknowledgement").kendoSwitch({
+        change: function (e) {
+            console.log("checkbox" + e.checked);
+            var Ack_Messageck = $("#AckMessage").val();
+            console.log("Ack_Messageck1 : " + Ack_Messageck)
+            //var xack
+            //document.getElementById("AckMessage").value = xack
+            //console.log("xack : " + xack)
+            if (Ack_Messageck.length > 0) {
+                if (e.checked == true) {
+                    $("#AckMessage").val();
+                }
+                else {
+                    $("#AckMessage").val("");
+                }
+
+            }
+            else {
+                if (e.checked == true) {
+                    $("#AckMessage").val("This is Acknowledgement for Survey.");
+                }
+                else {
+                    $("#AckMessage").val("");
+                }
+            }
+
+        }
+    });
+
+    $("#Reminder1").kendoSwitch({
+        change: function (e) {
+            console.log("checkbox" + e.checked);
+            var Reminder1_Messageck = $("#FirstReminderMessage").val();
+            console.log("Reminder1_Messageck : " + Reminder1_Messageck)
+            if (Reminder1_Messageck.length > 0) {
+
+                if (e.checked == true) {
+                    $("#FirstReminderMessage").val();
+                }
+                else {
+                    $("#FirstReminderMessage").val("");
+
+                }
+
+            }
+            else {
+                if (e.checked == true) {
+                    $("#FirstReminderMessage").val("Gentle reminder to provide your response for the Survey, your inputs would help us to improve");
+                }
+                else {
+                    $("#FirstReminderMessage").val("");
+
+                }
+            }
+        }
+    });
+
+    $("#Reminder2").kendoSwitch({
+        change: function (e) {
+            console.log("checkbox" + e.checked);
+            var Reminder2_Messageck = $("#SecondReminderMessage").val();
+            console.log("Reminder2_Messageck : " + Reminder2_Messageck)
+            if (Reminder2_Messageck.length > 0) {
+                if (e.checked == true) {
+                    $("#SecondReminderMessage").val();
+                }
+                else {
+                    $("#SecondReminderMessage").val("");
+                }
+            }
+            else {
+                if (e.checked == true) {
+                    $("#SecondReminderMessage").val("Gentle reminder to provide your response for the Survey, your inputs would help us to improve. Survey would be closing soon");
+                }
+                else {
+                    $("#SecondReminderMessage").val("");
+                }
+            }
+        }
+    });
+
+</script>

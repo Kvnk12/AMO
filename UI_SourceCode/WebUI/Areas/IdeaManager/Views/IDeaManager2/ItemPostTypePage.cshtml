@@ -1,0 +1,155 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+@section PPMenu {
+
+    @*@Html.Partial("_PPTopMenu")*@
+    
+    }
+
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                      @using (Html.BeginForm())
+                        {
+                        @Html.DropDownListFor(m => m.ClientId , new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required", disabled=true})  
+                        }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+<div class="clear">
+</div>
+
+        <div class="container" style="padding:0;"> 
+          <!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+          
+          <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+            <div class="treeMenuContent" style="min-height:700px">
+               <div>
+                    @Html.Partial("_PostChallenge")
+            </div>
+            
+                 
+       
+            </div> 
+            </div>
+                   <!--end of grid-->             
+              </div>
+              <!--.valchainContent--> 
+              
+              <!--/.treeMenuContent container--> 
+        @*    </div>*@
+            <!--/.treeMenuContent--> 
+          @*</div>*@
+          <!--/.treeMenuArea--> 
+          
+        
+
+
+
+
+<script>
+    $(document).ready(function () {
+        
+        
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            
+            if (SelectedclientId != 0) {
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+                //debugger;
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager2/DisplayHomePage/?clientId={clientId}");
+
+                //window.location = strUrl;
+
+                strUrl = strUrl.replace("{clientId}", SelectedclientId);
+                window.location = strUrl;
+            }
+
+        });
+
+    });
+
+
+    $('#cancelChallenge').click(function () {
+
+
+        var confirm = window.confirm('Do you want cancel the changes?');
+        if (confirm) {
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager2/DisplayIdeas/?clientId={clientId}");
+
+            strUrl = strUrl.replace("{clientId}", "@Model.ClientId");
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+            });
+
+    $('#homepage').click(function () {
+
+        var localToServer = "/";
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+
+        if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+            localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+        }
+        var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager2/DisplayIdeas/?clientId={clientId}");
+
+        strUrl = strUrl.replace("{clientId}", "@Model.ClientId");
+                    window.location = strUrl;
+                    return false;
+
+
+    });
+
+</script>
+
+
+
+
+
+

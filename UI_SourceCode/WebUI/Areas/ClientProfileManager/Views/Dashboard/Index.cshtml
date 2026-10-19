@@ -1,0 +1,490 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+@model DashboardViewModel
+@{
+    ViewBag.Title = "Client Profile Manager";
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+    var v = new ClientAjaxServiceController();
+    var clientlist = v.DashboardUserClients((int)Session["UserId"]);
+}
+
+<div class="content-main dark-bg" >
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li class="active">Performance Dashboard</li>
+    </ol>
+    <table style=" margin-top: 1em;">
+        <tr>
+            <td style="vertical-align:central;height:500px;">
+                <table class="tblclientlist">
+                    <tr>
+                        <td style="vertical-align:top;height:100%">
+                            <div style="vertical-align:top">
+                                @(Html.Kendo().TreeView()
+            .Name("treeview")
+            .Checkboxes(checkboxes => checkboxes
+                .Name("Clientlist")
+                .CheckChildren(true)
+            )
+                         .Events(events => events
+                            .Check("onCheck")
+                        )
+                        //.Items(treeview =>
+                        //{
+                        //    treeview.Add().Text("Asia Pacific").Id("Asia Pacific");
+
+                        //    treeview.Add().Text("EMEA").Id("EMEA");
+
+                        //    treeview.Add().Text("Global").Id("Global");
+
+                        //    treeview.Add().Text("Latin America").Id("Latin America");
+                        //    treeview.Add().Text("North America").Id("North America");
+                        //    treeview.Add().Text("Unknown").Id("Unknown");
+                        //})
+                        .BindTo(clientlist)
+                            .AutoScroll(true)
+
+                            .HtmlAttributes(new { style = "width: 200px;Height:400px; overflow: auto;color:black;" })
+                                )
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td>
+                <table>
+                    <tr style="height:80px">
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <span>Quarter :</span>
+                                        @(Html.Kendo().DropDownList()
+        .OptionLabel("Select")
+        .DataTextField("Text")
+          .DataValueField("Value")
+          .Name("Quarter")
+     .HtmlAttributes(new { style = "width: 100px"})
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "1",
+                  Value = "1"
+              },
+              new SelectListItem() {
+                  Text = "2",
+                  Value = "2"
+              },
+               new SelectListItem() {
+                  Text = "3",
+                  Value = "3"
+              },
+               new SelectListItem() {
+                  Text = "4",
+                  Value = "4"
+              },
+
+          }))
+                                        @(Html.Kendo().DatePicker()
+        .Name("yearDatetime")
+        .Start(CalendarView.Decade)
+        .Depth(CalendarView.Decade)
+                                  .Format("yyyy")
+
+                                  .DateInput()
+                                        //.HtmlAttributes(new { style = "width: 100%", title = "monthpicker" })
+                                        )
+                                    </td>
+                                </tr>
+                                @*<tr>
+                                        <td>
+                                            <span>Year:</span>
+
+                                        </td>
+                                    </tr>*@
+                            </table>
+                        </td>
+                        <td>
+                            <span><b>Comparing To</b></span>
+                        </td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <span>Quarter :</span>
+                                        @(Html.Kendo().DropDownList()
+        .OptionLabel("Select")
+        .DataTextField("Text")
+          .DataValueField("Value")
+          .Name("Quarter1")
+          .HtmlAttributes(new { style = "width: 100px" })
+     .BindTo(new List<SelectListItem>() {
+              new SelectListItem() {
+                  Text = "1",
+                  Value = "1"
+              },
+              new SelectListItem() {
+                  Text = "2",
+                  Value = "2"
+              },
+               new SelectListItem() {
+                  Text = "3",
+                  Value = "3"
+              },
+               new SelectListItem() {
+                  Text = "4",
+                  Value = "4"
+              },
+
+          }))
+                                        @(Html.Kendo().DatePicker()
+        .Name("yearDatetime1")
+        .Start(CalendarView.Decade)
+        .Depth(CalendarView.Decade)
+                                  .Format("yyyy")
+
+                                  .DateInput()
+                                        //.HtmlAttributes(new { style = "width: 100%", title = "monthpicker" })
+                                        )
+                                    </td>
+                                </tr>
+                                @*<tr>
+                                        <td>
+                                            <span>Year:</span>
+
+                                        </td>
+                                    </tr>*@
+                            </table>
+
+                        </td>
+                        <td>
+                            @(Html.Kendo().Button()
+        .Name("CompareButton")
+        .HtmlAttributes(new { type = "button", @class = "btn-primary" })
+        .Content("Compare")
+
+          .Events(e => e
+
+            .Click("onClick")
+
+        )
+                            )
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div class="custom-kendo-grid" style=" border: 1px solid; margin-bottom: 1em;">
+                                @(Html.Kendo().Grid<DashboardViewModel>()
+                       @*@(Html.Kendo().Grid(Model.ClusterReportlist)*@
+    .Name("Grid")
+
+    .Columns(columns =>
+    {
+        //if (Model != null)
+        //{
+        //    foreach (System.Data.DataColumn c in Model.Columns)
+        //    {
+        //        columns.Bound(c.ColumnName);
+        //    }
+        //}
+
+        columns.Bound(p => p.ClientName).Title("Clients").HeaderHtmlAttributes(new { style = "font-weight: bold;" }).HtmlAttributes(new { style = "font-weight: bold;" }).Locked(true).Width(150);
+        columns.Group(group => group
+        .Title("Incident(s)")
+          .HeaderHtmlAttributes(new { style = "text-align: center;font-weight: bold;" })
+
+        .Columns(info =>
+        {
+            info.Bound(p => p.IncidentPercentage).Title("% of").Width(100);
+            info.Bound(p => p.EffortPerIncident).Title("Effort Per").Width(100);
+            info.Bound(p => p.ProblemVsIncident).Title("Problem Vs").Width(100);
+        }).Lockable(false));
+
+
+
+        columns.Group(group => group
+       .Title("FTE(s)")
+       .HeaderHtmlAttributes(new { style = "text-align: center;font-weight: bold" })
+
+       .Columns(info =>
+       {
+           info.Bound(p => p.FtePercentage).Title("% of").Width(100);
+           info.Bound(p => p.TicketsPerFTE).Title("Tickets Per").Width(100);
+           info.Bound(p => p.CostPerFTE).Title("Cost Per").Width(100);
+
+       }).Lockable(false));
+        columns.Bound(p => p.CostPerTicket).Title("Cost/Ticket").Width(100).Lockable(false);
+        columns.Bound(p => p.SRPercentage).Title("Service Request").Width(100).Lockable(false).HeaderHtmlAttributes(new { style = "overflow: visible; white-space: normal" });
+        columns.Bound(p => p.ApplicationPercentage).Title("Applications").Width(100).Lockable(false);
+        columns.Bound(p => p.MTTRPercentage).Title("MTTR").Width(100).Lockable(false);
+
+
+
+
+        columns.Bound(p => p.OnsiteRatio).Title("Onsite Ratio").Width(100).Lockable(false);
+        //columns.Bound(p => p.RowTitle).Width(150).Format("{0:p0}");
+        ////columns.Bound(p => p.IncidentDifference).Title("HPHC").Format("{0:p0}");
+    })
+.HtmlAttributes(new { style = "height: 600px;width:950px" })
+//.Pageable(pageable => pageable
+//   .Input(true)
+//   .Numeric(false)
+// )
+//.Sortable()
+//.Pageable()
+//.Scrollable(scr => scr.Height(430))
+//.Resizable(resize => resize.Columns(true))
+//.Filterable()
+.Scrollable(scrollable => scrollable.Height(300))
+.Reorderable(reorderable => reorderable.Columns(true))
+
+
+    .Sortable()
+
+
+.AutoBind(true)
+.ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+ .Excel(excel => excel
+        .FileName("PerformanceDashboard.xlsx")
+        //.Filterable(true)
+        .AllPages(true)
+    //.ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+    )
+
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(20)
+     //.Read(read => read.Action("GetData", "AjaxService", new { ClientID = Model.ClientId }))
+     .Read(read => read.Action("GetClientPerformanceDashboard", "ClientAjaxService").Data("ParameterData"))
+     )
+                           )
+                            </div>
+                        </td>
+
+
+
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+@*<table>
+        <tr>
+            <td valign="top">
+                <table>
+                    <tr>
+                        <td>Client Name</td>
+                        <td>Compare From Period</td>
+                        <td>Compare To Period</td>
+
+                    </tr>
+                    <tr>
+
+                        <td>
+
+
+                        </td>
+
+
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>*@
+
+<br />
+
+
+
+
+<style>
+        .k-widget.k-treeview {
+            overflow: hidden;
+        }
+
+        h5.h5client {
+            visibility: hidden;
+        }
+        /*table.tblclientlist {
+    background-color: white;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height:100% !important;
+    }*/
+</style>
+
+<script type="text/javascript">
+        //$(document).ready(function () {
+        //    var grid = $("#Grid").data("kendoGrid");
+        //    grid.dataSource.read();
+        //});
+
+        function ParameterData(e) {
+
+            var Quarter = $("#Quarter").data("kendoDropDownList"),
+                 Quarter = Quarter.value();
+            //alert(Quarter);
+
+            var yearDatetime = $("#yearDatetime").data("kendoDatePicker"),
+              yearDatetime = yearDatetime.value();
+            //alert(yearDatetime);
+
+            var Quarter1 = $("#Quarter1").data("kendoDropDownList"),
+                Quarter1 = Quarter1.value();
+            //alert(Quarter1);
+
+            var yearDatetime1 = $("#yearDatetime1").data("kendoDatePicker"),
+              yearDatetime1 = yearDatetime1.value();
+            //alert(yearDatetime1);
+
+            var checkedNodes = [],
+               treeView = $("#treeview").data("kendoTreeView");
+
+            checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+            if (checkedNodes.length > 0) {
+
+                ClientIds = encodeURIComponent(checkedNodes.join(","))
+            } else {
+                //alert("Please Select atleast one client.");
+                return;
+            }
+            return {
+                ClientIds: ClientIds,
+                Quarter: Quarter,
+                yearDatetime: yearDatetime,
+                Quarter1: Quarter1,
+                yearDatetime1: yearDatetime1
+            }
+        }
+        function onClick(e) {
+            var checkedNodes = [],
+            treeView = $("#treeview").data("kendoTreeView");
+
+            checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+            if (checkedNodes.length > 0) {
+
+                ClientIds = encodeURIComponent(checkedNodes.join(","))
+            } else {
+               alert("Please Select atleast one client.");
+                return;
+            }
+            var grid = $("#Grid").data("kendoGrid");
+
+            grid.dataSource.read();
+
+
+
+            @*var Quarter = $("#Quarter").data("kendoDropDownList"),
+            Quarter = Quarter.value();
+        //alert(Quarter);
+
+        var yearDatetime = $("#yearDatetime").data("kendoDatePicker"),
+          yearDatetime = yearDatetime.value();
+        //alert(yearDatetime);
+
+        var Quarter1 = $("#Quarter1").data("kendoDropDownList"),
+            Quarter1 = Quarter1.value();
+        //alert(Quarter1);
+
+        var yearDatetime1 = $("#yearDatetime1").data("kendoDatePicker"),
+          yearDatetime1 = yearDatetime1.value();
+        //alert(yearDatetime1);
+
+        var checkedNodes = [],
+           treeView = $("#treeview").data("kendoTreeView");
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+        if (checkedNodes.length > 0) {
+
+            ClientIds = encodeURIComponent(checkedNodes.join(","))
+        } else {
+            alert( "Please Select atleast one client.");
+            return;
+        }
+
+        var RootUrl = '@Url.Content("~/")';
+        var model = {
+            ClientIds: ClientIds,
+            Quarter: Quarter,
+            yearDatetime: yearDatetime,
+            Quarter1: Quarter1,
+            yearDatetime1: yearDatetime1
+
+
+        };
+
+        //alert(myArray[0].id + " ," + myArray[0].value);
+        //var data1 = { 'listObject': myArray };
+        var data = JSON.stringify(model)
+        $.ajax({
+            type: 'post',
+            url: RootUrl + 'ClientAjaxService/GetClientPerformanceDashboard',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert(response.HasSLAManager);
+                var grid = $("#Grid").data("kendoGrid");
+                grid.dataSource.read();
+            },
+            error: function (response) {
+                alert("error occured");
+            }
+        });*@
+        }
+</script>
+
+<script>
+
+    // function that gathers IDs of checked nodes
+    function checkedNodeIds(nodes, checkedNodes) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].checked) {
+                checkedNodes.push(nodes[i].id);
+            }
+
+            if (nodes[i].hasChildren) {
+                checkedNodeIds(nodes[i].children.view(), checkedNodes);
+            }
+        }
+    }
+
+    // show checked node IDs on datasource change
+    function onCheck() {
+        var checkedNodes = [],
+            treeView = $("#treeview").data("kendoTreeView"),
+            message;
+
+        checkedNodeIds(treeView.dataSource.view(), checkedNodes);
+
+        if (checkedNodes.length > 0) {
+            message = "IDs of checked nodes: " + checkedNodes.join(",");
+            $("#RegionNames").val(checkedNodes.join(","))
+        } else {
+            message = "No nodes checked.";
+        }
+        //alert(message);        //$("#result").html(message);
+    }
+</script>

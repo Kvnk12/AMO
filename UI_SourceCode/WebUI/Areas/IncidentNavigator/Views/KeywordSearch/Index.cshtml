@@ -1,0 +1,445 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+
+@model  KeywordSearchModel
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+    ViewBag.Title = "Incident Navigator";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    // Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+         /*overflow-y:scroll;*/
+      
+    }
+
+
+ .wordListDiv{
+       font-weight: bold;
+        font-size: 15px;
+         overflow-y:scroll;
+         border-color:#ccc;
+         background-color:#f5f5f5;
+         width:100%;
+         height:90px;
+ }      
+
+ 
+
+    .AlphaDivClass{
+        overflow-y:scroll;
+        height:700px;
+        padding-left:10px;
+        padding-right:5px;
+        padding-top:5px;
+        padding-bottom:5px;
+        border-radius:3px;
+        border:thin solid;
+        height:300px;
+        border-color:#ccc;
+    }
+     
+    .control-label{
+       
+        display:inline-block;
+        margin-bottom:5px;
+        font-weight:normal;
+    }
+    .custom-grid .k-grid{
+        margin-top:5px !important;
+    }
+     /*.controllabelcluster{
+        color:darkgreen;
+        display:inline-block;
+        margin-bottom:5px;
+        font-weight:normal;
+    }
+      .controllabelc{
+        color:mediumvioletred;
+        display:inline-block;
+        margin-bottom:5px;
+        font-weight:normal;
+    }*/
+      .wordvalue{
+          float:right;
+      }
+</style>
+
+
+<div class="content-main custom-grid">
+    <div class="content-wrapper">
+        <div style="padding-left:3px; padding-right:3px;">
+            @using (Html.BeginForm("Addkey", "KeywordSearch", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                <div>
+                    <!--start of breadcrumb-->
+                    <ol class="breadcrumb">
+                        <li><a href="#">Incident Navigator</a></li>
+                        <li class="active"><a href="#">Keyword Search</a></li>
+                    </ol>
+                </div>
+                <div class="left">
+                    <label>Key word list:</label>
+                </div>
+                <div class="right">
+                    <label class="wordvalue" style="color:mediumvioletred"><B>--</B> Generic&nbsp;</label>&nbsp;
+                    <label class="wordvalue" style="color:midnightblue"><strong>--</strong> Custom&nbsp;</label>&nbsp;
+                    <label class="wordvalue" style="color:darkgreen"><strong>--</strong> Cluster&nbsp;</label>
+                </div>
+                <div class="wordListDiv" style="font-size:small; border:thin solid;border-color:#ccc; border-radius:4px; padding-left:3px; padding-right:3px;">
+                    @{
+                        if (Model.listofkeywords != null || Model.listofkeywords.Count() != 0)
+                        {
+                            var count = 1;
+                            foreach (var ii in Model.listofkeywords)
+                            {
+                                if (ii.WordType == "custom" || ii.WordType == "CUSTOM" || ii.WordType == "Custom")
+                                {
+                                    <label class="control-label" style="color:midnightblue">
+                                        @count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+
+                                }
+                                else if (ii.WordType == "cluster" || ii.WordType == "Cluster" || ii.WordType == "CLUSTER")
+                                {
+                                    <label class="control-label" style="color:darkgreen">
+                                        @count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+                                }
+                                else
+                                {
+                                    <label class="control-label" style="color:mediumvioletred">
+                                        @count.ToString()-@ii.keywords &nbsp;
+                                    </label>
+                                }
+                                count++;
+
+                            }
+                        }
+                    }
+                </div>
+                <div class="leftarea form-horizontal" style="width:20%;margin-top:5px">
+                    <div class="form-group" style="padding-left:3px; padding-right:3px;">
+                        <div class="k-header k-grid-toolbar k-grid-top" style="border:thin solid;border-color:#ccc; border-radius:4px;">
+                            <div>
+                                <label>Key word:</label> @(Html.Kendo().TextBoxFor(m => m.WordValue))
+                            </div>
+                            <button type="submit" id="btnAdd" class="btn btn-primary">Add to List</button>
+                            <button type="button" id="btnUpload" class="btn btn-primary right" onclick="RunReport();" style="padding-right:6px">Run Report</button>
+
+                        </div>
+                        <div>
+                            <label>Letter(Words,Incidents)</label>
+                        </div>
+                        <div class="AlphaDivClass">
+                            @{
+                                var checkfirstnull = Model.AlphaList;
+                                if (checkfirstnull != null || checkfirstnull.Count() != 0)
+                                {
+                                    foreach (var ii in Model.AlphaList)
+                                    {
+                                        <div>
+                                            @Html.CheckBoxFor(m => m.Selected, new { @class = "Alphacheck", @value = ii.A_bet })
+                                            <label class="control-label" style="">
+                                                @ii.A_bet (@ii.NoAlphaWords &nbsp;,&nbsp;@ii.NoTotAlphaINC)
+                                            </label>
+                                        </div>
+
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rightarea form-horizontal" style="width:75%;margin-top:5px !important;">
+                    <div class="form-group">
+                        @(Html.Kendo().Grid<KeywordReportListModel>()
+                         .Name("ReportList")
+                         .Columns(columns =>
+                         {
+                             columns.Bound(e => e.Id).Hidden();
+                             columns.Bound(e => e.WordValue).Title("Word Value");
+                             columns.Bound(e => e.TotalIncidentCount).Title("Total Incident Count").HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.WordTotIncCount).Title("Word Incident Count").HtmlAttributes(new { @style = "text-align:right;" });
+                             columns.Bound(e => e.WordIncidentPer).Title("Word Incident Per").HtmlAttributes(new { @style = "text-align:right;" });
+                         })
+                      .Pageable()
+                      .Scrollable()
+                      .Events(e => e.ExcelExport("KeywordReport").DetailInit("KeywordReport_detailInit"))
+                      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                      .HtmlAttributes(new { style = "height:350px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(25)
+                      .Model(model => { model.Id(f => f.Id); model.Field(f => f.Id).Editable(false); })
+                      .Read(read => read.Action("KeywordReportList", "KeywordSearch").Data("GetKeys"))
+                          )
+                      .ClientDetailTemplateId("ChildGridTemplate")
+                                    )
+
+                    </div>
+                </div>
+
+
+
+            }
+
+
+
+
+        </div>
+
+    </div>
+</div>
+
+
+    <script id="ChildGridTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<KeywordConfigModel>()
+                .Name("Grid#=Id#")
+                .Columns(columns =>
+                {
+                    columns.Bound(e => e.ConfigId).Hidden();
+                    columns.Bound(e => e.WordValueID).Hidden();
+                    columns.Bound(e => e.ByConfigItem).Title("Config Item Name");
+                    columns.Bound(e => e.CiWordIncidentCount).Title("Word Incident Count by CI").HtmlAttributes(new { @style = "text-align:right;" });
+                    columns.Bound(e => e.CiWordIncidentPer).Title("Word Incident Per by CI").HtmlAttributes(new { @style = "text-align:right;" });
+                })
+        .Sortable()
+        //.Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .HtmlAttributes(new { style = "height:500px;" })
+        .Pageable()
+        .Scrollable()
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            //.Model(model =>
+            //{
+            //    model.Id(o => o.ConfigId);
+            //})
+            .Model(model => { model.Id(f => f.ConfigId); model.Field(f => f.ConfigId).Editable(false); })
+            .PageSize(10)
+        .Read(read => read.Action("GetKeywordCount", "KeywordSearch", new { WordValue = "#=WordValue#" }))
+        
+    )
+    .ClientDetailTemplateId("SubChildGridTemplate")
+    .ToClientTemplate())
+
+</script>
+
+<script id="SubChildGridTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<KeywordIncidentModel>()
+            .Name("SubGrid#=ConfigId#")
+            .Columns(columns =>
+            {
+                //columns.Bound(e => e.Id).Hidden();              
+                columns.Bound(e => e.Incidentid).Title("Incident Id");
+                columns.Bound(e => e.Title).Title("Title");
+                columns.Bound(e => e.Status).Title("Status");
+                columns.Bound(e => e.ConfigItem).Title("Config Item Name");
+                columns.Bound(e => e.ResolutionDescription).Title("Resolution Description ");
+                columns.Bound(e => e.CreatedDate).Title("Created Date");
+                columns.Bound(e => e.ResolvedDate).Title("Resolved Date");
+            })
+    .Sortable()
+    .Pageable()
+    .Scrollable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Model(model =>
+        {
+            model.Id(o => o.Id);
+        })
+
+        .Read(read => read.Action("GetIncidents", "KeywordSearch", new { WordValue1 = "#=WordValueID#", ByConfigItem = "#=ByConfigItem#" }))
+    //.Read(r=> r.Data("incidentdata"))
+    )
+    .ToClientTemplate())
+
+</script>
+
+
+<script>
+
+
+    $(document).ready(function () {
+        $('#WordValue').val('');
+    });
+
+
+
+
+    function dataBound() {
+        detailExportPromises = [];
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+
+    var detailExportPromises = [];
+
+    function KeywordReport_detailInit(e) {
+        var deferred = $.Deferred();
+
+        // get the index of the master row
+        var masterRowIndex = e.masterRow.index(".k-master-row");
+
+        // add the deferred to the list of promises
+        detailExportPromises.push(deferred);
+
+        var detailGrid = e.detailRow.find("[data-role=grid]").data("kendoGrid");
+
+        detailGrid.bind("excelExport", function (e) {
+            // prevent saving the file
+            e.preventDefault();
+
+            // resolve the deferred
+            deferred.resolve({
+                masterRowIndex: masterRowIndex,
+                sheet: e.workbook.sheets[0]
+            });
+        });
+    }
+
+    function KeywordReport(e) {
+        // prevent saving the file because we will update the workbook
+        e.preventDefault();
+
+        var workbook = e.workbook;
+
+        // Export all detail grids
+        $("[data-role=grid]", this.element).each(function () {
+            $(this).data("kendoGrid").saveAsExcel();
+        });
+
+        // wait for all detail grids to finish exporting
+        $.when.apply(null, detailExportPromises)
+        .then(function () {
+            // get the export results
+            var detailExports = $.makeArray(arguments);
+
+            // sort by masterRowIndex
+            detailExports.sort(function (a, b) {
+                return a.masterRowIndex - b.masterRowIndex;
+            });
+
+            // add an empty column
+            workbook.sheets[0].columns.unshift({ width: 30 });
+
+            // prepend an empty cell to each row
+            for (var i = 0; i < workbook.sheets[0].rows.length; i++) {
+                workbook.sheets[0].rows[i].cells.unshift({});
+            }
+
+            // merge the detail export sheet rows with the master sheet rows
+            // loop backwards so the masterRowIndex doesn't need to be updated
+            for (var i = detailExports.length - 1; i >= 0; i--) {
+                var masterRowIndex = detailExports[i].masterRowIndex + 1;
+
+                var sheet = detailExports[i].sheet;
+
+                // prepend an empty cell to each row
+                for (var ci = 0; ci < sheet.rows.length; ci++) {
+                    if (sheet.rows[ci].cells[0].value) {
+                        sheet.rows[ci].cells.unshift({});
+                    }
+                }
+
+                // insert the detail sheet rows after the master row
+                [].splice.apply(workbook.sheets[0].rows, [masterRowIndex + 1, 0].concat(sheet.rows));
+            }
+
+            // save the workbook
+            kendo.saveAs({
+                dataURI: new kendo.ooxml.Workbook(workbook).toDataURL(),
+                fileName: "KeywordReport.xlsx"
+            });
+        });
+    }
+
+
+
+</script>
+
+<script>
+
+    function GetKeys() {
+        //alert('keys');
+     var chkArray = [];
+     $(".Alphacheck:checked").each(function () {
+            chkArray.push($(this).val());
+        });
+        var selectedINs = chkArray.join(',');
+        //alert('check here' + selectedINs);
+
+        return {
+            selectedINs: selectedINs
+        };
+    }
+
+    function RemoveKeyword()
+    {
+        var chkArray = [];
+        $(".keycheck:checked").each(function () {
+            chkArray.push($(this).val());
+        });
+        var selectedINs = chkArray.join(',');
+
+        //alert(selectedINs);
+        var actionurl = '@Url.Content("~/IncidentNavigator/KeywordSearch/DeleteKey")';
+        var ReadKeyUrl = '@Url.Content("~/IncidentNavigator/KeywordSearch/ReadKey")'
+        $.ajax(
+        {
+            url: actionurl,
+            type: 'POST',
+            async: false,
+            data: {
+                selectedINs: selectedINs
+
+            },
+
+            success: function (data) {
+                //alert(data);
+                if (data == 'True') {
+                    window.location.href = ReadKeyUrl;
+
+                }
+                else
+                    alert('Please select Keyword(s) before running the report.');
+            },
+            error: function (data) {
+
+            }
+        });
+
+    }
+
+    function RunReport()
+    {
+       // alert('xx');
+        var grid = $("#ReportList").data("kendoGrid");
+        grid.dataSource.read();
+    }
+
+
+    </script>

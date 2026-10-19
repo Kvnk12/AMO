@@ -1,0 +1,162 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using NTTData.AMOPortal.Domain.Entities;
+@model  NTTData.AMOPortal.WebUI.Dto.UserApplicationsInput
+@using WebUI.Dto;
+@{
+    //  var clientlist = GetDropDownListItems.UserClients((int)Session["UserId"]);
+    //  var Client = (Client)Session["Client"];
+    ClientDetail Client = (ClientDetail)Session["SessionClient"];
+    var clietnId = Client.ClientId;
+}
+
+<div style="width:44%">
+    <table>
+        <tr>
+            <td class="custom-dropdown">
+                @Html.DropDownListFor(m => m.RoleId, new SelectList(Model.UserRoles, "value", "text", Model.UserRoles), "Select Role", new { @class = "customAppDrp", id = "ddlRoleId"})
+                @*@Html.DropDownListFor(m => m.SelectedUserApplicationInput.RoleId, new SelectList(Model.SelectedUserApplicationInput.UserRoles, "value", "text", Model.SelectedUserApplicationInput.UserRoles), "Select Role", new { @class = "customAppDrp", id = "ddlRoleId" })*@
+            </td>
+        </tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+    </table>
+</div>
+<div style="width:56%">
+    <table>
+        @foreach (var item in Model.Apps)
+        {
+            var checkBoxId = "chk" + item.Value;
+            var blnchecked = false;
+            if (Model.selectedAppIds != null)
+            {
+                foreach (var i in Model.selectedAppIds)
+                {
+                    if (i.ToString() == item.Value)
+                    {
+                        blnchecked = true;
+                        break;
+                    }
+                }
+            }
+            <tr>
+                <td>
+                    <div>
+                        @if (!blnchecked)
+                        {
+                            @*<input type="checkbox" class="childchkboxAllApp" value=@item.Value id="@checkBoxId">@item.Text*@
+                            <input type="checkbox" class="childChckbx" value=@item.Value id="@checkBoxId" @*onchange="checkApp(@item.Value)"*@ style="opacity:0;width:0">
+                            <label for="@checkBoxId" class="childChckbx">@item.Text &nbsp;&nbsp;</label>
+                        }
+                        else
+                        {
+                            @*<input type="checkbox" checked="checked" class="childchkboxAllApp" value=@item.Value id="@checkBoxId">@item.Text*@
+                            <input type="checkbox" checked="checked" class="childChckbx" value=@item.Value id="@checkBoxId" @*onchange="checkApp(@item.Value)"*@ style="opacity:0;width:0">
+                            <label for="@checkBoxId" class="childChckbx">@item.Text &nbsp;&nbsp;</label>
+                        }
+
+                    </div>
+                </td>
+            </tr>
+
+        }
+    </table>
+</div>
+
+<script type="text/javascript">
+
+    //function checkApp(appId) {
+    //    if (appId == 20) {
+    //        document.getElementById("chk5").checked = document.getElementById('chk' + appId).checked;
+    //    }
+
+    //}
+   
+          $("#ddlRoleId").on("change", function () {
+        var dataToPost = {
+            // ClientId: $('#ddlClientId :selected').val(),
+            ClientId: @clietnId ,
+
+            RoleId: $('#ddlRoleId :selected').val(),
+            UserId: $('#UserID').val()
+        };
+        $.ajax(
+        {
+            url: baseurl + 'GetSelectedApps',
+            type: 'POST',
+            data: JSON.stringify(dataToPost),
+            contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                $("#lstApplications").html(data);
+            },
+            error: function () {
+            }
+        });
+      });
+          $("#selectall").on("click", function () {
+        var all = $(this);
+        $(".childChckbx:checkbox").each(function () {
+            //$('input:checkbox').each(function () {
+            $(this).prop("checked", all.prop("checked"));
+        });
+    });
+
+
+    var href = window.location.href.split('/');
+    var baseurl = '';
+    //var DataUploadURL = '';
+    //Account/AssignUser
+    if (href[3].toLowerCase() == 'account') {
+        baseurl = href[0] + '//' + href[2] + '/account/'
+    }
+    else {
+        baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'account/'
+    }
+
+    ////$('#ddlClientId').change(function () {
+    ////   // alert(baseurl + '2');
+    ////    var Selectedclient = $('#ddlClientId :selected').val();
+    ////   // alert(Selectedclient);
+    ////   // var data = [];
+    ////    $.getJSON(baseurl + 'GetUserRoles', { clientId: Selectedclient })
+    ////        .done(function (data) {
+    ////            //alert(data.stringify());
+    ////            //alert(JSON.stringify(data));
+    ////            var options = $("#ddlRoleId");
+    ////            $("#ddlRoleId").empty();
+    ////            $.each(data, function (item,itemval) {
+    ////               // alert(JSON.stringify(itemval));
+    ////                options.append($("<option />").val(itemval.Value).text(itemval.Text));
+    ////            });
+
+    ////    });
+    ////});
+
+    function GetQueryStringParams(sParam) {
+        var sPageURL = window.location.search.substring(1);
+        var sURLVariables = sPageURL.split('&');
+
+        for (var i = 0; i < sURLVariables.length; i++) {
+            var sParameterName = sURLVariables[i].split('=');
+            if (sParameterName[0] == sParam) {
+                return sParameterName[1];
+            }
+        }
+    }
+
+
+
+
+
+</script>

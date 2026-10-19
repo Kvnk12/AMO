@@ -1,0 +1,50 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using WebUI.Areas.IdeaManager.Controllers
+@using WebUI.Areas.IdeaManager.Models
+@using WebUI.Areas.IdeaManager.Dto
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@model  IdeaViewModel
+<div class="im-postidea-benefitsgrid" id="im-offlineApproval-grid">
+    <div class="custom-kendo-grid">
+        @(Html.Kendo().Grid<OfflineApproverModel>()
+                     .Name("OfflineApprovalGrid")
+
+    .Columns(columns =>
+    {
+        columns.Bound(e => e.Id).Hidden();
+        columns.Bound(e => e.IdeaId).Hidden();
+        columns.Bound(e => e.ApproverName).Title("Approver Name");
+        columns.Bound(e => e.Comments).Title("Comments");
+        columns.Bound(e => e.CreatedDate).Title("Approved On").Format("{0:MM/dd/yyyy}");
+        columns.Command(command => { command.Edit().UpdateText(" ").CancelText(" ").Text(" "); command.Destroy().Text(" "); }).Width(200).Title("Action");
+
+    })
+    .Scrollable()
+    //.HtmlAttributes(new { @style="height:250px;" })
+    .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+    .ToolBar(toolbar => toolbar.Create().Text("Add New Approver Detail"))
+    //.Selectable()
+    .DataSource(dataSource => dataSource
+    .Ajax()
+    .Model(model => { model.Id(f => f.Id);
+        model.Field(f => f.CreatedDate).Editable(false);
+
+    })
+      .Read(read => read.Action("ReadOfflineApprover", "PostIdea", new { IdeaId = Model.IdeaId }))
+  .Create(create => create.Action("CreateNewApprover", "PostIdea", new { IId = Model.IdeaId }))
+  .Update(update => update.Action("EditOfflineApprover", "PostIdea"))
+  .Destroy(destroy => destroy.Action("DeleteOfflineApprover", "PostIdea"))
+
+    )
+
+    )
+    </div>
+</div>
+

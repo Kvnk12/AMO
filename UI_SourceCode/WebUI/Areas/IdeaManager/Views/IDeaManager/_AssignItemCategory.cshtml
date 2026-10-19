@@ -1,0 +1,115 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+ <div id="classaction">
+    <button class="btn btn-primary" id="btnCatSave" name="command" value="savecategory">Assign Category</button>
+    <button class="btn btn-default">Cancel</button>
+</div>
+
+<div>
+    @{
+        if (Model.ClientId > 0 && Model.PostIdeaInput.Id > 0)
+            {
+        <label for="ideaclassifcation" class="col-sm-5 control-label" id="">Classification</label>
+        <select id="ideaclassifcation" multiple="multiple" name="ideaclassifcation">
+            @foreach (IMClassification classItem in Model.PostIdeaInput.GetClassification)
+                {
+                <optgroup label="@classItem.Classification">
+
+                    @foreach (vwIMclasswithcat item in Model.PostIdeaInput.GetCatAndClassification.Where(c => c.classificationid == classItem.Id))
+                        {
+
+                        if (Model.PostIdeaInput.GetMapItems.Where(c => c.ItemId == Model.PostIdeaInput.Id && c.CategoryId == item.Id).Count() > 0)
+                            {
+                        <option value="@item.Id.ToString()" selected="selected">@item.category</option>
+                                       }
+                                   else
+                                       {
+                        <option value="@item.Id.ToString()" >@item.category</option>
+                                       }
+                                   }
+                </optgroup>
+                                    
+                           }
+        </select>
+
+            }
+    }
+
+
+
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#ideaclassifcation").multipleSelect({
+            multiple: true,
+            multipleWidth: 250,
+            width: '100%',
+            height: '1500px',
+            isOpen: true,
+            keepOpen: true
+
+        });
+    });
+
+</script>
+
+@*@{ 
+    if (Model.ClientId > 0 && Model.PostIdeaInput.Id > 0)
+        {
+    <div class="cptblacc">
+        <table width="75%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="100%" scope="col">Classification & Category</th>
+
+            </tr>
+
+
+
+
+
+            @{
+        foreach (IMClassification classItem in Model.PostIdeaInput.GetClassification)
+            {
+                <tr>
+                    <td>
+                        <div class="col-sm-0">
+                            @Html.Label(classItem.Classification, new { @class = "", id = "" })
+                        </div>
+                    </td>
+                </tr>
+            foreach (vwIMclasswithcat item in Model.PostIdeaInput.GetCatAndClassification.Where(c => c.classificationid == classItem.Id))
+                {  
+                <tr>
+                    <td>
+                        <div class="col-sm-0">
+                            @if (Model.PostIdeaInput.GetMapItems.Where(c => c.ItemId == Model.PostIdeaInput.Id && c.CategoryId == item.Id).Count() > 0)
+                                {
+                                @Html.CheckBox(item.Id.ToString() + "category", new { @class = "metricchk", placeholder = "", id = item.Id.ToString() + "category", @checked = "checked" })
+                                }
+                            else
+                                {
+                                @Html.CheckBox(item.Id.ToString() + "category", new { @class = "metricchk", placeholder = "", id = item.Id.ToString() + "category", })
+                                }
+                            @Html.Label(item.category, new { @class = "", id = "" })
+                        </div>
+                    </td>
+                </tr>
+                }
+            }
+            }
+        </table>
+        <div id="classaction">
+            <button class="btn btn-primary" id="btnCatSave" name="command" value="savecategory" style="margin-left: 40%">Assign Category</button>
+            <button class="btn btn-default">Cancel</button>
+        </div>
+    </div>
+        }
+            
+}
+
+*@

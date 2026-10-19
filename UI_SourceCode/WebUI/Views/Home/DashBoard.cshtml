@@ -1,0 +1,88 @@
+@model IEnumerable<System.Security.Claims.Claim>
+@using NTTData.AMOPortal.WebUI.Dto
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Dto;
+
+@{
+
+    <link href="@Url.Content("~/Content/css/custom-styles.css")" rel="stylesheet">
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+    <link rel="stylesheet" href="~/Content/plugins/scrollbar/css/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/Content/css/bootstrap-3.3.2.min.css" />
+
+    <script src="~/Content/js/bootstrap.js"></script>
+    <script src="~/Content/js/bootstrap.min.js"></script>
+
+    //HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+    //ViewBag.Title = "Optimization Tools";
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/nttdata_logo.png");
+    //// ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    //Layout = "~/Views/Shared/HomeGenericLayOut .cshtml";
+
+    ////Client client = (Client)Session["Client"];
+    //ClientDetail client = (ClientDetail)Session["SessionClient"];
+    //var clientId = 0;
+    //if (client != null)
+    //{
+    //    clientId = client.ClientId;
+    //}
+
+}
+<style>
+    .styledTds {
+        background-color: #F2BF96;
+        border: 1px solid #D26D19;
+        text-align: center;
+        line-height: 1.65em;
+    }
+
+    .lookNiceTable {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 4px;
+        background-color: #F0F0F0;
+    }
+
+    td {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .tdcenter {
+        text-align: right;
+    }
+
+    .home-tools .row .col a {
+        color: #428bca;
+        text-decoration: none;
+    }
+</style>
+<div class="home-container">
+    <div class="home-tools">
+        <div class="row">
+            <div class="col">
+               
+            </div>
+            <div class="col">
+                @foreach (var cl in Model)
+                {
+
+                    <div class="home-tool-item">
+                        <span class="tool-item-img idea-manager-icon"></span>
+                        <p>@cl.Type</p>
+                    </div>
+                    <div class="home-tool-item">
+                        <span class="tool-item-img idea-manager-icon"></span>
+                        <p>@cl.Value</p>
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div><!--/.container-->

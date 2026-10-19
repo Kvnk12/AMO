@@ -1,0 +1,416 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model WebUI.Areas.AlignmentManager.Dto.heatMapSetupInput
+
+@{
+    ViewBag.Title = "Performance Predictor";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/performancePredLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+
+}
+
+@section PPMenu {
+
+    @Html.Partial("_PPTopMenu")
+
+}
+
+
+
+@* <div id="wrap">*@
+<!-- Fixed navbar -->
+<!--/nav bar div closes here -->
+<!--.container-->
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required" })
+                    }
+                </div>
+            </div>
+        </div>
+        <!--/.selectApp-->
+        <div class="selectyearArea form-horizontal">
+            <!--<div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Account Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Account Name one</option>
+                                                <option>Account Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>
+                       <div class="form-group">
+                                      <label for="clientName" class="col-sm-4 control-label" id="mandate">Contract Name</label>
+                                       <div class="col-sm-5">
+                                            <select class="selectpicker" tabindex="6" name="clientName">
+                                                <option>Contract Name one</option>
+                                                <option>Contract Name Two</option>
+                                            </select>
+                                        </div>
+                       </div>-->
+            <!-- hidden for sprint two-->
+        </div>
+        <!--/.selectyearArea-->
+    </div>
+    <!--/.container-->
+</div>
+<!--/.selectappArea-->
+<div class="clear"></div>
+<div>
+    <!--start of breadcrumb-->
+    @*   <ol class="breadcrumb container">
+          <li class="active">SLA Manager</li>
+          <li class="active">Dashboard</li>
+        </ol>*@
+</div>
+<!--end of breadcrumb container-->
+<!-- <ul class="nav nav-tabs">
+      <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+      <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+      <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+      <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+</ul>-->
+<div class="container">
+
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treemenuOpen"><a href="#"><span class="glyphicon glyphicon-chevron-right"></span></a></div>
+        <div class="treemenu">
+            @if (Model.ClientId > 0)
+            {
+
+                <div class="hdr">
+
+                    <h3>Performance Predictor</h3>
+
+                    @*<a href="javascript:void(0)" class="treemenuClose"><span class="glyphicon glyphicon-chevron-left"></span></a>*@
+                </div>
+                <span class="" style="margin-left:10px;width:91%"></span>
+                @*<button id="btnAddNewChain" class="btn btn-primary" style="margin-left:10px;width:91%" tabindex="">Create New Item</button>*@
+            <!-- add the tree menu here-->@*
+                    @{if (Model.ClientId > 0)
+                          {
+            *@
+                @*<div style="margin-top:60px;margin-left:12px">@Html.Partial("_TreeView", Model.SetTreeMenu(Model.ClientId))</div>*@
+
+                <div style="margin-top:-20px;margin-left:12px">@Html.Partial("_HeatMapTreeView", Model.PPTreeViewRoot)</div>
+            }
+
+        </div>
+        <!-- treemenu ends-->
+        <div class="treeMenuContent">
+            <div class="container" style="padding:0;">
+                <div class="slaleftpane">
+                    <div class="well well-sm">Heat Maps Dashboard</div>
+
+                    @foreach (heatMapInput hmapInput in Model.heatMapInputList)
+                    {
+                        var clientId = hmapInput.ClientId;
+
+                        <div class="heatmapGrid" style="width:100%">
+                            <div class="heatmapGridhd"><a href="~/AlignmentManager/ALMHeatMap/DisplayClientHeatMaps/?ClientId=@hmapInput.ClientId&ReportId=@hmapInput.HeatMapReportId">@hmapInput.HeatMapReportName</a></div>
+                            <div class="heatmaphmgrid">
+                                <div class="heatmaphomecolrt">
+
+                                    @foreach (heatMapItem htmapitem in hmapInput.heatMapData.heatMapItems)
+                                    {
+                                        <span class="@htmapitem.heatMapColor">@htmapitem.heatMapItemName</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    @*                          	<h5 style="padding:10px">Select the following options to view the graph</h5>
+                        <div class="form-horizontal" style="margin-right: 29px;">
+                        <div class="form-group col-sm-5 pull-left">
+                            <label for="sladmonth" class="col-sm-3 control-label">TicketType</label>
+                            <div class="col-sm-3">
+                              <select style="display: none;" class="selectpicker" tabindex="" name="sladmonth">
+                                <option>Incident Management</option>
+                                <option>Problem Management</option>
+                                <option>Request Management</option>
+                                <option>Maintainance Request</option>
+                              </select><div class="btn-group bootstrap-select"><button tabindex="" type="button" class="btn dropdown-toggle selectpicker btn-default" data-toggle="dropdown"><div class="filter-option pull-left">Incident Management</div>&nbsp;<div class="caret"></div></button><div class="dropdown-menu open"><ul class="dropdown-menu inner selectpicker" role="menu"><li class="selected" rel="0"><a tabindex="0" class="" style=""><span class="text">Incident Management</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="1"><a tabindex="0" class="" style=""><span class="text">Problem Management</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="2"><a tabindex="0" class="" style=""><span class="text">Request Management</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="3"><a tabindex="0" class="" style=""><span class="text">Maintainance Request</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li></ul></div></div>
+                            </div>
+                          </div>
+                          <div class="form-group col-sm-4 pull-left">
+                            <label for="sladmonth" class="col-sm-3 control-label">Month</label>
+                            <div class="col-sm-3">
+                              <select style="display: none;" class="selectpicker" tabindex="" name="sladmonth">
+                                <option>Month One</option>
+                                <option>Month Two</option>
+                                <option>Month Three</option>
+                                <option>Month Four</option>
+                              </select><div class="btn-group bootstrap-select"><button tabindex="" type="button" class="btn dropdown-toggle selectpicker btn-default" data-toggle="dropdown"><div class="filter-option pull-left">Month One</div>&nbsp;<div class="caret"></div></button><div class="dropdown-menu open"><ul class="dropdown-menu inner selectpicker" role="menu"><li class="selected" rel="0"><a tabindex="0" class="" style=""><span class="text">Month One</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="1"><a tabindex="0" class="" style=""><span class="text">Month Two</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="2"><a tabindex="0" class="" style=""><span class="text">Month Three</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="3"><a tabindex="0" class="" style=""><span class="text">Month Four</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li></ul></div></div>
+                            </div>
+                          </div>
+                          <div class="form-group col-sm-3 pull-right" style="margin-right:35px">
+                            <label for="sladmonth" class="col-sm-2 control-label">Year</label>
+                            <div class="col-sm-3">
+                              <select style="display: none;" class="selectpicker" tabindex="" name="sladmonth">
+                                <option>2014</option>
+                                <option>2013</option>
+                                <option>2012</option>
+                                <option>2011</option>
+                              </select><div class="btn-group bootstrap-select"><button tabindex="" type="button" class="btn dropdown-toggle selectpicker btn-default" data-toggle="dropdown"><div class="filter-option pull-left">2014</div>&nbsp;<div class="caret"></div></button><div class="dropdown-menu open"><ul class="dropdown-menu inner selectpicker" role="menu"><li class="selected" rel="0"><a tabindex="0" class="" style=""><span class="text">2014</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="1"><a tabindex="0" class="" style=""><span class="text">2013</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="2"><a tabindex="0" class="" style=""><span class="text">2012</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="3"><a tabindex="0" class="" style=""><span class="text">2011</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li></ul></div></div>
+                            </div>
+                          </div>
+
+                        </div><!--end of form-horizontal -->*@
+                    <div class="clearfix"></div><!--This is to clear the floats-->
+                    @*<div class="legendsArea">
+                            <b>Legends:</b>&nbsp;&nbsp; <span class="sladbgreen"></span>Met SLA
+                            <span class="sladbred"></span>Missed SLA
+                             <span class="sladbblue"></span>SLA - Expectation Higher Limit
+                              <span class="sladbredlowlim"></span>SLA - Expectation Lower Limit
+                        </div>*@
+
+                </div>
+                <!--END OF LEFTAREA-->
+                @*<div class="slarightpane">
+                        <div style="display: none;" class="selectFiltersOpen">
+                            <a href="#">
+                            <span class="glyphicon glyphicon-chevron-left"></span>
+                            </a>
+                        </div>
+
+                        <div class="selectFiltersClose">
+                            <div class="SFhead">
+                                <a class="rightNav slarightnavClose" href="#" title="">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>Select Filters
+                                </a>
+                            </div>
+                            <div class="form-horizontal" style="margin-top:20px">
+                                <div class="form-group">
+                        <label for="resolvedbygroup" class="col-sm-4 control-label">Resolved By Group</label>
+                        <div class="col-sm-7">
+                          <select class="form-control" multiple="" tname="resolvedbygroup">
+                            <option>Type one</option>
+                            <option>Type two</option>
+                            <option>Type three</option>
+                            <option>Type four</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="waived" class="col-sm-4 control-label">Waived</label>
+                        <div class="col-sm-7">
+                          <select class="form-control" multiple="" name="waived">
+                            <option>Type one</option>
+                            <option>Type two</option>
+                            <option>Type three</option>
+                            <option>Type four</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="yr" class="col-sm-4 control-label">Year</label>
+                        <div class="col-sm-7">
+                          <select class="form-control" multiple="" name="yr">
+                            <option>Type one</option>
+                            <option>Type two</option>
+                            <option>Type three</option>
+                            <option>Type four</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="sfmonth" class="col-sm-4 control-label">Month</label>
+                        <div class="col-sm-7">
+                          <select class="form-control" multiple="" name="sfmonth">
+                            <option>Type one</option>
+                            <option>Type two</option>
+                            <option>Type three</option>
+                            <option>Type four</option>
+                          </select>
+                        </div>
+                      </div>
+                     </div><!--/. form-horizontal-->
+                     <button class="btn btn-primary" type="button">Select Filters</button>
+                    </div><!--/.selectFiltersClose-->
+                    </div>*@
+                <!--/.slarightpane -->
+            </div><!--/.treeMenuContent container-->
+        </div><!--/.treeMenuContent-->
+    </div><!--/.treeMenuArea-->
+
+
+</div>
+<!--/.container-->
+@* </div>*@
+<!--.wrap-->
+@*<script>
+        $('select#drpClientId').change(function () {
+            var SelectedclientId = $('#drpClientId :selected').val();
+            var reportname = $('#reportname').val();
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'IncidentDashboard') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetRptView/?cid={clientid}&rptname={reportid}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+            baseurl = baseurl.replace("{reportid}", reportname);
+
+            window.location = baseurl;
+
+        });
+        $('select#sladmonth').change(function () {
+            var SelectedClient = $('#drpClientId :selected').val();
+            var Selecteddataset = $('#sladmonth :selected').val();
+            var reportname = $('#reportname').val();
+            var href = window.location.href.split('/');
+
+            if (SelectedClient == "0") {
+                return false;
+            }
+
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+            if (href[3] == 'IncidentDashboard') {
+                //alert('local url');
+
+                var baseurl = href[0] + '//' + href[2] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+            }
+            else {
+                //alert('server');
+                var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/' + 'IncidentDashboard/GetView/?cid={clientid}&rptname={reportid}&dataset={datasetid}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedClient);
+            baseurl = baseurl.replace("{reportid}", reportname);
+            baseurl = baseurl.replace("{datasetid}", Selecteddataset);
+
+            window.location = baseurl;
+
+        });
+    </script>*@
+
+
+
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            $('.treemenuOpen').click();
+            $("#navigation").treeview({
+            });
+        });
+    </script>
+}
+
+
+<script>
+    $(document).ready(function () {
+
+
+
+
+        $('select#VariableCategoryId').change(function () {
+            var clientId = $("select#VariableCategoryId").val().toString();
+            alert(clientId);
+
+        });
+
+
+        $('#btnAddNewChain').click(function () {
+            var clientId = $("select#ClientId").val().toString();
+            if (clientId == "0" || clientId =="") {
+                alert('Please select Client to create new value chain details');
+                return false;
+            }
+
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            var SelectedclientId = $('#ClientId :selected').val();
+
+            if (href[3].toLowerCase() == 'alignmentmanager') {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/AddVariable/?ClientId=' + SelectedclientId
+            }
+            else {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/AlignmentManager/AddVariable/?ClientId=' + SelectedclientId
+            }
+
+            //baseurl = baseurl.replace("{clientid}", SelectedclientId);
+
+            //var varLblId = "&" + sURLVariables[1];
+
+            //window.location = baseurl + varLblId;
+
+            window.location = baseurl;
+
+            return false;
+
+
+            //var SelectedclientId = $('#ClientId :selected').val();
+            //var strUrl = window.Location.constructor("http://" + window.location.host + "/"+ window.location.pathname.split("/")[1]+    "/AlignmentManager/AlignmentManager/AddVariable/?ClientId=" + SelectedclientId);
+            //window.location = strUrl;
+
+        });
+
+    });
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode != 44 && charCode > 31
+          && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+
+    $('select#ClientId').change(function () {
+        var SelectedclientId = $('#ClientId :selected').val();
+
+        if (SelectedclientId != 0) {
+            var href = window.location.href.split('/');
+            //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+            var baseurl = '';
+
+            if (href[3].toLowerCase() == 'alignmentmanager')
+            {
+                var baseurl = href[0] + '//' + href[2] + '/' + 'AlignmentManager/HeatMapSetup/DisplayClientHeatMaps/?ClientId={clientid}&cid={Client}'
+            }
+            else
+            {
+                var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'AlignmentManager/HeatMapSetup/DisplayClientHeatMaps/?ClientId={clientid}&cid={Client}'
+            }
+
+            baseurl = baseurl.replace("{clientid}", SelectedclientId);
+            baseurl = baseurl.replace("{Client}", SelectedclientId);
+            window.location = baseurl;
+        }
+
+    });
+
+
+
+</script>
+
+

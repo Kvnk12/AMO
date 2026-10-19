@@ -1,0 +1,260 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.DemandManager.Controllers
+@using WebUI.Areas.DemandManager.Dto;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@model IPagedList<DemandModel>
+
+
+    @{ 
+       ViewBag.Title = "Demand Manager";
+        ViewBag.ImagePathOne = Url.Content("~/Content/images/demand_manager_white.png");
+        // Layout = "~/Views/Shared/_AppLayout.cshtml";
+        Layout = "~/Views/Shared//GenericLayOut.cshtml";
+        ////var varstyle = "";
+        ////if (Model.Count < 7)
+        ////{
+        ////     varstyle = " style = 'height:800px;'";
+        ////}
+      }
+    @using (Html.BeginForm("ApproveDemands", "DemandApproval", FormMethod.Post))
+    {
+
+
+<div class="content-main dark-bg idea-approval-container">
+    <div>
+        <ol class="breadcrumb">
+            <li>Demand Manager</li>
+            <li class="active">Approve Demands</li>
+        </ol>
+    </div>
+    <div class="idea-approval-main">
+        <h4>Demand Approval</h4>
+        <div class="alert-container">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                @Html.ValidationSummary(false, "", new { @class = "alert alert-danger" })
+            }
+            @if (TempData["ValidationSuccessMsg"] != null)
+            {
+                <p class="alert alert-success"><strong>Success:</strong>@Html.Raw(@TempData["ValidationSuccessMsg"].ToString())</p>
+            }
+        </div>
+        <div class="idea-approval-buttons">
+            <button class="btn submit-idea-btn" type="submit" name="btnSubmit" id="btnSubmit" value="Submit">Submit for Approval</button>
+            <button class="btn approve-idea-btn" type="submit" name="btnSubmit" id="btnApprove" value="Approve">Approve</button>
+            <button class="btn decline-idea-btn" type="submit" name="btnSubmit" id="btnDecline" value="Decline">Decline</button>
+            <button class="btn cancel-idea-btn" type="submit" name="btnSubmit" id="btnCancel" value="Close">Cancel</button>
+            <button class="btn hold-idea-btn" type="submit" name="btnSubmit" id="btnHold" value="Hold">Hold</button>
+            <button class="btn revise-idea-btn" type="submit" name="btnSubmit" id="btnRevise" value="Revise">Revise</button>
+            <button type="submit" class="btn return" onclick="location.href='@Url.Action("Index","ViewDemand")';return false;">Return to View Demand</button>
+        </div>
+    </div>
+    <div class="idea-approval-grid-container">
+        <div class="custom-html-grid">
+            <table cellpadding="0">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width:1%;">Select</th>
+                        <th scope="col" width="3%">
+                            <u> @Html.ActionLink("Demand#", "Index", new { sortOrder = ViewBag.Demandsnumber }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="12%">
+                            <u> @Html.ActionLink("Demand", "Index", new { sortOrder = ViewBag.Demands }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="5%">
+                            <u> @Html.ActionLink("Status", "Index", new { sortOrder = ViewBag.Status }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="11%">
+                            <u> @Html.ActionLink("Created By", "Index", new { sortOrder = ViewBag.Createdby }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="5%">
+                            <u>  @Html.ActionLink("Demand Type", "Index", new { sortOrder = ViewBag.Demandtype }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="5%">
+                            <u>  @Html.ActionLink("Demand Source", "Index", new { sortOrder = ViewBag.Demandsource }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="3%">
+                            <u>  @Html.ActionLink("Internal Initiative", "Index", new { sortOrder = ViewBag.InternalInitiative }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="5%">
+                            <u>  @Html.ActionLink("Team", "Index", new { sortOrder = ViewBag.Team }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        <th scope="col" width="5%">
+                            <u>  @Html.ActionLink("Workstream", "Index", new { sortOrder = ViewBag.LOB }, new { @style = "color:#fff;" })</u>
+                        </th>
+                        @*<th scope="col" width="10%">
+                                <u>   @Html.ActionLink("Config Item", "Index", new { sortOrder = ViewBag.configitem }, new { @style = "color:Black;" })</u>
+                            </th>*@
+                        <th scope="col" style="color:#fff;" width="12%;">Approvers</th>
+                        <th scope="col" style="color:#fff;" width="10%;">Priority</th>
+                        <th scope="col" style="color:#fff;" width="25%;">Approval-Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+
+                        for (int i = 0; i < Model.Count; i++)
+                        {
+                            var commentId = "Comment" + "-" + Model[i].DemandId.ToString();
+                            var checkId = "Check" + "-" + Model[i].DemandId.ToString();
+                            if (Model[i].ApprovedDate != null)
+                            {
+                                <tr style="background-color:#909090;" data-toggle="tooltip" data-placement="auto" title="You have already taken action on this Demand!">
+                                    <td>
+                                        <div> @Html.HiddenFor(model => Model[i].ClientId) </div>
+                                        <div> @Html.HiddenFor(model => Model[i].StatusId) </div>
+                                        <div>
+                                            @Html.HiddenFor(model => Model[i].DemandId)
+                                        </div>
+                                        <div>
+                                        </div>
+                                        @Html.CheckBoxFor(m => Model[i].IsChecked, new { @class = "", tabindex = "", id = checkId })
+                                    </td>
+                                    <td>
+                                        @Model[i].Demandsnumber
+                                        @Html.HiddenFor(model => Model[i].Demandsnumber)
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink(Model[i].DemandName, "Index", "PostDemand", new { DemandId = Model[i].DemandId }, null)
+                                        @Html.HiddenFor(model => Model[i].DemandName)
+                                    </td>
+                                    <td>
+                                        @{
+                                            var tempStr = "Pending for Approval";
+                                            if (Model[i].StatusId == (int)DMStatus.SubmitForReview && Model[i].ApprovedDate != null)
+                                            {
+                                                @tempStr
+                                            }
+                                            else
+                                            {
+                                                @Model[i].Status
+                                            }
+                                        }
+                                        @Html.HiddenFor(model => Model[i].Status)
+                                        @Html.HiddenFor(model => Model[i].StatusId)
+                                    </td>
+                                    <td>
+                                        @Model[i].CreatedByUser
+                                        @Html.HiddenFor(model => Model[i].CreatedByUser)
+                                    </td>
+                                    <td>
+                                        @Model[i].DemandType
+                                        @Html.HiddenFor(model => Model[i].DemandType)
+                                    </td>
+                                    <td>
+                                        @Model[i].DemandSource
+                                        @Html.HiddenFor(model => Model[i].DemandSource)
+                                    </td>
+                                    <td>@Html.CheckBoxFor(m => Model[i].IsInternalInitiative, new { @class = "", tabindex = "", disabled = "disabled" })</td>
+                                    <td>@Model[i].Team</td>
+                                    <td>
+                                        @Model[i].LOB
+                                        @Html.HiddenFor(model => Model[i].LOB)
+                                    </td>
+                                    @*<td>
+                                            @Model[i].ConfigItemName
+                                            @Html.HiddenFor(model => model[i].ConfigItemName)
+                                        </td>*@
+                                    <td>
+                                        @Html.ListBoxFor(model => Model[i].SelectedApproverIds, new MultiSelectList((List<SelectListItem>)ViewData["Approvers"], "value", "text", Model[i].SelectedApproverIds), new { @class = "selectpicker" })
+                                        @*@Html.HiddenFor(m=> m[i].SelectedApproverIds)*@
+                                    </td>
+                                    <td>
+                                        @Html.DropDownListFor(model => Model[i].PriorityId, new SelectList(new List<SelectListItem>
+                                                        {
+                                        new SelectListItem{ Text="Select", Value = "0" },
+                                        new SelectListItem{ Text="1", Value = "1" },
+                                        new SelectListItem{ Text="2", Value = "2" },
+                                        new SelectListItem{ Text="3", Value = "3" },
+                                        new SelectListItem{ Text="4", Value = "4" },
+                                        new SelectListItem{ Text="5", Value = "5" }
+                                        }, "value", "text", Model[i].PriorityId), new { @class = "selectpicker", @style = "width:120px;", })
+                                    </td>
+                                    <td>@Html.TextAreaFor(m => Model[i].StatusComments, new { @class = "form-control", @style = "width:190px;", id = commentId })</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                        <div> @Html.HiddenFor(model => Model[i].ClientId) </div>
+                                        <div> @Html.HiddenFor(model => Model[i].StatusId)</div>
+                                        <div>
+                                            @Html.HiddenFor(model => Model[i].DemandId)
+                                        </div>
+                                        <div>
+                                        </div>
+                                        @Html.CheckBoxFor(m => Model[i].IsChecked, new { @class = "", tabindex = "", id = checkId })
+                                    </td>
+                                    <td>
+                                        @Model[i].Demandsnumber
+                                        @Html.HiddenFor(model => Model[i].Demandsnumber)
+                                    </td>
+                                    <td>
+                                        @Html.ActionLink(Model[i].DemandName, "Index", "PostDemand", new { DemandId = Model[i].DemandId }, null)
+                                        @Html.HiddenFor(model => Model[i].DemandName)
+                                    </td>
+                                    <td>
+                                        @Model[i].Status
+                                        @Html.HiddenFor(model => Model[i].Status)
+                                        @Html.HiddenFor(model => Model[i].StatusId)
+                                    </td>
+                                    <td>
+                                        @Model[i].CreatedByUser
+                                        @Html.HiddenFor(model => Model[i].CreatedByUser)
+                                    </td>
+                                    <td>
+                                        @Model[i].DemandType
+                                        @Html.HiddenFor(model => Model[i].DemandType)
+                                    </td>
+                                    <td>
+                                        @Model[i].DemandSource
+                                        @Html.HiddenFor(model => Model[i].DemandSource)
+                                    </td>
+                                    <td>@Html.CheckBoxFor(m => Model[i].IsInternalInitiative, new { @class = "", tabindex = "", disabled = "disabled" })</td>
+                                    <td>@Model[i].Team</td>
+                                    <td>
+                                        @Model[i].LOB
+                                        @Html.HiddenFor(model => Model[i].LOB)
+                                    </td>
+                                    @*<td>
+                                            @Model[i].ConfigItemName
+                                            @Html.HiddenFor(model => model[i].ConfigItemName)
+                                        </td>*@
+                                    <td>
+                                        @Html.ListBoxFor(model => Model[i].SelectedApproverIds, new MultiSelectList((List<SelectListItem>)ViewData["Approvers"], "value", "text", Model[i].SelectedApproverIds), new { @class = "selectpicker" })
+                                        @*@Html.HiddenFor(m=> m[i].SelectedApproverIds)*@
+                                    </td>
+                                    <td>
+                                        @Html.DropDownListFor(model => Model[i].PriorityId, new SelectList(new List<SelectListItem>
+                                                        {
+                                            new SelectListItem{ Text="Select", Value = "0" },
+                                            new SelectListItem{ Text="1", Value = "1" },
+                                            new SelectListItem{ Text="2", Value = "2" },
+                                            new SelectListItem{ Text="3", Value = "3" },
+                                            new SelectListItem{ Text="4", Value = "4" },
+                                            new SelectListItem{ Text="5", Value = "5" }
+                                        }, "value", "text", Model[i].PriorityId), new { @class = "selectpicker" })
+                                    </td>
+                                    <td>@Html.TextAreaFor(m => Model[i].StatusComments, new { @class = "form-control", @style = "width:190px;", id = commentId })</td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>}
+
+    <script>
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+    </script>

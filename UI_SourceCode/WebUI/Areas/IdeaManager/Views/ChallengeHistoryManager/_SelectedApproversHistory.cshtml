@@ -1,0 +1,54 @@
+﻿
+@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using WebUI.Areas.IdeaManager.Dto
+@*@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput*@
+
+@model IMPostChallengeInput
+
+<div id="ApproversList" style="width:100%;margin:auto"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var ItemId = "@Model.Id";
+        var href = window.location.href.split('/');
+
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+
+        var baseurl = '';
+        if (ItemId != null) {
+
+            $('#ApproversList').jtable({
+                title: 'Approvers List',
+                actions: {
+                    listAction: "@Url.Action("GetApproversList")" + "?ChallengeId=" + ItemId
+                },
+
+                fields: {
+                    Name: {
+                        title: 'Approver Name',
+                        width: '50%'
+                    },
+
+                    ApprovedDate: {
+                        title: 'Approved Date',
+                        width:'50%'
+                    }
+
+                }
+
+            });
+
+            $('#ApproversList').jtable('load');
+
+
+
+        }
+
+    });
+
+</script>
+

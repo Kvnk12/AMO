@@ -1,0 +1,50 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IdeaManager.Controllers;
+@using WebUI.Areas.IdeaManager.Dto;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model NTTData.AMOPortal.WebUI.Dto.IMPostChallengeInput
+<style>
+
+     .k-grid-header th.k-header{
+        font-weight: bold;
+        font-size: 15px;
+    }
+</style>
+        <div>
+
+            @(Html.Kendo().Grid<MetricTargetModel>()
+                         .Name("MetricTarget")
+                         .Columns(columns =>
+                         {
+                             //columns.Bound(e => e.Id).Hidden();
+                             //columns.Bound(e => e.ItemId).Hidden();
+                             columns.Bound(e => e.MetricTarget).Title("Metrics");
+                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                         })
+                      //.Events(e =>
+                      //{
+                      //    e.Edit("grid_edit");
+                      //    e.Save("grid_edit");
+                      //  })
+                      .Sortable()
+                      .Scrollable()
+                      .Pageable()
+                      .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add New Metric Target"))
+                      //.HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .PageSize(10)
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetMetricTarget", "ChallengeManager").Data("aaa"))
+                      .Create(create => create.Action("AddMetricTarget", "ChallengeManager").Data("aaa"))
+                      .Update(update => update.Action("EditMetricTarget", "ChallengeManager"))
+                      .Destroy(destroy => destroy.Action("DeleteMetricTarget", "ChallengeManager"))
+
+                          )
+
+            )
+        </div>

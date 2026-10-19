@@ -1,0 +1,46 @@
+﻿@model NTTData.AMOPortal.WebUI.Dto.DemandClassAndCategoryInput 
+<div class="col-xs-6 col-sm-4 accountCont">
+    <div class="accContracthdr">
+        <div class="left">
+            Category<br>
+            <span>@(Model.Classification)</span>
+        </div>
+
+        <div class="right">
+            <button class="btn btn-primary" tabindex="1500" type="button" id="btnAddCategory">Add</button>
+        </div>
+    </div>
+    <form>
+    <input hidden id="clientId" value="@Model.ClientId.ToString()"  />
+     <input hidden id="ClassId" value="@Model.ClassifiationId.ToString()"   />
+     <input hidden id="ClassificationName" value="@Model.Classification.ToString()"   />
+
+        
+     </form>
+    <div class="cptblacc">
+        <table width="100%" border="1" cellspacing="10" cellpadding="10" class="table table-striped ">
+            <tr>
+                <th width="100%" scope="col">Category Name</th>
+                @*<th width="30%" scope="col">Status</th>*@
+            </tr>
+            
+
+            @{ 
+                if (Model.ClassifiationId > 0)
+                    {
+                    foreach (var item in Model.GetCategory)
+                    {  
+                    <tr>
+@*                    <td>@Html.ActionLink(@item.Category,"DisplayClientAccountContracts",new {CatId=item.Id})</td>*@
+                        <td>@Html.ActionLink(@item.Category,"DisplayClassAndCategory","ClassificationAndCategoryGrid", new {CatId=item.Id, ClassId=Model.ClassifiationId}, null)</td>   
+                        @*<td><a href="#" id="showaccdetail">@item.ContractStatus</a></td>*@
+                    @*<td><a href="@Html.DisplayName(item.Id.ToString())" id="showaccdetail">@Html.DisplayName(item.Id)Active</a></td>*@
+
+                    @*<td>@Html.DisplayName(item.Id.ToString())</td></div>*@
+                    </tr>
+                    }
+            }
+            }
+        </table>
+    </div>
+</div>

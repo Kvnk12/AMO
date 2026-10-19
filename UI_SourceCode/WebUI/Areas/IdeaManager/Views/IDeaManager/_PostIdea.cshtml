@@ -1,0 +1,523 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Dto
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+
+
+   // var Client = (Client)Session["Client"];
+    var Client = (ClientDetail)Session["SessionClient"];
+    var ClientID = Client.ClientId;
+    var v = new APRAjaxServiceController();
+    var ApplicationList = v.ApplicationList(ClientID);
+
+}
+<style>
+
+    .bootstrap-select > .btn
+    {
+        width: 97%;
+    }
+     .jHtmlArea, .ToolBar{
+        width: 806px !important;
+    }
+
+</style>
+@using (Html.BeginForm("SavePostIdea", "IdeaManager", new { ClientId = Model.ClientId}, FormMethod.Post))
+    {
+      
+      <div style="min-height:700px">
+              @*<div class="well well-sm"><strong>Heatmap Builder : Threshold</strong></div>*@
+         
+              @if (!ViewData.ModelState.IsValid && !ViewData.ModelState.ContainsKey("Success"))
+                {
+                  @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container", id="danger" })
+              }
+
+              @if (ViewData.ModelState.ContainsKey("Success"))
+              {
+                  @Html.ValidationSummary(false, "", new { @class = "alert alert-success container", id="success" })
+              }
+              else
+              {
+                  //@Html.ValidationSummary(false,"", new { @class = "alert alert-danger container" })
+              }
+                
+                         
+          <div class="ideaManagerContent">
+                <h4>Post Idea</h4>
+
+         <!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist" id="ideatab">
+  <li class="active"><a href="#home" role="tab" data-toggle="tab">Home</a></li>
+  <li><a href="#classification" role="tab" data-toggle="tab">Classification</a></li>
+  <li><a href="#benefits" role="tab" data-toggle="tab">Business Benefits</a></li>
+  <li><a href="#itsavings" role="tab" data-toggle="tab">IT Savings</a></li>
+  <li><a href="#divcomments" role="tab" data-toggle="tab">Comments</a></li>
+    <li><a href="#divlistapprovers" role="tab" data-toggle="tab">Select Approver(s)</a></li>
+        @if(Model.Id >0)
+        {
+
+@*<li><a href="#divprioirtyhistory" role="tab" data-toggle="tab">Priority & Status Update</a></li>*@
+            }
+</ul>   
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="home">
+      
+          @Html.Hidden("ItemId", @Model.Id)
+      <div class="leftarea form-horizontal">
+          <div class="form-group">
+              <label id="lblChallengeName" class="col-sm-5 control-label" for="accname"><span class="mandate">*</span>Idea Name</label>
+              <div class="col-sm-5">
+                  @Html.TextBoxFor(m => m.PostIdeaInput.ItemName, new { @class = "form-control", placeholder = "", tabindex = "1", id = "txtchallange" })<label id="alertt" hidden><span class="mandate" style="font-size:small">This field is required!</span></label>
+              </div>
+          </div>
+          <div class="form-group">
+              <label class="col-sm-5 control-label" for="qtfyIdea">@*<span class="mandate">*</span>*@Value (Quantify in $)</label>
+              <div class="col-sm-5">
+                  <i style="display: inline-block; margin-left: -12px;">$</i>
+                  @Html.TextBoxFor(m => m.PostIdeaInput.QtyFication, new { @class = "form-control", placeholder = "", tabindex = "2", id = "txtqtfyidea", @*onkeypress = "return isNumberKey(this)",*@ maxlength = "5", style = "text-align:right;display:inline-block" })@*<label id="alertt1" hidden><span class="mandate" style="font-size:small">This entry can only contain numbers!</span></label>*@
+                  @*<input type="text"  value="@Model.PostIdeaInput.QtyFication.ToString()" class = "form-control" style="width:150px;margin-left:27%"  tabindex="2", id="txtqtfyidea" name="txtqtfyidea" onkeypress = "return isNumberKey(this)" maxlength="5"  />*@
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="IdeaType" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Idea Type</label>
+              <div class="col-sm-5">
+                  @Html.DropDownListFor(m => m.PostIdeaInput.IdeaTypeId, new SelectList(Model.IMIdeaTypes, "value", "text", Model.IMIdeaTypes), "", new { @class = "selectpicker", id = "IdeaType", name = "IdeaType", required = "required" })
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="IdeaType" class="col-sm-5 control-label" id=""><span class="mandate">*</span>Idea Source</label>
+              <div class="col-sm-5">
+                  @Html.DropDownListFor(m => m.PostIdeaInput.IdeaSourceId, new SelectList(Model.IMIdeaSources, "value", "text", Model.IMIdeaSources), "", new { @class = "selectpicker", id = "IdeaType", name = "IdeaType", required = "required" })
+              </div>
+          </div>
+          <div>
+              @Html.HiddenFor(m => m.PostIdeaInput.CreatedBy)
+              @Html.HiddenFor(m => m.PostIdeaInput.StatusId)
+          </div>
+
+          <div class="form-group">
+              <label for="IdeaType" class="col-sm-5 control-label" id=""><span class="mandate">*</span>LOB/Department</label>
+              <div class="col-sm-5">
+                  @Html.DropDownListFor(m => m.PostIdeaInput.LOBId, new SelectList(Model.IMLOBSourceList, "value", "text", Model.IMLOBSourceList), "", new { @class = "selectpicker", id = "IdeaType", name = "IdeaType", required = "required" })
+              </div>
+          </div>
+
+
+
+          <div class="form-group" style="display: inline-block;">
+              <label for="desc" class="col-sm-3 control-label" style="padding: 19px;">Description</label>
+              <div class="col-sm-9">
+                  @Html.TextAreaFor(m => m.PostIdeaInput.Description, new { @class = "", rows = "10", style = "width:750px;height:250px", placeholder = "Description", tabindex = "3", id = "txtdescription" })
+
+              </div>
+          </div>
+          <div id="action">
+              @if (Model.Id == 0)
+              {
+                  <button class="btn btn-primary" id="btnSave" name="command" value="saveidea" style="margin-left: 40%">Post Idea</button>
+              }
+              else
+              {
+                  <button class="btn btn-primary" id="btnSave" name="command" value="saveidea" style="margin-left: 40%">Save</button>
+              }
+
+              <button class="btn btn-default" id="cancelidea">Cancel</button>
+              @*<button class="btn btn-primary" id="homepage">Home</button>*@
+          </div>
+      </div>
+
+
+
+
+
+          <div class="rightarea form-horizontal">
+              <div class="form-group">
+                  <label class="col-sm-5 control-label">Complexity</label>
+                  <div class="col-sm-5">
+                      @*@Html.DropDownListFor(m => m.PostIdeaInput.Complexity, new SelectList(Model.PostIdeaInput.Complexity , "value", "text", Model.PostIdeaInput.Complexity), "", new { @class = "selectpicker", id = "complexity", name = "complexity"})*@
+                      @Html.DropDownListFor(m => m.PostIdeaInput.Complexity, new List<SelectListItem>
+                                         {
+                                             new SelectListItem{ Text="Low", Value = "low" },
+                                             new SelectListItem{ Text="Medium", Value = "medium" },
+                                             new SelectListItem{ Text="High", Value = "high" }                                            
+                                         }, new { @class = "selectpicker", @style = "width:100px;" })
+                   
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-5 control-label">Risk</label>
+                  <div class="col-sm-5">
+                      @Html.TextBoxFor(m => m.PostIdeaInput.Risk, new { @class = "form-control", placeholder = "", tabindex = "1",style = "text-align:left;" })
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-5 control-label">Risk Mitigation</label>
+                  <div class="col-sm-5">
+                      @Html.TextBoxFor(m => m.PostIdeaInput.RiskMitigation, new { @class = "form-control", placeholder = "", tabindex = "1", style = "text-align:left;" })
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label class="col-sm-5 control-label">Internal Initiative?</label>
+                  <div class="col-sm-5">
+                      @Html.CheckBoxFor(m => m.PostIdeaInput.InternalInitiative, new { @class = "form-control", @style = "width:50px;", tabindex = "", id = "chkSLA" })
+                  </div>
+              </div>
+                <div class="form-group">
+                  <label class="col-sm-5 control-label">Configuration Item</label>
+                  <div class="col-sm-5">
+                      @*@(Html.Kendo().DropDownListFor(m => m.PostIdeaInput.ConfigItem)
+                          .Name("ConfigItem")
+                          .DataTextField("Text")
+                          .OptionLabel("Select Item")
+                          .DataValueField("Value")
+                          .BindTo(ApplicationList)
+                          //.AutoBind(true)
+                        )*@
+                      @Html.DropDownListFor(m => m.PostIdeaInput.ConfigItem, new SelectList(ApplicationList, "value", "text", ApplicationList), "", new { @class = "selectpicker" })
+                  </div>
+              </div>
+
+          </div>
+
+          
+          <!--/.form-horizontal-->
+          @*  *@
+
+      </div>
+
+  <div class="tab-pane" id="classification">
+      @Html.Partial("_AssignItemCategory", Model)
+  </div>
+  <div class="tab-pane" id="benefits">@Html.Partial("_BusinessBenefits", Model)</div>
+  <div class="tab-pane" id="itsavings">@Html.Partial("_ITBenefits", Model)
+  </div>
+  <div class="tab-pane" id="divcomments">@Html.Partial("_ItemComments", Model)</div>
+    <div class="tab-pane" id="divlistapprovers">@Html.Partial("_IdeaApprover1", Model)</div>
+    @if (Model.Id > 0)
+    {
+
+  <div class="tab-pane" id="divprioirtyhistory">@Html.Partial("_PriorityHistory", Model)</div>
+    }
+    
+</div>
+                    
+
+                
+                <!--/.leftarea-->
+                
+                
+
+
+                <!--/.rightarea-->
+              
+              </div>
+                
+         </div>
+    
+                  
+    }
+     
+
+<script>
+
+  
+    
+    
+    $(document).ready(function () {
+
+        //For Tab Activation  On 10th Dec 2014
+        var tabName = "@Model.TabName";
+        if (tabName == "classification") {
+            $('#ideatab li:eq(1) a').tab('show');
+        }
+
+        ////
+
+        //$(function () {
+
+        //    $("#accordion").accordion({
+
+        //        collapsible: true
+
+        //    });
+
+        //});
+
+
+
+
+        //$('#txtdescription').htmlarea();
+
+        $('#txtdescription').htmlarea({
+            toolbar: [
+                    ["bold", "italic", "underline", "strikethrough", "p"],
+                    ["h1", "h2", "h3", "h4", "h5", "h6"],
+                    ["orderedList", "unorderedList"],
+                    ["superscript", "subscript", "indent", "outdent"],
+                    ["Justifyleft", "justifycenter", "justifyright", "Increasefontsize", "decreasefontsize", "Forecolor", "horizontalrule"],
+                    ["cut", "copy", "paste"],
+            ]
+        });
+
+
+        @*        var blndataSetNameExists = false;
+
+        $('#btnAdd').click(function () {
+
+
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager")
+            {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DisplayViewDataSet/?ClientId=@Model.ClientId&RegDataSetCreate=Add");
+
+            window.location = strUrl;
+            return false;
+
+           });*@
+
+
+        @*        $('#cancelregDataSetMap').click(function () {
+            var confirm = window.confirm('Do you want cancel the changes?');
+            if (confirm) {
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+        });*@
+
+
+        @*        $('#btnDelete').click(function () {
+
+            var RegDataSetid = $('#RegDataSetid')[0].value;
+
+            var DataSetName = $('#txtDataSetName')[0].value;
+
+            if (RegDataSetid == 0)
+            { return false; }
+            var confirm = window.confirm('Do you want delete this data Set: '+DataSetName+'?');
+            if (confirm) {
+
+
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSetAddEdit/DeleteDatSetName/?ClientId=@Model.ClientId");
+                strUrl  += "&RegDataSetId=" + RegDataSetid;
+
+                window.location = strUrl;
+                return false;
+            }
+            else { return false; }
+
+           });*@
+
+
+      
+        if(!$("#home").hasClass('active')) {
+                $('#success').hide();        
+           }
+
+    });
+
+  @*  $('#btnBack').click(function () {
+
+            var localToServer = "/";
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+
+            if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "alignmentmanager") {
+                localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+            }
+
+            var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "AlignmentManager/DataSet/DisplayHomePage/?ClientId=@Model.ClientId");
+
+                window.location = strUrl;
+                return false;
+
+     });*@
+
+
+    //function isNumberKey(evt) {
+    //    var charCode = (evt.which) ? evt.which : event.keyCode;
+
+
+    //    //if (charCode != 46 && charCode > 31
+    //    //&& (charCode < 48 || charCode > 57))
+    //    //    return false;
+
+    //    if ((charCode < 48 || charCode > 57))
+    //        if (charCode != 46 && charCode != 44 && charCode > 31
+    //          && (charCode < 48 || charCode > 57))
+    //            return false;
+
+    //    return true;
+    //}
+
+
+    $('#btnSave').click(function () {
+
+        //var SelectedclientId = $('#ClientId :selected').val();
+
+        var SelectedclientId = @ClientID;
+        $('#alertt').hide();
+        $('#alertt1').hide();
+
+        //if (SelectedclientId == "" || SelectedclientId == "0") {
+        //    alert('Please Select Client name from the list');
+        //    return false;
+        //}
+
+        if ($('#txtchallange').val() == "") {
+            //alert('Please enter name');
+            $('#txtchallange').focus();
+            $('#alertt').show();
+            return false;
+        }
+        //else if($('#txtqtfyidea').val()=="")
+        //{
+        //    //$('#alertt1').append(document.createTextNode("This field is required!"));
+        //    $('#alertt1').show();
+        //    $('#txtqtfyidea').focus();
+        //    return false;
+        //}
+
+        //else if(isNaN($('#txtqtfyidea').val().trim())==true)
+        //{
+        //    //$('#alertt1').append(document.createTextNode("This entry can only contain numbers!"));
+        //    $('#alertt1').show();
+        //    $('#txtqtfyidea').focus();
+        //    return false;
+        //}
+        else {
+
+            var itemName = $('#txtchallange').val();
+            var itemId = $('#ItemId')[0].value;
+
+            ItemNameExists(itemName, itemId);
+            if (blnItemNameExists) {
+                alert('Idea name already exists, please change');
+                $('#txtchallange').focus();
+                return false;
+
+            }
+        }
+
+
+
+
+    });
+
+
+    function ItemNameExists(ItemName, ItemId) {
+
+
+        var href = window.location.href.split('/');
+        //var baseurl = href[0] + '//' + href[2] + '/' + href[3] + '/';
+        var baseurl = '';
+
+
+
+        if (href[3].toLowerCase() == 'ideamanager') {
+            var baseurl = href[0] + '//' + href[2] + '/' + 'IdeaManager/IdeaManager/CheckItemName';
+        }
+        else {
+            var baseurl = href[0] + '//' + href[2] + '/' + (href[3] == "" ? "" : href[3] + '/') + 'IdeaManager/IdeaManager/CheckItemName';
+        }
+        //var localToServer = "/";
+        //var sPageURL = window.location.search.substring(1);
+        //var sURLVariables = sPageURL.split('&');
+
+        //if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+        //    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+        //}
+
+        //var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "IdeaManager/IdeaManager/CheckItemName");
+
+        {
+            $.ajax({
+                url: baseurl,
+                type: 'POST',
+                data: { ItemName: ItemName, ItemId: ItemId },
+                success: checkItemSuccess,
+                failure: errorItem,
+                async: false
+
+            })
+        }
+
+    }
+
+    function checkItemSuccess(status) {
+
+        blnItemNameExists = status;
+    }
+
+    function errorItem() {
+        alert('An error occurred. Please contact administrator');
+    }
+
+
+
+
+    $('.tab-pane a').click(function (e) {
+        $("#success").hide();
+        $("#danger").hide();
+
+    })
+
+
+    //$(document).click(function (e) {
+    //    setTimeOut(function() {
+    //        $("#success").hide()
+    //    }, 5000);
+    //});
+
+        
+    //setTimeOut(function() {
+    //    $("#success").hide()
+    //}, 5000);
+
+
+</script>
+         

@@ -1,0 +1,83 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+@{
+    ViewBag.Title = "Retirement Candidate";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/framework_builder_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+   // Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+</style>
+
+<div class="content-main dark-bg">
+
+    <div style="margin:8px 8px 8px 8px; min-height:800px;">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li><a href="#" style="color:#fff ;">Framework Builder</a></li>
+                <li><a href="#"  style="color:#fff ;">Data Collection</a></li>
+                <li class="active">Retirement Candidate</li>
+            </ol>
+        </div>
+        <br />
+        <div style="margin:10px;">
+
+            <h5 style="text-align: center; color: #fff">Retirement Candidate</h5>
+
+            <div style="margin:10px; padding:5px; padding-top:0px;">
+                <div class="custom-kendo-grid apr-grid-toolbar">
+                    @(Html.Kendo().Grid<RetirementApplicationModel>()
+                .Name("WorkProductGrid")
+                .Columns(column =>
+                {
+                    column.Bound(e => e.Id).Hidden();
+                    column.Bound(e => e.ApplicationName);
+                   // column.Bound(e => e.BusinessOwner);
+                    //column.Bound(e => e.TechnicalOwner);
+                    column.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                })
+                .Sortable()
+                .Scrollable()
+                 .Editable(editable => editable.Mode(GridEditMode.InLine).DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                      .ToolBar(toolbar => toolbar.Create().Text("Add Retired Application"))
+                      .HtmlAttributes(new { style = "height:550px;" })
+                      .DataSource(dataSource => dataSource
+                      .Ajax()
+                      .Model(model => model.Id(f => f.Id))
+                      .Read(read => read.Action("GetRetirementCanditate", "MetaData"))
+                      .Create(create => create.Action("AddRetirementCandidate", "MetaData"))
+                      .Update(update => update.Action("EditRetirementCandidate", "MetaData"))
+                      .Destroy(destroy => destroy.Action("DeleteRetirementCanditate", "MetaData"))
+
+                          ))
+                    </div>
+                </div>
+
+
+
+            </div>
+    </div>
+</div>

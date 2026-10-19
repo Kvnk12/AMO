@@ -1,0 +1,317 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.PortfolioAnalyzer.Controllers;
+@using WebUI.Areas.PortfolioAnalyzer.Dto;
+@using WebUI.Areas.PortfolioAnalyzer.Models;
+@using WebUI.Areas.PortfolioAnalyzer;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions
+@using WebUI.Dto;
+@model Application
+
+@{
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    ViewBag.Title = "Portfolio Analyzer";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/portfolio_analyzer_white.svg");
+    //ViewBag.ImagePathOne = Url.Content("~/Content/images/pplogo.png");
+    //Layout = "~/Areas/IncidentNavigator/Views/Shared/_INLayout.cshtml";
+
+    Layout = "~/Views/Shared//GenericLayout.cshtml";
+  // Layout = "~/Views/Shared//GenericLayOut.cshtml";
+
+}
+@{
+    //var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var v = new APRAjaxServiceController();
+    var LOBlist = v.PortfolioList(client.ClientId);
+    //var client = (Client)Session["Client"];
+    //var v = new APRAjaxServiceController();
+    //var ApplicationList = v.ApplicationList(client.Id);
+
+}
+
+<style>
+    .export-img{
+        color:#fff;
+        border:none;
+        background-color:rgb(91,121,171);
+        display:block;
+        margin-left:auto;
+        margin-bottom:1em;
+    }
+/*    .k-grid td {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .k-grid-header th.k-header > .k-link {
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .k-grid {
+    width: 400px;
+}*/
+    .content-main-view {
+        background-color:white;
+        margin-top:4px;
+      
+        
+    }
+    .custom-combobox {
+        margin-left: -65px;
+       display: inline-block;
+    }
+    .export-img k-button {
+        position: fixed;
+        top: 0px;
+        margin-top: 40px;
+        z-index: 9999;
+    }
+</style>
+
+@*<div style="height:1000px; padding-left:3px; padding-right:3px; padding-top:10px;">
+   
+    @(Html.Kendo().Grid<ClientHeatmapModel>()
+.Name("RatingGrid")
+//.Pageable()
+//.Events(e => e.DataBound("LineItems_Databound"))
+.Columns(column =>
+{
+    column.Bound(m => m.PerspectiveName);
+    //column.Bound(m => m.OriginalRating).Width(100).ClientTemplate("#= LineItems_Databound(OriginalRating)#").HtmlAttributes(new { @style = "text-align:right;" });
+    //column.Bound(m => m.FinalRating).Width(100).ClientTemplate("#= LineItems_Databound(FinalRating)#").HtmlAttributes(new { @style = "text-align:right;" });
+    //column.Bound(m => m.Comments).Width(100);
+
+})
+.HtmlAttributes(new { @style = "height:450px;" })
+//.TableHtmlAttributes(new { @style="padding-left:5px; padding-right:5px; width:430px; align:center;"})
+.Scrollable()
+//.Pageable()
+.DataSource(data => data
+.Ajax()
+//.PageSize(5)
+.Read(read => read.Action("AppClientHeatmap", "MultiTenantReporting")
+)
+)
+    )
+</div>*@
+<div class="content-main dark-bg">
+    <div>
+        <!--start of breadcrumb-->
+        <ol class="breadcrumb">
+            <li>Portfolio Analyzer</li>
+
+            <li class="active">Client Heatmap</li>
+        </ol>
+        <button class='export-img k-button'>Export as Image</button>
+    </div>
+    <div class="content-main-view">
+    <div style="padding:10px;">
+        
+        <table style="background-color:transparent">
+            <tr>
+                <td>
+                    <label class="custom-black-label">Portfolio:</label>
+                </td>
+                <td>
+                    <div class="custom-combobox">
+                        @(Html.Kendo().ComboBox()
+.Name("Portfolio")
+.Filter("contains")
+//.Placeholder("Select Config Item")
+.DataTextField("Text")
+.DataValueField("Value")
+.BindTo(LOBlist)
+
+.Enable(true)
+.AutoBind(true)
+    .Events(e =>
+    {
+        e.Change("onChangePortfolio");
+    })
+                        //.HtmlAttributes(new { style = "width:350px;" })
+                        )
+                    </div>
+                </td>
+                <td>
+                    <label class="custom-black-label">Application:</label> 
+                    
+                         
+                </td>
+                <td>
+                    <div class="custom-combobox">
+                        @(Html.Kendo().ComboBox()
+              .Name("Application")
+              //.HtmlAttributes(new { style = "width:350px;" })
+              //.Placeholder("Select Application...")
+              .DataTextField("Text")
+              .DataValueField("Value")
+              .Filter(FilterType.Contains)
+
+              .DataSource(source =>
+              {
+                  source.Read(read =>
+                  {
+                      read.Action("Cascading_Get_Applications", "APRAjaxService")
+                          .Data("filterApplications");
+                  })
+                  .ServerFiltering(true);
+              })
+               .Events(e =>
+               {
+                   e.Change("onChangeApp");
+               })
+               .SelectedIndex(0)
+              .Enable(false)
+              .AutoBind(false)
+              .CascadeFrom("Portfolio")
+                        )
+                    </div>
+                </td>
+            </tr>
+        </table>
+        
+    </div>
+    
+    @*// original code
+    <table style="background-color:transparent">
+        <tr>
+            <td>
+                <button class='export-img k-button'>Export as Image</button>
+            </td>
+        </tr>
+    </table>*@
+
+    <div class="custom-kendo-grid divHeatmap" style="padding:10px;">
+        @(Html.Kendo().Grid<ClientHeatmapModel>()
+                            .Name("ClientHeatMap")
+                            //.Excel(excel => excel
+                            //    .FileName("APRAppInventoryData")
+                            //    .Filterable(true)
+                            //    .ProxyURL(Url.Action("Excel_Export_Save", "Grid"))
+                            //)
+                            .Reorderable(r => r.Columns(true))
+                            .Resizable(r => r.Columns(true))
+                    //.Pageable()
+                    // .Scrollable()
+                    //.Sortable()
+                    //.Filterable()
+                    //.ToolBar(tools => tools.Excel())
+
+                    .Columns(col =>
+                    {
+                        col.Bound(c => c.PerspectiveName).Width(250);
+                        col.Bound(c => c.BBTRating).Width(100).ClientTemplate("#= LineItems_Databound(BBTRating)#");
+                        col.Bound(c => c.STRating).Width(100).ClientTemplate("#= LineItems_Databound(STRating)#");
+
+                    })
+            .HtmlAttributes(new { style = "height:258px" })
+            .DataSource(datasource => datasource
+                .Ajax()
+                .Read(read => read.Action("AppClientHeatmap", "MultiTenantReporting").Data("ParameterData"))
+            )
+            )
+    </div>
+</div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        var grid = $("#ClientHeatMap").data("kendoGrid");
+
+        grid.dataSource.read();
+    });
+
+    function ParameterData() {
+        //var Appdata = $("#AppName").val();
+        //var PId = PerspectiveTypeID
+        //var Sur = $("#appsurvey").data("kendoDropDownList");
+        //PerspectiveTypeID = 0;//Setting
+        var App = $("#Application").data("kendoComboBox")
+        return {
+            //SurveyId: Sur.value(),
+           
+            //AppId: Appdata
+            AppName: App.text(),
+
+            AppId: App.value()
+        }
+    }
+
+    function ConfigItemChange() {
+
+        updateDashboard();
+
+    }
+
+    function filterApplications() {
+        return {
+            Portfolio: $("#Portfolio").val(),
+           
+        };
+        var grid = $("#ClientHeatMap").data("kendoGrid");
+
+        grid.dataSource.read();
+    }
+
+
+    function onChangeApp() {
+      
+        var grid = $("#ClientHeatMap").data("kendoGrid");
+
+        grid.dataSource.read();
+    }
+
+    function onChangePortfolio() {
+
+        var grid = $("#ClientHeatMap").data("kendoGrid");
+
+        grid.dataSource.read();
+    }
+
+    function LineItems_Databound(x) {
+        var formatNum = parseFloat(x);
+        if (x < 3) {
+            return "<div style='background: red; color: red;'>" + formatNum + "</div>";
+        }
+        else if (x >= 3 && x < 4) {
+            return "<div style='background: yellow; color: yellow;'>" + formatNum + " </div>";
+        }
+        else if (x >= 4) {
+            return "<div style='background: green;  color: green;'>" + formatNum + " </div>";
+        }
+        else {
+            return formatNum;
+        }
+    }
+
+    $(".export-img").click(function () {
+        // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+        kendo.drawing.drawDOM($(".divHeatmap"))
+        .then(function (group) {
+            // Render the result as a PNG image
+            return kendo.drawing.exportImage(group);
+        })
+        .done(function (data) {
+            // Save the image file
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "Heatmap.png",
+                proxyURL: "@Url.Action("Pdf_Export_Save")"
+            });
+    });
+    });
+</script>

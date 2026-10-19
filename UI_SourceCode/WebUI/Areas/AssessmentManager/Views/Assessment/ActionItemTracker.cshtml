@@ -1,0 +1,774 @@
+﻿
+
+
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.AssessmentManager.Controllers;
+@using WebUI.Areas.AssessmentManager.Models;
+@using WebUI.Areas.AssessmentManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+
+@model ActionItemTrackerModel
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+
+@{
+    ViewBag.Title = "CES-A3MM";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Assessment_manager_white.svg");
+    <link href="~/Content/css/custom-styles.css" rel="stylesheet">
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+}
+
+
+<style>
+    .k-state-active .k-icon:before {
+        background-color: #fff !important;
+        color: #000 !important;
+        margin: 2px !important;
+    }
+
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+
+    td {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .custom-kendo-grid .k-widget.k-grid .k-toolbar.k-grid-toolbar .k-button.k-grid-excel {
+        padding-right: 2.3em;
+    }
+
+    #saveAlertModal .alert {
+        width: 30em;
+        height: 2.5em !important;
+        padding: unset;
+        display: flex;
+    }
+    #ActionItemTrackerGrid .k-icon.k-i-filter:before, #ActionItemLogGrid .k-icon.k-i-filter:before{
+        content: "\e031";
+    }
+</style>
+
+
+
+<div class="content-main  dark-bg">
+    <div>
+        <ol class="breadcrumb" style="margin-bottom:8px">
+            <li> Assessment Manager</li>
+            <li class="active"> Action Item Tracker</li>
+        </ol>
+    </div>
+    <h5 style="color: white;  left: 4em; ">Action Item Tracker </h5>
+
+    <div class="content-wrapper incident-dashboard-container action-item">
+        <div class="parameter-slider-overlay"></div>
+        <div class="parameter-section">
+            <div class="action-items">
+                <span class="parameter-filter-icon"></span>
+            </div>
+            <div class="parameter-slider">
+                <span class="close-parameters"></span>
+                <div class="parameter-list-main">
+
+                    <ul>
+
+                        <li>
+                            Assessment Type :
+                            @*@(Html.Kendo().DropDownListFor(m => m.AssessmentID)
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .BindTo(Model.AssessmentList)
+                            .Name("AssessmentType")
+                             .Events(e =>
+                             {
+                                 e.Select("onSelectAssessmentType");
+                             })
+                             )*@
+
+                            @(Html.Kendo().DropDownList()
+                              .Name("AssessmentType")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .Value(Model.AssessmentTypeID.ToString())
+                              .BindTo(Model.AssessmentList)
+                               .Events(e =>
+                               {
+                                   e.Change("onSelectAssessmentType");
+                               })
+                               )
+
+                        </li>
+
+
+
+                        <li>
+                            Account :
+                            @(Html.Kendo().DropDownList()
+                               .Name("AccountNamesList")
+                               .DataTextField("Text")
+                               .DataValueField("Value")
+                               .Enable(false)
+                               .Value(Model.AccountID.ToString())
+                               .BindTo(Model.AccountNamesList)
+                               //.Events(e =>
+                               //{
+                               //    e.Change("onSelectAccount");
+                               //})
+                               )
+                        </li>
+
+                        <li>
+                            Assessment Name:
+                            @( Html.Kendo().DropDownList().Name("AssessmentList")
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .SelectedIndex(0)
+                                                            .BindTo(Model.AssessmentNameList)
+                                                             //.Events(e =>
+                                                             //{
+                                                             //e.Change("onSelectAccount");
+                                                             //})
+                               )
+                        </li>
+
+
+
+                        @*<li>
+                            Contract :
+                            @(Html.Kendo().DropDownList()
+                                .Name("ContractList")
+                                .DataTextField("Text")
+                                .SelectedIndex(0)
+                                .Value(Model.ContractID.ToString())
+                                .DataValueField("Value")
+                                .DataSource(source => {
+                                    source.Read(read =>
+                                    {
+                                        read.Action("getContractId", "Assessment").Data("GetAccId");
+                                    });
+                                })
+                                // .Events(e =>
+                                //{
+                                //    e.Change("onSelectContract");
+                                //})
+                                .AutoBind(true)
+
+                               )
+
+                        </li>*@
+
+
+                        @*<li class="custom-multiselect">
+                            Assessment Name: :
+                            <div class="custom-kendo-multiselect trend">
+                                @(Html.Kendo().MultiSelect()
+                                    .Name("AssessmentList")
+                                    .TagMode(TagMode.Single)
+                                    //.Placeholder("Select")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .BindTo(Model.AssessmentNameList)
+
+                                   )
+                            </div>
+                        </li>*@
+
+                        @*<li>
+                            <div class="custom-kendo-multiselect trend">
+                                @(Html.Kendo().MultiSelectFor(m => m.AssessmentID)
+                                    .Name("AssessmentList")
+                                    //.TagMode(TagMode.Single)
+                                    //.Placeholder("Select")
+                                    .DataTextField("Text")
+                                    .DataValueField("Value")
+                                    .DataSource(d => d
+                                    .Read(read => read.Action("getAssessmentNames", "Assessment").Data("GetTypeID"))
+                                      )
+                                    //.Events(e =>
+                                    // {
+                                    //     e.DataBound("onDataBoundAssessmentName");
+                                    // })
+                                    .AutoBind(true)
+                                                )
+                            </div>
+
+                        </li>*@
+
+
+
+                        <li>
+                            @(Html.Kendo().Button()
+                                      .Name("btnPreview")
+                                      .Content("Apply")
+                                      .HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+                            )
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="custom-kendo-grid" style="margin-top: 2em;">
+
+            @(Html.Kendo().Grid<ActionItemTrackerModel>
+    ()
+    .Name("ActionItemTrackerGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Id).Title("Action Item ID").Width(140);
+        columns.Bound(p => p.AssessmentID).Hidden();
+        //columns.Bound(p => p.ClientId).Hidden();
+        columns.Bound(p => p.AssessmentName).Title("Assessment Name").Width(165).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.DisciplineName).Title("Discipline").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.ComponentName).Title("Component").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.AspectName).Title("Aspect").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.ActionItem).Title("Action Item").Width(160).Filterable(false).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips1\">#=ActionItem#</div>");
+        columns.Bound(p => p.ImplementationPlan).Title("Implementation Plan").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.Priority).Title("Priority").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.BusinessDriver).Title("Business Driver").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.AMSCatalog).Title("AMS Catalog").Width(130).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.OwnerName).Title("Owner").Filterable(ftb => ftb.Multi(true)).Width(135);
+        //columns.Bound(p => p.PlannedCompletionDate).Title("Planned Completion Date").Format("{0:MM/dd/yyyy }").Width(190).Filterable(true).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" });
+        columns.Bound(p => p.PlannedCompletionDate).Title("Planned Completion Date").Width(200).Format("{0:MM/dd/yyyy }").Filterable(true).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" });
+        columns.Bound(p => p.Status).Title("Status").Width(120).Filterable(ftb => ftb.Multi(true));
+        columns.Bound(p => p.Benefits).Title("Benefits").Width(150).Filterable(false).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips3\">#=Benefits#</div>");
+
+        columns.Bound(p => p.Comments).Title("Comments").Width(150).Filterable(false).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips2\">#=Comments#</div>");
+        columns.Bound(p => p.ClientID).Title("Action").Width(120).Filterable(false).Sortable(false)
+        .ClientTemplate("#if(data.Status!='Cancelled' && data.Status!='Completed'){#<div> <div style='display:flex;margin-left:-5px'><button class='bg-image' title='Add/Edit Action Item' style='background-image: url(" + @Url.Content("~/Content/images/edit_blue.svg") + "); background-repeat: no-repeat; width:10em;height:2em;margin-top: 3px;margin-left: 2em;color: rgb(91,121,171); cursor:pointer;text-align:center;border:none;text-indent: -14px;background-color: transparent;background-size: 1.38em;display: inline-grid;padding-right: 20px;' onclick='addoreditActionItem(#:Id#,\"#:PlannedCompletionDate#\",\"#:Status#\");'></button></div></div>#}#");
+    })
+    .ToolBar(tools =>
+    {
+        tools.Excel();
+    })
+    .Pageable()
+    .Filterable()
+    .Sortable()
+    .Scrollable()
+    .Groupable()
+    .Excel(excel => excel.FileName("Action Item Tracker.xlsx")
+    .Filterable(true)
+    .AllPages(true)
+    .ProxyURL(Url.Action("Export_Assessment_Save", "Assessment"))
+      )
+    //.Reorderable(r => r.Columns(true))
+    .Resizable(r => r.Columns(true))
+    //.ColumnMenu()
+    .DataSource(dataSource => dataSource.Ajax()
+    .PageSize(10)
+    .Read(read => read.Action("ReadAllActionItem", "Assessment").Data("getWhereClause"))
+    )
+       .Events(e => e.ExcelExport("Action_item_excelExport"))
+    )
+
+        </div>
+
+
+        <div class="custom-kendo-grid" style="margin-top: 2em;">
+
+            @(Html.Kendo().Grid<ActionItemTrackerModel>
+    ()
+    .Name("ActionItemLogGrid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Id).Hidden();
+
+        //columns.Bound(p => p.ClientId).Hidden();
+        columns.Bound(p => p.LogupdateDate).Title("Date").Width(100).Format("{0:MM/dd/yyyy }").Width(90);
+        columns.Bound(p => p.ActionItemID).Title("Action Item ID").Width(90);
+        columns.Bound(p => p.Updates).Title("Updates").Filterable(false).Sortable(false).Width(300).HtmlAttributes(new { @style = "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" })
+        .ClientTemplate("<div class=\"forTooltips\">#=Updates#</div>");
+
+
+    })
+.ToolBar(tools =>
+{
+    tools.Excel();
+})
+    .Pageable()
+    .Filterable()
+    .Sortable()
+    .Scrollable()
+    .Groupable()
+    .Excel(excel => excel.FileName("Action Item Log .xlsx")
+    .Filterable(true)
+    .AllPages(true)
+    .ProxyURL(Url.Action("Export_Assessment_Save", "Assessment"))
+      )
+    .Reorderable(r => r.Columns(true))
+    .Resizable(r => r.Columns(true))
+    //.ColumnMenu()
+    .DataSource(dataSource => dataSource.Ajax()
+    .PageSize(10)
+    .Read(read => read.Action("ReadAllActionItemLog", "Assessment").Data("getWhereClause"))
+    )
+    )
+
+        </div>
+        @(Html.Kendo().Tooltip()
+          .For("#ActionItemLogGrid")
+          .Filter(".forTooltips")
+          .ContentHandler("getUpdatesToolTip")
+          .Position(TooltipPosition.Right)
+          .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+          .For("#ActionItemTrackerGrid")
+          .Filter(".forTooltips1")
+          .ContentHandler("getActionItemToolTip")
+          .Position(TooltipPosition.Right)
+          .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+          .For("#ActionItemTrackerGrid")
+          .Filter(".forTooltips2")
+          .ContentHandler("getCommentsToolTip")
+          .Position(TooltipPosition.Left)
+          .AutoHide(true)
+        )
+        @(Html.Kendo().Tooltip()
+    .For("#ActionItemTrackerGrid")
+    .Filter(".forTooltips3")
+    .ContentHandler("getBenefitsToolTip")
+    .Position(TooltipPosition.Left)
+    .AutoHide(true)
+  )
+
+    </div>
+    @Html.Partial("_AddorEditActionItem", Model)
+</div>
+
+<div id="saveAlertModal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-body">
+
+            <div class="alert alert-danger" id="lblErr1" style="display:none">
+                <div style="display:flex">
+
+                    <label id="labelError" style="width: 18em; margin-top: 4px; margin-left: 1em; ">Error while saving Action Item.</label>
+                    <button style="margin-top: -5px; margin-left: 5.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            <div class="alert alert-success" id="lblSuccess1" style="display:none">
+                <div style="display:flex">
+
+                    <label id="labelSuccess" style="width: 29em; margin-top: 4px; margin-left: 1em;">Action Item Details Saved Successfully.</label>
+                    <button style="margin-top: -5px; margin-left: -1.5em;" type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+
+    $('.parameter-filter-icon').on('click', function () {
+        $(this).addClass('open');
+        $('.parameter-slider-overlay').addClass('open');
+        $('.parameter-slider').addClass('open');
+    });
+    $('.close-parameters').on('click', function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+    });
+    $('.parameter-slider-overlay').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        /*$('.parameter-slider').removeClass('open');*/
+    });
+    $('#btnPreview').click(function () {
+        $('.parameter-filter-icon').removeClass('open');
+        $('.parameter-slider-overlay').removeClass('open');
+        $('.parameter-slider').removeClass('open');
+        console.log("apply clicked");
+
+        $("#ActionItemTrackerGrid").data("kendoGrid").dataSource.read();
+        $("#ActionItemLogGrid").data("kendoGrid").dataSource.read();
+
+    });
+
+
+
+
+    function addoreditActionItem(Id,plannedDate,Status) {
+        console.log(Id);
+        console.log(plannedDate);
+        var date = new Date(plannedDate);
+        console.log("date " + date);
+
+        var year = date.getFullYear();
+
+        var month = (1 + date.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+
+        var day = date.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+
+        var plannedCompDate = month + '/' + day + '/' + year;
+
+        console.log("plannedCompDate " + plannedCompDate);
+
+        var datepicker = $('#PlannedCompletionDate').data("kendoDatePicker");
+        if (plannedDate == null || plannedDate == "null") {
+
+            datepicker.setOptions({
+                min: new Date()
+            });
+        }
+        else {
+            datepicker.setOptions({
+                min: plannedCompDate
+            });
+        }
+
+
+        if (Status == "Cancelled" || Status == "Completed") {
+            $('#PlannedCompletionDate').data("kendoDatePicker").enable(false);
+        } else {
+            $('#PlannedCompletionDate').data("kendoDatePicker").enable(true);
+        }
+
+
+        var mod = {
+            ActionItemID: Id,
+        }
+
+         var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/getActionItemRecord")';
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //$("#DisciplineGrid").data("kendoGrid").dataSource.read();
+                //alert("Success");
+               // console.log("Success");
+               // $('#PlannedCompletionDate_alert').hide();
+                // console.log(response);
+                $("#Owner").data("kendoDropDownList").value(response.OwnerID);
+                $("#Status").data("kendoDropDownList").value(response.Status);
+                $('#Comments').val(response.Comments);
+                $('#Benefits').val(response.Benefits);
+                $('#PlannedCompletionDate').data("kendoDatePicker").value(response.PlannedCompletionDate);
+                document.getElementById("temp").innerHTML = response.Id;
+                document.getElementById("status").innerHTML = response.Status;
+                document.getElementById("AsName").innerHTML = response.ActionItem;
+                console.log("status"+ response.AssessmentStatus)
+                if (response.AssessmentStatus == "Published") {
+                    $("#Status").data("kendoDropDownList").enable(true);
+                } else {
+                    $("#Status").data("kendoDropDownList").enable(false);
+
+                }
+                var popup = $("#AddoreditpopUp").data("kendoWindow");
+                popup.open();
+                popup.center();
+            },
+            error: function (err, response) {
+                // alert(err.responseText);
+            }
+        });
+
+
+
+
+    }
+
+
+
+    function onWinClose() {
+
+    }
+
+
+    function onSaveClick() {
+
+        var Id = document.getElementById("temp").innerHTML;
+        var OwnerID  = $("#Owner").data("kendoDropDownList").value();
+        var Status   =  $("#Status").data("kendoDropDownList").value();
+        var Comments = $('#Comments').val();
+        var Benefits = $('#Benefits').val();
+        var Actionitem = document.getElementById("AsName").innerHTML
+        
+        var PlannedCompletionDate =  $('#PlannedCompletionDate').data("kendoDatePicker").value();
+
+
+        var mod = {
+            Id: Id,
+            OwnerID: OwnerID,
+            Status: Status,
+            Comments: Comments,
+            Benefits: Benefits,
+            PlannedCompletionDate: PlannedCompletionDate,
+            Actionitem: Actionitem
+        }
+
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/SaveActionItem")';
+
+
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                //alert("Success");
+                console.log(response);
+
+                var popup = $("#AddoreditpopUp").data("kendoWindow");
+                popup.close();
+
+
+                $("#ActionItemTrackerGrid").data("kendoGrid").dataSource.read();
+                $("#ActionItemLogGrid").data("kendoGrid").dataSource.read();
+
+                $('#saveAlertModal').modal('show');
+                $('#lblErr').hide();
+                $('#lblSuccess1').show();
+
+            },
+            error: function (err, response) {
+                $('#saveAlertModal').modal('show');
+                $('#lblSuccess1').hide();
+                $('#lblErr').show();
+
+                // alert(err.responseText);
+            }
+        });
+
+    }
+    function onChangeActionStatus() {
+        //$('#PlannedCompletionDate_alert').hide();
+        var Id = document.getElementById("temp").innerHTML;
+        var oldstatus = document.getElementById("status").innerHTML;
+        var Status   =  $("#Status").data("kendoDropDownList").value();
+        var mod = {
+            Id: Id,
+            Status: Status
+        }
+        var data1 = JSON.stringify(mod);
+        baseurl = '@Url.Content("~/AssessmentManager/Assessment/CheckActionIdeaStatus")';
+        $.ajax({
+
+            type: 'post',
+            url: baseurl,
+            async: false,
+            data: data1,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+                if (response == 'SubmitForRevision') {
+                    $("#Status").data("kendoDropDownList").value(oldstatus);
+                }
+            },
+            error: function (err, response) {
+
+            }
+        });
+
+    }
+
+
+    function onCancelClick() {
+        var popup = $("#AddoreditpopUp").data("kendoWindow");
+        popup.close();
+    }
+
+
+    function onSelectAssessmentType(e) {
+        console.log("onSelectAssessmentType");
+        onSelectAccount()
+
+
+	}
+
+
+    function onSelectAccount(e) {
+        //$("#Contract").data("kendoMultiSelect").dataSource.read(); //for multi select
+        //$("#ContractList").data("kendoDropDownList").dataSource.read();
+        //var contractDropdown = $("#ContractList").data("kendoDropDownList");
+        //var contract = contractDropdown.value();
+        //var oldSel = contractDropdown.selectedIndex;
+        //contractDropdown.dataSource.read();
+        //setTimeout(function () {
+        //    contractDropdown.selectedIndex = 0;
+        //}, 500);
+
+        console.log("onSelectAccount");
+        var accountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var AssessmentTypeID = $("#AssessmentType").data("kendoDropDownList").value();
+
+        var mod = {
+            AccountID: accountID,
+            AssessmentTypeID: AssessmentTypeID
+            //ContractID: ContractID
+        };
+
+
+        var data1 = JSON.stringify(mod);
+        baseurl1 = '@Url.Content("~/AssessmentManager/Assessment/GetAssessmentNameListforDashboard2")';
+
+        $.ajax(
+            {
+                url: baseurl1,
+                type: 'post',
+                data: data1,
+                async: false,
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    console.log(data.length);
+                    var dropdownlist = $("#AssessmentList").data("kendoDropDownList");
+
+                    dropdownlist.setDataSource(data);
+                    dropdownlist.value(data[0].Value);
+
+                    console.log(data);
+                }
+            })
+
+    }
+
+    function GetAccId() {
+
+        var app = $("#AccountNamesList").data("kendoDropDownList");
+        return {
+            Accid: app.value()
+        }
+    }
+
+    function GetTypeID() {
+
+        var app = $("#AssessmentType").data("kendoDropDownList");
+        return {
+            typeid: app.value()
+        }
+    }
+
+
+    function getWhereClause() {
+
+
+        var AssessmentTypeID = $("#AssessmentType").data("kendoDropDownList").value();
+        var AccountID = $("#AccountNamesList").data("kendoDropDownList").value();
+        var AssessmentID = $("#AssessmentList").data("kendoDropDownList").value();
+        //var ContractID = $("#ContractList").data("kendoDropDownList").value();
+
+        // var AssessmentName = $("#AssessmentList").data("kendoMultiSelect").value();
+         //var AssessmentName = $("#AssessmentList").data("kendoMultiSelect").value().toString();
+
+        console.log(AssessmentTypeID + " " + AccountID + " " + AssessmentID );
+
+
+
+        return {
+            AssessmentTypeID: AssessmentTypeID,
+            AccountID: AccountID,
+            AssessmentID: AssessmentID
+            //ContractID: ContractID
+          };
+
+    }
+
+    function getUpdatesToolTip(e) {
+        var dataItem = $("#ActionItemLogGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Updates;
+        return content;
+    }
+
+    function getActionItemToolTip(e) {
+        var dataItem = $("#ActionItemTrackerGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.ActionItem;
+        return content;
+    }
+
+    function getCommentsToolTip(e) {
+        var dataItem = $("#ActionItemTrackerGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Comments;
+        return content;
+    }
+    
+    function getBenefitsToolTip(e) {
+        var dataItem = $("#ActionItemTrackerGrid").data("kendoGrid").dataItem(e.target.closest("tr"));
+        var content = dataItem.Benefits;
+        return content;
+    }
+
+
+    //function onSelectAssessmentType(e) {
+
+
+    //    setTimeoutdelay();
+
+    //    $("#AssessmentList").data("kendoMultiSelect").dataSource.read();
+    //}
+
+
+    function setTimeoutdelay() {
+        setTimeout(function () {
+            console.log("2 seconds");
+        }, 2000);
+    }
+
+    //function onDataBoundAssessmentName(e) {
+    //    var multiselect = $('#AssessmentList').data("kendoMultiSelect");
+    //    var all = $.map(multiselect.dataSource.data(), function (dataItem) {
+    //        return dataItem.Value;
+    //    });
+    //    multiselect.value(all);
+    //}
+
+    function Action_item_excelExport(e) {
+        var sheet = e.workbook.sheets[0];
+        for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+            var sheet = e.workbook.sheets[0];
+            sheet.rows[0].cells[14].value = null;
+            sheet.rows[0].cells[14].background = "#fff";
+            sheet.filter.to = 9;
+            console.log(sheet);
+            for (var rowIndex = 1; rowIndex < sheet.rows.length; rowIndex++) {
+                var row = sheet.rows[rowIndex];
+                row.cells[14].value = null;
+
+            }
+        }
+    }
+
+</script>

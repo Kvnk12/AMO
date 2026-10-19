@@ -1,0 +1,278 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI
+@using System.Data;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using System.Data;
+@using Kendo.Mvc.Extensions;
+@using WebUI.Areas.TransformationAccelerator.Controllers;
+@using WebUI.Areas.TransformationAccelerator.Model;
+
+@model IList<ServicePlanningModel>
+    @{
+        <script src="~/Content/js/bootstrap.js"></script>
+        ViewBag.Title = "Index";
+        Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+        string currentYear = DateTime.Now.Year.ToString();
+        //(0-3 ->1) 1->(20211)
+        int month = DateTime.Now.Month;
+        int currentYearQtr;
+        //currentYear = currentYear + month;
+        if (month > 0 && month < '4')
+        {
+            currentYear = currentYear + "1";
+        }
+        if (month > 3 && month < 7)
+        {
+            currentYear = currentYear + "2";
+        }
+        if (month > 6 && month < 10)
+        {
+            currentYear = currentYear + "3";
+        }
+        if (month > 9 && month < 13)
+        {
+            currentYear = currentYear + "4";
+        }
+
+        currentYearQtr = Convert.ToInt32(currentYear); ;
+    }
+    <div id="wrap">
+        <div class="content-main dark-bg service-plan-container">
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li>Transformation Accelerator</li>
+                <li class="active">Service Plan</li>
+            </ol>
+            <div class="service-plan-content">
+                <h4>Service Improvement - Improvement Progress</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Service Improvement</th>
+                            <th rowspan="2">Goal</th>
+                            <th rowspan="2">Expected Progress</th>
+                            <th rowspan="2">Cumulative Progress</th>
+                            @{
+                                //loop to display years
+                                foreach (var i in ViewBag.Year)
+                                {
+                                    <th colspan="4" scope="colgroup">@i</th>
+                                }
+                            }
+                        </tr>
+                        <tr>
+                            @*loop to display quarters in each year years*@
+                            @foreach (var quater in ViewBag.Year) //
+                            {
+                                <th id="1" scope="col">Q1</th>
+                                <th id="2" scope="col">Q2</th>
+                                <th id="3" scope="col">Q3</th>
+                                <th id="4" scope="col">Q4</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            //loop for distinct service improvement type
+                            foreach (var ImprovementType in ViewBag.ImpType)
+                            {
+                                <tr>
+                                    <td>@ImprovementType</td>
+                                    @{
+                                        var goal = (from a in Model
+                                                    where a.ImprovementType == ImprovementType
+                                                    select a.Goal).FirstOrDefault();
+                                        <td>@goal</td>
+                                    }
+                                    @{
+                                        var GoalPlan = (from a in Model
+                                                        where a.ImprovementType == ImprovementType
+                                                        select a.GoalPlan).Sum();
+                                        <td>@GoalPlan</td>
+                                    }
+                                    @{
+                                        var GoalAchievement = (from a in Model
+                                                               where a.ImprovementType == ImprovementType
+                                                               select a.GoalAchievement).Sum();
+                                        <td>@GoalAchievement</td>
+                                    }
+                                    @*loop for distinct years*@
+                                    @foreach (var year in ViewBag.Year)
+                                    {
+                                        //loop for 4 quarters for each year in the above loop
+                                        for (var quarter = 1; quarter < 5; quarter++)
+                                        {
+                                            //conditionalRecordMatch returns single record from Model which satisfies 3 conditions(improvementType , year , quarter)
+                                            var conditionalRecordMatch = (from x in Model
+                                                                          where x.ImprovementType == ImprovementType && x.Year == year && x.Quarter == quarter.ToString()
+                                                                          select x).FirstOrDefault();
+                                            var conditionalRecordID = (from x in Model
+                                                                       where x.ImprovementType == ImprovementType && x.Year == year && x.Quarter == quarter.ToString()
+                                                                       select x.Id).FirstOrDefault();
+
+                                            var comment = (from a in Model
+                                                           where a.ImprovementType == ImprovementType && a.Year == year && a.Quarter == quarter.ToString()
+                                                           select a.Comment).FirstOrDefault();
+                                            var yearInt = year;
+                                            yearInt = yearInt + quarter.ToString();
+                                            yearInt = Int16.Parse(yearInt);
+                                            if (conditionalRecordMatch != null)
+                                            {
+                                                //year = year.concat(quarter);
+                                                //concat year nd quarter
+
+                                                if (yearInt < currentYearQtr)
+                                                {
+                                                    //Making the cells non editable
+                                                    <td class="table-input read-only comment-disabled">
+                                                        @*<input type="text" id=@conditionalRecordID value="@conditionalRecordMatch.GoalPlan%" />*@
+                                                        <span id=@conditionalRecordID> @conditionalRecordMatch.GoalPlan% </span>
+                                                        @*<i class="comments-icon"></i>*@
+                                                        <i class="comments-icon" data-toggle="tooltip" data-placement="right" title=@comment></i>
+                                                    </td>
+                                                }
+
+                                                else
+                                                {
+                                                    //Making the cells editable
+                                                    <td class="table-input">
+                                                        <input type="text" id=@conditionalRecordID value=@conditionalRecordMatch.GoalPlan />
+                                                        @*<i class="comments-icon"></i>*@
+                                                        <i class="comments-icon" data-toggle="modal" data-target="#commentsModal" title=@comment></i>
+                                                    </td>
+                                                }
+                                            }
+                                            else if (yearInt < currentYearQtr)
+                                            {
+                                                <td class="read-only"> - </td>
+                                            }
+
+                                            else
+                                            {
+                                                <td> - </td>
+                                            }
+                                        }
+                                    }
+                                </tr>
+                                        }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal fade" id="commentsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel">Comment - Service Model Optimization - 2020 Q4</h5> @*var*@
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea rows="3" class="comment-textarea"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-primary  save-comment-modal">SAVE</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+	var commentIDD = 0;
+        $('.table-input input').on('change keypress paste focus blur', function () {
+            var val = $(this).val();
+            if (val != '') {
+                $(this).parent('.table-input').removeClass('comment-disabled');
+            }
+            else {
+                $(this).parent('.table-input').addClass('comment-disabled');
+            }
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $(".comments-icon").click(function () {
+
+            // show Modal
+            $('#commentsModal').modal('show');
+            var inputId = $(this).siblings('input').attr('id'); //id of planQ
+            var inputIdValue = $(this).attr('title'); //val of txt
+            $('#commentsModal').find('textarea').val(inputIdValue);
+
+            commentIDD = inputId;
+
+
+            console.log(inputId, inputIdValue, commentIDD);
+        });
+
+        $(".save-comment-modal").click(function () {
+
+
+            var inputComment = $(this).parent().siblings('.modal-body').find('.comment-textarea').val();
+
+            console.log(inputComment, commentIDD);
+
+            $.ajax({
+                url: 'updateComments',
+                type: "POST",
+                async: false,
+                data: {
+                    uid: commentIDD,
+                    comments: inputComment,
+                },
+                error: function (response) {
+
+                    alert('Could not update the  detail.');
+                },
+                success: function (response) {
+                    //$('#grid').data('kendoGrid').dataSource.read();
+                    //$('#grid').data('kendoGrid').refresh();
+                    location.reload(true);
+                    console.log('Updated')
+                }
+            });
+
+
+        });
+        $("input").on('blur', function () {
+            //alert("This input field has lost its focus.");
+            var unique = $(this).attr('id');
+            //console.log(unique);
+
+            var txtValue = $(this).val();
+            //console.log(txtValue);
+
+            @*var actionurl = '@Url.Content("~/ServicePlan/Update")';*@
+
+            $.ajax({
+                url: 'Update',
+                type: "POST",
+                async: false,
+                data: {
+                    uid: unique,
+                    uval: txtValue,
+                },
+                error: function (response) {
+
+                    alert('Could not update the  detail.');
+                },
+                success: function (response) {
+                    //$('#grid').data('kendoGrid').dataSource.read();
+                    //$('#grid').data('kendoGrid').refresh();
+                    console.log('Updated')
+                }
+            });
+        });
+
+
+    </script>
+
+

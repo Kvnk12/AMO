@@ -1,0 +1,51 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+<!--<div class="pushContainer1">-->
+@using NTTData.AMOPortal.Domain.Entities;
+@using WebUI.Dto;
+
+@{
+
+    HomeInput MenuItemsInput = (HomeInput)Session["MenuItemsInput"];
+   // Client client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+
+
+
+}
+
+<ul style="max-width:100%;">
+    @*<li>@Html.ActionLink("Data Sets", "DisplayHomePage", new { area = "AlignmentManager", controller = "DataSet" })</li>*@
+    <li>@Html.ActionLink("Heat Map Dashboard", "Index", new { area = "AlignmentManager", controller = "HeatMapSetup", cid = client.ClientId })</li>
+    @*<li>@Html.ActionLink("Trend Reports Dashboard", "DisplayPAReports", new { area = "AlignmentManager", controller = "HeatMapSetup", cid = client.Id })</li>*@
+    <li>@Html.ActionLink("Scatter Chart", "DisplayCMReports", new { area = "AlignmentManager", controller = "HeatMapSetup", cid = client.ClientId })</li>
+    @*<li>@Html.ActionLink("Heat Map", "Index", new { area = "AlignmentManager", controller = "ALMHeatMap", action = "DisplayClientHeatMaps", cid = client.Id })</li>*@
+    <li>@Html.ActionLink("Trend Report", "DisplayTrendReport", new { area = "AlignmentManager", controller = "ALMHeatMap", action = "DisplayTrendReport", cid = client.ClientId })</li>
+    <li>@Html.ActionLink("Report Viewer", "ReportViewer", new { area = "AlignmentManager", controller = "ALMHeatMap", action = "ReportViewer", cid = client.ClientId })</li>
+
+    @if (MenuItemsInput != null)
+    {
+        if (MenuItemsInput.UserRole.ToLower() == "admin" || MenuItemsInput.UserRole.ToLower() == "sysadmin")
+        {
+            <li>@Html.ActionLink("Reports Builder", "DisplayHeatMapBuilder", new { area = "AlignmentManager", controller = "HeatMapSetupBuilder" })</li>
+        }
+    }
+    @*<li>@Html.ActionLink("Reports Builder", "DisplayHeatMapBuilder", new { area = "AlignmentManager", controller = "HeatMapSetupBuilder" })</li>*@
+    @*<li>@Html.ActionLink("Predictor Variables", "DisplayHomePage", new { area = "AlignmentManager", controller = "AlignmentManager" })</li>*@
+
+    @*<li><a href="#">Heat Map</a>*@
+    @*<li>@Html.ActionLink("Heat Maps", "Index", new { area = "AlignmentManager", controller = "HeatMapSetup" })</li>*@
+
+    @*                <div class="cbp-hrsub">
+            <div class="cbp-hrsub-inner">
+                <div>
+                    <ul>
+                        <li><a href="#">Heatmap Builder</a></li>
+                        <li>@Html.ActionLink("Heat Map Builder", "DisplayHeatMapBuilder", new { area = "AlignmentManager", controller = "HeatMapSetupBuilder" })</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- /cbp-hrsub-inner -->
+        </div>*@
+    <!-- /cbp-hrsub -->
+    @*</li>*@
+</ul>

@@ -1,0 +1,135 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+@{
+    ViewBag.Title = "RA MetaData";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/framework_builder_white.png");
+    //Layout = "~/Views/Shared/_AppLayout.cshtml";
+    //Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+    Layout = "~/Views/Shared//GenericLayoutWithoutFooter.cshtml";
+}
+
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 13px;
+        text-overflow: ellipsis;
+        border: thin 1px #ccc;
+    }
+</style>
+
+<div class="content-main dark-bg">
+    <div style="margin:8px 8px 8px 8px; min-height:800px;">
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb">
+                <li><a href="#" style="color:#fff;">Framework Builder</a></li>
+                <li class="active">Meta Data</li>
+            </ol>
+        </div>
+        <br />
+        <div style="margin:10px;">
+            <div class="custom-kendo-tabstrip">
+
+                @(Html.Kendo().TabStrip()
+                                 .Name("tabstrip")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Estimate Category")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_EstimateCategory"));
+
+                                     //tabstrip.Add().Text("Roles/Resource Groups")
+
+                                     //.Content(m => Html.Partial("_rolesandresource"));
+
+
+
+                                     tabstrip.Add()
+                                      .Encoded(false)   // allow HTML in the tab text
+                                      .Text("<span style='color:white;'>Roles/Resource Groups</span>")
+                                      .Content(m => Html.Partial("_rolesandresource"));
+
+                                     //tabstrip.Add().Text("RA Resource")
+                                     //.Content(m => Html.Partial("_Resource"));
+                                     tabstrip.Add()
+                                     .Text("<span style='color:white'>RA Resource</span>")
+                                     .Encoded(false)
+                                     .Content(m => Html.Partial("_Resource"));
+
+
+
+                                     //tabstrip.Add().Text("Retirement Phase")
+                                     //.Content(m => Html.Partial("_RetirementPhase"));
+
+                                     tabstrip.Add()
+                                     .Text("<span style='color:white'>Retirement Phase</span>")
+                                     .Encoded(false)
+                                     .Content(m => Html.Partial("_RetirementPhase"));
+
+                                     //tabstrip.Add().Text("Retirement Stage")
+                                     //.Content(m => Html.Partial("_RetirementStage"));
+                                     tabstrip.Add()
+                                    .Text("<span style='color:white'>Retirement Stage</span>")
+                                    .Encoded(false)
+                                    .Content(m => Html.Partial("_RetirementStage"));
+
+                                     //tabstrip.Add().Text("WBS Status")
+                                     //.Content(m => Html.Partial("_WbsStatus"));
+                                     tabstrip.Add()
+                                     .Text("<span style='color:white'>WBS Status</span>")
+                                     .Encoded(false)
+                                     .Content(m => Html.Partial("_WbsStatus"));
+
+                                     //tabstrip.Add().Text("Work Product/Deliverable")
+                                     //.Content(m => Html.Partial("_WorkProduct"));
+                                     tabstrip.Add()
+                                    .Text("<span style='color:white'>Work Product/Deliverable</span>")
+                                    .Encoded(false)
+                                    .Content(m => Html.Partial("_WorkProduct"));
+
+                                     //tabstrip.Add().Text("Project Health")
+                                     //.Content(m => Html.Partial("_ProjectHealth"));
+                                     tabstrip.Add()
+                                     .Text("<span style='color:white'>Project Health</span>")
+                                     .Encoded(false)
+                                     .Content(m => Html.Partial("_ProjectHealth"));
+
+                                 })
+
+
+        )
+</div>
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+</div>
+
+

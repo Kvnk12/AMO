@@ -1,0 +1,41 @@
+﻿@using WebUI.Areas.RetirementAccelerator.Models;
+@using WebUI.Areas.RetirementAccelerator;
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data;
+@using System.Collections;
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+
+
+<div style="margin:5px;" class="custom-kendo-tabstrip">
+
+    <!--Kendo TAbs-  Parttial Views-->
+
+
+    @(Html.Kendo().TabStrip()
+                                 .Name("RomEstimateLevel3")
+                                 .Items(tabstrip =>
+                                 {
+                                     tabstrip.Add().Text("Execution Effort/ Cost")
+                                         .Selected(true)
+                                         .Content(m => Html.Partial("_ExecutionCost"));
+
+                                     tabstrip.Add().Text("Support Effort/ Cost")
+                                         .Content(m => Html.Partial("_SupportCost"));
+
+
+
+                                 })
+
+
+    )
+
+</div>
+
+
+
+
+
+

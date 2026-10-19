@@ -1,0 +1,138 @@
+﻿@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.ClientProfileManager.ViewModel
+@using WebUI.Areas.ClientProfileManager.Dto;
+@using System.Data;
+@using PagedList;
+@model IList<WebUI.Areas.ClientProfileManager.ViewModel.TicketInfoViewModel>
+
+@{
+   
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.data.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.grid.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.button.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.excel.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.ooxml.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.pager.min.js"></script>
+    <script src="~/Scripts/JScript/jszip.min.js"></script>
+
+
+}
+@*id="pp38Home"*@
+
+<div id="grid11">
+    <table class="table table-striped" id="grid11" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th scope="col" width="10%">From date</th>
+                <th scope="col" width="10%">To date</th>
+                <th scope="col" width="10%">TicketInfoType</th>
+                <th scope="col" width="10%">Incidents</th>
+                <th scope="col" width="10%">Problems</th>
+                <th scope="col" width="10%">User Support SR</th>
+                <th scope="col" width="10%">Enhancements</th>
+                <th scope="col" width="10%">Comments</th>
+                
+            </tr>
+        </thead>
+                @{ 
+                    var fromDt1 = "";
+                    var fromDt2 = "";
+                }
+            @foreach (var item in Model)
+            {
+                var displaydt1 = item.FromDate.ToString();
+                var displaydt2 = item.Todate.ToString();
+                if (fromDt1 == displaydt1 && fromDt2 == displaydt2)
+                {
+                    displaydt1 = "";
+                    displaydt2 = "";
+                }
+                    fromDt1 = item.FromDate.ToString();
+                    fromDt2 = item.Todate.ToString();
+
+
+
+
+
+                
+
+                <tr>
+                    <td><strong>@displaydt1</strong></td>
+                    <td><strong>@displaydt2</strong></td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketInfoType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Incidents )
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Problems)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserSupportSR )
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Enhancements )
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Comments)
+                    </td>
+
+                   
+                </tr>
+                
+            }
+        @*<tr>
+            <td colspan="8">
+                Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+                @Html.PagedListPager(Model, page => Url.Action("ClientDetails", new { page = page }))
+            </td>
+        </tr>*@
+
+    </table>
+   
+
+</div>
+
+
+
+<script >
+
+    
+    $("#grid11").kendoGrid({
+        columns: [
+            { field: "From Date" },
+            { field: "To Date" },
+            { field: "Ticket Info Type" },
+            { field: "Incidents" },
+            { field: "Problems" },
+            { field: "User Support SR" },
+            { field: "Enhancements" },
+            { field: "Comments" }
+
+        ],
+        dataSource: {
+            pageSize: 16
+        },
+
+
+        pageable: true
+    });
+
+
+
+
+
+</script>

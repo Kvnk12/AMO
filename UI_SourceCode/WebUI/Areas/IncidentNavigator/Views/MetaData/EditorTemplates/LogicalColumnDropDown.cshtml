@@ -1,0 +1,25 @@
+﻿@using WebUI.Areas.IncidentNavigator.Controllers
+@using Kendo.Mvc.UI;
+@using Kendo.Mvc.Infrastructure;
+@using Kendo.Mvc.Resources
+@using Kendo.Mvc.Extensions;
+@using WebUI.Dto;
+
+
+@model String
+
+@{
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    var cont = new MetaDataController();
+    var impList = cont.GetListOfLogicalColumn(client.ClientId);
+
+}
+
+@(Html.Kendo().DropDownListFor(m => m)
+    .Name("ColumnName")
+    .OptionLabel("Select Logical Column")
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .BindTo(impList)
+    //.AutoBind(true)
+    )

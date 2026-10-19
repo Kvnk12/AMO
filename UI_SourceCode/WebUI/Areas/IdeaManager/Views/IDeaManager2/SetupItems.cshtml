@@ -1,0 +1,189 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using WebUI.Areas.AlignmentManager.Models
+@using WebUI.Areas.AlignmentManager.Objects
+@using NTTData.AMOPortal.WebUI.Dto
+@using System.Data
+@model NTTData.AMOPortal.WebUI.Dto.IMPostIdeaInput
+
+@{
+    ViewBag.Title = "Idea Manager";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/IdeaHLogo.png");
+    Layout = "~/Views/Shared/_AppLayout.cshtml";
+}
+
+
+
+@*@section PPMenu {
+
+    @Html.Partial("_PPTopMenu")
+    
+    }*@
+
+
+<div class="selectappArea">
+    <!-- Wrap all page content here -->
+    <div class="container">
+        <div class="selectApp form-horizontal">
+            <div class="form-group">
+                <label for="clientName" class="col-sm-4 control-label" id=""><span class="mandate">*</span>Client Name</label>
+                <div class="col-sm-5">
+                      @using (Html.BeginForm())
+                          {
+                        @Html.DropDownListFor(m => m.ClientId, new SelectList(Model.ClientList, "value", "text", Model.ClientList), "", new { @class = "selectpicker", id = "ClientId", name = "ClientId", required = "required" })  
+                          }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/.container-->
+</div>
+
+@*<div class="clear">
+</div>*@
+
+<div class="container" style="padding: 0;">
+    <!-- <ul class="nav nav-tabs">
+                  <li class="active"><a href="#treeMenuArea" data-toggle="tab">Metrics Library</a></li>
+                  <li><a href="#metricSetupArea" data-toggle="tab">Metric Setup</a></li>
+                  <li><a href="#serviceCreditsArea" data-toggle="tab">Service Credits</a></li>
+                  <li><a href="#workingHoursArea" data-toggle="tab">Working Hours</a></li>
+			</ul>-->
+
+    <div class="treeMenuArea tab-pane opened" id="treeMenuArea">
+        <div class="treeMenuContent" style="min-height: 700px">
+            <div class="well well-sm"><strong>Ideas</strong></div>
+            <div class="">
+                <!--valchainContent-->
+                @{
+                    
+                if(Model.ClientId > 0)
+                    {
+                      
+                
+                <div class="container_12">
+                    <button  tabindex="30" class="btn btn-primary" id="btnAdd" style="margin-bottom:10px">Post New Idea</button>
+                    <div class="grid_4 height400">
+                        <table class="table table-striped" id="pp38Home" cellpadding="0" cellspacing="0" style="width:50%">
+                            <thead>
+                                <tr>
+                                    <th width="45%" scope="col">Ideas</th>
+                                </tr>
+                            </thead>
+
+                            @{
+                                if (Model.ClientId > 0)
+                                    {
+                                        
+                                    
+                                    IList<IMPostIdea> postIdeas = Model.GetPostIdeas;
+                                    foreach (IMPostIdea vwIdea in postIdeas)
+                                        {
+                                        <tr>
+                                            <td>@Html.ActionLink(vwIdea.IdeaName, "DisplayHomePage", "IdeaManager2", new { ClientId = Model.ClientId, IdeaId = vwIdea.Id }, null)</td>  
+                                        </tr>
+                                        @*<td><a= <b>@dataSetObjectName</b> </td>*@
+@*                                        <td>@vwItem.DatasetColumnName</td>
+                                        <td>@vwItem.VirtualColumnName</td>
+                                        </tr>
+                                            }
+                                        else
+                                            {
+                                        <tr>
+                                        <td></td>
+                                        <td>@vwItem.DatasetColumnName</td>
+                                        <td>@vwItem.VirtualColumnName</td>
+                                        </tr>*@
+                                            }
+
+                                        }
+
+
+                                    }
+                                
+                             
+                            </table>
+                </div>
+            </div>
+                    }
+               }
+            <!--.valchainContent-->
+                
+
+            <!--/.treeMenuContent container-->
+        </div>
+        <!--/.treeMenuContent-->
+    </div>
+    <!--/.treeMenuArea-->
+
+</div>
+    </div>
+
+<script>
+    $(document).ready(function () {
+               
+        $('select#ClientId').change(function () {
+            var SelectedclientId = $('#ClientId :selected').val();
+            
+            //if (SelectedclientId != 0) 
+            {
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager2/DisplayIdeas/?clientId={clientId}");
+
+                //window.location = strUrl;
+
+                strUrl = strUrl.replace("{clientId}", SelectedclientId);
+                window.location = strUrl;
+                return false;
+            }
+
+        });
+
+        $('#btnAdd').click(function () {
+
+
+            var SelectedclientId = $('#ClientId :selected').val();
+            if (SelectedclientId == "" || SelectedclientId == "0")
+            {
+                alert('Please Select Client name from the list');
+                return false;
+            }
+
+                var localToServer = "/";
+                var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+
+                if (window.location.pathname.split("/")[1].toLocaleLowerCase() != "ideamanager") {
+                    localToServer = "/" + window.location.pathname.split("/")[1] + "/";
+                }
+
+                var strUrl = window.Location.constructor("http://" + window.location.host + localToServer + "ideamanager/ideamanager2/DisplayHomePage/?ClientId=@Model.ClientId&ReportType=Add");
+
+            window.location = strUrl;
+            return false;
+
+          });
+
+    });
+
+</script>
+ <script>
+     $(document).ready(function () {
+
+         //if ($('#pp38Home').length > 0) {
+         //    $('#pp38Home').fixedHeaderTable({ altClass: 'odd', footer: 'false' });
+         //}
+     });
+ </script>
+
+
+
+
+
+

@@ -1,0 +1,95 @@
+@model NTTData.AMOPortal.WebUI.Dto.LoginModel
+
+@{
+    ViewBag.Title = "NTT Data | NextGen Tools | Login";
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/Ntt-logo-icon.png");
+    ViewBag.ImagePathTwo = Url.Content("~/Content/images/Ntt-logo.png");
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+<div class="container" style="padding-top: 100px;">
+    <div class="row row-offcanvas row-offcanvas-right">
+        <div class="col-xs-12 col-sm-8">
+            <h4 class="motto">Consolidate and quantify key benefits from NTT DATA Next Generation Tools solution</h4>
+            <br>
+            <div style="padding-left:200px;"> <img src="@Url.Content("~/Content/images/BannerAMO.png")" style="width: 350px;"/></div>
+        </div>
+
+        <div id="sidebar" class="col-xs-6 col-sm-4 sidebar-offcanvas" role="form">
+            <h4 class="welcome">Welcome to NTT DATA NextGen Tools</h4>
+            @* <h4 class="motto">Alignment Dashboard</h4>*@
+            <br>
+            <br>
+            <p class="motto">Please Login here</p>
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "login", @autocomplete = "off" }))
+            {
+                @Html.AntiForgeryToken()
+                if (!ViewData.ModelState.IsValid)
+                {
+                    @Html.ValidationSummary(false, "", new { @class = "alert alert-danger container" })
+                }
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.UserName)
+                    @Html.TextBoxFor(m => m.UserName, new { @id = "exampleInputEmail1", @class = "form-control", @placeholder = "Enter Email Id" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Password)
+                    @Html.PasswordFor(m => m.Password, new { @id = "exampleInputPassword1", @class = "form-control", @placeholder = "Password" })
+
+                </div>
+
+                <label class = "alert alert-danger container">NextGen tools are under maintainance, Please login after an hour.</label>
+                <br>
+                <br>
+                <br>
+                <br>
+            }
+        </div>
+        <!--side bar-->
+    </div>
+</div>
+
+<!--/.container-->
+<div class="keyarea">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 keyareaOne">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/thinksmart.png")" height="100" width="92" />
+                </div>
+                <h3>Think Smart</h3>
+                <ul class="">
+                    <li style="padding-left:53px" class="lpagepoints">With Insightful Analytics</li>
+                </ul>
+            </div>
+            <div class="col-lg-4 keyareaOne">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/actfast.png")" height="81" width="70" />
+                </div>
+                <h3>Act Fast</h3>
+                <ul class="">
+                    <li style="padding-left:44px" class="lpagepoints">With Actionable Roadmaps</li>
+                </ul>
+            </div>
+            <div class="col-lg-4 keyareaTwo">
+                <div id="circle1" class="circle">
+                    <img src="@Url.Content("~/Content/images/flex.png")" height="81" width="70" />
+                </div>
+                <h3>Flex your Business</h3>
+                <ul class="">
+                    <li style="padding-left:47px;" class="lpagepoints">With Optimized Portfolios</li>
+                </ul>
+            </div>
+        </div>
+        <!--/.row-->
+    </div>
+    <!--/.container-->
+</div>
+<!--.keyarea-->
+
+<script type="text/javascript">
+    function password_alert() {
+        window.alert("Please contact the AMO Portal Administrator to reset your password")
+    }
+</script>

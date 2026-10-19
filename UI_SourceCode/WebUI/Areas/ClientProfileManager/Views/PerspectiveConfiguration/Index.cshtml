@@ -1,0 +1,228 @@
+﻿@using System.Collections
+@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Controllers;
+@using WebUI.Areas.ClientProfileManager.Controllers;
+
+@using WebUI.Areas.ClientProfileManager.Dto;
+
+@using WebUI.Areas.ClientProfileManager;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@using PagedList.Mvc;
+@using PagedList;
+@using Kendo.Mvc.Extensions;
+@using Kendo.Mvc;
+@using Kendo.Mvc.Resources;
+@using WebUI.Dto;
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+<link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+<script type="text/javascript">
+
+    //$(document).ready(function () {
+    //  //  alert('dadasd');
+    //    var grid=$('#portFolioGrid').data('kendoGrid');
+    //    grid.dataSource.read();
+    //    //gridPortfolio.dataSource.read();
+    //    //alert('dadasd');
+    //});
+</script>
+
+<script src="~/Scripts/jquery-3.6.0.min.js"></script>
+<script src="~/Scripts/JScript/kendo.all.min.js"></script>
+<script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+
+@{
+    ViewBag.Title = "Client Profile Manager";
+    //var clientlist = GetDropDownListItems.ClientList;
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/Client_Profile_manager_white.svg");
+    Layout = "~/Views/Shared//GenericLayOut.cshtml";
+    // Layout = "~/Views/Shared/_AppLayout.cshtml";
+    // var client = (Client)Session["Client"];
+    ClientDetail client = (ClientDetail)Session["SessionClient"];
+    int usid = (int)Session["UserId"];
+    var v = new PerspectiveConfigurationController();
+
+    var ApplicationList = v.ApplicationList(client.ClientId,usid);
+
+}
+
+
+
+
+<style>
+    .k-grid-header th.k-header {
+        font-weight: bold;
+        font-size: 15px;
+    }
+    
+</style>
+
+<div class="content-main dark-bg">
+
+    <!--start of breadcrumb-->
+    <ol class="breadcrumb">
+        <li>Client Profile Manager</li>
+        <li>Client Administration</li>
+        <li class="active">Survey Perspective (Meta Data)</li>
+    </ol>
+    <div class="perConfig" style="margin:1em 0">
+
+        <label for="clientName" class="control-label" id="" style="color:white">Select Tool:  </label>
+
+        @(Html.Kendo().DropDownListFor(m => m)
+                     .Name("AppName")
+                     .DataTextField("Text")
+                     .DataValueField("Value")
+                     .Events(e => e.Change("AppNameChange"))
+                     .BindTo(ApplicationList)
+                     .Enable(true)
+                     .AutoBind(true)
+                     .HtmlAttributes(new { style = "width: 250px" })
+    )
+
+    </div>
+
+    <div class="custom-kendo-grid">
+        <div style="background-color: rgb(91,121,171); position: absolute; z-index: 1; padding: 0.5em;">
+            <span style="color:white">Perspective Category Metadata for Selected Tool</span>
+        </div>
+
+        @(Html.Kendo().Grid<PerspectiveCategoryModel>()
+                                         .Name("PerspectiveCategoryGrid")
+                                         .Columns(columns =>
+                                         {
+                                             columns.Bound(e => e.PerspectiveCategoryName).Title("Perspective Category Name").Width(150);
+                                             columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                                         })
+                                         .Editable(editable => editable.Mode(GridEditMode.InLine).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                                         .Pageable()
+                                         .ToolBar(toolbar => toolbar.Create().Text("Add new Perspective Category"))
+                                         .Scrollable()
+                                         //.HtmlAttributes(new { style = "height:750px;margin-left:-30px;" })
+                                         .DataSource(dataSource => dataSource
+                                          .Ajax()
+                                          .PageSize(10)
+                                          .Model(model => { model.Id(f => f.Id); model.Field(f => f.Id).Editable(false); })
+                                          .Read(read => read.Action("ReadPerspectiveCategory", "PerspectiveConfiguration").Data("GetAppId"))
+                                          .Create(create => create.Action("CreatePerspectiveCategory", "PerspectiveConfiguration").Data("GetAppId"))
+                                          .Update(update => update.Action("UpdatePerspectiveCategory", "PerspectiveConfiguration"))
+                                          .Destroy(destroy => destroy.Action("DeletePerspectiveCategory", "PerspectiveConfiguration"))
+                                           )
+                                           .ClientDetailTemplateId("SubGridTemplate")
+        )
+    </div>
+</div>
+
+<script id="SubGridTemplate" type="text/kendo-tmpl">
+
+    @(Html.Kendo().Grid<SurveyPerspectiveModel>()
+                            .Name("ChildGrid#=Id#")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(e => e.SId).Hidden();//.ClientTemplate("#:ApplicationName#");
+                    columns.Bound(e => e.PerspectiveName).Title("PerspectiveName");
+                                columns.Bound(e => e.PerspectiveType).Title("PerspectiveType");
+                                columns.Bound(e => e.Weight).Title("Weight")/*.Width(100)*/;
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                    .Sortable()
+                    .Editable(editable => editable.Mode(GridEditMode.PopUp).ConfirmDelete("test").DisplayDeleteConfirmation("Are you sure you want to delete?"))
+                    .HtmlAttributes(new { style = "height:350px;" })
+                    .Pageable()
+
+                     .ToolBar(
+                   tools =>
+                   {
+                       tools.Create().Text("Add Survey Perspectives");
+                   })
+                    .Scrollable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model =>
+                        {
+                            model.Id(o => o.SId);
+                        })
+                        .PageSize(10)
+                        .Read(read => read.Action("ReadSurveyPerspective", "PerspectiveConfiguration", new { PercatID = "#=Id#" }).Data("GetAppId"))
+                        .Create(create => create.Action("CreateSurveyPerspective", "PerspectiveConfiguration", new { Id = "#=Id#" }).Data("GetAppId"))
+                        .Update(update => update.Action("UpdateSurveyPerspective", "PerspectiveConfiguration"))
+                        .Destroy(delete => delete.Action("DeleteSurveyPerspective", "PerspectiveConfiguration"))
+                    )
+                    .Events(events => events.Save("SavePerspectiveType"))
+                    .ToClientTemplate())
+
+</script>
+<script>
+    @*$(window).on('load', function () {
+    @Model.ToolId=$("#AppName").val();
+    });*@
+    function SavePerspectiveType(e) {
+
+        var PerspectiveTypeName = e.model.PerspectiveType.toUpperCase();
+        var Id = e.model.SId;
+        var data = this.dataSource.data();
+
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].PerspectiveType.toUpperCase() === PerspectiveTypeName && data[i].SId != Id) {
+                e.preventDefault();
+                alert("Perspective Type Already Exists. Please Select Unique Perspective Type!");
+
+            }
+        }
+
+    }
+
+    @*function SavePerspectiveType(e) {
+
+        var persptype = $('#PerspectiveType').data('kendoTextBox').value();
+        //var persptype = $('#PerspectiveType').val()
+        alert(persptype);
+        var actionurl = '@Url.Content("~/ClientProfileManager/PerspectiveConfiguration/surveyperspectiveunique")';
+
+        $.ajax(
+        {
+            url: actionurl,
+            type: 'POST',
+            async: false,
+            data: {
+                Ptype: persptype
+            },
+
+            success: function (data) {
+                if (data == 'true') {
+                    alert('please select unique perspective type!');
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            },
+            error: function (data) {
+                alert('error');
+            }
+        });
+
+    }*@
+    function AppNameChange() {
+
+        var PerspectiveCategoryGrid = $("#PerspectiveCategoryGrid").data("kendoGrid");
+
+        PerspectiveCategoryGrid.dataSource.read();
+
+    }
+    function GetAppId() {
+        var tToolId = $("#AppName").data("kendoDropDownList").value();
+        var ToolId = tToolId;
+         return {
+             ToolNo: ToolId
+        }
+
+
+    }
+
+
+
+
+</script>

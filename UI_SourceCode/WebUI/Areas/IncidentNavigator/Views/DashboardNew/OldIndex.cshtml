@@ -1,0 +1,843 @@
+﻿@using NTTData.AMOPortal.Domain.Entities
+@using NTTData.AMOPortal.WebUI.Dto
+@using WebUI.Areas.IncidentNavigator.Controllers;
+@using WebUI.Areas.IncidentNavigator.Dto;
+@using WebUI.Areas.IncidentNavigator.Models;
+@using Kendo.Mvc.UI;
+@using System.Data;
+@model DashboardTrendModel
+@{
+    ViewBag.Title = "Incident Navigator";
+
+
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.common-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/themes/styles/kendo.bootstrap.mobile.min.css" />
+
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.all.min.js"></script>
+    <script src="~/Scripts/JScript/kendo.aspnetmvc.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
+    ViewBag.ImagePathOne = Url.Content("~/Content/images/home/incident_navigator_white.svg");
+    Layout = "~/Views/Shared/GenericLayOut.cshtml";
+   
+}
+
+<div class="content-main custom-grid">
+    <div>
+
+        <div>
+            <!--start of breadcrumb-->
+            <ol class="breadcrumb ">
+                <li class="active">Incident Navigator</li>
+                <li class="active">Dashboard</li>
+            </ol>
+        </div>
+        <!-- Wrap all page content here -->
+
+
+    </div>
+    <div class="content-wrapper">
+        <table>
+            <tr>
+                <td>
+                    @Html.Partial("_INHeaderFilters")
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div style="width:95%;">
+                        <div style="margin-bottom:1em;">
+                            <table style="margin-right:0px;">
+                                <tr>
+                                    <td style="width:600px;float:left">
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    Period Begin:
+                                                    @(Html.Kendo().DatePicker()
+.Name("start")
+.Value(DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek))
+                                                            //.Value("10/10/2011")
+                                                            //.Max("10/10/2012")
+                                                            //.Events(e => e.Change("startChange"))
+                                                            //.HtmlAttributes(new { style = "width: 100%" })
+                                                    )
+                                                </td>
+                                                <td>
+                                                    Period End:
+                                                    @(Html.Kendo().DatePicker()
+.Name("end")
+.Value(DateTime.Today.AddDays(-1 * (int)DateTime.Today.DayOfWeek).AddDays(6))
+                                                            //.Value("10/10/2012")
+                                                            //.Min("10/10/2011")
+                                                            //.Events(e => e.Change("endChange"))
+                                                            //.HtmlAttributes(new { style = "width: 100%" })
+                                                    )
+                                                    @*@(Html.Kendo().Button()
+                                                    .Name("helpButton")
+                                                    .Icon("help")
+                                                    .Content("")
+                                                    .HtmlAttributes(new { style = "border-color: transparent;" })
+
+                                                                        )*@
+                                                    <span href="#" id="spanhelpdate" title="For Resolution calculation - Period dates filters apply to Resolution datetime. else, Created datetime will be applied." class="k-icon k-i-help"></span>
+                                                    @(Html.Kendo().Tooltip()
+.For("#spanhelpdate")
+                                                                            //.Filter("span")
+                                                                            //.Position(TooltipPosition.Top)
+                                                                            .Width(200)
+                                                    )
+                                                </td>
+
+                                                <td>
+                                                    @*<button type="submit" id="btnAdd" class="btn btn-primary" tabindex="30">Apply</button>*@
+                                                    @(Html.Kendo().Button()
+.Name("btnAdd")
+.Content("Apply")
+.HtmlAttributes(new { type = "button", @class = "k-primary" })
+
+
+                                                    )
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                    <td style="width:250px;float:right">
+                                        <table>
+                                            <tr>
+                                                <td>
+                                                    <button class='export-pdf k-button'>Export as PDF</button>
+                                                </td>
+                                                <td>
+                                                    <button class='export-img k-button'>Export as Image</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                    @*</tr>
+                                    </table>
+                                    <table style="width:22%;margin-right:0px;float:right ">
+                                        <tr>*@
+
+                                    @*<td>
+                                        <button class='export-svg k-button'>Export as SVG</button>
+                                    </td>*@
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="clearfix"></div><!--This is to clear the floats-->
+                        <div class="divChart" style="height:100%;width:100%;">
+                            <table style="width:100%;height:100%;border:1px solid thin grey;">
+                                <tr style="width:100%;height:50%;">
+                                    <td style="width:100%;height:100%;">
+                                        <table style="width:100%;height:100%;" cellspacing="100">
+                                            <tr>
+                                                <td style="width:45%;height:50%;padding:2em;">
+                                                    <div style="width:100%;height:100%;">
+                                                        @(Html.Kendo().Chart<DashboardTrendModel>()
+.Name("chartTrend")
+//.Title("Trend Chart")
+.Title(title => title.Text("Trend Chart").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+.Legend(legend => legend.Position(ChartLegendPosition.Top)
+
+
+
+)
+//.ChartArea(chartArea => chartArea
+//.Background("transparent")
+// .Height(280)
+//)
+.DataSource(ds => ds.Read(read => read.Action("GetDashboardTrend", "AjaxService").Data("ParameterData")))
+.Series(series =>
+{
+    series.Line(model => model.IncidentCount).Axis("TktCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("blue").Visible(true))
+                                                                                                                                            .Color("blue");
+    series.Line(model => model.ResolvedIncidentCount).Axis("ResolvedCnt").Labels(labels => labels.Format("{0:N0}").Background("transparent").Color("green").Padding(0, 0, -45, 0).Visible(true))
+                                                                                                                                            .Color("green");
+
+})
+.CategoryAxis(axis => axis
+.Categories(model => model.yearMonth)
+.Labels(labels => labels.Rotation(-90))
+.AxisCrossingValue(0, 1000)
+.Crosshair(c => c.Visible(true))
+.Title(title => title.Text("Year/Month").Font("12px Arial,Helvetica,sans-serif"))
+)
+
+.ValueAxis(axis => axis.Numeric("TktCnt")
+.Labels(labels => labels.Format("{0:N0}"))
+.Title(title => title.Text("# of Tickets").Font("12px Arial,Helvetica,sans-serif"))
+//.MajorUnit(100)
+)
+.ValueAxis(axis => axis.Numeric("ResolvedCnt")
+.Title(title => title.Text("# Resolved Tickets").Font("12px Arial,Helvetica,sans-serif"))
+.Color("Blue")
+.Labels(labels => labels.Format("{0:N0}"))
+)
+
+.Events(e => e
+
+.SeriesClick("Trends_seriesClick")
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Template("#= series.name #: #= value #"))
+.Pannable(pannable => pannable
+.Lock(ChartAxisLock.Y)
+)
+.Zoomable(zoomable => zoomable
+.Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+.Selection(selection => selection.Lock(ChartAxisLock.Y))
+)
+                                                        )
+
+
+                                                    </div>
+                                                </td>
+
+                                                <td style="width:45%;height:50%;padding:2em;">
+                                                    @(Html.Kendo().Chart<DashboardTrendModel>()
+.Name("chartAvgResolutionCost")
+// .Title("Avg. Resolution and Cost")
+.Title(title => title.Text("Average Ticket Chart").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+.Legend(legend => legend
+.Position(ChartLegendPosition.Top)
+// .Labels(l=>l.Template("Resolution Time"))
+)
+.SeriesDefaults(seriesDefaults => seriesDefaults.Column().Labels(labels => labels.Background("transparent").Visible(false)))
+
+.DataSource(ds => ds.Read(read => read.Action("GetDashboardAvgResolutionCost", "AjaxService").Data("ParameterData"))
+)
+.Series(series =>
+{
+
+series.Column(model => model.AvgResolutionP1).Name("P1").Color("blue").CategoryField("ddlyearMonth");
+series.Column(model => model.AvgResolutionP2).Name("P2 ").Color("orange").CategoryField("ddlyearMonth");
+series.Column(model => model.AvgResolutionP3).Name("P3 ").Color("cyan").CategoryField("ddlyearMonth");
+series.Column(model => model.AvgResolutionP4).Name("P4 ").Color("green").CategoryField("ddlyearMonth");
+series.Column(model => model.AvgResolutionP5).Name("P5 ").Color("yellow").CategoryField("ddlyearMonth");
+series.Line(model => model.AvgCostP1).Name("P1 Cost").Color("Fuchsia").CategoryField("ddlyearMonth").Axis("Cost").Labels(labels => labels.Format("{0:N0}").Background("transparent").Visible(true));
+series.Line(model => model.AvgCostP2).Name("P2 Cost").Color("DeepPink").CategoryField("ddlyearMonth").Axis("Cost").Labels(labels => labels.Format("{0:N0}").Background("transparent").Visible(true));
+series.Line(model => model.AvgCostP3).Name("P3 Cost").Color("SteelBlue").CategoryField("ddlyearMonth").Axis("Cost").Labels(labels => labels.Format("{0:N0}").Background("transparent").Visible(true));
+series.Line(model => model.AvgCostP4).Name("P4 Cost").Color("DarkMagenta").CategoryField("ddlyearMonth").Axis("Cost").Labels(labels => labels.Format("{0:N0}").Background("transparent").Visible(true));
+series.Line(model => model.AvgCostP5).Name("P5 Cost").Color("SpringGreen").CategoryField("ddlyearMonth").Axis("Cost").Labels(labels => labels.Format("{0:N0}").Background("transparent").Visible(true));
+})
+.CategoryAxis(axis => axis
+.Labels(labels => labels.Rotation(-90))
+.MajorGridLines(lines => lines.Visible(true))
+.AxisCrossingValue(0, 1000)
+)
+.ValueAxis(axis => axis.Numeric("Hrs")
+//.Title("Avg. Hrs")
+.Title(title => title.Text("Avg. Hrs").Font("12px Arial,Helvetica,sans-serif"))
+//.Labels(labels => labels.Format(formats => formats.Hours("HH:mm"))
+//.MajorUnit(10000)
+.Line(line => line.Visible(true))
+)
+.ValueAxis(axis => axis.Numeric("Cost")
+//.Title("Avg. Cost")
+.Title(title => title.Text("Avg. Cost").Font("12px Arial,Helvetica,sans-serif"))
+.Color("Blue")
+.Labels(labels => labels.Format("{0:N0}"))
+//.MajorUnit(10000)
+//.Line(line => line.Visible(true))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Format("{0:N0}")
+)
+.Pannable(pannable => pannable
+.Lock(ChartAxisLock.Y)
+)
+.Zoomable(zoomable => zoomable
+.Mousewheel(mousewheel => mousewheel.Lock(ChartAxisLock.Y))
+.Selection(selection => selection.Lock(ChartAxisLock.Y))
+)
+                                                    )
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    @*<td style="width:33%;height:50%;"></td>*@
+                                </tr>
+                                <tr style="width:100%;height:50%;">
+                                    <td style="width:33%;height:50%;">
+                                        <table cellspacing="100">
+                                            <tr>
+
+
+                                                <td style="padding:3em;">
+                                                    @(Html.Kendo().Chart<DashboardTrendModel>()
+.Name("chartWorkGroup")
+//.Title("UnResolved Tickets with highest Hold Time")
+.Title(title => title.Text("UnResolved Tickets with highest Hold Time").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+.Legend(legend => legend
+.Visible(false)
+)
+.Events(e => e
+
+.SeriesClick("Holdtime_seriesClick")
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+.Height(280)
+)
+.DataSource(ds => ds.Read(read => read.Action("GetDashboardTopHoldtime", "AjaxService").Data("ParameterData")))
+.Series(series =>
+{
+                                                //series.Bar(new double[] { 56000, 63000, 74000, 91000, 117000, 138000 }).Name("Total Visits");
+                                                //series.Bar(new double[] { 52000, 34000, 23000, 48000, 67000, 83000 }).Name("Unique visitors");
+                                                series.Bar(model => model.Holdtime).CategoryField("IncidentId").Labels(labels => labels.Background("transparent").Visible(true))
+.Color("#1DAE65");
+})
+.CategoryAxis(axis => axis
+//.Categories(model =>model.)
+.MajorGridLines(lines => lines.Visible(true))
+
+)
+.ValueAxis(axis => axis
+.Numeric()
+//.Max(10)
+.Line(line => line.Visible(true))
+.MajorGridLines(lines => lines.Visible(true))
+.Title(title => title.Text("Hold time (Hrs)").Font("12px Arial,Helvetica,sans-serif"))
+
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Template("#= series.name #: #= value #")
+)
+                                                    )
+                                                </td>
+                                                <td style="padding:3em;">
+                                                    @(Html.Kendo().Chart<DashboardTrendModel>()
+.Name("chartCluster")
+//.Title(title => title.Text("Clusters"))
+.Title(title => title.Text("Clusters").Font("bold 14px Arial,Helvetica,sans-serif").Color("Black"))
+.Legend(legend => legend
+.Visible(false)
+)
+.Events(e => e
+
+.SeriesClick("Clusters_seriesClick")
+)
+.ChartArea(chartArea => chartArea
+.Background("transparent")
+.Height(280)
+)
+.DataSource(ds => ds.Read(read => read.Action("GetDashboarClusters", "AjaxService").Data("ParameterData")))
+.Series(series =>
+{
+                                                //series.Bar(new double[] { 56000, 63000, 74000, 91000, 117000, 138000 }).Name("Total Visits");
+                                                //series.Bar(new double[] { 52000, 34000, 23000, 48000, 67000, 83000 }).Name("Unique visitors");
+                                                series.Bar(model => model.TotalTickets).CategoryField("ClusterLabel").Labels(labels => labels.Background("transparent").Visible(true));
+})
+.CategoryAxis(axis => axis
+//.Categories(model =>model.)
+.MajorGridLines(lines => lines.Visible(true))
+)
+.ValueAxis(axis => axis
+.Numeric()
+.Name("ClusterAxis")
+//.Max(10)
+.Line(line => line.Visible(true))
+.MajorGridLines(lines => lines.Visible(true))
+.Title(title => title.Text("# of Tickets").Font("12px Arial,Helvetica,sans-serif"))
+)
+.Tooltip(tooltip => tooltip
+.Visible(true)
+.Template("#= series.name #: #= value #")
+)
+                                                    )
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
+
+        <!--/.container-->
+        <input type="hidden" name="clusterlabelhidden" id="clusterlabelhidden">
+        <input type="hidden" name="TrendFlowhidden" id="TrendFlowhidden">
+        <input type="hidden" name="yearMonthhidden" id="yearMonthhidden">
+        <input type="hidden" name="TicketIdhidden" id="TicketIdhidden">
+
+        @(Html.Kendo().Window()
+                                    .Name("ClusterWindow")
+                                    .Title("Ticket details")
+                                    .Content(@<text>
+                                        @(Html.Kendo().Grid<DashboardTrendModel>()
+                                                                                         .Name("ClusterDrilldown")
+                                                                                         .Columns(columns =>
+                                                                                         {
+
+                                                                                                 columns.Bound(e => e.IncidentId).Title("Incident Id");
+                                                                                                 columns.Bound(e => e.Type).Title("Type");
+                                                                                                 columns.Bound(e => e.Priority).Title("Priority");
+                                                                                                 columns.Bound(e => e.Description).Width(300).Title("Description");
+                                                                                                 columns.Bound(e => e.Assignedtosupportgroup).Title("Assignment Group");
+                                                                                                 columns.Bound(e => e.ClusterLabel).Title("Cluster Label");
+                                                                                                 columns.Bound(e => e.TopWords).Width(300).Title("Top Words");
+                                                                                             })
+                                                                                      .Pageable()
+                                                                                      .Scrollable()
+                                                                                      .AutoBind(true)
+                                                                                      //.ToolBar(
+                                                                                      //  tools =>
+                                                                                      //  {
+
+                                                                                      //      tools.Custom().Text("Export to Excel").HtmlAttributes(new { @class = "btn-primary", id = "ClusterDrilldownBtn" });
+
+                                                                                      //  })
+
+                                                                                      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                                                                                      .Excel(excel => excel
+                                                                                      .FileName("ClusterDrilldown.xlsx")
+                                                                                      .Filterable(true)
+                                                                                      .AllPages(true)
+                                                                                     .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+                                                                                       )
+                                                                                      .HtmlAttributes(new { style = "height:550px;" })
+                                                                                      .DataSource(dataSource => dataSource
+                                                                                      .Ajax()
+                                                                                      .PageSize(25)
+                                                                                      .Read(read => read.Action("GetDashboarClustersDrilldown", "AjaxService").Data("DrilldownClusterData"))
+                                                                                         )
+                                        )
+                                    </text>)
+                                                 .Visible(false)
+                                            .Draggable()
+                                            .Resizable()
+                                            .Width(1000)
+                                            .AutoFocus(true)
+                                            .Modal(true)
+
+                                            .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+        )
+
+
+        @(Html.Kendo().Window()
+                                    .Name("InflowOutflowWindow")
+                                    .Title("Ticket details")
+                                    .Content(@<text>
+                                        @(Html.Kendo().Grid<DashboardTrendModel>()
+                                                                                         .Name("InflowOutflowDrilldown")
+                                                                                         .Columns(columns =>
+                                                                                         {
+
+                                                                                                 columns.Bound(e => e.IncidentId).Title("Incident Id");
+                                                                                                 columns.Bound(e => e.Type).Title("Type");
+                                                                                                 columns.Bound(e => e.Priority).Title("Priority");
+                                                                                                 columns.Bound(e => e.Description).Width(300).Title("Description");
+                                                                                                 columns.Bound(e => e.Assignedtosupportgroup).Title("Assignment Group");
+                                                                                                 columns.Bound(e => e.Createddatetime).ClientTemplate("#= kendo.toString(kendo.parseDate(Createddatetime), 'dd/MM/yyyy h:mm:ss tt') #").Title("Created Datetime");
+                                                                                                 columns.Bound(e => e.Resolutiondatetime).ClientTemplate("#= kendo.toString(kendo.parseDate(Resolutiondatetime), 'dd/MM/yyyy h:mm:ss tt') #").Title("Resolved Datetime");
+
+                                                                                             })
+                                                                                      .Pageable()
+                                                                                      .Scrollable()
+                                                                                      .AutoBind(true)
+                                                                                      //                   .ToolBar(
+                                                                                      //tools =>
+                                                                                      //{
+
+                                                                                      //    tools.Custom().Text("Export to Excel").HtmlAttributes(new { @class = "btn-primary", id = "InflowExportBtn" });
+
+                                                                                      //}
+
+
+
+
+                                                                                      //                         )
+                                                                                      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                                                                                      .Excel(excel => excel
+                                                                                      .FileName("InflowOutflowDrilldown.xlsx")
+                                                                                      .Filterable(true)
+                                                                                      .AllPages(true)
+
+                                                                                      .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+                                                                                       )
+                                                                                      .HtmlAttributes(new { style = "height:550px;" })
+                                                                                      .DataSource(dataSource => dataSource
+                                                                                      .Ajax()
+                                                                                      .PageSize(25)
+                                                                                       .Read(read => read.Action("GetDashboardTicketTrendInflowDrilldown", "AjaxService").Data("DrilldownTicketTrendData"))
+                                                                                         )
+                                        )
+                                    </text>)
+                                                 .Visible(false)
+                                            .Draggable()
+                                            .Resizable()
+                                            .Width(1000)
+                                            .AutoFocus(true)
+                                            .Modal(true)
+
+                                            .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+        )
+
+
+
+        @(Html.Kendo().Window()
+                                    .Name("HoldTimeWindow")
+                                    .Title("Ticket details")
+                                    .Content(@<text>
+                                        @(Html.Kendo().Grid<DashboardTrendModel>()
+                                                                                         .Name("HoldTimeDrilldown")
+                                                                                         .Columns(columns =>
+                                                                                         {
+
+                                                                                                 columns.Bound(e => e.IncidentId).Title("Incident Id");
+                                                                                                 columns.Bound(e => e.Type).Title("Type");
+                                                                                                 columns.Bound(e => e.Priority).Title("Priority");
+                                                                                                 columns.Bound(e => e.Description).Width(300).Title("Description");
+                                                                                                 columns.Bound(e => e.Assignedtosupportgroup).Title("Assignment Group");
+                                                                                                 columns.Bound(e => e.Assignedtoperson).Title("Assignee");
+                                                                                                 columns.Bound(e => e.Totalsuspenddurationertoresolution).Title("HoldTime (Hrs)");
+                                                                                                 columns.Bound(e => e.Createddatetime).ClientTemplate("#= kendo.toString(kendo.parseDate(Createddatetime), 'dd/MM/yyyy h:mm:ss tt') #").Title("Created Datetime");
+                                                                                                 columns.Bound(e => e.Lastupdateddatetime).ClientTemplate("#= kendo.toString(kendo.parseDate(Lastupdateddatetime), 'dd/MM/yyyy h:mm:ss tt') #").Title("Last Updated Datetime");
+
+                                                                                             })
+                                                                                      .Pageable()
+                                                                                      .Scrollable()
+                                                                                      .AutoBind(true)
+                                                                                      //                   .ToolBar(
+                                                                                      //tools =>
+                                                                                      //{
+
+                                                                                      //    tools.Custom().Text("Export to Excel").HtmlAttributes(new { @class = "btn-primary", id = "InflowExportBtn" });
+
+                                                                                      //}
+
+
+
+
+                                                                                      //                         )
+                                                                                      .ToolBar(tools => tools.Excel().HtmlAttributes(new { style = "float:right;", @class = "btn-primary" }))
+                                                                                      .Excel(excel => excel
+                                                                                      .FileName("HoldTimeTicketDrilldown.xlsx")
+                                                                                      .Filterable(true)
+                                                                                      .AllPages(true)
+
+                                                                                      .ProxyURL(Url.Action("Excel_Export_Save", "AjaxService"))
+                                                                                       )
+                                                                                      .HtmlAttributes(new { style = "height:550px;" })
+                                                                                      .DataSource(dataSource => dataSource
+                                                                                      .Ajax()
+                                                                                      .PageSize(25)
+                                                                                       .Read(read => read.Action("GetDashboardTicketHoldtimeDrilldown", "AjaxService").Data("DrilldownTicketHoldData"))
+                                                                                         )
+                                        )
+                                    </text>)
+                                                 .Visible(false)
+                                            .Draggable()
+                                            .Resizable()
+                                            .Width(1000)
+                                            .AutoFocus(true)
+                                            .Modal(true)
+
+                                            .Actions(actions => actions.Pin().Minimize().Maximize().Close())
+
+        )
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function displayLoading(target) {
+        var element = $(target);
+        kendo.ui.progress(element, true);
+        setTimeout(function () {
+            kendo.ui.progress(element, false);
+        }, 1000);
+    }
+
+
+    function ConfigItemChange() {
+
+        updateDashboard();
+
+    }
+    function TicketTypeOnOpen()
+    {
+
+        var TicketType = $("#TicketType").data("kendoMultiSelect");
+        TicketType.dataSource.read();
+        //TicketType.refresh();
+        TicketType.enable(true);
+    }
+
+    function updateDashboard()
+    {
+        displayLoading("#container");
+        var chartTrend = $("#chartTrend").data("kendoChart");
+
+
+        chartTrend.dataSource.read();
+        chartTrend.refresh();
+
+
+        var chartWorkgroup = $("#chartWorkGroup").data("kendoChart");
+
+
+        chartWorkgroup.dataSource.read();
+        chartWorkgroup.refresh();
+
+        var chartCluster = $("#chartCluster").data("kendoChart");
+
+
+        chartCluster.dataSource.read();
+        chartCluster.refresh();
+
+
+
+        var chartAvgResolutionCost = $("#chartAvgResolutionCost").data("kendoChart");
+
+
+        chartAvgResolutionCost.dataSource.read();
+        chartAvgResolutionCost.refresh();
+
+
+    }
+    function TicketTypeChange() {
+
+        updateDashboard();
+    }
+
+
+
+
+
+    function ParameterData(e) {
+        var ticketType = $("#TicketType").data("kendoMultiSelect");
+
+        return {
+
+            ConfigItemName: $("#ConfigItem").val(),
+            TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+
+            };
+    }
+
+
+    function DrilldownClusterData(e) {
+        var ticketType = $("#TicketType").data("kendoMultiSelect");
+
+        return {
+
+            ConfigItemName: $("#ConfigItem").val(),
+            TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            clusterlabel: $('#clusterlabelhidden').val(),
+
+        };
+    }
+
+
+    function DrilldownTicketTrendData(e) {
+        var ticketType = $("#TicketType").data("kendoMultiSelect");
+       // alert($('#TrendFlowhidden').val());
+        return {
+
+            ConfigItemName: $("#ConfigItem").val(),
+            TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+            StartDate: $("#start").val(),
+            EndDate: $("#end").val(),
+            InflowOutflow: $('#TrendFlowhidden').val(),
+            YearMonth: $('#yearMonthhidden').val(),
+
+
+        };
+    }
+
+    function DrilldownTicketHoldData(e) {
+       // alert($('#TicketIdhidden').val());
+
+        return {
+
+
+            IncidentId: $('#TicketIdhidden').val(),
+
+
+        };
+    }
+
+    $("#ClusterDrilldownBtn").click(function (e) {
+        e.preventDefault();
+      //  alert($('#clusterlabelhidden').val());
+
+    });
+
+    function refreshGrid() {
+        //alert("I am at Refresh Grid");
+        $(".t-grid .t-refresh").trigger('click');
+    }
+
+    function Clusters_seriesClick(e) {
+
+        e.preventDefault();
+        $('#clusterlabelhidden').val(e.category);
+        @*var ticketType = $("#TicketType").data("kendoMultiSelect");
+        var RootUrl = '@Url.Content("~/")';
+
+
+        var model = {
+            ConfigItemName: $("#ConfigItem").val(),
+                    TicketType: encodeURIComponent(JSON.stringify(ticketType.value())),
+                    StartDate: $("#start").val(),
+                    EndDate: $("#end").val(),
+                    clusterlabel: e.category,
+        };
+
+
+        var data = JSON.stringify(model)
+        $.ajax({
+            type: 'post',
+            url: RootUrl + 'AjaxService/GetDashboarClustersDrilldown',
+            data: data,
+            contentType: 'application/json; charset=utf-8',
+            success: function (response) {
+
+                var Clustergrid = $("#ClusterDrilldown").data("kendoGrid");
+
+                Clustergrid.dataSource.data(response);
+
+
+            },
+            error: function (response) {
+                alert("error occured");
+            }
+        });*@
+        var grid = $("#ClusterDrilldown").data("kendoGrid");
+        grid.dataSource.read();
+        var popup = $("#ClusterWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+
+    function Trends_seriesClick(e) {
+
+        e.preventDefault();
+
+        $('#TrendFlowhidden').val(e.series.name);
+        $('#yearMonthhidden').val(e.category);
+
+        var grid = $("#InflowOutflowDrilldown").data("kendoGrid");
+        grid.dataSource.read();
+        var popup = $("#InflowOutflowWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+
+    function Holdtime_seriesClick(e) {
+
+        e.preventDefault();
+
+
+        $('#TicketIdhidden').val(e.category);
+
+        var grid = $("#HoldTimeDrilldown").data("kendoGrid");
+        grid.dataSource.read();
+        var popup = $("#HoldTimeWindow").data("kendoWindow");
+
+        popup.open();
+        popup.center();
+    }
+
+</script>
+<script>
+    // Import DejaVu Sans font for embedding
+
+    // NOTE: Only required if the Kendo UI stylesheets are loaded
+    // from a different origin, e.g. cdn.kendostatic.com
+    kendo.pdf.defineFont({
+        "DejaVu Sans"             : "http://cdn.kendostatic.com/2016.2.607/styles/fonts/DejaVu/DejaVuSans.ttf",
+        "DejaVu Sans|Bold"        : "http://cdn.kendostatic.com/2016.2.607/styles/fonts/DejaVu/DejaVuSans-Bold.ttf",
+        "DejaVu Sans|Bold|Italic" : "http://cdn.kendostatic.com/2016.2.607/styles/fonts/DejaVu/DejaVuSans-Oblique.ttf",
+        "DejaVu Sans|Italic"      : "http://cdn.kendostatic.com/2016.2.607/styles/fonts/DejaVu/DejaVuSans-Oblique.ttf"
+    });
+
+    $(".export-pdf").click(function () {
+        // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+        kendo.drawing.drawDOM($(".divChart"))
+        .then(function (group) {
+            // Render the result as a PDF file
+            return kendo.drawing.exportPDF(group, {
+                paperSize: "auto",
+                margin: { left: "1cm", top: "1cm", right: "1cm", bottom: "1cm" }
+            });
+        })
+        .done(function (data) {
+            // Save the PDF file
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "Dashboard.pdf",
+                proxyURL: "@Url.Action("Pdf_Export_Save")"
+            });
+        });
+    });
+
+    $(".export-img").click(function () {
+        // Convert the DOM element to a drawing using kendo.drawing.drawDOM
+        kendo.drawing.drawDOM($(".divChart"))
+        .then(function (group) {
+            // Render the result as a PNG image
+            return kendo.drawing.exportImage(group);
+        })
+        .done(function (data) {
+            // Save the image file
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "Dashboard.png",
+                proxyURL: "@Url.Action("Pdf_Export_Save")"
+            });
+        });
+    });
+
+</script>
+
+<script>
+    $('#btnAdd').on("click", function (e) {
+
+        //alert($("#start").val());
+        //alert($("#end").val());
+
+        updateDashboard();
+        //return false;
+
+    });
+
+</script>
+
+<style>
+    .breadcrumb {
+        margin-bottom: 5px !important;
+    }
+
+        .divChart {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            *border: 1px solid #ddd;
+        }
+
+</style>
